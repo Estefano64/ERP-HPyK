@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Producción - HP&K ERP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="/vistas/shared/navigation.js"></script>
+    <style>
+        .fade-in-up {
+            animation: fadeInUp 0.6s ease-out;
+        }
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .module-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .module-card:hover {
+            transform: translateY(-8px) scale(1.02);
+        }
+        .module-card.active {
+            box-shadow: 0 0 0 4px rgba(147, 51, 234, 0.5);
+        }
+        .content-section {
+            display: none;
+        }
+        .content-section.active {
+            display: block;
+            animation: fadeInUp 0.4s ease-out;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation Menu -->
+    <div id="navigation-container"></div>
+
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-purple-600 to-purple-800 text-white shadow-lg">
+        <div class="container mx-auto px-3 md:px-6 py-4 md:py-6">
+            <div class="flex items-center justify-between flex-wrap md:flex-nowrap gap-2">
+                <div class="flex items-center space-x-2 md:space-x-4">
+                    <i class="fas fa-industry text-2xl md:text-4xl"></i>
+                    <div>
+                        <h1 class="text-xl md:text-3xl font-bold">PRODUCCIÓN</h1>
+                        <p class="text-purple-200 text-xs md:text-sm hidden sm:block">Gestión integral de órdenes de trabajo, tareas y recursos</p>
+                    </div>
+                </div>
+                <a href="/index.html" class="bg-purple-700 hover:bg-purple-800 px-4 md:px-6 py-2 rounded-lg transition flex items-center text-sm md:text-base">
+                    <i class="fas fa-home mr-2"></i> <span class="hidden sm:inline">Inicio</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-3 md:px-6 py-4 md:py-8">
+        <!-- Header Section -->
+        <div class="mb-6 md:mb-8">
+            <h2 class="text-xl md:text-2xl font-bold text-gray-800 mb-2">Accesos Directos</h2>
+            <p class="text-sm md:text-base text-gray-600">Selecciona un área para ver su contenido</p>
+        </div>
+
+        <!-- Accesos Directos Grid -->
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 md:gap-4 mb-6 md:mb-8">
+            
+            <!-- 1. DASHBOARD -->
+            <div onclick="showSection('dashboard')" class="module-card bg-gradient-to-br from-indigo-400 to-indigo-600 rounded-lg shadow-lg p-4 md:p-6 text-white fade-in-up">
+                <div class="text-center">
+                    <i class="fas fa-chart-line text-2xl md:text-4xl mb-2 md:mb-3 opacity-90"></i>
+                    <h3 class="text-sm md:text-lg font-bold">DASHBOARD</h3>
+                    <p class="text-xs text-indigo-100 mt-1 hidden sm:block">KPIs y Métricas</p>
+                </div>
+            </div>
+
+            <!-- 2. BASE DE DATOS -->
+            <div onclick="showSection('basedatos')" class="module-card bg-gradient-to-br from-blue-400 to-blue-600 rounded-lg shadow-lg p-4 md:p-6 text-white fade-in-up">
+                <div class="text-center">
+                    <i class="fas fa-database text-2xl md:text-4xl mb-2 md:mb-3 opacity-90"></i>
+                    <h3 class="text-sm md:text-lg font-bold">BASE DE DATOS</h3>
+                    <p class="text-xs text-blue-100 mt-1 hidden sm:block">Componentes/Equipos</p>
+                </div>
+            </div>
+
+            <!-- 3. REQUERIMIENTOS -->
+            <div onclick="showSection('requerimientos')" class="module-card bg-gradient-to-br from-orange-400 to-orange-600 rounded-lg shadow-lg p-4 md:p-6 text-white fade-in-up">
+                <div class="text-center">
+                    <i class="fas fa-clipboard-list text-2xl md:text-4xl mb-2 md:mb-3 opacity-90"></i>
+                    <h3 class="text-sm md:text-lg font-bold">REQUERIMIENTOS</h3>
+                    <p class="text-xs text-orange-100 mt-1 hidden sm:block">Solicitudes</p>
+                </div>
+            </div>
+
+            <!-- 4. PLANIFICACIÓN -->
+            <div onclick="showSection('planificacion')" class="module-card bg-gradient-to-br from-green-400 to-green-600 rounded-lg shadow-lg p-4 md:p-6 text-white fade-in-up">
+                <div class="text-center">
+                    <i class="fas fa-tasks text-2xl md:text-4xl mb-2 md:mb-3 opacity-90"></i>
+                    <h3 class="text-sm md:text-lg font-bold">PLANIFICACIÓN</h3>
+                    <p class="text-xs text-green-100 mt-1 hidden sm:block">Recursos</p>
+                </div>
+            </div>
+
+            <!-- 5. PROGRAMACIÓN -->
+            <div onclick="showSection('programacion')" class="module-card bg-gradient-to-br from-purple-400 to-purple-600 rounded-lg shadow-lg p-4 md:p-6 text-white fade-in-up">
+                <div class="text-center">
+                    <i class="fas fa-calendar-alt text-2xl md:text-4xl mb-2 md:mb-3 opacity-90"></i>
+                    <h3 class="text-sm md:text-lg font-bold">PROGRAMACIÓN</h3>
+                    <p class="text-xs text-purple-100 mt-1 hidden sm:block">OTs y Tareas</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Sections -->
+        <div id="sections-container">
+            
+            <!-- DASHBOARD Content -->
+            <div id="dashboard-content" class="content-section">
+                <div class="bg-gradient-to-r from-indigo-600 to-indigo-800 rounded-lg shadow-lg p-4 md:p-6 mb-4 md:mb-6">
+                    <h1 class="text-xl md:text-3xl font-bold text-white flex items-center">
+                        <i class="fas fa-chart-line mr-2 md:mr-3"></i>Dashboard de Producción
+                    </h1>
+                </div>
+
+                <!-- KPIs Principales -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6 mb-4 md:mb-6">
+                    <div class="bg-white rounded-lg shadow-lg p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-500 text-sm">OTs Activas</p>
+                                <p id="kpi-ots-activas" class="text-3xl font-bold text-indigo-600">0</p>
+                            </div>
+                            <div class="bg-indigo-100 p-3 rounded-full">
+                                <i class="fas fa-clipboard-check text-indigo-600 text-2xl"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-lg p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-500 text-sm">Cumplimiento</p>
+                                <p id="kpi-cumplimiento" class="text-3xl font-bold text-green-600">0%</p>
+                            </div>
+                            <div class="bg-green-100 p-3 rounded-full">
+                                <i class="fas fa-check-circle text-green-600 text-2xl"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-lg p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-500 text-sm">Horas Trabajadas</p>
+                                <p id="kpi-horas" class="text-3xl font-bold text-blue-600">0</p>
+                            </div>
+                            <div class="bg-blue-100 p-3 rounded-full">
+                                <i class="fas fa-clock text-blue-600 text-2xl"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-lg p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-500 text-sm">PCR Global</p>
+                                <p id="kpi-pcr" class="text-3xl font-bold text-purple-600">0%</p>
+                            </div>
+                            <div class="bg-purple-100 p-3 rounded-full">
+                                <i class="fas fa-percentage text-purple-600 text-2xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gráficos y Top Fallas -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white rounded-lg shadow-lg p-6">
+                        <h3 class="font-bold text-lg mb-4">OTs por Estado</h3>
+                        <div id="grafico-ots" class="space-y-3">
+                            <!-- Se llena dinámicamente -->
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-lg p-6">
+                        <h3 class="font-bold text-lg mb-4">Top 10 Fallas Recurrentes</h3>
+                        <div id="top-fallas" class="space-y-2 text-sm">
+                            <!-- Se llena dinámicamente -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BASE DE DATOS Content -->
+            <div id="basedatos-content" class="content-section">
+                <div class="bg-gradient-to-r from-blue-600 to-blue-800 rounded-lg shadow-lg p-6 mb-6">
+                    <h1 class="text-3xl font-bold text-white flex items-center">
+                        <i class="fas fa-database mr-3"></i>Base de Datos de Producción
+                    </h1>
+                </div>
+
+                <p class="text-gray-600 mb-4">Vista unificada de componentes, equipos y estrategias de mantenimiento</p>
+                
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="font-bold text-lg mb-4">Componentes y Equipos Registrados</h3>
+                    <p class="text-gray-500 text-sm">Sistema de catálogo en desarrollo. Integración con catálogos existentes.</p>
+                </div>
+            </div>
+
+            <!-- REQUERIMIENTOS Content -->
+            <div id="requerimientos-content" class="content-section">
+                <div class="bg-gradient-to-r from-orange-600 to-orange-800 rounded-lg shadow-lg p-6 mb-6">
+                    <div class="flex justify-between items-center">
+                        <h1 class="text-3xl font-bold text-white flex items-center">
+                            <i class="fas fa-clipboard-list mr-3"></i>Requerimientos de Producción
+                        </h1>
+                        <button onclick="mostrarFormNuevoReqProduccion()" class="bg-white text-orange-600 px-4 py-2 rounded-lg hover:bg-orange-50 transition">
+                            <i class="fas fa-plus mr-2"></i>Nuevo Requerimiento
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Stats -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+                    <div class="bg-white rounded-lg shadow-lg p-6">
+                        <p class="text-gray-500 text-sm">Total Requerimientos</p>
+                        <p id="stat-req-total" class="text-3xl font-bold text-gray-800">0</p>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-lg p-6">
+                        <p class="text-gray-500 text-sm">Pendientes Aprobación</p>
+                        <p id="stat-req-pendientes" class="text-3xl font-bold text-orange-600">0</p>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-lg p-6">
+                        <p class="text-gray-500 text-sm">Aprobados</p>
+                        <p id="stat-req-aprobados" class="text-3xl font-bold text-green-600">0</p>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-lg p-6">
+                        <p class="text-gray-500 text-sm">Enviados a Logística</p>
+                        <p id="stat-req-enviados" class="text-3xl font-bold text-blue-600">0</p>
+                    </div>
+                </div>
+
+                <!-- Tabla -->
+                <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                    <table class="w-full">
+                        <thead class="bg-orange-600 text-white">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium uppercase">Req #</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium uppercase">OT</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium uppercase">Técnico</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium uppercase">Fecha</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium uppercase">Items</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium uppercase">Estado</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium uppercase">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-req-produccion" class="divide-y divide-gray-200">
+                            <!-- Se llena dinámicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- PLANIFICACIÓN Content -->
+            <div id="planificacion-content" class="content-section">
+                <div class="bg-gradient-to-r from-green-600 to-green-800 rounded-lg shadow-lg p-6 mb-6">
+                    <h1 class="text-3xl font-bold text-white flex items-center">
+                        <i class="fas fa-tasks mr-3"></i>Planificación de Recursos
+                    </h1>
+                </div>
+
+                <!-- Capacidad del Taller -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                    <div class="bg-white rounded-lg shadow-lg p-6">
+                        <p class="text-gray-500 text-sm">Técnicos Disponibles</p>
+                        <p class="text-3xl font-bold text-green-600">8 / 10</p>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-lg p-6">
+                        <p class="text-gray-500 text-sm">Máquinas Operativas</p>
+                        <p class="text-3xl font-bold text-blue-600">12 / 15</p>
+                    </div>
+                    <div class="bg-white rounded-lg shadow-lg p-6">
+                        <p class="text-gray-500 text-sm">Carga de Trabajo</p>
+                        <p class="text-3xl font-bold text-orange-600">75%</p>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="font-bold text-lg mb-4">Recursos Asignados Esta Semana</h3>
+                    <p class="text-gray-500">Vista de capacidad y asignación de técnicos/máquinas</p>
+                </div>
+            </div>
+
+            <!-- PROGRAMACIÓN Content -->
+            <div id="programacion-content" class="content-section">
+                <div class="bg-gradient-to-r from-purple-600 to-purple-800 rounded-lg shadow-lg p-6 mb-6">
+                    <div class="flex justify-between items-center">
+                        <h1 class="text-3xl font-bold text-white flex items-center">
+                            <i class="fas fa-calendar-alt mr-3"></i>Programación de OTs
+                        </h1>
+                        <button onclick="mostrarFormNuevaOTProd()" class="bg-white text-purple-600 px-4 py-2 rounded-lg hover:bg-purple-50 transition">
+                            <i class="fas fa-plus mr-2"></i>Nueva OT
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Filtros -->
+                <div class="bg-white rounded-lg shadow-lg p-4 mb-6">
+                    <div class="flex gap-4 flex-wrap">
+                        <select id="filtro-estado-ot" class="px-4 py-2 border rounded-lg" onchange="filtrarOTs()">
+                            <option value="">Todos los Estados</option>
+                            <option value="EN PROCESO">EN PROCESO</option>
+                            <option value="LISTO PARA DESPACHO">LISTO PARA DESPACHO</option>
+                            <option value="ENTREGADO">ENTREGADO</option>
+                        </select>
+                        <select id="filtro-cliente" class="px-4 py-2 border rounded-lg" onchange="filtrarOTs()">
+                            <option value="">Todos los Clientes</option>
+                            <option value="ANTAPACCAY">ANTAPACCAY</option>
+                            <option value="BAMBAS">BAMBAS</option>
+                        </select>
+                        <select id="filtro-tecnico" class="px-4 py-2 border rounded-lg" onchange="filtrarOTs()">
+                            <option value="">Todos los Técnicos</option>
+                        </select>
+                        <input type="text" id="filtro-busqueda" class="px-4 py-2 border rounded-lg flex-1" placeholder="Buscar por OT o descripción..." oninput="filtrarOTs()">
+                    </div>
+                </div>
+
+                <!-- Tabla de OTs -->
+                <div class="bg-white rounded-lg shadow-lg overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead class="bg-purple-600 text-white">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-xs font-medium uppercase sticky left-0 bg-purple-600">OT #</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium uppercase">Cliente</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium uppercase">Descripción</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium uppercase">Modelo</th>
+                                <th class="px-4 py-3 text-center text-xs font-medium uppercase">Avance</th>
+                                <th class="px-4 py-3 text-center text-xs font-medium uppercase">Cilindro</th>
+                                <th class="px-4 py-3 text-center text-xs font-medium uppercase">Vástago</th>
+                                <th class="px-4 py-3 text-center text-xs font-medium uppercase">Tapa</th>
+                                <th class="px-4 py-3 text-center text-xs font-medium uppercase">Pistón</th>
+                                <th class="px-4 py-3 text-center text-xs font-medium uppercase">Fecha Fin</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium uppercase">Estado</th>
+                                <th class="px-4 py-3 text-center text-xs font-medium uppercase">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-ots-produccion" class="divide-y divide-gray-200">
+                            <!-- Se llena dinámicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Modal Requerimiento Producción -->
+    <div id="modal-req-produccion" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+            <div class="bg-gradient-to-r from-orange-600 to-orange-800 px-6 py-4 flex items-center justify-between rounded-t-lg">
+                <h3 class="text-xl font-bold text-white flex items-center">
+                    <i class="fas fa-clipboard-list mr-2"></i>
+                    <span id="req-prod-modal-title">Nuevo Requerimiento de Producción</span>
+                </h3>
+                <button onclick="cerrarModalReqProduccion()" class="text-white hover:text-gray-200">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+            </div>
+            <form id="form-req-produccion" class="p-6" onsubmit="submitReqProduccion(event)">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Número OT *</label>
+                        <input type="text" id="req-prod-ot" required class="w-full px-3 py-2 border rounded-lg" placeholder="OT-12345">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Técnico Solicitante *</label>
+                        <input type="text" id="req-prod-tecnico" required class="w-full px-3 py-2 border rounded-lg">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
+                        <textarea id="req-prod-descripcion" rows="2" class="w-full px-3 py-2 border rounded-lg"></textarea>
+                    </div>
+                </div>
+
+                <!-- Items -->
+                <div class="border-t pt-4">
+                    <div class="flex justify-between items-center mb-3">
+                        <h4 class="font-bold text-gray-800">Materiales Solicitados</h4>
+                        <button type="button" onclick="agregarItemReqProd()" class="bg-orange-600 hover:bg-orange-700 text-white px-3 py-1 rounded text-sm">
+                            <i class="fas fa-plus mr-1"></i>Agregar
+                        </button>
+                    </div>
+                    <div id="items-req-prod-container" class="space-y-2"></div>
+                </div>
+
+                <div class="flex gap-3 mt-6">
+                    <button type="submit" class="flex-1 bg-orange-600 hover:bg-orange-700 text-white px-6 py-2 rounded-lg">
+                        <i class="fas fa-save mr-2"></i>Crear Requerimiento
+                    </button>
+                    <button type="button" onclick="cerrarModalReqProduccion()" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 px-6 py-2 rounded-lg">
+                        Cancelar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Nueva OT -->
+    <div id="modal-ot-produccion" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+            <div class="bg-gradient-to-r from-purple-600 to-purple-800 px-6 py-4 flex items-center justify-between rounded-t-lg">
+                <h3 class="text-xl font-bold text-white">Nueva Orden de Trabajo</h3>
+                <button onclick="cerrarModalOTProd()" class="text-white hover:text-gray-200">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+            </div>
+            <form id="form-ot-produccion" class="p-6" onsubmit="submitOTProduccion(event)">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Número OT *</label>
+                        <input type="text" id="ot-prod-numero" required class="w-full px-3 py-2 border rounded-lg" placeholder="OT-12345">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Cliente *</label>
+                        <input type="text" id="ot-prod-cliente" required class="w-full px-3 py-2 border rounded-lg">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Equipo</label>
+                        <input type="text" id="ot-prod-equipo" class="w-full px-3 py-2 border rounded-lg">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Técnico Asignado *</label>
+                        <select id="ot-prod-tecnico" required class="w-full px-3 py-2 border rounded-lg">
+                            <option value="">Seleccione técnico</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Fecha Inicio *</label>
+                        <input type="date" id="ot-prod-fecha-inicio" required class="w-full px-3 py-2 border rounded-lg">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Fecha Fin Estimada</label>
+                        <input type="date" id="ot-prod-fecha-fin" class="w-full px-3 py-2 border rounded-lg">
+                    </div>
+                </div>
+
+                <div class="flex gap-3 mt-6">
+                    <button type="submit" class="flex-1 bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg">
+                        <i class="fas fa-save mr-2"></i>Guardar OT
+                    </button>
+                    <button type="button" onclick="cerrarModalOTProd()" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 px-6 py-2 rounded-lg">
+                        Cancelar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="hidden fixed top-4 right-4 px-6 py-4 rounded-lg shadow-lg z-50">
+        <div class="flex items-center gap-2">
+            <i class="fas fa-check-circle text-xl"></i>
+            <span id="toastMessage"></span>
+        </div>
+    </div>
+
+    <script>
+        // ========== DATOS DE PRODUCCIÓN ==========
+        
+        let requerimientosProduccion = [
+            {id: 1, numero: 'REQ-PROD-001', ot: 'OT-12345', tecnico: 'Carlos Méndez', fecha: '2026-02-25', estado: 'Pendiente', items: [{producto: 'Rodamiento 6308', cantidad: 2}]},
+            {id: 2, numero: 'REQ-PROD-002', ot: 'OT-12346', tecnico: 'Ana Torres', fecha: '2026-02-24', estado: 'Aprobado', items: [{producto: 'Aceite hidráulico', cantidad: 5}]},
+            {id: 3, numero: 'REQ-PROD-003', ot: 'OT-12347', tecnico: 'Pedro Ramírez', fecha: '2026-02-23', estado: 'Enviado a Logística', items: [{producto: 'Filtro de aire', cantidad: 3}]}
+        ];
+
+        let otsProduccion = [
+            {id: 1, numero: '279624', cliente: 'ANTAPACCAY', descripcion: 'CILINDRO DE SUSPENSION POSTERIOR', modelo: '7975', tecnico: 'Carlos Méndez', fechaInicio: '2026-02-15', fechaFin: '2026-02-26', estado: 'LISTO PARA DESPACHO', horas: 45, avance: 91, 
+             componentes: {cilindro: {estandar: true, fabri: true}, vastago: {estandar: true, fabri: true}, tapa: {estandar: true, fabri: false}, piston: {estandar: true, fabri: false}}},
+            {id: 2, numero: '283024', cliente: 'ANTAPACCAY', descripcion: 'CILINDRO HIDRAULICO DE CLAM', modelo: '6060A2', tecnico: 'Ana Torres', fechaInicio: '2026-02-18', fechaFin: '2026-02-28', estado: 'EN PROCESO', horas: 32, avance: 64,
+             componentes: {cilindro: {estandar: true, fabri: true}, vastago: {estandar: true, fabri: false}, tapa: {estandar: false, fabri: false}, piston: {estandar: false, fabri: false}}},
+            {id: 3, numero: '283424', cliente: 'ANTAPACCAY', descripcion: 'CILINDRO DE LEVANTE', modelo: '988L', tecnico: 'Pedro Ramírez', fechaInicio: '2026-02-10', fechaFin: '2026-02-20', estado: 'ENTREGADO', horas: 52, avance: 100,
+             componentes: {cilindro: {estandar: true, fabri: true}, vastago: {estandar: true, fabri: true}, tapa: {estandar: true, fabri: true}, piston: {estandar: true, fabri: true}}},
+            {id: 4, numero: '282324', cliente: 'BAMBAS', descripcion: 'FRENO DELANTERO', modelo: '24', tecnico: 'Juan López', fechaInicio: '2026-02-22', fechaFin: '2026-03-05', estado: 'EN PROCESO', horas: 15, avance: 100,
+             componentes: {cilindro: {estandar: true, fabri: true}, vastago: {estandar: true, fabri: true}, tapa: {estandar: true, fabri: true}, piston: {estandar: true, fabri: true}}},
+            {id: 5, numero: '283724', cliente: 'ANTAPACCAY', descripcion: 'CILINDRO DE LEVANTE DE BULLDOZER', modelo: 'D-11', tecnico: 'María García', fechaInicio: '2026-02-20', fechaFin: '2026-03-01', estado: 'EN PROCESO', horas: 28, avance: 100,
+             componentes: {cilindro: {estandar: true, fabri: true}, vastago: {estandar: true, fabri: true}, tapa: {estandar: true, fabri: true}, piston: {estandar: true, fabri: true}}},
+            {id: 6, numero: '284024', cliente: 'BAMBAS', descripcion: 'CILINDRO DE STICK', modelo: '390OL', tecnico: 'Carlos Méndez', fechaInicio: '2026-02-25', fechaFin: '2026-03-08', estado: 'EN PROCESO', horas: 8, avance: 100,
+             componentes: {cilindro: {estandar: true, fabri: true}, vastago: {estandar: true, fabri: true}, tapa: {estandar: true, fabri: true}, piston: {estandar: true, fabri: true}}},
+            {id: 7, numero: '285024', cliente: 'BAMBAS', descripcion: 'CILINDRO DE JACK HYD', modelo: 'PITVIPERB51', tecnico: 'Ana Torres', fechaInicio: '2026-02-23', fechaFin: '2026-03-03', estado: 'LISTO PARA DESPACHO', horas: 38, avance: 88,
+             componentes: {cilindro: {estandar: true, fabri: true}, vastago: {estandar: true, fabri: true}, tapa: {estandar: true, fabri: false}, piston: {estandar: true, fabri: false}}}
+        ];
+
+        let tecnicos = ['Carlos Méndez', 'Ana Torres', 'Pedro Ramírez', 'Juan López', 'María García'];
+
+        let fallasRecurrentes = [
+            {falla: 'Desgaste de rodamientos', ocurrencias: 15},
+            {falla: 'Fuga de aceite hidráulico', ocurrencias: 12},
+            {falla: 'Sobrecalentamiento motor', ocurrencias: 10},
+            {falla: 'Rotura de correas', ocurrencias: 8},
+            {falla: 'Filtros obstruidos', ocurrencias: 7},
+            {falla: 'Conexiones eléctricas flojas', ocurrencias: 6},
+            {falla: 'Vibraciones excesivas', ocurrencias: 5},
+            {falla: 'Falla en sensores', ocurrencias: 4},
+            {falla: 'Desgaste de sellos', ocurrencias: 4},
+            {falla: 'Corrosión en componentes', ocurrencias: 3}
+        ];
+
+        let reqProdEditingId = null;
+
+        // ========== FUNCIONES GENERALES ==========
+
+        function showSection(sectionName) {
+            document.querySelectorAll('.module-card').forEach(card => card.classList.remove('active'));
+            document.querySelectorAll('.content-section').forEach(section => section.classList.remove('active'));
+            
+            if (event && event.currentTarget) event.currentTarget.classList.add('active');
+            
+            const section = document.getElementById(sectionName + '-content');
+            if (section) section.classList.add('active');
+            
+            if (sectionName === 'dashboard') updateDashboard();
+            if (sectionName === 'requerimientos') renderReqProduccion();
+            if (sectionName === 'programacion') renderOTsProduccion();
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            toastMessage.textContent = message;
+            toast.className = `fixed top-4 right-4 px-6 py-4 rounded-lg shadow-lg z-50 text-white ${
+                type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-blue-500'
+            }`;
+            toast.classList.remove('hidden');
+            setTimeout(() => toast.classList.add('hidden'), 3000);
+        }
+
+        // ========== DASHBOARD ==========
+
+        function updateDashboard() {
+            const otsActivas = otsProduccion.filter(o => o.estado !== 'ENTREGADO').length;
+            const otsCompletadas = otsProduccion.filter(o => o.estado === 'ENTREGADO').length;
+            const otsTotal = otsProduccion.length;
+            const cumplimiento = otsTotal > 0 ? Math.round((otsCompletadas / otsTotal) * 100) : 0;
+            const horasTrabajadas = otsProduccion.reduce((sum, o) => sum + o.horas, 0);
+            const pcrGlobal = otsTotal > 0 ? Math.round(otsProduccion.reduce((sum, o) => sum + o.avance, 0) / otsTotal) : 0;
+
+            document.getElementById('kpi-ots-activas').textContent = otsActivas;
+            document.getElementById('kpi-cumplimiento').textContent = cumplimiento + '%';
+            document.getElementById('kpi-horas').textContent = horasTrabajadas;
+            document.getElementById('kpi-pcr').textContent = pcrGlobal + '%';
+
+            // Gráfico de OTs
+            const graficoOts = document.getElementById('grafico-ots');
+            const enProceso = otsProduccion.filter(o => o.estado === 'EN PROCESO').length;
+            const listoDespacho = otsProduccion.filter(o => o.estado === 'LISTO PARA DESPACHO').length;
+            const entregadas = otsProduccion.filter(o => o.estado === 'ENTREGADO').length;
+
+            graficoOts.innerHTML = `
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-gray-600">En Proceso</span>
+                    <span class="font-bold text-blue-600">${enProceso}</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div class="bg-blue-500 h-2 rounded-full" style="width: ${(enProceso/otsTotal)*100}%"></div>
+                </div>
+
+                <div class="flex items-center justify-between mt-2">
+                    <span class="text-sm text-gray-600">Listo para Despacho</span>
+                    <span class="font-bold text-yellow-600">${listoDespacho}</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div class="bg-yellow-500 h-2 rounded-full" style="width: ${(listoDespacho/otsTotal)*100}%"></div>
+                </div>
+
+                <div class="flex items-center justify-between mt-2">
+                    <span class="text-sm text-gray-600">Entregadas</span>
+                    <span class="font-bold text-green-600">${entregadas}</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2">
+                    <div class="bg-green-500 h-2 rounded-full" style="width: ${(entregadas/otsTotal)*100}%"></div>
+                </div>
+            `;
+
+            // Top fallas
+            const topFallas = document.getElementById('top-fallas');
+            topFallas.innerHTML = fallasRecurrentes.map((falla, idx) => `
+                <div class="flex justify-between items-center py-1 border-b">
+                    <span class="text-gray-700">${idx + 1}. ${falla.falla}</span>
+                    <span class="font-semibold text-red-600">${falla.ocurrencias}</span>
+                </div>
+            `).join('');
+        }
+
+        // ========== REQUERIMIENTOS PRODUCCIÓN ==========
+
+        function renderReqProduccion() {
+            const tbody = document.getElementById('tabla-req-produccion');
+            if (!tbody) return;
+
+            if (requerimientosProduccion.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="px-6 py-8 text-center text-gray-500">No hay requerimientos</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = requerimientosProduccion.map(req => `
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4 text-sm font-medium">${req.numero}</td>
+                    <td class="px-6 py-4 text-sm">${req.ot}</td>
+                    <td class="px-6 py-4 text-sm">${req.tecnico}</td>
+                    <td class="px-6 py-4 text-sm">${req.fecha}</td>
+                    <td class="px-6 py-4 text-sm">${req.items.length} items</td>
+                    <td class="px-6 py-4">
+                        <span class="px-2 py-1 rounded-full text-xs font-semibold ${
+                            req.estado === 'Pendiente' ? 'bg-orange-100 text-orange-800' :
+                            req.estado === 'Aprobado' ? 'bg-green-100 text-green-800' :
+                            'bg-blue-100 text-blue-800'
+                        }">${req.estado}</span>
+                    </td>
+                    <td class="px-6 py-4">
+                        ${req.estado === 'Pendiente' ? `
+                            <button onclick="aprobarReqProd(${req.id})" class="text-green-600 hover:text-green-800 mx-1" title="Aprobar">
+                                <i class="fas fa-check"></i>
+                            </button>
+                        ` : ''}
+                        ${req.estado === 'Aprobado' ? `
+                            <button onclick="enviarALogistica(${req.id})" class="text-blue-600 hover:text-blue-800 mx-1" title="Enviar a Logística">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        ` : ''}
+                    </td>
+                </tr>
+            `).join('');
+
+            updateReqProdStats();
+        }
+
+        function updateReqProdStats() {
+            const total = requerimientosProduccion.length;
+            const pendientes = requerimientosProduccion.filter(r => r.estado === 'Pendiente').length;
+            const aprobados = requerimientosProduccion.filter(r => r.estado === 'Aprobado').length;
+            const enviados = requerimientosProduccion.filter(r => r.estado === 'Enviado a Logística').length;
+
+            document.getElementById('stat-req-total').textContent = total;
+            document.getElementById('stat-req-pendientes').textContent = pendientes;
+            document.getElementById('stat-req-aprobados').textContent = aprobados;
+            document.getElementById('stat-req-enviados').textContent = enviados;
+        }
+
+        function mostrarFormNuevoReqProduccion() {
+            reqProdEditingId = null;
+            document.getElementById('form-req-produccion').reset();
+            document.getElementById('items-req-prod-container').innerHTML = '';
+            agregarItemReqProd();
+            document.getElementById('modal-req-produccion').classList.remove('hidden');
+        }
+
+        function cerrarModalReqProduccion() {
+            document.getElementById('modal-req-produccion').classList.add('hidden');
+        }
+
+        function agregarItemReqProd() {
+            const container = document.getElementById('items-req-prod-container');
+            const itemId = Date.now();
+            
+            container.insertAdjacentHTML('beforeend', `
+                <div id="item-req-prod-${itemId}" class="grid grid-cols-12 gap-2 items-center">
+                    <div class="col-span-7">
+                        <input type="text" placeholder="Material/Repuesto" class="w-full px-2 py-1 border rounded text-sm" data-field="producto">
+                    </div>
+                    <div class="col-span-2">
+                        <input type="number" placeholder="Cant" class="w-full px-2 py-1 border rounded text-sm" data-field="cantidad" min="1" value="1">
+                    </div>
+                    <div class="col-span-2">
+                        <select class="w-full px-2 py-1 border rounded text-sm" data-field="unidad">
+                            <option>UND</option>
+                            <option>KG</option>
+                            <option>LT</option>
+                        </select>
+                    </div>
+                    <div class="col-span-1 text-center">
+                        <button type="button" onclick="eliminarItemReqProd(${itemId})" class="text-red-600 hover:text-red-800">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `);
+        }
+
+        function eliminarItemReqProd(itemId) {
+            const item = document.getElementById(`item-req-prod-${itemId}`);
+            if (item) item.remove();
+        }
+
+        function submitReqProduccion(e) {
+            e.preventDefault();
+            
+            const itemsContainer = document.getElementById('items-req-prod-container');
+            const itemRows = itemsContainer.querySelectorAll('[id^="item-req-prod-"]');
+            const items = [];
+            
+            itemRows.forEach(row => {
+                const producto = row.querySelector('[data-field="producto"]').value;
+                const cantidad = parseInt(row.querySelector('[data-field="cantidad"]').value);
+                const unidad = row.querySelector('[data-field="unidad"]').value;
+                
+                if (producto && cantidad) {
+                    items.push({ producto, cantidad, unidad });
+                }
+            });
+            
+            if (items.length === 0) {
+                showToast('Debe agregar al menos un item', 'error');
+                return;
+            }
+
+            const data = {
+                id: requerimientosProduccion.length + 1,
+                numero: `REQ-PROD-${String(requerimientosProduccion.length + 1).padStart(3, '0')}`,
+                ot: document.getElementById('req-prod-ot').value,
+                tecnico: document.getElementById('req-prod-tecnico').value,
+                fecha: new Date().toISOString().split('T')[0],
+                estado: 'Pendiente',
+                items: items
+            };
+
+            requerimientosProduccion.push(data);
+            showToast('Requerimiento creado correctamente', 'success');
+            cerrarModalReqProduccion();
+            renderReqProduccion();
+        }
+
+        function aprobarReqProd(id) {
+            const req = requerimientosProduccion.find(r => r.id === id);
+            if (!req) return;
+
+            if (!confirm(`¿Aprobar requerimiento ${req.numero}?`)) return;
+
+            req.estado = 'Aprobado';
+            renderReqProduccion();
+            showToast('Requerimiento aprobado', 'success');
+        }
+
+        function enviarALogistica(id) {
+            const req = requerimientosProduccion.find(r => r.id === id);
+            if (!req) return;
+
+            if (!confirm(`¿Enviar ${req.numero} a Logística?`)) return;
+
+            req.estado = 'Enviado a Logística';
+            renderReqProduccion();
+            showToast('Requerimiento enviado a Logística - Visible en módulo de Recursos Solicitados', 'success');
+        }
+
+        // ========== PROGRAMACIÓN OTs ==========
+
+        function renderOTsProduccion() {
+            const tbody = document.getElementById('tabla-ots-produccion');
+            if (!tbody) return;
+
+            const select = document.getElementById('filtro-tecnico');
+            select.innerHTML = '<option value="">Todos los Técnicos</option>' +
+                tecnicos.map(t => `<option value="${t}">${t}</option>`).join('');
+
+            let filteredOTs = otsProduccion;
+            const estadoFiltro = document.getElementById('filtro-estado-ot')?.value;
+            const clienteFiltro = document.getElementById('filtro-cliente')?.value;
+            const tecnicoFiltro = document.getElementById('filtro-tecnico')?.value;
+            const busqueda = document.getElementById('filtro-busqueda')?.value.toLowerCase();
+
+            if (estadoFiltro) filteredOTs = filteredOTs.filter(o => o.estado === estadoFiltro);
+            if (clienteFiltro) filteredOTs = filteredOTs.filter(o => o.cliente === clienteFiltro);
+            if (tecnicoFiltro) filteredOTs = filteredOTs.filter(o => o.tecnico === tecnicoFiltro);
+            if (busqueda) filteredOTs = filteredOTs.filter(o => 
+                o.numero.toLowerCase().includes(busqueda) || 
+                o.descripcion.toLowerCase().includes(busqueda)
+            );
+
+            if (filteredOTs.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="12" class="px-6 py-8 text-center text-gray-500">No hay OTs</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = filteredOTs.map(ot => {
+                const getComponentIcon = (comp) => {
+                    if (!comp) return '<span class="text-gray-300">-</span>';
+                    const estandar = comp.estandar ? '<i class="fas fa-check text-green-600 text-xs"></i>' : '<i class="fas fa-times text-gray-300 text-xs"></i>';
+                    const fabri = comp.fabri ? '<i class="fas fa-check text-green-600 text-xs"></i>' : '<i class="fas fa-times text-gray-300 text-xs"></i>';
+                    return `<div class="flex gap-1 justify-center">${estandar}${fabri}</div>`;
+                };
+
+                return `
+                <tr class="hover:bg-gray-50 text-xs">
+                    <td class="px-4 py-3 font-bold text-purple-700 sticky left-0 bg-white">${ot.numero}</td>
+                    <td class="px-4 py-3">${ot.cliente}</td>
+                    <td class="px-4 py-3 text-gray-700">${ot.descripcion}</td>
+                    <td class="px-4 py-3 text-center">${ot.modelo}</td>
+                    <td class="px-4 py-3">
+                        <div class="flex items-center gap-2">
+                            <div class="flex-1 bg-gray-200 rounded-full h-2">
+                                <div class="bg-green-500 h-2 rounded-full" style="width: ${ot.avance}%"></div>
+                            </div>
+                            <span class="text-xs font-semibold">${ot.avance}%</span>
+                        </div>
+                    </td>
+                    <td class="px-4 py-3">${getComponentIcon(ot.componentes.cilindro)}</td>
+                    <td class="px-4 py-3">${getComponentIcon(ot.componentes.vastago)}</td>
+                    <td class="px-4 py-3">${getComponentIcon(ot.componentes.tapa)}</td>
+                    <td class="px-4 py-3">${getComponentIcon(ot.componentes.piston)}</td>
+                    <td class="px-4 py-3 text-center">${ot.fechaFin}</td>
+                    <td class="px-4 py-3">
+                        <span class="px-2 py-1 rounded-full text-xs font-semibold whitespace-nowrap ${
+                            ot.estado === 'EN PROCESO' ? 'bg-blue-100 text-blue-800' :
+                            ot.estado === 'LISTO PARA DESPACHO' ? 'bg-yellow-100 text-yellow-800' :
+                            'bg-green-100 text-green-800'
+                        }">${ot.estado}</span>
+                    </td>
+                    <td class="px-4 py-3 text-center">
+                        <button onclick="verDetalleOT(${ot.id})" class="text-purple-600 hover:text-purple-800 mx-1" title="Ver Detalle">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button onclick="cambiarEstadoOT(${ot.id})" class="text-blue-600 hover:text-blue-800 mx-1" title="Cambiar Estado">
+                            <i class="fas fa-exchange-alt"></i>
+                        </button>
+                    </td>
+                </tr>
+            `}).join('');
+        }
+
+        function filtrarOTs() {
+            renderOTsProduccion();
+        }
+
+        function mostrarFormNuevaOTProd() {
+            document.getElementById('form-ot-produccion').reset();
+            document.getElementById('ot-prod-fecha-inicio').value = new Date().toISOString().split('T')[0];
+            
+            const select = document.getElementById('ot-prod-tecnico');
+            select.innerHTML = '<option value="">Seleccione técnico</option>' +
+                tecnicos.map(t => `<option value="${t}">${t}</option>`).join('');
+            
+            document.getElementById('modal-ot-produccion').classList.remove('hidden');
+        }
+
+        function cerrarModalOTProd() {
+            document.getElementById('modal-ot-produccion').classList.add('hidden');
+        }
+
+        function submitOTProduccion(e) {
+            e.preventDefault();
+
+            const data = {
+                id: otsProduccion.length + 1,
+                numero: document.getElementById('ot-prod-numero').value,
+                cliente: document.getElementById('ot-prod-cliente').value,
+                equipo: document.getElementById('ot-prod-equipo').value,
+                tecnico: document.getElementById('ot-prod-tecnico').value,
+                fechaInicio: document.getElementById('ot-prod-fecha-inicio').value,
+                fechaFin: document.getElementById('ot-prod-fecha-fin').value,
+                estado: 'Pendiente',
+                horas: 0
+            };
+
+            otsProduccion.push(data);
+            showToast('OT creada correctamente', 'success');
+            cerrarModalOTProd();
+            renderOTsProduccion();
+            updateDashboard();
+        }
+
+        function cambiarEstadoOT(id) {
+            const ot = otsProduccion.find(o => o.id === id);
+            if (!ot) return;
+
+            const estados = {'EN PROCESO': 'LISTO PARA DESPACHO', 'LISTO PARA DESPACHO': 'ENTREGADO'};
+            const nuevoEstado = estados[ot.estado];
+            if (!nuevoEstado) {
+                showToast('Esta OT ya está entregada', 'info');
+                return;
+            }
+
+            if (!confirm(`¿Cambiar estado de ${ot.numero} a ${nuevoEstado}?`)) return;
+
+            ot.estado = nuevoEstado;
+            renderOTsProduccion();
+            updateDashboard();
+            showToast(`Estado actualizado a: ${nuevoEstado}`, 'success');
+        }
+
+        function verDetalleOT(id) {
+            const ot = otsProduccion.find(o => o.id === id);
+            if (!ot) return;
+
+            const detalleHTML = `
+                <div class="space-y-4">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div><strong>OT:</strong> ${ot.numero}</div>
+                        <div><strong>Cliente:</strong> ${ot.cliente}</div>
+                        <div><strong>Descripción:</strong> ${ot.descripcion}</div>
+                        <div><strong>Modelo:</strong> ${ot.modelo}</div>
+                        <div><strong>Técnico:</strong> ${ot.tecnico}</div>
+                        <div><strong>Estado:</strong> <span class="px-2 py-1 rounded bg-blue-100 text-blue-800">${ot.estado}</span></div>
+                        <div><strong>Fecha Inicio:</strong> ${ot.fechaInicio}</div>
+                        <div><strong>Fecha Fin:</strong> ${ot.fechaFin}</div>
+                        <div><strong>Horas Trabajadas:</strong> ${ot.horas}h</div>
+                        <div><strong>Avance:</strong> ${ot.avance}%</div>
+                    </div>
+                    <div class="border-t pt-4">
+                        <h4 class="font-bold mb-3">Estado de Componentes</h4>
+                        <table class="w-full text-sm">
+                            <thead class="bg-gray-100">
+                                <tr>
+                                    <th class="px-3 py-2 text-left">Componente</th>
+                                    <th class="px-3 py-2 text-center">Estándar</th>
+                                    <th class="px-3 py-2 text-center">Fabricación</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td class="px-3 py-2">Cilindro</td><td class="px-3 py-2 text-center">${ot.componentes.cilindro.estandar ? '✓' : '✗'}</td><td class="px-3 py-2 text-center">${ot.componentes.cilindro.fabri ? '✓' : '✗'}</td></tr>
+                                <tr><td class="px-3 py-2">Vástago</td><td class="px-3 py-2 text-center">${ot.componentes.vastago.estandar ? '✓' : '✗'}</td><td class="px-3 py-2 text-center">${ot.componentes.vastago.fabri ? '✓' : '✗'}</td></tr>
+                                <tr><td class="px-3 py-2">Tapa</td><td class="px-3 py-2 text-center">${ot.componentes.tapa.estandar ? '✓' : '✗'}</td><td class="px-3 py-2 text-center">${ot.componentes.tapa.fabri ? '✓' : '✗'}</td></tr>
+                                <tr><td class="px-3 py-2">Pistón</td><td class="px-3 py-2 text-center">${ot.componentes.piston.estandar ? '✓' : '✗'}</td><td class="px-3 py-2 text-center">${ot.componentes.piston.fabri ? '✓' : '✗'}</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+
+            // Mostrar en modal simple (puedes crear un modal dedicado)
+            if (confirm('Ver detalle completo de OT ' + ot.numero + '\n\nHaz clic en Aceptar para ver formato simplificado')) {
+                alert(detalleHTML.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' '));
+            }
+        }
+
+        // Inicialización
+        document.addEventListener('DOMContentLoaded', function() {
+            updateDashboard();
+        });
+    </script>
+</body>
+</html>

@@ -70,21 +70,21 @@ export const getTareasByOrdenTrabajo = async (req: Request, res: Response) => {
   try {
     const { ot_id } = req.params;
     
-    // Primero, buscar la orden de trabajo para obtener su cod_rep_codigo
+    // Primero, buscar la orden de trabajo para obtener su id_cod_rep
     const ordenTrabajo = await OrdenTrabajo.findByPk(parseInt(ot_id as string));
     
     if (!ordenTrabajo) {
       return res.status(404).json({ error: 'Orden de trabajo no encontrada' });
     }
     
-    // Si la OT no tiene cod_rep_codigo, devolver array vacío
-    if (!ordenTrabajo.cod_rep_codigo) {
+    // Si la OT no tiene id_cod_rep, devolver array vacío
+    if (!ordenTrabajo.id_cod_rep) {
       return res.json([]);
     }
     
     // Buscar tareas con el mismo cod_rep_codigo
     const tareas = await Tarea.findAll({
-      where: { cod_rep_codigo: ordenTrabajo.cod_rep_codigo },
+      where: { cod_rep_codigo: ordenTrabajo.id_cod_rep },
       include: [
         { 
           model: Material, 

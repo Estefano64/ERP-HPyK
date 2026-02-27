@@ -16,6 +16,20 @@ import CodigoReparacion from './CodigoReparacion';
 import OrdenTrabajo from './OrdenTrabajo';
 
 // ============================================
+// IMPORTAR MODELOS DE LOGÍSTICA
+// ============================================
+import Compra from './Compra';
+import CompraDetalle from './CompraDetalle';
+import OrdenCompra from './OrdenCompra';
+import OrdenCompraView from './OrdenCompraView';
+import Almacen from './Almacen';
+import MovimientoInventario from './MovimientoInventario';
+import Proveedor from './Proveedor';
+import OTHistorial from './OTHistorial';
+import OTRepuesto from './OTRepuesto';
+import Herramienta from './Herramienta';
+
+// ============================================
 // IMPORTAR CATÁLOGOS COMPARTIDOS
 // ============================================
 import Planta from './catalogs/Planta';
@@ -71,7 +85,7 @@ import TallerStatus from './catalogs/TallerStatus';
 // CONFIGURAR ASOCIACIONES
 // ============================================
 export function setupAssociations() {
-  console.log('⚙️ Configurando asociaciones de modelos...');
+  console.log('Configurando asociaciones de modelos...');
 
   // ========================================
   // ASOCIACIONES DE MATERIAL (1_Log - Material)
@@ -124,9 +138,9 @@ export function setupAssociations() {
   // ========================================
   // ASOCIACIONES DE ORDEN_TRABAJO (6_OTs)
   // ========================================
-  OrdenTrabajo.belongsTo(Cliente, { foreignKey: 'cliente_id', as: 'cliente' });
-  OrdenTrabajo.belongsTo(Estrategia, { foreignKey: 'estrategia_codigo', targetKey: 'codigo', as: 'estrategia' });
-  OrdenTrabajo.belongsTo(CodigoReparacion, { foreignKey: 'cod_rep_codigo', targetKey: 'codigo', as: 'codigo_reparacion' });
+  OrdenTrabajo.belongsTo(Cliente, { foreignKey: 'id_cliente', as: 'cliente' });
+  // OrdenTrabajo.belongsTo(Estrategia, { foreignKey: 'estrategia_codigo', targetKey: 'codigo', as: 'estrategia' });
+  OrdenTrabajo.belongsTo(CodigoReparacion, { foreignKey: 'id_cod_rep', as: 'codigo_reparacion' });
   OrdenTrabajo.belongsTo(Equipo, { foreignKey: 'equipo_codigo', targetKey: 'codigo', as: 'equipo' });
   OrdenTrabajo.belongsTo(Garantia, { foreignKey: 'garantia_codigo', targetKey: 'codigo', as: 'garantia' });
   OrdenTrabajo.belongsTo(AtencionReparacion, { foreignKey: 'atencion_reparacion_codigo', targetKey: 'codigo', as: 'atencion_reparacion' });
@@ -165,6 +179,30 @@ export function setupAssociations() {
   
   Cliente.hasMany(OrdenTrabajo, { foreignKey: 'cliente_id', as: 'ordenes_trabajo' });
 
+  // ========================================
+  // ASOCIACIONES DE LOGÍSTICA
+  // ========================================
+  
+  // Compra - CompraDetalle (One-to-Many)
+  Compra.hasMany(CompraDetalle, { foreignKey: 'compra_id', as: 'detalles' });
+  CompraDetalle.belongsTo(Compra, { foreignKey: 'compra_id', as: 'compra' });
+  
+  // Proveedor - Compra (One-to-Many)
+  Proveedor.hasMany(Compra, { foreignKey: 'proveedor_id', as: 'compras' });
+  Compra.belongsTo(Proveedor, { foreignKey: 'proveedor_id', as: 'proveedor' });
+  
+  // Almacen - Compra (One-to-Many)
+  Almacen.hasMany(Compra, { foreignKey: 'almacen_id', as: 'compras' });
+  Compra.belongsTo(Almacen, { foreignKey: 'almacen_id', as: 'almacen' });
+  
+  // Material - CompraDetalle (One-to-Many)
+  Material.hasMany(CompraDetalle, { foreignKey: 'material_id', as: 'compra_detalles' });
+  CompraDetalle.belongsTo(Material, { foreignKey: 'material_id', as: 'material' });
+  
+  // OrdenTrabajo - Compra (One-to-Many)
+  OrdenTrabajo.hasMany(Compra, { foreignKey: 'ot_id', as: 'compras' });
+  Compra.belongsTo(OrdenTrabajo, { foreignKey: 'ot_id', as: 'orden_trabajo' });
+
   console.log('✓ Asociaciones de modelos configuradas');
 }
 
@@ -180,6 +218,17 @@ export {
   Tarea,
   CodigoReparacion,
   OrdenTrabajo,
+  // Modelos de Logística
+  Compra,
+  CompraDetalle,
+  OrdenCompra,
+  OrdenCompraView,
+  Almacen,
+  MovimientoInventario,
+  Proveedor,
+  OTHistorial,
+  OTRepuesto,
+  Herramienta,
   // Catálogos Compartidos
   Planta,
   Area,

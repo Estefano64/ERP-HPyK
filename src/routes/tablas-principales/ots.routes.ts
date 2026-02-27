@@ -21,6 +21,7 @@ const router = Router();
 
 // CRUD completo de órdenes de trabajo
 router.get('/', ordenTrabajoController.getAllOrdenesTrabajo);
+router.get('/estadisticas', ordenTrabajoController.getEstadisticasOrdenesTrabajo);
 router.get('/:id', ordenTrabajoController.getOrdenTrabajoById);
 router.post('/', ordenTrabajoController.createOrdenTrabajo);
 router.put('/:id', ordenTrabajoController.updateOrdenTrabajo);

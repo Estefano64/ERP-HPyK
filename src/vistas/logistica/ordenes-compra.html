@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Órdenes de Compra - HP&K ERP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="/vistas/shared/navigation.js"></script>
+    <style>
+        .dropdown-menu { display: none; }
+        .dropdown.active .dropdown-menu { display: block; }
+        .table-row:hover { background-color: #f8fafc; }
+        .status-checkbox { transform: scale(1.2); }
+        .column-header { 
+            background: linear-gradient(to bottom, #f8f9fa, #e9ecef);
+            border-bottom: 2px solid #dee2e6;
+            font-weight: 600;
+            color: #495057;
+        }
+        .amount-cell {
+            font-family: 'Courier New', monospace;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation Menu will be loaded here -->
+    <div id="navigation-container"></div>
+
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-blue-600 to-blue-800 text-white shadow-lg">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <i class="fas fa-file-invoice-dollar text-3xl"></i>
+                    <div>
+                        <h1 class="text-2xl font-bold">HP Y K INVERSIONES S.R.L.</h1>
+                        <p class="text-blue-200 text-sm">Gestión de Órdenes de Compra</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <span class="text-blue-200 text-sm">VÍCTOR BARRETO</span>
+                    <a href="/index.html" class="bg-blue-700 hover:bg-blue-800 px-4 py-2 rounded-lg transition">
+                        <i class="fas fa-home"></i> Inicio
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-6 py-6">
+        <!-- Filters Section -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Centro de costo</label>
+                    <select id="centroCosto" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="todos">Todos</option>
+                        <option value="administracion">Administración</option>
+                        <option value="operaciones">Operaciones</option>
+                        <option value="logistica">Logística</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Fecha Navegación Descendente</label>
+                    <select id="fechaOrden" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="desc">Más reciente primero</option>
+                        <option value="asc">Más antigua primero</option>
+                    </select>
+                </div>
+                <div class="flex space-x-2">
+                    <button onclick="buscarOrdenes()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded transition flex items-center">
+                        <i class="fas fa-search mr-2"></i> Buscar
+                    </button>
+                    <button onclick="nuevaOrden()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded transition flex items-center">
+                        <i class="fas fa-plus mr-2"></i> Nueva Orden
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions Bar -->
+        <div class="bg-white rounded-lg shadow-lg p-4 mb-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <span class="text-gray-600">Opciones</span>
+                    <button onclick="exportarExcel()" class="text-blue-600 hover:text-blue-800 transition">
+                        <i class="fas fa-file-excel mr-1"></i> Export Excel
+                    </button>
+                    <button onclick="imprimirSeleccionadas()" class="text-green-600 hover:text-green-800 transition">
+                        <i class="fas fa-print mr-1"></i> Imprimir
+                    </button>
+                </div>
+                <span class="text-gray-500 text-sm" id="paginaInfo">4 de 4</span>
+            </div>
+        </div>
+
+        <!-- Orders Table -->
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                        <tr class="column-header">
+                            <th class="px-4 py-3 text-left">Estado</th>
+                            <th class="px-4 py-3 text-left">Fecha</th>
+                            <th class="px-4 py-3 text-left">Recepción Guía/Tkr</th>
+                            <th class="px-4 py-3 text-left">Fecha Pago</th>
+                            <th class="px-4 py-3 text-left">Identificador Externo</th>
+                            <th class="px-4 py-3 text-left">Serie</th>
+                            <th class="px-4 py-3 text-left">Correlativo</th>
+                            <th class="px-4 py-3 text-left">Tipo Documento</th>
+                            <th class="px-4 py-3 text-left">RUC Receptor</th>
+                            <th class="px-4 py-3 text-left">Receptor</th>
+                            <th class="px-4 py-3 text-left">División</th>
+                            <th class="px-4 py-3 text-left">Importe Total</th>
+                            <th class="px-4 py-3 text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ordenesTableBody">
+                        <!-- Sample Data matching the image -->
+                        <tr class="table-row border-t">
+                            <td class="px-4 py-3">
+                                <input type="checkbox" class="status-checkbox" checked>
+                                <span class="ml-2 w-3 h-3 bg-green-500 rounded-full inline-block"></span>
+                            </td>
+                            <td class="px-4 py-3 text-sm">06.02.2026</td>
+                            <td class="px-4 py-3 text-sm">08.02.2026</td>
+                            <td class="px-4 py-3 text-sm">-</td>
+                            <td class="px-4 py-3 text-sm">F001</td>
+                            <td class="px-4 py-3 text-sm">F001</td>
+                            <td class="px-4 py-3 text-sm font-medium text-blue-600">00002950</td>
+                            <td class="px-4 py-3 text-sm">
+                                <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">Factura Electrónica</span>
+                            </td>
+                            <td class="px-4 py-3 text-sm font-mono">20114915026</td>
+                            <td class="px-4 py-3 text-sm font-medium">COMPAÑÍA MINERA ANTAPACCAY S.A.</td>
+                            <td class="px-4 py-3 text-sm">
+                                <i class="fas fa-building text-gray-400 mr-1"></i>
+                                <i class="fas fa-star text-gray-400"></i>
+                            </td>
+                            <td class="px-4 py-3 text-sm font-bold text-green-600 amount-cell">US$11,420.61</td>
+                            <td class="px-4 py-3 text-center">
+                                <button onclick="verOrden('00002950')" class="text-blue-600 hover:text-blue-800 mx-1" title="Ver">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button onclick="editarOrden('00002950')" class="text-yellow-600 hover:text-yellow-800 mx-1" title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr class="table-row border-t">
+                            <td class="px-4 py-3">
+                                <input type="checkbox" class="status-checkbox" checked>
+                                <span class="ml-2 w-3 h-3 bg-green-500 rounded-full inline-block"></span>
+                            </td>
+                            <td class="px-4 py-3 text-sm">06.02.2026</td>
+                            <td class="px-4 py-3 text-sm">06.02.2026</td>
+                            <td class="px-4 py-3 text-sm">-</td>
+                            <td class="px-4 py-3 text-sm">F001</td>
+                            <td class="px-4 py-3 text-sm">F001</td>
+                            <td class="px-4 py-3 text-sm font-medium text-blue-600">00002948</td>
+                            <td class="px-4 py-3 text-sm">
+                                <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">Factura Electrónica</span>
+                            </td>
+                            <td class="px-4 py-3 text-sm font-mono">20114915026</td>
+                            <td class="px-4 py-3 text-sm font-medium">COMPAÑÍA MINERA ANTAPACCAY S.A.</td>
+                            <td class="px-4 py-3 text-sm">
+                                <i class="fas fa-building text-gray-400 mr-1"></i>
+                                <i class="fas fa-star text-gray-400"></i>
+                            </td>
+                            <td class="px-4 py-3 text-sm font-bold text-green-600 amount-cell">US$5,539.78</td>
+                            <td class="px-4 py-3 text-center">
+                                <button onclick="verOrden('00002948')" class="text-blue-600 hover:text-blue-800 mx-1" title="Ver">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button onclick="editarOrden('00002948')" class="text-yellow-600 hover:text-yellow-800 mx-1" title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr class="table-row border-t">
+                            <td class="px-4 py-3">
+                                <input type="checkbox" class="status-checkbox" checked>
+                                <span class="ml-2 w-3 h-3 bg-green-500 rounded-full inline-block"></span>
+                            </td>
+                            <td class="px-4 py-3 text-sm">06.02.2026</td>
+                            <td class="px-4 py-3 text-sm">06.02.2026</td>
+                            <td class="px-4 py-3 text-sm">-</td>
+                            <td class="px-4 py-3 text-sm">F001</td>
+                            <td class="px-4 py-3 text-sm">F001</td>
+                            <td class="px-4 py-3 text-sm font-medium text-blue-600">00002948</td>
+                            <td class="px-4 py-3 text-sm">
+                                <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">Factura Electrónica</span>
+                            </td>
+                            <td class="px-4 py-3 text-sm font-mono">20114915026</td>
+                            <td class="px-4 py-3 text-sm font-medium">COMPAÑÍA MINERA ANTAPACCAY S.A.</td>
+                            <td class="px-4 py-3 text-sm">
+                                <i class="fas fa-building text-gray-400 mr-1"></i>
+                                <i class="fas fa-star text-gray-400"></i>
+                            </td>
+                            <td class="px-4 py-3 text-sm font-bold text-green-600 amount-cell">US$10,194.03</td>
+                            <td class="px-4 py-3 text-center">
+                                <button onclick="verOrden('00002948')" class="text-blue-600 hover:text-blue-800 mx-1" title="Ver">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button onclick="editarOrden('00002948')" class="text-yellow-600 hover:text-yellow-800 mx-1" title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <tr class="table-row border-t">
+                            <td class="px-4 py-3">
+                                <input type="checkbox" class="status-checkbox" checked>
+                                <span class="ml-2 w-3 h-3 bg-green-500 rounded-full inline-block"></span>
+                            </td>
+                            <td class="px-4 py-3 text-sm">06.02.2026</td>
+                            <td class="px-4 py-3 text-sm">06.02.2026</td>
+                            <td class="px-4 py-3 text-sm">-</td>
+                            <td class="px-4 py-3 text-sm">F001</td>
+                            <td class="px-4 py-3 text-sm">F001</td>
+                            <td class="px-4 py-3 text-sm font-medium text-blue-600">00002947</td>
+                            <td class="px-4 py-3 text-sm">
+                                <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">Factura Electrónica</span>
+                            </td>
+                            <td class="px-4 py-3 text-sm font-mono">20114915026</td>
+                            <td class="px-4 py-3 text-sm font-medium">COMPAÑÍA MINERA ANTAPACCAY S.A.</td>
+                            <td class="px-4 py-3 text-sm">
+                                <i class="fas fa-building text-gray-400 mr-1"></i>
+                                <i class="fas fa-star text-gray-400"></i>
+                            </td>
+                            <td class="px-4 py-3 text-sm font-bold text-green-600 amount-cell">US$2,055.50</td>
+                            <td class="px-4 py-3 text-center">
+                                <button onclick="verOrden('00002947')" class="text-blue-600 hover:text-blue-800 mx-1" title="Ver">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button onclick="editarOrden('00002947')" class="text-yellow-600 hover:text-yellow-800 mx-1" title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="bg-white rounded-lg shadow-lg p-4 mt-6">
+            <div class="flex items-center justify-between">
+                <div class="text-gray-600 text-sm">
+                    Mostrando 4 de 4 órdenes de compra
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button class="px-3 py-1 border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50" disabled>
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <span class="px-3 py-1 bg-blue-600 text-white rounded">1</span>
+                    <button class="px-3 py-1 border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50" disabled>
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Popup for detailed consultation -->
+        <div class="fixed bottom-4 right-4">
+            <button onclick="mostrarConsulta()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-full shadow-lg transition flex items-center">
+                <i class="fas fa-search mr-2"></i> Realiza tu consulta aquí!
+            </button>
+        </div>
+    </div>
+
+    <!-- Modal for New Order -->
+    <div id="modalNuevaOrden" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50">
+        <div class="flex items-center justify-center min-h-screen p-4">
+            <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-4xl max-h-[90vh] overflow-y-auto">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">Nueva Orden de Compra</h2>
+                    <button onclick="cerrarModal()" class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                
+                <form id="formNuevaOrden" class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Número de Serie*</label>
+                            <input type="text" id="serie" value="F001" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Correlativo*</label>
+                            <input type="text" id="correlativo" placeholder="00002951" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Fecha*</label>
+                            <input type="date" id="fecha" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500" required>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">RUC Receptor*</label>
+                            <input type="text" id="rucReceptor" placeholder="20114915026" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Receptor*</label>
+                            <input type="text" id="receptor" placeholder="COMPAÑÍA MINERA ANTAPACCAY S.A." class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500" required>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de Documento*</label>
+                            <select id="tipoDocumento" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500" required>
+                                <option value="Factura Electrónica">Factura Electrónica</option>
+                                <option value="Boleta Electrónica">Boleta Electrónica</option>
+                                <option value="Nota de Crédito">Nota de Crédito</option>
+                                <option value="Nota de Débito">Nota de Débito</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Importe Total*</label>
+                            <input type="number" id="importeTotal" step="0.01" placeholder="0.00" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-blue-500" required>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end space-x-4 pt-6">
+                        <button type="button" onclick="cerrarModal()" class="px-6 py-2 border border-gray-300 rounded text-gray-700 hover:bg-gray-50 transition">
+                            Cancelar
+                        </button>
+                        <button type="submit" class="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition">
+                            Crear Orden
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Load navigation
+        document.addEventListener('DOMContentLoaded', function() {
+            loadNavigation('logistica');
+            
+            // Set default date
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('fecha').value = today;
+            
+            // Load existing orders
+            buscarOrdenes();
+        });
+
+        // Functions for order management
+        function buscarOrdenes() {
+            const centroCosto = document.getElementById('centroCosto').value;
+            const fechaOrden = document.getElementById('fechaOrden').value;
+            
+            // Realizar llamada a la API para obtener órdenes filtradas
+            fetch(`/api/logistica/ordenes-compra?centroCosto=${centroCosto}&fechaOrden=${fechaOrden}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        actualizarTablaOrdenes(data.data);
+                        actualizarPaginacion(data.pagination);
+                    } else {
+                        alert('Error al cargar órdenes: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error de conexión al servidor');
+                });
+        }
+
+        function actualizarTablaOrdenes(ordenes) {
+            const tbody = document.getElementById('ordenesTableBody');
+            tbody.innerHTML = '';
+            
+            ordenes.forEach(orden => {
+                const row = `
+                    <tr class="table-row border-t">
+                        <td class="px-4 py-3">
+                            <input type="checkbox" class="status-checkbox" ${orden.estado !== 'Cancelado' ? 'checked' : ''}>
+                            <span class="ml-2 w-3 h-3 ${getStatusColor(orden.estado)} rounded-full inline-block"></span>
+                        </td>
+                        <td class="px-4 py-3 text-sm">${formatDate(orden.fecha)}</td>
+                        <td class="px-4 py-3 text-sm">${orden.fecha_recepcion_guia ? formatDate(orden.fecha_recepcion_guia) : '-'}</td>
+                        <td class="px-4 py-3 text-sm">${orden.fecha_pago ? formatDate(orden.fecha_pago) : '-'}</td>
+                        <td class="px-4 py-3 text-sm">${orden.identificador_externo || orden.serie}</td>
+                        <td class="px-4 py-3 text-sm">${orden.serie}</td>
+                        <td class="px-4 py-3 text-sm font-medium text-blue-600">${orden.correlativo}</td>
+                        <td class="px-4 py-3 text-sm">
+                            <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">${orden.tipo_documento}</span>
+                        </td>
+                        <td class="px-4 py-3 text-sm font-mono">${orden.ruc_receptor}</td>
+                        <td class="px-4 py-3 text-sm font-medium">${orden.receptor}</td>
+                        <td class="px-4 py-3 text-sm">
+                            <i class="fas fa-building text-gray-400 mr-1"></i>
+                            <i class="fas fa-star text-gray-400"></i>
+                        </td>
+                        <td class="px-4 py-3 text-sm font-bold text-green-600 amount-cell">${orden.moneda}$${parseFloat(orden.importe_total).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+                        <td class="px-4 py-3 text-center">
+                            <button onclick="verOrden('${orden.correlativo}')" class="text-blue-600 hover:text-blue-800 mx-1" title="Ver">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button onclick="editarOrden('${orden.correlativo}')" class="text-yellow-600 hover:text-yellow-800 mx-1" title="Editar">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+                tbody.insertAdjacentHTML('beforeend', row);
+            });
+        }
+
+        function getStatusColor(estado) {
+            switch(estado) {
+                case 'Pagado': return 'bg-green-500';
+                case 'Recibido': return 'bg-blue-500';
+                case 'Pendiente': return 'bg-yellow-500';
+                case 'Cancelado': return 'bg-red-500';
+                default: return 'bg-gray-500';
+            }
+        }
+
+        function actualizarPaginacion(pagination) {
+            document.getElementById('paginaInfo').textContent = `${pagination.page} de ${pagination.totalPages}`;
+        }
+
+        function nuevaOrden() {
+            document.getElementById('modalNuevaOrden').classList.remove('hidden');
+        }
+
+        function cerrarModal() {
+            document.getElementById('modalNuevaOrden').classList.add('hidden');
+        }
+
+        function verOrden(correlativo) {
+            alert('Ver detalles de la orden: ' + correlativo);
+        }
+
+        function editarOrden(correlativo) {
+            alert('Editar orden: ' + correlativo);
+        }
+
+        function exportarExcel() {
+            const centroCosto = document.getElementById('centroCosto').value;
+            const fechaOrden = document.getElementById('fechaOrden').value;
+            
+            fetch(`/api/logistica/ordenes-compra/export?centroCosto=${centroCosto}&fechaOrden=${fechaOrden}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Simular descarga de archivo Excel
+                        alert(`Exportando ${data.data.length} órdenes a Excel: ${data.filename}`);
+                        
+                        // En una implementación real, aquí se descargaría el archivo
+                        const blob = new Blob([JSON.stringify(data.data, null, 2)], { type: 'application/json' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = data.filename.replace('.xlsx', '.json');
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(url);
+                    } else {
+                        alert('Error al exportar: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error de conexión al servidor');
+                });
+        }
+
+        function imprimirSeleccionadas() {
+            const checkboxes = document.querySelectorAll('.status-checkbox:checked');
+            alert('Imprimiendo ' + checkboxes.length + ' órdenes seleccionadas');
+        }
+
+        function mostrarConsulta() {
+            alert('Función de consulta disponible. Aquí puedes realizar consultas específicas sobre las órdenes de compra.');
+        }
+
+        // Form submission
+        document.getElementById('formNuevaOrden').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                serie: document.getElementById('serie').value,
+                correlativo: document.getElementById('correlativo').value,
+                fecha: document.getElementById('fecha').value,
+                rucReceptor: document.getElementById('rucReceptor').value,
+                receptor: document.getElementById('receptor').value,
+                tipoDocumento: document.getElementById('tipoDocumento').value,
+                importeTotal: document.getElementById('importeTotal').value
+            };
+            
+            // Enviar a la API
+            fetch('/api/logistica/ordenes-compra', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Orden de compra creada exitosamente: ' + formData.serie + '-' + formData.correlativo);
+                    addOrderToTable(formData);
+                    cerrarModal();
+                    this.reset();
+                    const today = new Date().toISOString().split('T')[0];
+                    document.getElementById('fecha').value = today;
+                } else {
+                    alert('Error al crear orden: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error de conexión al servidor');
+            });
+        });
+
+        function addOrderToTable(data) {
+            const tbody = document.getElementById('ordenesTableBody');
+            const newRow = `
+                <tr class="table-row border-t">
+                    <td class="px-4 py-3">
+                        <input type="checkbox" class="status-checkbox" checked>
+                        <span class="ml-2 w-3 h-3 bg-green-500 rounded-full inline-block"></span>
+                    </td>
+                    <td class="px-4 py-3 text-sm">${formatDate(data.fecha)}</td>
+                    <td class="px-4 py-3 text-sm">-</td>
+                    <td class="px-4 py-3 text-sm">-</td>
+                    <td class="px-4 py-3 text-sm">${data.serie}</td>
+                    <td class="px-4 py-3 text-sm">${data.serie}</td>
+                    <td class="px-4 py-3 text-sm font-medium text-blue-600">${data.correlativo}</td>
+                    <td class="px-4 py-3 text-sm">
+                        <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">${data.tipoDocumento}</span>
+                    </td>
+                    <td class="px-4 py-3 text-sm font-mono">${data.rucReceptor}</td>
+                    <td class="px-4 py-3 text-sm font-medium">${data.receptor}</td>
+                    <td class="px-4 py-3 text-sm">
+                        <i class="fas fa-building text-gray-400 mr-1"></i>
+                        <i class="fas fa-star text-gray-400"></i>
+                    </td>
+                    <td class="px-4 py-3 text-sm font-bold text-green-600 amount-cell">US$${parseFloat(data.importeTotal).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
+                    <td class="px-4 py-3 text-center">
+                        <button onclick="verOrden('${data.correlativo}')" class="text-blue-600 hover:text-blue-800 mx-1" title="Ver">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button onclick="editarOrden('${data.correlativo}')" class="text-yellow-600 hover:text-yellow-800 mx-1" title="Editar">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                    </td>
+                </tr>
+            `;
+            tbody.insertAdjacentHTML('afterbegin', newRow);
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('es-ES', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric'
+            }).replace(/\//g, '.');
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('modalNuevaOrden').addEventListener('click', function(e) {
+            if (e.target === this) {
+                cerrarModal();
+            }
+        });
+    </script>
+</body>
+</html>

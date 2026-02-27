@@ -29,17 +29,17 @@ vistas/
 - **Menú superior fijo** con logo del sistema
 - **Menús desplegables** organizados por categorías:
   - 📋 Catálogo (Plantas, Áreas, Categorías, etc.)
-  - 🔧 Maestros (Equipos, Materiales, Componentes, etc.)
-  - ⚙️ Operativos (Órdenes de Trabajo, Tareas, etc.)
-  - 📊 Reportes
+  - Maestros (Equipos, Materiales, Componentes, etc.)
+  - Operativos (Órdenes de Trabajo, Tareas, etc.)
+  - Reportes
 
 ### Funcionalidades Comunes
-- ✅ **CRUD completo** (Crear, Leer, Actualizar, Eliminar)
+- **CRUD completo** (Crear, Leer, Actualizar, Eliminar)
 - 🔍 **Búsqueda y filtrado** en tablas
 - 📝 **Formularios modales** para crear/editar
-- 📊 **Tablas responsivas** con paginación
-- 🎨 **Diseño moderno** con gradientes y sombras
-- ⚡ **Carga asíncrona** con fetch API
+- **Tablas responsivas** con paginación
+- **Diseño moderno** con gradientes y sombras
+- **Carga asíncrona** con fetch API
 - ✨ **Feedback visual** con alertas y confirmaciones
 
 ### Dashboard
@@ -85,7 +85,7 @@ Los estilos están incluidos en el `layout.html` e incluyen:
 
 ## Vistas Creadas
 
-### ✅ Implementadas
+### Implementadas
 1. **layout.html** - Template base con menú
 2. **index.html** - Dashboard principal
 3. **catalogo/plantas.html** - Gestión de plantas

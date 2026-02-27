@@ -96,18 +96,6 @@
             animation: fadeInUp 0.4s ease-out;
         }
         
-        .logistics-submenu {
-            display: none;
-        }
-        
-        .production-submenu {
-            display: none;
-        }
-        
-        .production-submenu {
-            display: none;
-        }
-        
         .selectable-cell {
             cursor: pointer;
             transition: background-color 0.3s ease;
@@ -117,34 +105,34 @@
 <body class="bg-gray-100" onclick="closeAllDropdowns(event)">
     <!-- Navbar -->
     <nav class="bg-gradient-to-r from-cyan-500 via-cyan-600 to-blue-600 text-white shadow-lg sticky top-0 z-50">
-        <div class="container mx-auto px-6">
-            <div class="flex justify-between items-center py-4">
-                <div class="flex items-center space-x-3">
-                    <i class="fas fa-church text-3xl"></i>
+        <div class="container mx-auto px-3 md:px-6">
+            <div class="flex justify-between items-center py-3 md:py-4">
+                <div class="flex items-center space-x-2 md:space-x-3">
+                    <i class="fas fa-church text-2xl md:text-3xl"></i>
                     <div>
-                        <span class="text-2xl font-bold">HP&K ERP</span>
-                        <p class="text-xs text-cyan-100">Sistema Integral de Gestión</p>
+                        <span class="text-lg md:text-2xl font-bold">HP&K ERP</span>
+                        <p class="text-xs text-cyan-100 hidden sm:block">Sistema Integral de Gestión</p>
                     </div>
                 </div>
                 
-                <div class="flex items-center space-x-6">
-                    <a href="/index.html" class="hover:text-cyan-200 transition font-semibold flex items-center">
-                        <i class="fas fa-home mr-2"></i> INICIO
+                <div class="flex items-center space-x-2 md:space-x-2 md:space-x-6">
+                    <a href="/index.html" class="hover:text-cyan-200 transition font-semibold flex items-center text-sm md:text-base">
+                        <i class="fas fa-home mr-1 md:mr-2"></i> <span class="hidden sm:inline">INICIO</span>
                     </a>
                     
-                    <a href="/reportes.html" class="hover:text-cyan-200 transition font-semibold flex items-center">
+                    <a href="/reportes.html" class="hover:text-cyan-200 transition font-semibold flex items-center text-sm md:text-base hidden md:flex">
                         <i class="fas fa-chart-line mr-2"></i> REPORTES
                     </a>
                     
-                    <a href="/configuracion.html" class="hover:text-cyan-200 transition font-semibold flex items-center">
+                    <a href="/configuracion.html" class="hover:text-cyan-200 transition font-semibold flex items-center text-sm md:text-base hidden lg:flex">
                         <i class="fas fa-cog mr-2"></i> CONFIGURACIÓN
                     </a>
                     
                     <div class="relative dropdown">
-                        <button onclick="toggleDropdown(event, this)" class="hover:text-cyan-200 transition font-semibold flex items-center">
-                            <i class="fas fa-user-circle mr-2 text-xl"></i>
-                            <span>Mi cuenta</span>
-                            <i class="fas fa-chevron-down ml-2 text-xs"></i>
+                        <button onclick="toggleDropdown(event, this)" class="hover:text-cyan-200 transition font-semibold flex items-center text-sm md:text-base">
+                            <i class="fas fa-user-circle mr-1 md:mr-2 text-lg md:text-xl"></i>
+                            <span class="hidden md:inline">Mi cuenta</span>
+                            <i class="fas fa-chevron-down ml-1 md:ml-2 text-xs"></i>
                         </button>
                         <div class="dropdown-menu absolute right-0 mt-2 w-48 bg-white text-gray-800 rounded-lg shadow-xl py-2">
                             <a href="#" class="block px-4 py-2 hover:bg-gray-100">
@@ -165,171 +153,71 @@
     </nav>
 
     <!-- Main Content -->
-    <div class="container mx-auto px-6 py-8">
+    <div class="container mx-auto px-3 md:px-6 py-4 md:py-8">
         <!-- Header Section -->
-        <div class="mb-8">
-            <h1 class="text-4xl font-bold text-gray-800 mb-2">Módulos Principales</h1>
-            <p class="text-gray-600">Acceso rápido a los módulos del sistema HP&K ERP</p>
+        <div class="mb-6 md:mb-8">
+            <h1 class="text-2xl md:text-4xl font-bold text-gray-800 mb-2">Módulos Principales</h1>
+            <p class="text-sm md:text-base text-gray-600">Acceso rápido a los módulos del sistema HP&K ERP</p>
         </div>
 
         <!-- Main Modules Grid -->
-        <div id="main-modules-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6 mb-12">
+        <div id="main-modules-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-6 lg:gap-8 mb-8 md:mb-12">
             <!-- Órdenes de Trabajo -->
-            <a href="/operativos/ordenes-trabajo.html" class="module-card bg-gradient-to-br from-cyan-400 to-cyan-600 rounded-lg shadow-lg p-8 text-white fade-in-up delay-1">
+            <a href="/operativos/ordenes-trabajo.html" class="module-card bg-gradient-to-br from-orange-400 to-orange-600 rounded-lg shadow-lg p-4 md:p-6 lg:p-8 text-white fade-in-up delay-1">
                 <div class="text-center">
-                    <i class="fas fa-clipboard-list text-6xl mb-4 opacity-90"></i>
-                    <h3 class="text-xl font-bold">Órdenes de Trabajo</h3>
-                    <p class="text-sm text-cyan-100 mt-2">Gestión de OT</p>
+                    <i class="fas fa-clipboard-list text-3xl md:text-5xl lg:text-6xl mb-2 md:mb-4 opacity-90"></i>
+                    <h3 class="text-sm md:text-xl lg:text-2xl font-bold">Órdenes de Trabajo</h3>
+                    <p class="text-xs text-orange-100 mt-1 md:mt-2 hidden sm:block">Gestión de OT y Reportes</p>
                 </div>
             </a>
 
-            <!-- Logística - Ahora es un botón -->
-            <div onclick="showLogisticsModule()" class="module-card bg-gradient-to-br from-blue-400 to-blue-600 rounded-lg shadow-lg p-8 text-white fade-in-up delay-2 cursor-pointer">
+            <!-- Logística -->
+            <a href="/logistica/index.html" class="module-card bg-gradient-to-br from-green-400 to-green-600 rounded-lg shadow-lg p-4 md:p-6 lg:p-8 text-white fade-in-up delay-2">
                 <div class="text-center">
-                    <i class="fas fa-boxes text-6xl mb-4 opacity-90"></i>
-                    <h3 class="text-xl font-bold">Logística</h3>
-                    <p class="text-sm text-blue-100 mt-2">Inventario y Stock</p>
+                    <i class="fas fa-boxes text-3xl md:text-5xl lg:text-6xl mb-2 md:mb-4 opacity-90"></i>
+                    <h3 class="text-sm md:text-xl lg:text-2xl font-bold">Logística</h3>
+                    <p class="text-xs text-green-100 mt-1 md:mt-2 hidden sm:block">Inventario, Compras y Recursos</p>
                 </div>
-            </div>
+            </a>
 
             <!-- Producción -->
-            <div onclick="showProductionModule()" class="module-card bg-gradient-to-br from-purple-400 to-purple-600 rounded-lg shadow-lg p-8 text-white fade-in-up delay-3 cursor-pointer">
+            <a href="/produccion/index.html" class="module-card bg-gradient-to-br from-purple-400 to-purple-600 rounded-lg shadow-lg p-4 md:p-6 lg:p-8 text-white fade-in-up delay-3">
                 <div class="text-center">
-                    <i class="fas fa-industry text-6xl mb-4 opacity-90"></i>
-                    <h3 class="text-xl font-bold">Producción</h3>
-                    <p class="text-sm text-purple-100 mt-2">Tareas y Códigos</p>
+                    <i class="fas fa-industry text-3xl md:text-5xl lg:text-6xl mb-2 md:mb-4 opacity-90"></i>
+                    <h3 class="text-sm md:text-xl lg:text-2xl font-bold">Producción</h3>
+                    <p class="text-xs text-purple-100 mt-1 md:mt-2 hidden sm:block">Tareas y Programación</p>
                 </div>
-            </div>
+            </a>
 
             <!-- Mantenimiento -->
-            <div onclick="showMaintenanceModule()" class="module-card bg-gradient-to-br from-green-400 to-green-600 rounded-lg shadow-lg p-8 text-white fade-in-up delay-4 cursor-pointer">
+            <a href="/mantenimiento/index.html" class="module-card bg-gradient-to-br from-blue-400 to-blue-600 rounded-lg shadow-lg p-4 md:p-6 lg:p-8 text-white fade-in-up delay-4">
                 <div class="text-center">
-                    <i class="fas fa-tools text-6xl mb-4 opacity-90"></i>
-                    <h3 class="text-xl font-bold">Mantenimiento</h3>
-                    <p class="text-sm text-green-100 mt-2">Equipos y Herramientas</p>
+                    <i class="fas fa-tools text-3xl md:text-5xl lg:text-6xl mb-2 md:mb-4 opacity-90"></i>
+                    <h3 class="text-sm md:text-xl lg:text-2xl font-bold">Mantenimiento</h3>
+                    <p class="text-xs text-blue-100 mt-1 md:mt-2 hidden sm:block">Equipos, Estrategias y Códigos</p>
                 </div>
-            </div>
+            </a>
 
             <!-- Estrategias -->
-            <a href="/mantenimiento/estrategias.html" class="module-card bg-gradient-to-br from-lime-400 to-lime-600 rounded-lg shadow-lg p-8 text-white fade-in-up delay-5">
+            <a href="/mantenimiento/estrategias.html" class="module-card bg-gradient-to-br from-indigo-400 to-indigo-600 rounded-lg shadow-lg p-4 md:p-6 lg:p-8 text-white fade-in-up delay-5">
                 <div class="text-center">
-                    <i class="fas fa-lightbulb text-6xl mb-4 opacity-90"></i>
-                    <h3 class="text-xl font-bold">Estrategias</h3>
-                    <p class="text-sm text-lime-100 mt-2">Mantenimiento</p>
+                    <i class="fas fa-lightbulb text-3xl md:text-5xl lg:text-6xl mb-2 md:mb-4 opacity-90"></i>
+                    <h3 class="text-sm md:text-xl lg:text-2xl font-bold">Estrategias</h3>
+                    <p class="text-xs text-indigo-100 mt-1 md:mt-2 hidden sm:block">Estrategias de Mantenimiento</p>
                 </div>
             </a>
 
             <!-- Reporte General -->
-            <a href="/operativos/reporte-general.html" class="module-card bg-gradient-to-br from-orange-400 to-orange-600 rounded-lg shadow-lg p-8 text-white fade-in-up delay-6">
+            <a href="/operativos/reporte-general.html" class="module-card bg-gradient-to-br from-red-400 to-red-600 rounded-lg shadow-lg p-4 md:p-6 lg:p-8 text-white fade-in-up delay-6">
                 <div class="text-center">
-                    <i class="fas fa-chart-line text-6xl mb-4 opacity-90"></i>
-                    <h3 class="text-xl font-bold">Reporte General</h3>
-                    <p class="text-sm text-orange-100 mt-2">Análisis y Métricas</p>
+                    <i class="fas fa-chart-bar text-3xl md:text-5xl lg:text-6xl mb-2 md:mb-4 opacity-90"></i>
+                    <h3 class="text-sm md:text-xl lg:text-2xl font-bold">Reporte General</h3>
+                    <p class="text-xs text-red-100 mt-1 md:mt-2 hidden sm:block">Análisis y Métricas Generales</p>
                 </div>
             </a>
         </div>
 
         <!-- Submenu for Logistics (Initially Hidden) -->
-        <div id="logistics-submenu" class="logistics-submenu mb-8" style="display: none;">
-            <div class="flex items-center justify-between mb-6">
-                <div>
-                    <h2 class="text-3xl font-bold text-gray-800 flex items-center">
-                        <i class="fas fa-boxes text-blue-600 mr-3"></i>
-                        Módulo de Logística
-                    </h2>
-                    <p class="text-gray-600 mt-1">Gestión integral de inventario, compras y recursos</p>
-                </div>
-                <button onclick="backToMainModules()" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition flex items-center">
-                    <i class="fas fa-arrow-left mr-2"></i> Volver
-                </button>
-            </div>
-
-            <!-- Logistics Submodules -->
-            <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
-                <!-- Almacén -->
-                <div onclick="showSubmodule('almacen')" class="submenu-card bg-gradient-to-br from-blue-100 to-blue-200 rounded-lg p-6 text-center">
-                    <i class="fas fa-warehouse text-3xl text-blue-600 mb-3"></i>
-                    <h4 class="font-bold text-blue-800">ALMACÉN</h4>
-                    <p class="text-sm text-blue-600 mt-1">Inventario y Stock</p>
-                </div>
-
-                <!-- Compras -->
-                <div onclick="showSubmodule('compras')" class="submenu-card bg-gradient-to-br from-green-100 to-green-200 rounded-lg p-6 text-center">
-                    <i class="fas fa-shopping-cart text-3xl text-green-600 mb-3"></i>
-                    <h4 class="font-bold text-green-800">COMPRAS</h4>
-                    <p class="text-sm text-green-600 mt-1">Órdenes y Proveedores</p>
-                </div>
-
-                <!-- Recursos Solicitados -->
-                <div onclick="showSubmodule('recursos')" class="submenu-card bg-gradient-to-br from-purple-100 to-purple-200 rounded-lg p-6 text-center">
-                    <i class="fas fa-hand-holding text-3xl text-purple-600 mb-3"></i>
-                    <h4 class="font-bold text-purple-800">RECURSOS SOLICITADOS</h4>
-                    <p class="text-sm text-purple-600 mt-1">Solicitudes y Asignaciones</p>
-                </div>
-
-                <!-- Transporte -->
-                <div onclick="showSubmodule('transporte')" class="submenu-card bg-gradient-to-br from-orange-100 to-orange-200 rounded-lg p-6 text-center">
-                    <i class="fas fa-truck text-3xl text-orange-600 mb-3"></i>
-                    <h4 class="font-bold text-orange-800">TRANSPORTE</h4>
-                    <p class="text-sm text-orange-600 mt-1">Logística y Movilidad</p>
-                </div>
-
-                <!-- Dashboard -->
-                <div onclick="showSubmodule('dashboard')" class="submenu-card bg-gradient-to-br from-cyan-100 to-cyan-200 rounded-lg p-6 text-center">
-                    <i class="fas fa-chart-pie text-3xl text-cyan-600 mb-3"></i>
-                    <h4 class="font-bold text-cyan-800">DASHBOARD</h4>
-                    <p class="text-sm text-cyan-600 mt-1">Métricas y Reportes</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Production Submenu -->
-        <div id="production-submenu" class="production-submenu mb-8" style="display: none;">
-            <div class="flex items-center justify-between mb-6">
-                <h2 class="text-3xl font-bold text-gray-800">Módulo de Producción</h2>
-                <button onclick="backToMainModules()" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition flex items-center">
-                    <i class="fas fa-arrow-left mr-2"></i> Volver al Dashboard
-                </button>
-            </div>
-            
-            <div class="grid grid-cols-1 md:grid-cols-5 gap-6">
-                <!-- BASE DE DATOS -->
-                <div onclick="showSubmodule('basededatos')" class="submenu-card bg-gradient-to-br from-cyan-400 to-cyan-600 text-white cursor-pointer">
-                    <i class="fas fa-database text-4xl mb-3"></i>
-                    <h3 class="text-lg font-bold mb-2">BASE DE DATOS</h3>
-                    <p class="text-sm opacity-90">Gestión de datos</p>
-                </div>
-
-                <!-- DASHBOARD -->
-                <div onclick="showSubmodule('dashboardprod')" class="submenu-card bg-gradient-to-br from-blue-400 to-blue-600 text-white cursor-pointer">
-                    <i class="fas fa-tachometer-alt text-4xl mb-3"></i>
-                    <h3 class="text-lg font-bold mb-2">DASHBOARD</h3>
-                    <p class="text-sm opacity-90">Panel de control</p>
-                </div>
-
-                <!-- REQUERIMIENTOS -->
-                <div onclick="showSubmodule('requerimientos')" class="submenu-card bg-gradient-to-br from-purple-400 to-purple-600 text-white cursor-pointer">
-                    <i class="fas fa-clipboard-list text-4xl mb-3"></i>
-                    <h3 class="text-lg font-bold mb-2">REQUERIMIENTOS</h3>
-                    <p class="text-sm opacity-90">Especificaciones</p>
-                </div>
-
-                <!-- PLANIFICACIÓN -->
-                <div onclick="showSubmodule('planificacion')" class="submenu-card bg-gradient-to-br from-orange-400 to-orange-600 text-white cursor-pointer">
-                    <i class="fas fa-calendar-alt text-4xl mb-3"></i>
-                    <h3 class="text-lg font-bold mb-2">PLANIFICACIÓN</h3>
-                    <p class="text-sm opacity-90">Cronogramas</p>
-                </div>
-
-                <!-- PROGRAMACIÓN -->
-                <div onclick="showSubmodule('programacion')" class="submenu-card bg-gradient-to-br from-green-400 to-green-600 text-white cursor-pointer">
-                    <i class="fas fa-code text-4xl mb-3"></i>
-                    <h3 class="text-lg font-bold mb-2">PROGRAMACIÓN</h3>
-                    <p class="text-sm opacity-90">Codificación</p>
-                </div>
-            </div>
-        </div>
-
         <!-- Breadcrumb Navigation -->
         <div class="mb-6">
             <div id="breadcrumb" class="text-sm text-gray-600 bg-gray-50 px-4 py-2 rounded-lg">
@@ -341,7 +229,7 @@
         <div id="content-area">
             <!-- Default Content (Catálogos, Reportes, Estadísticas) -->
             <div id="default-content" class="content-section active">
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
                     <!-- Catálogos Maestros -->
                     <div class="bg-white rounded-lg shadow-lg p-6">
                         <div class="flex items-center mb-4">
@@ -426,78 +314,122 @@
 
             <!-- ALMACÉN Content -->
             <div id="almacen-content" class="content-section">
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <!-- Stock Actual -->
-                    <div class="bg-white rounded-lg shadow-lg p-6">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="flex items-center">
-                                <div class="bg-blue-100 p-3 rounded-lg mr-3">
-                                    <i class="fas fa-boxes text-blue-600 text-2xl"></i>
-                                </div>
-                                <h3 class="text-xl font-bold text-gray-800">Stock Actual</h3>
-                            </div>
-                            <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm">
-                                <i class="fas fa-plus mr-1"></i> Nuevo Item
-                            </button>
-                        </div>
-                        <div class="space-y-3">
-                            <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                                <div class="flex items-center">
-                                    <i class="fas fa-wrench text-gray-400 mr-3"></i>
-                                    <span class="font-medium">Herramientas</span>
-                                </div>
-                                <span class="text-blue-600 font-bold">250 items</span>
-                            </div>
-                            <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                                <div class="flex items-center">
-                                    <i class="fas fa-cog text-gray-400 mr-3"></i>
-                                    <span class="font-medium">Repuestos</span>
-                                </div>
-                                <span class="text-green-600 font-bold">142 items</span>
-                            </div>
-                            <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                                <div class="flex items-center">
-                                    <i class="fas fa-bolt text-gray-400 mr-3"></i>
-                                    <span class="font-medium">Material Eléctrico</span>
-                                </div>
-                                <span class="text-orange-600 font-bold">89 items</span>
-                            </div>
-                        </div>
+                <!-- Categorías Principales de Inventario -->
+                <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
+                    <!-- Herramientas & Equipos -->
+                    <div class="bg-gradient-to-br from-blue-100 to-blue-200 rounded-lg p-6 text-center">
+                        <i class="fas fa-tools text-4xl text-blue-600 mb-3"></i>
+                        <h4 class="font-bold text-blue-800 mb-2">Herramientas & Equipos</h4>
+                        <div class="text-2xl font-bold text-blue-600 mb-1">324</div>
+                        <p class="text-xs text-blue-700">Items disponibles</p>
+                        <button onclick="gestionarCategoria('herramientas')" class="mt-3 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-xs">
+                            <i class="fas fa-eye mr-1"></i>Ver Inventario
+                        </button>
                     </div>
 
-                    <!-- Movimientos Recientes -->
-                    <div class="bg-white rounded-lg shadow-lg p-6">
-                        <div class="flex items-center mb-4">
-                            <div class="bg-green-100 p-3 rounded-lg mr-3">
-                                <i class="fas fa-exchange-alt text-green-600 text-2xl"></i>
-                            </div>
-                            <h3 class="text-xl font-bold text-gray-800">Movimientos Recientes</h3>
-                        </div>
-                        <div class="space-y-3">
-                            <div class="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
-                                <div class="flex items-center">
-                                    <div class="w-3 h-3 bg-green-500 rounded-full mr-3"></div>
-                                    <div>
-                                        <p class="font-medium text-sm">Entrada - Tornillos M8</p>
-                                        <p class="text-xs text-gray-500">Hoy 14:30</p>
-                                    </div>
-                                </div>
-                                <span class="text-green-600 font-bold">+50</span>
-                            </div>
-                            <div class="flex items-center justify-between p-3 border border-gray-200 rounded-lg">
-                                <div class="flex items-center">
-                                    <div class="w-3 h-3 bg-red-500 rounded-full mr-3"></div>
-                                    <div>
-                                        <p class="font-medium text-sm">Salida - Válvula 1/2"</p>
-                                        <p class="text-xs text-gray-500">Hoy 12:15</p>
-                                    </div>
-                                </div>
-                                <span class="text-red-600 font-bold">-2</span>
-                            </div>
-                        </div>
-                        <button class="w-full mt-4 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 rounded-lg text-sm transition">
-                            Ver Todos los Movimientos
+                    <!-- Suministros de Repuestos -->
+                    <div class="bg-gradient-to-br from-green-100 to-green-200 rounded-lg p-6 text-center">
+                        <i class="fas fa-cogs text-4xl text-green-600 mb-3"></i>
+                        <h4 class="font-bold text-green-800 mb-2">Suministros de Repuestos</h4>
+                        <div class="text-2xl font-bold text-green-600 mb-1">856</div>
+                        <p class="text-xs text-green-700">Items en stock</p>
+                        <button onclick="gestionarCategoria('repuestos')" class="mt-3 bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-xs">
+                            <i class="fas fa-eye mr-1"></i>Ver Inventario
                         </button>
+                    </div>
+
+                    <!-- Consumibles -->
+                    <div class="bg-gradient-to-br from-orange-100 to-orange-200 rounded-lg p-6 text-center">
+                        <i class="fas fa-box-open text-4xl text-orange-600 mb-3"></i>
+                        <h4 class="font-bold text-orange-800 mb-2">Consumibles</h4>
+                        <div class="text-2xl font-bold text-orange-600 mb-1">192</div>
+                        <p class="text-xs text-orange-700">Items disponibles</p>
+                        <button onclick="gestionarCategoria('consumibles')" class="mt-3 bg-orange-600 hover:bg-orange-700 text-white px-3 py-1 rounded text-xs">
+                            <i class="fas fa-eye mr-1"></i>Ver Inventario
+                        </button>
+                    </div>
+
+                    <!-- Catalogar Nuevos Items -->
+                    <div class="bg-gradient-to-br from-purple-100 to-purple-200 rounded-lg p-6 text-center">
+                        <i class="fas fa-plus-circle text-4xl text-purple-600 mb-3"></i>
+                        <h4 class="font-bold text-purple-800 mb-2">Catalogar Items</h4>
+                        <div class="text-2xl font-bold text-purple-600 mb-1">+</div>
+                        <p class="text-xs text-purple-700">Agregar al inventario</p>
+                        <button onclick="catalogarItem()" class="mt-3 bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded text-xs">
+                            <i class="fas fa-plus mr-1"></i>Catalogar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Panel de Control de Stock -->
+                <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-xl font-bold text-gray-800">Control de Stock General</h3>
+                        <div class="flex gap-3">
+                            <button onclick="exportarInventario()" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-lg text-sm">
+                                <i class="fas fa-download mr-1"></i>Exportar
+                            </button>
+                            <button onclick="generarReporteStock()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm">
+                                <i class="fas fa-chart-bar mr-1"></i>Reporte
+                            </button>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="text-center">
+                            <div class="text-3xl font-bold text-blue-600">1,372</div>
+                            <p class="text-gray-500">Total Items</p>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-3xl font-bold text-red-600">23</div>
+                            <p class="text-gray-500">Stock Mínimo</p>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-3xl font-bold text-green-600">$245,890</div>
+                            <p class="text-gray-500">Valor Total</p>
+                        </div>
+                    </div>
+                </div>
+
+<!-- Herramientas para Catalogación -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <div class="flex items-center mb-4">
+                        <div class="bg-purple-100 p-3 rounded-lg mr-3">
+                            <i class="fas fa-barcode text-purple-600 text-2xl"></i>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-800">🏷️ Opciones de Catalogación</h3>
+                    </div>
+                    <div class="space-y-3">
+                        <button onclick="catalogarCodigoBarra()" class="w-full flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50">
+                            <div class="flex items-center">
+                                <i class="fas fa-barcode text-purple-500 mr-3"></i>
+                                <div class="text-left">
+                                    <p class="font-medium text-sm">Escanear Código de Barras</p>
+                                    <p class="text-xs text-gray-500">Catalogación rápida</p>
+                                </div>
+                            </div>
+                            <i class="fas fa-chevron-right text-gray-400"></i>
+                        </button>
+                        <button onclick="catalogarManual()" class="w-full flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50">
+                            <div class="flex items-center">
+                                <i class="fas fa-keyboard text-blue-500 mr-3"></i>
+                                <div class="text-left">
+                                    <p class="font-medium text-sm">Catalogación Manual</p>
+                                    <p class="text-xs text-gray-500">Ingreso detallado</p>
+                                </div>
+                            </div>
+                            <i class="fas fa-chevron-right text-gray-400"></i>
+                        </button>
+                        <button onclick="catalogarImportacion()" class="w-full flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-gray-50">
+                            <div class="flex items-center">
+                                <i class="fas fa-file-excel text-green-500 mr-3"></i>
+                                <div class="text-left">
+                                    <p class="font-medium text-sm">Importar desde Excel</p>
+                                    <p class="text-xs text-gray-500">Catalogación masiva</p>
+                                </div>
+                            </div>
+                            <i class="fas fa-chevron-right text-gray-400"></i>
+                        </button>
+                    </div>
                     </div>
                 </div>
 
@@ -547,53 +479,65 @@
 
             <!-- COMPRAS Content -->
             <div id="compras-content" class="content-section">
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <!-- Órdenes Pendientes -->
-                    <div class="bg-white rounded-lg shadow-lg p-6">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="flex items-center">
-                                <div class="bg-orange-100 p-3 rounded-lg mr-3">
-                                    <i class="fas fa-clock text-orange-600 text-2xl"></i>
-                                </div>
-                                <h3 class="text-lg font-bold text-gray-800">Órdenes Pendientes</h3>
-                            </div>
+                <!-- Panel Principal de Órdenes de Compra -->
+                <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-2xl font-bold text-gray-800">🛒 Gestión de Órdenes de Compra</h3>
+                        <div class="flex gap-3">
+                            <button onclick="generarOC()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm">
+                                <i class="fas fa-plus mr-1"></i>Generar OC
+                            </button>
+                            <button onclick="agregarProveedor()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm">
+                                <i class="fas fa-building mr-1"></i>Agregar Proveedor
+                            </button>
                         </div>
-                        <div class="text-center">
-                            <div class="text-3xl font-bold text-orange-600 mb-2">8</div>
-                            <p class="text-gray-500">Esperando aprobación</p>
+                    </div>
+                    
+                    <!-- Métricas de Compras -->
+                    <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-6">
+                        <div class="bg-orange-50 p-4 rounded-lg text-center">
+                            <div class="text-2xl font-bold text-orange-600">12</div>
+                            <p class="text-sm text-orange-700">OC Pendientes</p>
+                        </div>
+                        <div class="bg-blue-50 p-4 rounded-lg text-center">
+                            <div class="text-2xl font-bold text-blue-600">35</div>
+                            <p class="text-sm text-blue-700">OC Aprobadas</p>
+                        </div>
+                        <div class="bg-green-50 p-4 rounded-lg text-center">
+                            <div class="text-2xl font-bold text-green-600">28</div>
+                            <p class="text-sm text-green-700">OC Entregadas</p>
+                        </div>
+                        <div class="bg-purple-50 p-4 rounded-lg text-center">
+                            <div class="text-2xl font-bold text-purple-600">24</div>
+                            <p class="text-sm text-purple-700">Proveedores</p>
                         </div>
                     </div>
 
-                    <!-- Proveedores Activos -->
-                    <div class="bg-white rounded-lg shadow-lg p-6">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="flex items-center">
-                                <div class="bg-blue-100 p-3 rounded-lg mr-3">
-                                    <i class="fas fa-truck text-blue-600 text-2xl"></i>
-                                </div>
-                                <h3 class="text-lg font-bold text-gray-800">Proveedores</h3>
+                    <!-- Acciones Rápidas -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                        <button onclick="verListadoEstados()" class="bg-gradient-to-br from-gray-100 to-gray-200 p-4 rounded-lg hover:shadow-md transition">
+                            <div class="flex items-center justify-center mb-2">
+                                <i class="fas fa-list-alt text-2xl text-gray-600"></i>
                             </div>
-                        </div>
-                        <div class="text-center">
-                            <div class="text-3xl font-bold text-blue-600 mb-2">24</div>
-                            <p class="text-gray-500">Proveedores activos</p>
-                        </div>
-                    </div>
-
-                    <!-- Total Gastado -->
-                    <div class="bg-white rounded-lg shadow-lg p-6">
-                        <div class="flex items-center justify-between mb-4">
-                            <div class="flex items-center">
-                                <div class="bg-green-100 p-3 rounded-lg mr-3">
-                                    <i class="fas fa-dollar-sign text-green-600 text-2xl"></i>
-                                </div>
-                                <h3 class="text-lg font-bold text-gray-800">Gasto Mensual</h3>
+                            <h4 class="font-bold text-gray-800 mb-1">Ver Listado de Estados de OC</h4>
+                            <p class="text-xs text-gray-600">Revisar estado de todas las órdenes</p>
+                        </button>
+                        
+                        <button onclick="imprimirOCPDF()" class="bg-gradient-to-br from-red-100 to-red-200 p-4 rounded-lg hover:shadow-md transition">
+                            <div class="flex items-center justify-center mb-2">
+                                <i class="fas fa-file-pdf text-2xl text-red-600"></i>
                             </div>
-                        </div>
-                        <div class="text-center">
-                            <div class="text-3xl font-bold text-green-600 mb-2">$45,320</div>
-                            <p class="text-gray-500">Este mes</p>
-                        </div>
+                            <h4 class="font-bold text-gray-800 mb-1">Imprimir OC en PDF</h4>
+                            <p class="text-xs text-gray-600">Generar documentos para impresión</p>
+                        </button>
+                        
+                        <button onclick="gestionarProveedores()" class="bg-gradient-to-br from-blue-100 to-blue-200 p-4 rounded-lg hover:shadow-md transition">
+                            <div class="flex items-center justify-center mb-2">
+                                <i class="fas fa-handshake text-2xl text-blue-600"></i>
+                            </div>
+                            <h4 class="font-bold text-gray-800 mb-1">Gestionar Proveedores</h4>
+                            <p class="text-xs text-gray-600">Administrar base de datos de proveedores</p>
+                        </button>
                     </div>
                 </div>
 
@@ -601,10 +545,12 @@
                 <div class="mt-8 bg-white rounded-lg shadow-lg overflow-hidden">
                     <div class="bg-green-600 text-white p-4">
                         <div class="flex justify-between items-center">
-                            <h3 class="text-lg font-bold">Órdenes de Compra Recientes</h3>
-                            <button class="bg-green-700 hover:bg-green-800 px-4 py-2 rounded-lg text-sm">
-                                <i class="fas fa-plus mr-1"></i> Nueva OC
-                            </button>
+                            <h3 class="text-lg font-bold">Órdenes de Compra Activas</h3>
+                            <div class="flex gap-2">
+                                <button onclick="exportarOCs()" class="bg-green-700 hover:bg-green-800 px-3 py-1 rounded text-sm">
+                                    <i class="fas fa-download mr-1"></i>Exportar
+                                </button>
+                            </div>
                         </div>
                     </div>
                     <div class="p-4">
@@ -622,14 +568,27 @@
                                 </thead>
                                 <tbody class="divide-y divide-gray-200">
                                     <tr>
-                                        <td class="px-4 py-3 text-sm font-medium">OC-2024-001</td>
+                                        <td class="px-4 py-3 text-sm font-medium">OC-2026-008</td>
                                         <td class="px-4 py-3 text-sm">Ferretería Industrial S.A.</td>
-                                        <td class="px-4 py-3 text-sm">11/02/2026</td>
-                                        <td class="px-4 py-3 text-sm font-medium">$2,450.00</td>
-                                        <td class="px-4 py-3"><span class="px-2 py-1 text-xs bg-yellow-100 text-yellow-800 rounded-full">Pendiente</span></td>
+                                        <td class="px-4 py-3 text-sm">15/02/2026</td>
+                                        <td class="px-4 py-3 text-sm font-medium">$3,250.00</td>
+                                        <td class="px-4 py-3"><span class="px-2 py-1 text-xs bg-orange-100 text-orange-800 rounded-full">Pendiente</span></td>
                                         <td class="px-4 py-3">
-                                            <button class="text-blue-600 hover:text-blue-800 mr-2"><i class="fas fa-eye"></i></button>
-                                            <button class="text-green-600 hover:text-green-800"><i class="fas fa-edit"></i></button>
+                                            <button onclick="verDetalleOC('OC-2026-008')" class="text-blue-600 hover:text-blue-800 mr-2"><i class="fas fa-eye"></i></button>
+                                            <button onclick="imprimirOC('OC-2026-008')" class="text-red-600 hover:text-red-800 mr-2"><i class="fas fa-print"></i></button>
+                                            <button onclick="editarOC('OC-2026-008')" class="text-green-600 hover:text-green-800"><i class="fas fa-edit"></i></button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="px-4 py-3 text-sm font-medium">OC-2026-007</td>
+                                        <td class="px-4 py-3 text-sm">Hidráulicos del Norte</td>
+                                        <td class="px-4 py-3 text-sm">14/02/2026</td>
+                                        <td class="px-4 py-3 text-sm font-medium">$1,850.00</td>
+                                        <td class="px-4 py-3"><span class="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">Aprobada</span></td>
+                                        <td class="px-4 py-3">
+                                            <button onclick="verDetalleOC('OC-2026-007')" class="text-blue-600 hover:text-blue-800 mr-2"><i class="fas fa-eye"></i></button>
+                                            <button onclick="imprimirOC('OC-2026-007')" class="text-red-600 hover:text-red-800 mr-2"><i class="fas fa-print"></i></button>
+                                            <button onclick="seguimientoOC('OC-2026-007')" class="text-purple-600 hover:text-purple-800"><i class="fas fa-truck"></i></button>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -639,81 +598,346 @@
                 </div>
             </div>
 
-            <!-- RECURSOS SOLICITADOS Content -->
-            <div id="recursos-content" class="content-section">
-                <div class="grid grid-cols-1 lg:grid-cols-4 gap-4">
-                    <div class="bg-white rounded-lg shadow-lg p-6 text-center">
-                        <i class="fas fa-hand-holding text-4xl text-purple-600 mb-3"></i>
-                        <h4 class="font-bold text-purple-800 mb-2">En Espera</h4>
-                        <div class="text-2xl font-bold text-purple-600">12</div>
-                    </div>
-                    <div class="bg-white rounded-lg shadow-lg p-6 text-center">
-                        <i class="fas fa-check-circle text-4xl text-green-600 mb-3"></i>
-                        <h4 class="font-bold text-green-800 mb-2">Aprobados</h4>
-                        <div class="text-2xl font-bold text-green-600">5</div>
-                    </div>
-                    <div class="bg-white rounded-lg shadow-lg p-6 text-center">
-                        <i class="fas fa-truck-loading text-4xl text-blue-600 mb-3"></i>
-                        <h4 class="font-bold text-blue-800 mb-2">En Tránsito</h4>
-                        <div class="text-2xl font-bold text-blue-600">3</div>
-                    </div>
-                    <div class="bg-white rounded-lg shadow-lg p-6 text-center">
-                        <i class="fas fa-box-check text-4xl text-orange-600 mb-3"></i>
-                        <h4 class="font-bold text-orange-800 mb-2">Entregados</h4>
-                        <div class="text-2xl font-bold text-orange-600">45</div>
-                    </div>
-                </div>
-                
-                <!-- Lista de Solicitudes -->
-                <div class="mt-8 bg-white rounded-lg shadow-lg overflow-hidden">
-                    <div class="bg-purple-600 text-white p-4">
-                        <div class="flex justify-between items-center">
-                            <h3 class="text-lg font-bold">Solicitudes de Recursos</h3>
-                            <button class="bg-purple-700 hover:bg-purple-800 px-4 py-2 rounded-lg text-sm">
-                                <i class="fas fa-plus mr-1"></i> Nueva Solicitud
+            <!-- DASHBOARD LOGISTICA Content -->
+            <div id="dashboard-content" class="content-section">
+                <!-- Dashboard Principal de Logística -->
+                <div class="mb-8">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-3xl font-bold text-gray-800">Dashboard Logística - Febrero 2026</h2>
+                        <div class="flex gap-3">
+                            <button onclick="actualizarDashboard()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm">
+                                <i class="fas fa-sync mr-1"></i>Actualizar
+                            </button>
+                            <button onclick="exportarReporteDashboard()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm">
+                                <i class="fas fa-download mr-1"></i>Exportar Reporte
                             </button>
                         </div>
                     </div>
-                    <div class="p-6">
-                        <div class="space-y-4">
-                            <div class="border border-gray-200 rounded-lg p-4">
-                                <div class="flex justify-between items-start">
-                                    <div>
-                                        <h4 class="font-medium">Kit de Juntas Universal</h4>
-                                        <p class="text-sm text-gray-500">Solicitado por: Juan Pérez - Mantenimiento</p>
-                                        <p class="text-xs text-gray-400">Fecha: 11/02/2026 - 09:30</p>
-                                    </div>
-                                    <span class="px-3 py-1 text-xs bg-yellow-100 text-yellow-800 rounded-full">En Espera</span>
+
+                    <!-- Métricas Generales -->
+                    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 mb-8">
+                        <div class="bg-gradient-to-br from-blue-400 to-blue-600 rounded-lg p-6 text-white text-center">
+                            <i class="fas fa-boxes text-3xl mb-3 opacity-80"></i>
+                            <h3 class="text-xl font-bold mb-1">Total Inventario</h3>
+                            <div class="text-3xl font-bold mb-1">1,372</div>
+                            <p class="text-sm opacity-90">Items en almacén</p>
+                        </div>
+                        <div class="bg-gradient-to-br from-green-400 to-green-600 rounded-lg p-6 text-white text-center">
+                            <i class="fas fa-shopping-cart text-3xl mb-3 opacity-80"></i>
+                            <h3 class="text-xl font-bold mb-1">Órdenes de Compra</h3>
+                            <div class="text-3xl font-bold mb-1">47</div>
+                            <p class="text-sm opacity-90">OC activas</p>
+                        </div>
+                        <div class="bg-gradient-to-br from-purple-400 to-purple-600 rounded-lg p-6 text-white text-center">
+                            <i class="fas fa-clipboard-list text-3xl mb-3 opacity-80"></i>
+                            <h3 class="text-xl font-bold mb-1">Requerimientos</h3>
+                            <div class="text-3xl font-bold mb-1">23</div>
+                            <p class="text-sm opacity-90">Req. pendientes</p>
+                        </div>
+                        <div class="bg-gradient-to-br from-orange-400 to-orange-600 rounded-lg p-6 text-white text-center">
+                            <i class="fas fa-truck text-3xl mb-3 opacity-80"></i>
+                            <h3 class="text-xl font-bold mb-1">Despachos</h3>
+                            <div class="text-3xl font-bold mb-1">15</div>
+                            <p class="text-sm opacity-90">OT's listas</p>
+                        </div>
+                    </div>
+
+                    <!-- Gráficos y Reportes -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                        <!-- Estado del Inventario -->
+                        <div class="bg-white rounded-lg shadow-lg p-6">
+                            <h3 class="text-lg font-bold text-gray-800 mb-4">Estado del Inventario</h3>
+                            <div class="space-y-3">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm text-gray-600">Stock Normal</span>
+                                    <span class="text-green-600 font-bold">89%</span>
                                 </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-green-500 h-2 rounded-full" style="width: 89%"></div>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm text-gray-600">Stock Mínimo</span>
+                                    <span class="text-yellow-600 font-bold">8%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-yellow-500 h-2 rounded-full" style="width: 8%"></div>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-sm text-gray-600">Agotado</span>
+                                    <span class="text-red-600 font-bold">3%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-red-500 h-2 rounded-full" style="width: 3%"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Rendimiento de Compras -->
+                        <div class="bg-white rounded-lg shadow-lg p-6">
+                            <h3 class="text-lg font-bold text-gray-800 mb-4">Rendimiento de Compras</h3>
+                            <div class="space-y-4">
+                                <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
+                                    <div>
+                                        <p class="font-medium text-gray-800">OC Generadas</p>
+                                        <p class="text-sm text-gray-500">Este mes</p>
+                                    </div>
+                                    <span class="text-2xl font-bold text-blue-600">47</span>
+                                </div>
+                                <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
+                                    <div>
+                                        <p class="font-medium text-gray-800">Monto Total</p>
+                                        <p class="text-sm text-gray-500">Este mes</p>
+                                    </div>
+                                    <span class="text-2xl font-bold text-green-600">$89,450</span>
+                                </div>
+                                <div class="flex justify-between items-center p-3 bg-gray-50 rounded">
+                                    <div>
+                                        <p class="font-medium text-gray-800">Tiempo Promedio</p>
+                                        <p class="text-sm text-gray-500">Generación OC</p>
+                                    </div>
+                                    <span class="text-2xl font-bold text-purple-600">2.5d</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Alertas y Notificaciones -->
+                    <div class="bg-white rounded-lg shadow-lg p-6">
+                        <div class="flex items-center mb-4">
+                            <i class="fas fa-exclamation-triangle text-2xl text-red-600 mr-3"></i>
+                            <h3 class="text-lg font-bold text-gray-800">Alertas y Notificaciones</h3>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="flex items-center p-3 bg-red-50 border border-red-200 rounded-lg">
+                                <div class="bg-red-500 w-3 h-3 rounded-full mr-3"></div>
+                                <div class="flex-1">
+                                    <p class="font-medium text-red-800">Stock crítico: Juntas universales tipo A</p>
+                                    <p class="text-sm text-red-600">Solo 2 unidades disponibles</p>
+                                </div>
+                                <button onclick="generarRequerimientoUrgente('juntas-universales-a')" class="text-red-600 hover:text-red-800">
+                                    <i class="fas fa-plus-circle"></i>
+                                </button>
+                            </div>
+                            <div class="flex items-center p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                                <div class="bg-yellow-500 w-3 h-3 rounded-full mr-3"></div>
+                                <div class="flex-1">
+                                    <p class="font-medium text-yellow-800">OC-2026-005 pendiente de aprobación</p>
+                                    <p class="text-sm text-yellow-600">Ferretería Industrial - $4,200.00</p>
+                                </div>
+                                <button onclick="revisarOC('OC-2026-005')" class="text-yellow-600 hover:text-yellow-800">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            <div class="flex items-center p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                                <div class="bg-blue-500 w-3 h-3 rounded-full mr-3"></div>
+                                <div class="flex-1">
+                                    <p class="font-medium text-blue-800">15 OT's listas para despacho</p>
+                                    <p class="text-sm text-blue-600">Requieren programación de citas</p>
+                                </div>
+                                <button onclick="programarDespachos()" class="text-blue-600 hover:text-blue-800">
+                                    <i class="fas fa-calendar-plus"></i>
+                                </button>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- TRANSPORTE Content -->
-            <div id="transporte-content" class="content-section">
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div class="bg-white rounded-lg shadow-lg p-6 text-center">
-                        <i class="fas fa-truck text-4xl text-orange-600 mb-3"></i>
-                        <h4 class="font-bold text-orange-800 mb-2">Vehículos Activos</h4>
-                        <div class="text-2xl font-bold text-orange-600">8</div>
+            <!-- RECURSOS SOLICITADOS Content -->
+            <div id="recursos-content" class="content-section">
+                <!-- Panel Principal de Requerimientos -->
+                <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-2xl font-bold text-gray-800">📋 Gestión de Requerimientos</h3>
+                        <div class="flex gap-3">
+                            <button onclick="visualizarTodosRequerimientos()" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm">
+                                <i class="fas fa-eye mr-1"></i>Ver Todos los Req. Pendientes
+                            </button>
+                            <button onclick="agruparPorVendedor()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm">
+                                <i class="fas fa-users mr-1"></i>Agrupar por Vendedor
+                            </button>
+                        </div>
                     </div>
-                    <div class="bg-white rounded-lg shadow-lg p-6 text-center">
-                        <i class="fas fa-route text-4xl text-blue-600 mb-3"></i>
-                        <h4 class="font-bold text-blue-800 mb-2">Rutas del Día</h4>
-                        <div class="text-2xl font-bold text-blue-600">12</div>
-                    </div>
-                    <div class="bg-white rounded-lg shadow-lg p-6 text-center">
-                        <i class="fas fa-gas-pump text-4xl text-green-600 mb-3"></i>
-                        <h4 class="font-bold text-green-800 mb-2">Consumo Promedio</h4>
-                        <div class="text-2xl font-bold text-green-600">15L/100km</div>
+                    
+                    <!-- Estados de Requerimientos -->
+                    <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-6">
+                        <div class="bg-gradient-to-br from-red-100 to-red-200 p-4 rounded-lg text-center">
+                            <i class="fas fa-clock text-2xl text-red-600 mb-2"></i>
+                            <div class="text-2xl font-bold text-red-600">23</div>
+                            <p class="text-sm text-red-700">Req. Pendientes</p>
+                        </div>
+                        <div class="bg-gradient-to-br from-yellow-100 to-yellow-200 p-4 rounded-lg text-center">
+                            <i class="fas fa-shopping-cart text-2xl text-yellow-600 mb-2"></i>
+                            <div class="text-2xl font-bold text-yellow-600">8</div>
+                            <p class="text-sm text-yellow-700">En Cotización</p>
+                        </div>
+                        <div class="bg-gradient-to-br from-blue-100 to-blue-200 p-4 rounded-lg text-center">
+                            <i class="fas fa-file-invoice text-2xl text-blue-600 mb-2"></i>
+                            <div class="text-2xl font-bold text-blue-600">12</div>
+                            <p class="text-sm text-blue-700">Generados en OC</p>
+                        </div>
+                        <div class="bg-gradient-to-br from-green-100 to-green-200 p-4 rounded-lg text-center">
+                            <i class="fas fa-check-circle text-2xl text-green-600 mb-2"></i>
+                            <div class="text-2xl font-bold text-green-600">45</div>
+                            <p class="text-sm text-green-700">Completados</p>
+                        </div>
                     </div>
                 </div>
 
-                <div class="mt-8 bg-white rounded-lg shadow-lg p-6">
-                    <h3 class="text-lg font-bold text-gray-800 mb-4">Control de Flota</h3>
-                    <p class="text-gray-600">Módulo de transporte en desarrollo...</p>
+                <!-- Panel para Agrupar por Vendedor -->
+                <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+                    <div class="flex items-center mb-4">
+                        <i class="fas fa-layer-group text-2xl text-blue-600 mr-3"></i>
+                        <h3 class="text-xl font-bold text-gray-800">🏢 Agrupación por Vendedor para OC</h3>
+                    </div>
+                    <p class="text-gray-600 mb-4">Visualiza y agrupa todos los requerimientos pendientes según vendedor para generar órdenes de compra eficientes</p>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                        <div class="border-2 border-dashed border-gray-300 p-4 rounded-lg hover:border-blue-500 transition">
+                            <div class="text-center">
+                                <i class="fas fa-store text-3xl text-gray-400 mb-2"></i>
+                                <h4 class="font-bold text-gray-700">Ferretería Industrial S.A.</h4>
+                                <p class="text-sm text-gray-500 mb-3">8 requerimientos pendientes</p>
+                                <button onclick="realizarOC('ferreteria-industrial')" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm">
+                                    <i class="fas fa-shopping-cart mr-1"></i>Realizar OC
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="border-2 border-dashed border-gray-300 p-4 rounded-lg hover:border-blue-500 transition">
+                            <div class="text-center">
+                                <i class="fas fa-building text-3xl text-gray-400 mb-2"></i>
+                                <h4 class="font-bold text-gray-700">Hidráulicos del Norte</h4>
+                                <p class="text-sm text-gray-500 mb-3">5 requerimientos pendientes</p>
+                                <button onclick="realizarOC('hidraulicos-norte')" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm">
+                                    <i class="fas fa-shopping-cart mr-1"></i>Realizar OC
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="border-2 border-dashed border-gray-300 p-4 rounded-lg hover:border-blue-500 transition">
+                            <div class="text-center">
+                                <i class="fas fa-truck text-3xl text-gray-400 mb-2"></i>
+                                <h4 class="font-bold text-gray-700">Suministros Técnicos</h4>
+                                <p class="text-sm text-gray-500 mb-3">10 requerimientos pendientes</p>
+                                <button onclick="realizarOC('suministros-tecnicos')" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm">
+                                    <i class="fas fa-shopping-cart mr-1"></i>Realizar OC
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            <!-- TRANSPORTE Content -->
+            <div id="transporte-content" class="content-section">
+                <!-- Panel Principal de Citas -->
+                <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-2xl font-bold text-gray-800">🚚 Gestión de Citas y Despachos</h3>
+                        <div class="flex gap-3">
+                            <button onclick="visualizarOTsListasDespacho()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm">
+                                <i class="fas fa-eye mr-1"></i>Ver OT's Listas para Despacho
+                            </button>
+                            <button onclick="generarGuias()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm">
+                                <i class="fas fa-file-alt mr-1"></i>Generar Guías
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Estado de Despachos -->
+                    <div class="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-6">
+                        <div class="bg-gradient-to-br from-orange-100 to-orange-200 p-4 rounded-lg text-center">
+                            <i class="fas fa-clipboard-check text-2xl text-orange-600 mb-2"></i>
+                            <div class="text-2xl font-bold text-orange-600">15</div>
+                            <p class="text-sm text-orange-700">OT's Listas</p>
+                        </div>
+                        <div class="bg-gradient-to-br from-blue-100 to-blue-200 p-4 rounded-lg text-center">
+                            <i class="fas fa-calendar-alt text-2xl text-blue-600 mb-2"></i>
+                            <div class="text-2xl font-bold text-blue-600">8</div>
+                            <p class="text-sm text-blue-700">Citas Programadas</p>
+                        </div>
+                        <div class="bg-gradient-to-br from-purple-100 to-purple-200 p-4 rounded-lg text-center">
+                            <i class="fas fa-shipping-fast text-2xl text-purple-600 mb-2"></i>
+                            <div class="text-2xl font-bold text-purple-600">5</div>
+                            <p class="text-sm text-purple-700">En Tránsito</p>
+                        </div>
+                        <div class="bg-gradient-to-br from-green-100 to-green-200 p-4 rounded-lg text-center">
+                            <i class="fas fa-check-double text-2xl text-green-600 mb-2"></i>
+                            <div class="text-2xl font-bold text-green-600">23</div>
+                            <p class="text-sm text-green-700">Entregados</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Panel de Citas y Guías -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Visualizar OT's Listas -->
+                    <div class="bg-white rounded-lg shadow-lg p-6">
+                        <div class="flex items-center mb-4">
+                            <i class="fas fa-list-check text-2xl text-blue-600 mr-3"></i>
+                            <h3 class="text-xl font-bold text-gray-800">📋 OT's Listas para Despacho</h3>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="border border-gray-200 rounded-lg p-3 hover:bg-blue-50">
+                                <div class="flex justify-between items-center">
+                                    <div>
+                                        <h4 class="font-bold text-gray-800">OT-2026-001</h4>
+                                        <p class="text-sm text-gray-600">Cilindro Hidráulico D11T</p>
+                                        <p class="text-xs text-gray-500">Cliente: Caterpillar Inc.</p>
+                                    </div>
+                                    <button onclick="programarCita('OT-2026-001')" class="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded text-xs">
+                                        <i class="fas fa-calendar mr-1"></i>Programar
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="border border-gray-200 rounded-lg p-3 hover:bg-blue-50">
+                                <div class="flex justify-between items-center">
+                                    <div>
+                                        <h4 class="font-bold text-gray-800">OT-2026-003</h4>
+                                        <p class="text-sm text-gray-600">Reparación Vástago 930E</p>
+                                        <p class="text-xs text-gray-500">Cliente: Minera San Antonio</p>
+                                    </div>
+                                    <button onclick="programarCita('OT-2026-003')" class="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded text-xs">
+                                        <i class="fas fa-calendar mr-1"></i>Programar
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <button onclick="verTodasOTsListas()" class="w-full mt-4 bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 rounded-lg text-sm">
+                            Ver Todas las OT's Listas
+                        </button>
+                    </div>
+
+                    <!-- Gestión de Guías -->
+                    <div class="bg-white rounded-lg shadow-lg p-6">
+                        <div class="flex items-center mb-4">
+                            <i class="fas fa-receipt text-2xl text-green-600 mr-3"></i>
+                            <h3 class="text-xl font-bold text-gray-800">Gestión de Guías</h3>
+                        </div>
+                        <div class="space-y-3">
+                            <button onclick="generarGuiaRemision()" class="w-full flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50">
+                                <i class="fas fa-file-invoice text-blue-500 mr-3"></i>
+                                <div class="text-left">
+                                    <p class="font-medium text-sm">Generar Guía de Remisión</p>
+                                    <p class="text-xs text-gray-500">Para despachos locales</p>
+                                </div>
+                            </button>
+                            <button onclick="generarGuiaTransporte()" class="w-full flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50">
+                                <i class="fas fa-truck-moving text-green-500 mr-3"></i>
+                                <div class="text-left">
+                                    <p class="font-medium text-sm">Guía de Transporte</p>
+                                    <p class="text-xs text-gray-500">Para envíos interprovinciales</p>
+                                </div>
+                            </button>
+                            <button onclick="generarManifiestoCarga()" class="w-full flex items-center p-3 border border-gray-200 rounded-lg hover:bg-gray-50">
+                                <i class="fas fa-clipboard-list text-purple-500 mr-3"></i>
+                                <div class="text-left">
+                                    <p class="font-medium text-sm">Manifiesto de Carga</p>
+                                    <p class="text-xs text-gray-500">Control de despachos múltiples</p>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -1032,7 +1256,7 @@
                         <!-- Sistema de Gestión de OT tipo Jira -->
                         <div class="bg-white rounded-lg shadow-lg mb-6 p-4">
                             <div class="flex justify-between items-center mb-4">
-                                <h3 class="text-xl font-bold text-gray-800">🎯 Gestión de Órdenes de Trabajo - Sprint Actual</h3>
+                                <h3 class="text-xl font-bold text-gray-800">Gestión de Órdenes de Trabajo - Sprint Actual</h3>
                                 <div class="flex gap-3">
                                     <select class="border border-gray-300 rounded px-3 py-2 text-sm">
                                         <option>Sprint Febrero 2026</option>
@@ -1173,7 +1397,7 @@
                             <!-- Columna: En Progreso -->
                             <div class="bg-blue-50 rounded-lg p-4">
                                 <div class="flex justify-between items-center mb-4">
-                                    <h4 class="font-bold text-blue-700">⚙️ EN PROGRESO</h4>
+                                    <h4 class="font-bold text-blue-700">EN PROGRESO</h4>
                                     <span class="bg-blue-200 text-blue-700 px-2 py-1 rounded-full text-xs font-medium">3</span>
                                 </div>
                                 
@@ -1253,7 +1477,7 @@
                                             <span class="w-2 h-2 bg-green-500 rounded-full" title="Tapa"></span>
                                         </div>
                                         <button onclick="aprobarOT('OT-2026-004'); event.stopPropagation();" class="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-xs">
-                                            ✅ Aprobar
+                                            Aprobar
                                         </button>
                                     </div>
                                 </div>
@@ -1262,7 +1486,7 @@
                             <!-- Columna: Completado -->
                             <div class="bg-green-50 rounded-lg p-4">
                                 <div class="flex justify-between items-center mb-4">
-                                    <h4 class="font-bold text-green-700">✅ COMPLETADO</h4>
+                                    <h4 class="font-bold text-green-700">COMPLETADO</h4>
                                     <span class="bg-green-200 text-green-700 px-2 py-1 rounded-full text-xs font-medium">13</span>
                                 </div>
                                 
@@ -1270,7 +1494,7 @@
                                 <div class="bg-white rounded-lg p-4 mb-3 shadow-sm border-l-4 border-green-500 cursor-pointer hover:shadow-md" onclick="abrirDetalleOT('OT-2026-005')">
                                     <div class="flex justify-between items-start mb-2">
                                         <span class="text-xs font-medium text-gray-500">OT-2026-005</span>
-                                        <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">✅ Done</span>
+                                        <span class="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs font-medium">Done</span>
                                     </div>
                                     <h5 class="font-medium text-sm mb-2">Cilindro Completo - 988K</h5>
                                     <p class="text-xs text-gray-600 mb-3">Entregado y facturado</p>
@@ -1407,7 +1631,7 @@ let otActual = null;
                             }
 
                             function aprobarOT(otId) {
-                                alert(`✅ OT ${otId} aprobada\n\n` +
+                                alert(`OT ${otId} aprobada\n\n` +
                                       'La orden será movida a "Completado"\n' +
                                       'Se generará automáticamente la facturación');
                                 
@@ -1415,7 +1639,7 @@ let otActual = null;
                             }
 
                             function mostrarReportesTiempo() {
-                                alert('📊 Reportes de Tiempo\n\n' +
+                                alert('Reportes de Tiempo\n\n' +
                                       '📅 Esta semana:\n' +
                                       '• Carlos Méndez: 42h\n' +
                                       '• Ana Torres: 38h\n' +
@@ -1436,6 +1660,281 @@ let otActual = null;
                                     console.log('Actualizando cronómetro...');
                                 }
                             }, 30000);
+
+                            // ========================================
+                            // FUNCIONES DE LOGÍSTICA
+                            // ========================================
+
+                            // FUNCIONES DEL ALMACÉN
+                            function gestionarCategoria(categoria) {
+                                const categorias = {
+                                    'herramientas': 'Herramientas & Equipos',
+                                    'repuestos': 'Suministros de Repuestos', 
+                                    'consumibles': 'Consumibles'
+                                };
+                                
+                                alert(`📦 Gestión de ${categorias[categoria]}\n\n` +
+                                      `• Ver inventario completo\n` +
+                                      `• Buscar items específicos\n` +
+                                      `• Gestionar stock mínimo\n` +
+                                      `• Generar reportes de categoria`);
+                            }
+
+                            function catalogarItem() {
+                                alert('🏷️ Opciones de Catalogación\n\n' +
+                                      '1. Escaneo de código de barras\n' +
+                                      '2. Ingreso manual detallado\n' +
+                                      '3. Importación masiva desde Excel\n\n' +
+                                      'Selecciona el método de catalogación');
+                            }
+
+                            function catalogarCodigoBarra() {
+                                alert('📱 Escaneo de Código de Barras\n\n' +
+                                      '• Active la cámara del dispositivo\n' +
+                                      '• Apunte al código de barras\n' +
+                                      '• Confirme la información detectada\n' +
+                                      '• Asigne ubicación en almacén');
+                            }
+
+                            function catalogarManual() {
+                                alert('⌨️ Catalogación Manual\n\n' +
+                                      'Complete la información:\n' +
+                                      '• Código interno\n' +
+                                      '• Descripción detallada\n' +
+                                      '• Categoría\n' +
+                                      '• Stock inicial\n' +
+                                      '• Precio unitario\n' +
+                                      '• Ubicación fisica');
+                            }
+
+                            function catalogarImportacion() {
+                                alert('Importación desde Excel\n\n' +
+                                      '• Descargue la plantilla Excel\n' +
+                                      '• Complete los datos masivamente\n' +
+                                      '• Valide la información\n' +
+                                      '• Importe y confirme los registros');
+                            }
+
+                            function exportarInventario() {
+                                alert('📥 Exportando Inventario\n\n' +
+                                      '• Formato: Excel (.xlsx)\n' +
+                                      '• Incluye: Códigos, descripciones, stock, valores\n' +
+                                      '• Categorías: Todas\n' +
+                                      '• Fecha: ' + new Date().toLocaleDateString());
+                            }
+
+                            function generarReporteStock() {
+                                alert('Generando Reporte de Stock\n\n' +
+                                      '📈 Análisis incluido:\n' +
+                                      '• Items con stock crítico\n' +
+                                      '• Rotación de inventario\n' +
+                                      '• Valorización por categorías\n' +
+                                      '• Tendencias de consumo');
+                            }
+
+                            // FUNCIONES DE COMPRAS
+                            function generarOC() {
+                                alert('📋 Generar Nueva Orden de Compra\n\n' +
+                                      '🔹 Pasos a seguir:\n' +
+                                      '1. Seleccionar proveedor\n' +
+                                      '2. Agregar items requeridos\n' +
+                                      '3. Definir condiciones comerciales\n' +
+                                      '4. Solicitar aprobaciones\n' +
+                                      '5. Enviar al proveedor');
+                            }
+
+                            function agregarProveedor() {
+                                alert('🏢 Agregar Nuevo Proveedor\n\n' +
+                                      '📝 Información requerida:\n' +
+                                      '• Razón social\n' +
+                                      '• RUC/NIT\n' +
+                                      '• Contacto comercial\n' +
+                                      '• Categorías que maneja\n' +
+                                      '• Condiciones de pago\n' +
+                                      '• Referencias comerciales');
+                            }
+
+                            function verListadoEstados() {
+                                alert('📋 Listado de Estados de OC\n\n' +
+                                      '🟠 Pendientes: 12 OC\n' +
+                                      '🔵 Aprobadas: 35 OC\n' +
+                                      '🟣 En Tránsito: 8 OC\n' +
+                                      '🟢 Entregadas: 28 OC\n' +
+                                      '🔴 Canceladas: 3 OC\n\n' +
+                                      'Total OC activas: 83');
+                            }
+
+                            function imprimirOCPDF() {
+                                alert('🖨️ Imprimir OC en PDF\n\n' +
+                                      'Opciones disponibles:\n' +
+                                      '• OC individual\n' +
+                                      '• Lote de OCs por proveedor\n' +
+                                      '• OCs por fecha\n' +
+                                      '• Incluir términos y condiciones\n' +
+                                      '• Formato oficial con membrete');
+                            }
+
+                            function gestionarProveedores() {
+                                alert('🤝 Gestión de Proveedores\n\n' +
+                                      'Funciones disponibles:\n' +
+                                      '• Consultar base de datos\n' +
+                                      '• Evaluar desempeño\n' +
+                                      '• Actualizar contactos\n' +
+                                      '• Gestionar categorías\n' +
+                                      '• Reportes de compras por proveedor');
+                            }
+
+                            function verDetalleOC(ocId) {
+                                alert(`📋 Detalle de ${ocId}\n\n` +
+                                      '• Proveedor: Ferretería Industrial S.A.\n' +
+                                      '• Items: 15 productos\n' +
+                                      '• Total: $3,250.00\n' +
+                                      '• Estado: Pendiente\n' +
+                                      '• Fecha entrega: 25/02/2026\n' +
+                                      '• Condiciones: 30 días');
+                            }
+
+                            function imprimirOC(ocId) {
+                                alert(`🖨️ Imprimiendo ${ocId}\n\n` +
+                                      'Generando PDF con:\n' +
+                                      '• Datos del proveedor\n' +
+                                      '• Lista detallada de items\n' +
+                                      '• Términos y condiciones\n' +
+                                      '• Firmas de autorización');
+                            }
+
+                            // FUNCIONES DE RECURSOS SOLICITADOS
+                            function visualizarTodosRequerimientos() {
+                                alert('👁️ Visualizar Todos los Requerimientos Pendientes\n\n' +
+                                      'Vista consolidada:\n' +
+                                      '• Total pendientes: 23\n' +
+                                      '• Por área: Mantenimiento (8), Producción (10), Calidad (5)\n' +
+                                      '• Prioridad alta: 7 requerimientos\n' +
+                                      '• Valor estimado: $15,480\n' +
+                                      '• Antigüedad promedio: 4 días');
+                            }
+
+                            function agruparPorVendedor() {
+                                alert('👥 Agrupación por Vendedor\n\n' +
+                                      '🏢 Proveedores con requerimientos:\n' +
+                                      '• Ferretería Industrial: 8 req ($4,200)\n' +
+                                      '• Hidráulicos del Norte: 5 req ($2,800)\n' +
+                                      '• Suministros Técnicos: 10 req ($8,480)\n\n' +
+                                      '💡 Listo para generar OCs grupales');
+                            }
+
+                            function realizarOC(proveedor) {
+                                const proveedores = {
+                                    'ferreteria-industrial': 'Ferretería Industrial S.A.',
+                                    'hidraulicos-norte': 'Hidráulicos del Norte',
+                                    'suministros-tecnicos': 'Suministros Técnicos'
+                                };
+                                
+                                alert(`🛒 Realizar OC para ${proveedores[proveedor]}\n\n` +
+                                      'Requerimientos agrupados:\n' +
+                                      '• Items validados\n' +
+                                      '• Precios actualizados\n' +
+                                      '• Condiciones negociadas\n\n' +
+                                      '¿Generar OC automáticamente?');
+                            }
+
+                            // FUNCIONES DE TRANSPORTE
+                            function visualizarOTsListasDespacho() {
+                                alert('📦 OTs Listas para Despacho\n\n' +
+                                      'Total listas: 15 OT\n' +
+                                      '🏢 Por cliente:\n' +
+                                      '• Caterpillar Inc.: 6 OT\n' +
+                                      '• Minera San Antonio: 4 OT\n' +
+                                      '• Constructora del Sur: 3 OT\n' +
+                                      '• Transportes Andinos: 2 OT\n\n' +
+                                      '📅 Requieren programación de citas');
+                            }
+
+                            function generarGuias() {
+                                alert('Generar Guías de Despacho\n\n' +
+                                      '📋 Tipos disponibles:\n' +
+                                      '• Guía de remisión (local)\n' +
+                                      '• Guía de transporte (interprovincial)\n' +
+                                      '• Manifiesto de carga (múltiple)\n\n' +
+                                      'Selecciona el tipo de guía');
+                            }
+
+                            function programarCita(otId) {
+                                alert(`📅 Programar Cita - ${otId}\n\n` +
+                                      '🕐 Disponibilidad:\n' +
+                                      '• Mañana 19/02: 09:00, 11:00\n' +
+                                      '• Miércoles 20/02: 08:00, 14:00, 16:00\n' +
+                                      '• Jueves 21/02: 10:00, 15:00\n\n' +
+                                      '🚚 Seleccionar horario y confirmar');
+                            }
+
+                            function generarGuiaRemision() {
+                                alert('📋 Generar Guía de Remisión\n\n' +
+                                      '📍 Para despachos locales:\n' +
+                                      '• Datos del destinatario\n' +
+                                      '• Detalle de productos\n' +
+                                      '• Motivo del traslado\n' +
+                                      '• Transporte propio/tercero');
+                            }
+
+                            function generarGuiaTransporte() {
+                                alert('🚛 Guía de Transporte\n\n' +
+                                      '📍 Envíos interprovinciales:\n' +
+                                      '• Datos del transportista\n' +
+                                      '• Ruta y destino\n' +
+                                      '• Condiciones especiales\n' +
+                                      '• Seguros y responsabilidades');
+                            }
+
+                            // FUNCIONES DEL DASHBOARD
+                            function actualizarDashboard() {
+                                alert('🔄 Actualizando Dashboard\n\n' +
+                                      'Sincronizando datos:\n' +
+                                      '• Inventario en tiempo real\n' +
+                                      '• Estados de OCs\n' +
+                                      '• Requerimientos pendientes\n' +
+                                      '• OTs listas para despacho\n\n' +
+                                      'Actualización completada');
+                            }
+
+                            function exportarReporteDashboard() {
+                                alert('📈 Exportar Reporte Dashboard\n\n' +
+                                      'Reporte ejecutivo incluye:\n' +
+                                      '• KPIs de logística\n' +
+                                      '• Métricas de inventario\n' +
+                                      '• Performance de compras\n' +
+                                      '• Estado de despachos\n' +
+                                      '• Alertas y recomendaciones');
+                            }
+
+                            function generarRequerimientoUrgente(item) {
+                                alert(`🚨 Requerimiento Urgente\n\n` +
+                                      `📦 Item: ${item}\n` +
+                                      'Proceso acelerado:\n' +
+                                      '• Prioridad alta\n' +
+                                      '• Aprobación automática\n' +
+                                      '• Contacto directo con proveedor\n' +
+                                      '• Seguimiento especial');
+                            }
+
+                            function revisarOC(ocId) {
+                                alert(`🔍 Revisar ${ocId}\n\n` +
+                                      '📋 Pendiente de aprobación:\n' +
+                                      '• Monto: $4,200.00\n' +
+                                      '• Items: 12 productos\n' +
+                                      '• Proveedor verificado\n' +
+                                      '• Presupuesto disponible\n\n' +
+                                      '¿Aprobar orden de compra?');
+                            }
+
+                            function programarDespachos() {
+                                alert('📅 Programar Despachos Masivos\n\n' +
+                                      '📦 15 OTs pendientes:\n' +
+                                      '• Urgentes: 5 OT (hoy)\n' +
+                                      '• Normales: 8 OT (esta semana)\n' +
+                                      '• Programadas: 2 OT (próxima semana)\n\n' +
+                                      '🚚 Optimizar rutas y horarios');
+                            }
                                         </script>
                                 <tbody>
                                     <!-- Fila 1 -->
@@ -2159,188 +2658,7 @@ let otActual = null;
     </footer>
 
     <script>
-        // Función para mostrar el módulo de logística
-        function showLogisticsModule() {
-            console.log('showLogisticsModule called'); // Debug
-            // Ocultar el grid de módulos principales
-            const mainGrid = document.getElementById('main-modules-grid');
-            if (mainGrid) {
-                mainGrid.style.display = 'none';
-                console.log('Main grid hidden'); // Debug
-            } else {
-                console.error('main-modules-grid not found'); // Debug
-            }
-            
-            // Mostrar el submenu de logística  
-            const logisticsSubmenu = document.getElementById('logistics-submenu');
-            if (logisticsSubmenu) {
-                logisticsSubmenu.style.display = 'block';
-                console.log('Logistics submenu shown'); // Debug
-            } else {
-                console.error('logistics-submenu not found'); // Debug
-            }
-            
-            // Actualizar el breadcrumb
-            updateBreadcrumb(['Dashboard', 'Logística']);
-        }
-
-        // Función para mostrar un submódulo específico
-        function showSubmodule(submoduleName) {
-            // Ocultar todas las secciones de contenido
-            const contentSections = document.querySelectorAll('.content-section');
-            contentSections.forEach(section => {
-                section.classList.remove('active');
-            });
-            
-            // Mostrar la sección correspondiente
-            const targetContent = document.getElementById(submoduleName.toLowerCase() + '-content');
-            if (targetContent) {
-                targetContent.classList.add('active');
-            }
-            
-            // Determinar el módulo padre basado en el submódulo
-            let parentModule = 'Logística';
-            const productionSubmods = ['basededatos', 'dashboardprod', 'requerimientos', 'planificacion', 'programacion'];
-            if (productionSubmods.includes(submoduleName)) {
-                parentModule = 'Producción';
-            }
-            
-            // Actualizar el breadcrumb
-            updateBreadcrumb(['Dashboard', parentModule, getSubmoduleDisplayName(submoduleName)]);
-        }
-
-        // Función para volver al menu principal de módulos
-        function backToMainModules() {
-            console.log('backToMainModules called'); // Debug
-            // Mostrar el grid de módulos principales
-            const mainGrid = document.getElementById('main-modules-grid');
-            if (mainGrid) {
-                mainGrid.style.display = 'grid';
-                console.log('Main grid shown'); // Debug
-            }
-            
-            // Ocultar todos los submenus
-            const logisticsSubmenu = document.getElementById('logistics-submenu');
-            const productionSubmenu = document.getElementById('production-submenu');
-            if (logisticsSubmenu) {
-                logisticsSubmenu.style.display = 'none';
-                console.log('Logistics submenu hidden'); // Debug
-            }
-            if (productionSubmenu) {
-                productionSubmenu.style.display = 'none';
-                console.log('Production submenu hidden'); // Debug
-            }
-            
-            // Mostrar el contenido por defecto
-            const contentSections = document.querySelectorAll('.content-section');
-            contentSections.forEach(section => {
-                section.classList.remove('active');
-            });
-            
-            const defaultContent = document.getElementById('default-content');
-            if (defaultContent) {
-                defaultContent.classList.add('active');
-            }
-            
-            // Actualizar el breadcrumb
-            updateBreadcrumb(['Dashboard']);
-        }
-
-        // Función auxiliar para obtener el nombre de visualización del submódulo
-        function getSubmoduleDisplayName(submoduleName) {
-            const displayNames = {
-                // Logística
-                'almacen': 'Almacén',
-                'compras': 'Compras',  
-                'recursos': 'Recursos Solicitados',
-                'transporte': 'Transporte',
-                'dashboard': 'Dashboard',
-                // Producción
-                'basededatos': 'Base de Datos',
-                'dashboardprod': 'Dashboard',
-                'requerimientos': 'Requerimientos',
-                'planificacion': 'Planificación',
-                'programacion': 'Programación'
-            };
-            return displayNames[submoduleName] || submoduleName;
-        }
-
-        // Función para actualizar el breadcrumb
-        function updateBreadcrumb(items) {
-            const breadcrumb = document.getElementById('breadcrumb');
-            breadcrumb.innerHTML = items.map((item, index) => {
-                if (index === items.length - 1) {
-                    return `<span class="text-blue-600">${item}</span>`;
-                } else {
-                    return `<span class="text-gray-500">${item}</span>`;
-                }
-            }).join(' <i class="fas fa-chevron-right text-gray-400 mx-2"></i> ');
-        }
-
-        // Función para manejar clics en las tarjetas del submódulo
-        function handleSubmoduleClick(submoduleName) {
-            // Remover la clase active de todas las tarjetas
-            document.querySelectorAll('.submenu-card').forEach(card => {
-                card.classList.remove('ring-2', 'ring-opacity-50');
-                card.classList.remove('ring-blue-400', 'ring-green-400', 'ring-purple-400', 'ring-orange-400', 'ring-cyan-400');
-            });
-            
-            // Añadir la clase active a la tarjeta seleccionada
-            if (event.target.closest('.submenu-card')) {
-                event.target.closest('.submenu-card').classList.add('ring-2', 'ring-opacity-50');
-                
-                // Determinar el color del anillo basado en el submódulo
-                const ringColors = {
-                    // Logística
-                    'almacen': 'ring-blue-400',
-                    'compras': 'ring-green-400',
-                    'recursos': 'ring-purple-400', 
-                    'transporte': 'ring-orange-400',
-                    'dashboard': 'ring-cyan-400',
-                    // Producción
-                    'basededatos': 'ring-cyan-400',
-                    'dashboardprod': 'ring-blue-400',
-                    'requerimientos': 'ring-purple-400',
-                    'planificacion': 'ring-orange-400',
-                    'programacion': 'ring-green-400'
-                };
-                
-                if (ringColors[submoduleName]) {
-                    event.target.closest('.submenu-card').classList.add(ringColors[submoduleName]);
-                }
-            }
-            
-            // Mostrar el contenido del submódulo
-            showSubmodule(submoduleName);
-        }
-
-        // Funciones placeholder para otros módulos
-        function showProductionModule() {
-            console.log('showProductionModule called'); // Debug
-            // Ocultar el grid de módulos principales
-            const mainGrid = document.getElementById('main-modules-grid');
-            if (mainGrid) {
-                mainGrid.style.display = 'none';
-                console.log('Main grid hidden for production'); // Debug
-            }
-            
-            // Mostrar el submenu de producción  
-            const productionSubmenu = document.getElementById('production-submenu');
-            if (productionSubmenu) {
-                productionSubmenu.style.display = 'block';
-                console.log('Production submenu shown'); // Debug
-            }
-            
-            // Actualizar el breadcrumb
-            updateBreadcrumb(['Dashboard', 'Producción']);
-        }
-
-        function showMaintenanceModule() {
-            alert('Módulo de Mantenimiento - En desarrollo');
-            console.log('showMaintenanceModule called - placeholder');
-        }
-
-        // Funciones del dropdown y efectos originales
+        // Funciones del dropdown
         function toggleDropdown(event, button) {
             event.stopPropagation();
             const dropdown = button.closest('.dropdown');
@@ -2363,40 +2681,6 @@ let otActual = null;
 
         // Inicialización al cargar la página
         document.addEventListener('DOMContentLoaded', function() {
-            // Asegurar que el contenido por defecto esté visible
-            document.getElementById('default-content').classList.add('active');
-            
-            // Configurar el breadcrumb inicial
-            updateBreadcrumb(['Dashboard']);
-            
-            // Añadir event listeners a las tarjetas del submódulo (logística y producción)
-            document.querySelectorAll('.submenu-card').forEach(card => {
-                card.addEventListener('click', function() {
-                    const submoduleText = this.querySelector('h3').textContent.toLowerCase();
-                    let submoduleName;
-                    
-                    // Mapeo específico para los nombres de submódulos de logística
-                    if (submoduleText.includes('almacén')) submoduleName = 'almacen';
-                    else if (submoduleText.includes('compras')) submoduleName = 'compras';
-                    else if (submoduleText.includes('recursos')) submoduleName = 'recursos';
-                    else if (submoduleText.includes('transporte')) submoduleName = 'transporte';
-                    else if (submoduleText.includes('dashboard')) {
-                        // Distinguir entre dashboard de logística y producción
-                        const isInProduction = this.closest('#production-submenu');
-                        submoduleName = isInProduction ? 'dashboardprod' : 'dashboard';
-                    }
-                    // Mapeo específico para los nombres de submódulos de producción
-                    else if (submoduleText.includes('base de datos')) submoduleName = 'basededatos';
-                    else if (submoduleText.includes('requerimientos')) submoduleName = 'requerimientos';
-                    else if (submoduleText.includes('planificación')) submoduleName = 'planificacion';
-                    else if (submoduleText.includes('programación')) submoduleName = 'programacion';
-                    
-                    if (submoduleName) {
-                        handleSubmoduleClick(submoduleName);
-                    }
-                });
-            });
-            
             // Add hover effect to module cards
             document.querySelectorAll('.module-card').forEach(card => {
                 card.addEventListener('mouseenter', function() {

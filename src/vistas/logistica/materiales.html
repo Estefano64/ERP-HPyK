@@ -6,6 +6,8 @@
     <title>Inventario - HP&K ERP</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
     <script src="/vistas/shared/navigation.js"></script>
     <style>
         .dropdown-menu { display: none; }
@@ -50,6 +52,136 @@
                 <button onclick="showCreateForm()" class="bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 text-white px-6 py-3 rounded-lg shadow-lg transition flex items-center">
                     <i class="fas fa-plus mr-2"></i> Nuevo Item
                 </button>
+            </div>
+        </div>
+
+        <!-- Dashboard KPIs -->
+        <div class="mb-8">
+            <!-- Tarjetas de Métricas Principales -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-6">
+                <!-- Total Materiales -->
+                <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg shadow-lg p-6 text-white transform hover:scale-105 transition">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-blue-100 text-sm mb-1">Total Materiales</p>
+                            <h3 class="text-3xl font-bold" id="dash-total">0</h3>
+                            <p class="text-blue-200 text-xs mt-1">Todos los items</p>
+                        </div>
+                        <div class="bg-white bg-opacity-20 rounded-full p-3">
+                            <i class="fas fa-box text-3xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stock Bajo -->
+                <div class="bg-gradient-to-br from-yellow-500 to-yellow-600 rounded-lg shadow-lg p-6 text-white transform hover:scale-105 transition cursor-pointer" onclick="filtrarStockBajo()">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-yellow-100 text-sm mb-1">⚠️ Stock Bajo</p>
+                            <h3 class="text-3xl font-bold" id="dash-stock-bajo">0</h3>
+                            <p class="text-yellow-200 text-xs mt-1">Requieren atención</p>
+                        </div>
+                        <div class="bg-white bg-opacity-20 rounded-full p-3">
+                            <i class="fas fa-exclamation-triangle text-3xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sin Stock -->
+                <div class="bg-gradient-to-br from-red-500 to-red-600 rounded-lg shadow-lg p-6 text-white transform hover:scale-105 transition cursor-pointer" onclick="filtrarSinStock()">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-red-100 text-sm mb-1">❌ Sin Stock</p>
+                            <h3 class="text-3xl font-bold" id="dash-sin-stock">0</h3>
+                            <p class="text-red-200 text-xs mt-1">Crítico</p>
+                        </div>
+                        <div class="bg-white bg-opacity-20 rounded-full p-3">
+                            <i class="fas fa-times-circle text-3xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stock Normal -->
+                <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-lg shadow-lg p-6 text-white transform hover:scale-105 transition">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-green-100 text-sm mb-1">✓ Stock Normal</p>
+                            <h3 class="text-3xl font-bold" id="dash-stock-normal">0</h3>
+                            <p class="text-green-200 text-xs mt-1">OK</p>
+                        </div>
+                        <div class="bg-white bg-opacity-20 rounded-full p-3">
+                            <i class="fas fa-check-circle text-3xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Valor Total Inventario -->
+                <div class="bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-lg shadow-lg p-6 text-white transform hover:scale-105 transition">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-cyan-100 text-sm mb-1">Valor Inventario</p>
+                            <h3 class="text-3xl font-bold" id="dash-valor-total">$0</h3>
+                            <p class="text-cyan-200 text-xs mt-1">Costo total</p>
+                        </div>
+                        <div class="bg-white bg-opacity-20 rounded-full p-3">
+                            <i class="fas fa-dollar-sign text-3xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Movimientos Hoy -->
+                <a href="/src/vistas/logistica/movimientos.html" 
+                    class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg shadow-lg p-6 text-white transform hover:scale-105 transition block">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-purple-100 text-sm mb-1">Movimientos Hoy</p>
+                            <h3 class="text-3xl font-bold" id="dash-movimientos">0</h3>
+                            <p class="text-purple-200 text-xs mt-1">Entradas/Salidas</p>
+                        </div>
+                        <div class="bg-white bg-opacity-20 rounded-full p-3">
+                            <i class="fas fa-exchange-alt text-3xl"></i>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Paneles de Análisis -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Distribución por Categoría -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
+                        <i class="fas fa-chart-pie text-blue-600 mr-2"></i>
+                        Distribución por Categoría
+                    </h3>
+                    <div id="categoria-chart" class="space-y-2">
+                        <!-- Se llenará dinámicamente -->
+                    </div>
+                </div>
+
+                <!-- Alertas Críticas de Stock -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
+                        <i class="fas fa-bell text-red-600 mr-2"></i>
+                        Alertas Críticas
+                    </h3>
+                    <div id="alertas-criticas" class="space-y-2 max-h-64 overflow-y-auto">
+                        <div class="text-center text-gray-400 py-8">
+                            <i class="fas fa-check-circle text-4xl mb-2"></i>
+                            <p class="text-sm">No hay alertas críticas</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Top Materiales por Valor -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
+                        <i class="fas fa-trophy text-yellow-600 mr-2"></i>
+                        Top 5 por Valor
+                    </h3>
+                    <div id="top-materiales" class="space-y-2">
+                        <!-- Se llenará dinámicamente -->
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -392,29 +524,116 @@
 
         <!-- Search and Filters -->
         <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <input type="text" id="searchInput" placeholder="Buscar inventario..." onkeyup="filterTable()"
-                    class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent">
+            <h3 class="text-lg font-semibold text-gray-700 mb-4 flex items-center">
+                <i class="fas fa-filter text-green-600 mr-2"></i>
+                Filtros de Búsqueda
+            </h3>
+            
+            <!-- Primera fila de filtros -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Buscar Material</label>
+                    <input type="text" id="searchInput" placeholder="Código, descripción, NP..."
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                </div>
                 
-                <select id="filterTipo" onchange="filterTable()"
-                    class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent">
-                    <option value="">Todos los Tipos</option>
-                    <option value="ZROH">ZROH - Materia Prima</option>
-                    <option value="ZHIB">ZHIB - Insumo</option>
-                    <option value="ZERS">ZERS - Repuesto</option>
-                </select>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Categoría</label>
+                    <select id="filterCategoria"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                        <option value="">Todas las categorías</option>
+                    </select>
+                </div>
                 
-                <select id="filterEstado" onchange="filterTable()"
-                    class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent">
-                    <option value="">Todos los Estados</option>
-                    <option value="activo">Activo</option>
-                    <option value="inactivo">Inactivo</option>
-                    <option value="descontinuado">Descontinuado</option>
-                </select>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Clasificación</label>
+                    <select id="filterClasificacion"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                        <option value="">Todas las clasificaciones</option>
+                    </select>
+                </div>
                 
-                <button onclick="clearFilters()" class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-lg transition">
-                    <i class="fas fa-redo mr-2"></i> Limpiar
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Fabricante</label>
+                    <select id="filterFabricante"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                        <option value="">Todos los fabricantes</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- Segunda fila de filtros -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Planta</label>
+                    <select id="filterPlanta"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                        <option value="">Todas las plantas</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Área</label>
+                    <select id="filterArea"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                        <option value="">Todas las áreas</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Estado de Stock</label>
+                    <select id="filterStockStatus"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                        <option value="">Todos</option>
+                        <option value="bajo">⚠️ Stock Bajo</option>
+                        <option value="normal">✓ Stock Normal</option>
+                        <option value="alto">📦 Stock Alto</option>
+                        <option value="sin_stock">❌ Sin Stock</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Estado Material</label>
+                    <select id="filterEstado"
+                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                        <option value="">Todos los estados</option>
+                        <option value="activo">Activo</option>
+                        <option value="inactivo">Inactivo</option>
+                    </select>
+                </div>
+            </div>
+            
+            <!-- Botones de acción -->
+            <div class="flex gap-3">
+                <button onclick="applyFilters()" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg transition flex items-center">
+                    <i class="fas fa-search mr-2"></i> Aplicar Filtros
                 </button>
+                <button onclick="clearFilters()" class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-6 py-2 rounded-lg transition flex items-center">
+                    <i class="fas fa-redo mr-2"></i> Limpiar Filtros
+                </button>
+                <button onclick="exportarExcel()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition flex items-center ml-auto">
+                    <i class="fas fa-file-excel mr-2"></i> Exportar Excel
+                </button>
+            </div>
+            
+            <!-- Estadísticas rápidas -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4 pt-4 border-t border-gray-200">
+                <div class="text-center">
+                    <div class="text-2xl font-bold text-gray-700" id="totalMateriales">0</div>
+                    <div class="text-sm text-gray-500">Total Materials</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl font-bold text-red-600" id="stockBajo">0</div>
+                    <div class="text-sm text-gray-500">Stock Bajo</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl font-bold text-orange-600" id="sinStock">0</div>
+                    <div class="text-sm text-gray-500">Sin Stock</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-2xl font-bold text-blue-600" id="valorInventario">$0</div>
+                    <div class="text-sm text-gray-500">Valor Inventario</div>
+                </div>
             </div>
         </div>
 
@@ -424,13 +643,15 @@
                 <table class="min-w-full">
                     <thead class="bg-gradient-to-r from-gray-100 to-gray-200">
                         <tr>
-                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Código SAP</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Código</th>
                             <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Descripción</th>
-                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Tipo</th>
-                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Stock</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Categoría</th>
+                            <th class="px-6 py-4 text-center text-xs font-bold text-gray-700 uppercase tracking-wider">Stock</th>
+                            <th class="px-6 py-4 text-center text-xs font-bold text-gray-700 uppercase tracking-wider">P. Repos.</th>
                             <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">UdM</th>
-                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Precio</th>
-                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Estado</th>
+                            <th class="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider">Precio</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Ubicación</th>
+                            <th class="px-6 py-4 text-center text-xs font-bold text-gray-700 uppercase tracking-wider">Estado</th>
                             <th class="px-6 py-4 text-center text-xs font-bold text-gray-700 uppercase tracking-wider">Acciones</th>
                         </tr>
                     </thead>
@@ -438,6 +659,49 @@
                         <!-- Data will be loaded here -->
                     </tbody>
                 </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sistema de Notificaciones de Stock -->
+    <div id="notifications-container" class="fixed top-20 right-4 w-80 z-40 max-h-[80vh] overflow-y-auto">
+        <!-- Notificaciones flotantes aparecerán aquí -->
+    </div>
+
+    <!-- Botón flotante de notificaciones -->
+    <button id="notifications-toggle" onclick="toggleNotificationsPanel()" 
+        class="fixed bottom-6 right-6 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg z-50 transition transform hover:scale-110">
+        <i class="fas fa-bell text-2xl"></i>
+        <span id="notifications-badge" class="hidden absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center"></span>
+    </button>
+
+    <!-- Panel lateral de notificaciones -->
+    <div id="notifications-panel" class="hidden fixed inset-y-0 right-0 w-96 bg-white shadow-2xl z-50 transform transition-transform duration-300">
+        <div class="bg-gradient-to-r from-green-600 to-green-700 text-white p-4 flex items-center justify-between">
+            <h3 class="text-lg font-bold flex items-center">
+                <i class="fas fa-bell mr-2"></i>
+                Alertas de Inventario
+            </h3>
+            <button onclick="toggleNotificationsPanel()" class="hover:bg-white hover:bg-opacity-20 rounded-full p-2 transition">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+        
+        <div class="p-4 border-b border-gray-200 flex gap-2">
+            <button onclick="filterNotifications('all')" 
+                class="notif-filter-btn flex-1 px-3 py-2 rounded bg-green-100 text-green-700 font-semibold text-sm">
+                Todas
+            </button>
+            <button onclick="filterNotifications('unread')" 
+                class="notif-filter-btn flex-1 px-3 py-2 rounded bg-gray-100 text-gray-700 text-sm">
+                No leídas
+            </button>
+        </div>
+        
+        <div id="notifications-list" class="p-4 space-y-2 max-h-[calc(100vh-200px)] overflow-y-auto">
+            <div class="text-center text-gray-400 py-8">
+                <i class="fas fa-bell-slash text-4xl mb-2"></i>
+                <p>No hay notificaciones</p>
             </div>
         </div>
     </div>
@@ -460,7 +724,18 @@
         document.addEventListener('DOMContentLoaded', () => {
             loadMateriales();
             loadCatalogos();
+            loadFilterOptions();
             document.getElementById('user_crea').value = 'Admin';
+            
+            // Event listeners para filtros en tiempo real
+            document.getElementById('searchInput').addEventListener('input', applyFilters);
+            document.getElementById('filterCategoria').addEventListener('change', applyFilters);
+            document.getElementById('filterClasificacion').addEventListener('change', applyFilters);
+            document.getElementById('filterFabricante').addEventListener('change', applyFilters);
+            document.getElementById('filterPlanta').addEventListener('change', applyFilters);
+            document.getElementById('filterArea').addEventListener('change', applyFilters);
+            document.getElementById('filterStockStatus').addEventListener('change', applyFilters);
+            document.getElementById('filterEstado').addEventListener('change', applyFilters);
         });
 
         // Toast notifications
@@ -514,6 +789,57 @@
             }
         }
 
+        // Load filter options from catalogs
+        async function loadFilterOptions() {
+            try {
+                const [categorias, clasificaciones, fabricantes, plantas, areas] = await Promise.all([
+                    fetch('/api/catalogos/categorias').then(r => r.json()),
+                    fetch('/api/catalogos/clasificaciones').then(r => r.json()),
+                    fetch('/api/catalogos/fabricantes').then(r => r.json()),
+                    fetch('/api/catalogos/plantas').then(r => r.json()),
+                    fetch('/api/catalogos/areas').then(r => r.json())
+                ]);
+
+                // Cargar opciones de Categoría                const filterCategoria = document.getElementById('filterCategoria');
+                filterCategoria.innerHTML = '<option value="">Todas las categorías</option>';
+                (Array.isArray(categorias) ? categorias : []).forEach(c => {
+                    filterCategoria.innerHTML += `<option value="${c.codigo}">${c.descripcion || c.nombre}</option>`;
+                });
+
+                // Cargar opciones de Clasificación
+                const filterClasificacion = document.getElementById('filterClasificacion');
+                filterClasificacion.innerHTML = '<option value="">Todas las clasificaciones</option>';
+                (Array.isArray(clasificaciones) ? clasificaciones : []).forEach(cl => {
+                    filterClasificacion.innerHTML += `<option value="${cl.codigo}">${cl.descripcion || cl.nombre}</option>`;
+                });
+
+                // Cargar opciones de Fabricante
+                const filterFabricante = document.getElementById('filterFabricante');
+                filterFabricante.innerHTML = '<option value="">Todos los fabricantes</option>';
+                (Array.isArray(fabricantes) ? fabricantes : []).forEach(f => {
+                    filterFabricante.innerHTML += `<option value="${f.codigo}">${f.nombre}</option>`;
+                });
+
+                // Cargar opciones de Planta
+                const filterPlanta = document.getElementById('filterPlanta');
+                filterPlanta.innerHTML = '<option value="">Todas las plantas</option>';
+                (Array.isArray(plantas) ? plantas : []).forEach(p => {
+                    filterPlanta.innerHTML += `<option value="${p.codigo}">${p.descripcion || p.nombre}</option>`;
+                });
+
+                // Cargar opciones de Área
+                const filterArea = document.getElementById('filterArea');
+                filterArea.innerHTML = '<option value="">Todas las áreas</option>';
+                (Array.isArray(areas) ? areas : []).forEach(a => {
+                    filterArea.innerHTML += `<option value="${a.codigo}">${a.descripcion || a.nombre}</option>`;
+                });
+
+            } catch (error) {
+                console.error('Error loading filter options:', error);
+                showToast('Error al cargar opciones de filtros', 'error');
+            }
+        }
+
         // Load inventario
         async function loadMateriales() {
             try {
@@ -532,7 +858,11 @@
                 }
                 
                 materiales = data;
-                renderTable();
+                renderFilteredTable(materiales);
+                updateStatistics(materiales);
+                
+                // Generar notificaciones automáticas de stock
+                checkStockAlerts();
             } catch (error) {
                 console.error('Error loading inventario:', error);
                 showToast('Error al cargar inventario: ' + error.message, 'error');
@@ -541,7 +871,7 @@
                 const tbody = document.getElementById('tableBody');
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="8" class="px-6 py-8 text-center text-red-500">
+                        <td colspan="10" class="px-6 py-8 text-center text-red-500">
                             <i class="fas fa-exclamation-triangle text-3xl mb-2"></i>
                             <p class="font-semibold">Error al cargar inventario</p>
                             <p class="text-sm">${error.message}</p>
@@ -551,49 +881,512 @@
             }
         }
 
-        // Render table
-        function renderTable() {
+        function getEstadoColor(estado) {
+            const colors = {
+                'activo': 'bg-green-100 text-green-800',
+                'inactivo': 'bg-gray-100 text-gray-800',
+                'descontinuado': 'bg-red-100 text-red-800'
+            };
+            return colors[estado] || 'bg-gray-100 text-gray-800';
+        }
+
+        // Calculate stock status for a material
+        function calculateStockStatus(material) {
+            const stockActual = parseFloat(material.stock_actual) || 0;
+            const puntoRepo = parseFloat(material.punto_reposicion) || 0;
+            const stockMaximo = parseFloat(material.stock_maximo) || (puntoRepo * 3); // Default stock máximo
+            
+            if (stockActual === 0) {
+                return 'sin_stock';
+            } else if (stockActual < puntoRepo) {
+                return 'bajo';
+            } else if (stockActual >= stockMaximo * 0.9) {
+                return 'alto';
+            } else {
+                return 'normal';
+            }
+        }
+
+        // Apply all filters
+        function applyFilters() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const filterCategoria = document.getElementById('filterCategoria').value;
+            const filterClasificacion = document.getElementById('filterClasificacion').value;
+            const filterFabricante = document.getElementById('filterFabricante').value;
+            const filterPlanta = document.getElementById('filterPlanta').value;
+            const filterArea = document.getElementById('filterArea').value;
+            const filterStockStatus = document.getElementById('filterStockStatus').value;
+            const filterEstado = document.getElementById('filterEstado').value;
+
+            const materialesFiltrados = materiales.filter(material => {
+                // Search filter (código, descripción, descripción compuesta)
+                const matchesSearch = !searchTerm || 
+                    (material.codigo && material.codigo.toLowerCase().includes(searchTerm)) ||
+                    (material.descripcion && material.descripcion.toLowerCase().includes(searchTerm)) ||
+                    (material.descripcion_compuesta && material.descripcion_compuesta.toLowerCase().includes(searchTerm));
+
+                // Dropdown filters
+                const matchesCategoria = !filterCategoria || material.categoria_codigo === filterCategoria;
+                const matchesClasificacion = !filterClasificacion || material.clasificacion_codigo === filterClasificacion;
+                const matchesFabricante = !filterFabricante || material.fabricante_codigo === filterFabricante;
+                const matchesPlanta = !filterPlanta || material.planta_codigo === filterPlanta;
+                const matchesArea = !filterArea || material.area_codigo === filterArea;
+
+                // Stock status filter
+                const stockStatus = calculateStockStatus(material);
+                const matchesStockStatus = !filterStockStatus || stockStatus === filterStockStatus;
+
+                // Estado filter
+                const matchesEstado = !filterEstado || 
+                    (filterEstado === 'activo' ? material.activo : !material.activo);
+
+                return matchesSearch && matchesCategoria && matchesClasificacion && 
+                       matchesFabricante && matchesPlanta && matchesArea && 
+                       matchesStockStatus && matchesEstado;
+            });
+
+            renderFilteredTable(materialesFiltrados);
+            updateStatistics(materialesFiltrados);
+        }
+
+        // Update statistics panel
+        function updateStatistics(materialesFiltrados = materiales) {
+            const totalMateriales = materialesFiltrados.length;
+            let stockBajo = 0;
+            let sinStock = 0;
+            let stockNormal = 0;
+            let valorInventario = 0;
+
+            materialesFiltrados.forEach(material => {
+                const stockActual = parseFloat(material.stock_actual) || 0;
+                const precio = parseFloat(material.precio) || parseFloat(material.precio_estandar) || 0;
+                const stockStatus = calculateStockStatus(material);
+
+                if (stockStatus === 'bajo') stockBajo++;
+                else if (stockStatus === 'sin_stock') sinStock++;
+                else if (stockStatus === 'normal') stockNormal++;
+                
+                valorInventario += stockActual * precio;
+            });
+
+            // Update DOM (cards originales)
+            document.getElementById('totalMateriales').textContent = totalMateriales;
+            document.getElementById('stockBajo').textContent = stockBajo;
+            document.getElementById('sinStock').textContent = sinStock;
+            document.getElementById('valorInventario').textContent = 
+                `$${valorInventario.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+            
+            // Update Dashboard nuevo
+            updateDashboard(materialesFiltrados, totalMateriales, stockBajo, sinStock, stockNormal, valorInventario);
+        }
+
+        // Nueva función para actualizar el dashboard completo
+        function updateDashboard(materialesFiltrados, total, stockBajo, sinStock, stockNormal, valorTotal) {
+            // Actualizar tarjetas principales
+            document.getElementById('dash-total').textContent = total;
+            document.getElementById('dash-stock-bajo').textContent = stockBajo;
+            document.getElementById('dash-sin-stock').textContent = sinStock;
+            document.getElementById('dash-stock-normal').textContent = stockNormal;
+            document.getElementById('dash-valor-total').textContent = 
+                `$${(valorTotal / 1000).toFixed(1)}K`;
+            // Movimientos hoy (placeholder - se actualizará cuando tengamos el módulo de kardex)
+            document.getElementById('dash-movimientos').textContent = '0';
+            
+            // Actualizar gráfico de distribución por categoría
+            updateCategoriaChart(materialesFiltrados);
+            
+            // Actualizar alertas críticas
+            updateAlertasCriticas(materialesFiltrados, stockBajo, sinStock);
+            
+            // Actualizar top materiales por valor
+            updateTopMateriales(materialesFiltrados);
+        }
+
+        // Distribución por Categoría
+        function updateCategoriaChart(materialesFiltrados) {
+            const categorias = {};
+            
+            materialesFiltrados.forEach(m => {
+                const cat = m.categoria || m.tipo_material || 'Sin Categoría';
+                categorias[cat] = (categorias[cat] || 0) + 1;
+            });
+            
+            const total = materialesFiltrados.length || 1;
+            const chartHTML = Object.entries(categorias)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 5) // Top 5 categorías
+                .map(([categoria, cantidad]) => {
+                    const porcentaje = ((cantidad / total) * 100).toFixed(1);
+                    const colors = ['bg-blue-500', 'bg-green-500', 'bg-yellow-500', 'bg-purple-500', 'bg-pink-500'];
+                    const color = colors[Math.floor(Math.random() * colors.length)];
+                    
+                    return `
+                        <div class="mb-3">
+                            <div class="flex justify-between text-sm mb-1">
+                                <span class="text-gray-700 font-medium">${categoria}</span>
+                                <span class="text-gray-600">${cantidad} (${porcentaje}%)</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2.5">
+                                <div class="${color} h-2.5 rounded-full" style="width: ${porcentaje}%"></div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            
+            document.getElementById('categoria-chart').innerHTML = chartHTML || 
+                '<p class="text-center text-gray-400 text-sm">Sin datos</p>';
+        }
+
+        // Alertas Críticas
+        function updateAlertasCriticas(materialesFiltrados, stockBajo, sinStock) {
+            const alertas = [];
+            
+            // Materiales sin stock
+            const materialesSinStock = materialesFiltrados
+                .filter(m => calculateStockStatus(m) === 'sin_stock')
+                .slice(0, 5);
+            
+            materialesSinStock.forEach(m => {
+                alertas.push({
+                    tipo: 'critico',
+                    icono: 'fa-times-circle',
+                    color: 'red',
+                    titulo: m.nombre || m.codigo_sap,
+                    mensaje: 'SIN STOCK'
+                });
+            });
+            
+            // Materiales con stock bajo
+            const materialesStockBajo = materialesFiltrados
+                .filter(m => calculateStockStatus(m) === 'bajo')
+                .slice(0, 3);
+            
+            materialesStockBajo.forEach(m => {
+                const stockActual = parseFloat(m.stock_actual) || 0;
+                const stockMinimo = parseFloat(m.stock_minimo) || parseFloat(m.punto_reposicion) || 0;
+                
+                alertas.push({
+                    tipo: 'advertencia',
+                    icono: 'fa-exclamation-triangle',
+                    color: 'yellow',
+                    titulo: m.nombre || m.codigo_sap,
+                    mensaje: `Stock: ${stockActual.toFixed(1)} (Mín: ${stockMinimo.toFixed(1)})`
+                });
+            });
+            
+            if (alertas.length === 0) {
+                document.getElementById('alertas-criticas').innerHTML = `
+                    <div class="text-center text-gray-400 py-8">
+                        <i class="fas fa-check-circle text-4xl mb-2"></i>
+                        <p class="text-sm">No hay alertas críticas</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            const alertasHTML = alertas.map(a => `
+                <div class="flex items-start space-x-3 p-3 bg-${a.color}-50 border-l-4 border-${a.color}-500 rounded">
+                    <i class="fas ${a.icono} text-${a.color}-600 text-lg mt-1"></i>
+                    <div class="flex-1">
+                        <p class="font-semibold text-gray-800 text-sm">${a.titulo}</p>
+                        <p class="text-xs text-gray-600">${a.mensaje}</p>
+                    </div>
+                </div>
+            `).join('');
+            
+            document.getElementById('alertas-criticas').innerHTML = alertasHTML;
+        }
+
+        // Top Materiales por Valor
+        function updateTopMateriales(materialesFiltrados) {
+            const materialesConValor = materialesFiltrados
+                .map(m => {
+                    const stockActual = parseFloat(m.stock_actual) || 0;
+                    const precio = parseFloat(m.precio) || parseFloat(m.precio_estandar) || 0;
+                    const valor = stockActual * precio;
+                    return { ...m, valor };
+                })
+                .filter(m => m.valor > 0)
+                .sort((a, b) => b.valor - a.valor)
+                .slice(0, 5);
+            
+            if (materialesConValor.length === 0) {
+                document.getElementById('top-materiales').innerHTML = 
+                    '<p class="text-center text-gray-400 text-sm">Sin datos</p>';
+                return;
+            }
+            
+            const maxValor = materialesConValor[0].valor;
+            
+            const topHTML = materialesConValor.map((m, index) => {
+                const porcentaje = ((m.valor / maxValor) * 100).toFixed(0);
+                const medals = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣'];
+                
+                return `
+                    <div class="mb-3">
+                        <div class="flex items-center justify-between text-sm mb-1">
+                            <span class="text-gray-700 font-medium flex items-center">
+                                <span class="mr-2">${medals[index]}</span>
+                                <span class="truncate">${m.nombre || m.codigo_sap || 'Sin nombre'}</span>
+                            </span>
+                            <span class="text-gray-600 font-semibold ml-2">$${(m.valor).toLocaleString('es-ES', {minimumFractionDigits: 0, maximumFractionDigits: 0})}</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div class="bg-gradient-to-r from-yellow-400 to-yellow-600 h-2 rounded-full" style="width: ${porcentaje}%"></div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            document.getElementById('top-materiales').innerHTML = topHTML;
+        }
+
+        // Funciones de filtro rápido desde el dashboard
+        function filtrarStockBajo() {
+            document.getElementById('filterStockStatus').value = 'bajo';
+            applyFilters();
+            // Scroll a la tabla
+            document.querySelector('.bg-white.rounded-lg.shadow-lg.overflow-hidden').scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'start' 
+            });
+        }
+
+        function filtrarSinStock() {
+            document.getElementById('filterStockStatus').value = 'sin_stock';
+            applyFilters();
+            // Scroll a la tabla
+            document.querySelector('.bg-white.rounded-lg.shadow-lg.overflow-hidden').scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'start' 
+            });
+        }
+        
+        
+        // Clear all filters
+        function clearFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('filterCategoria').value = '';
+            document.getElementById('filterClasificacion').value = '';
+            document.getElementById('filterFabricante').value = '';
+            document.getElementById('filterPlanta').value = '';
+            document.getElementById('filterArea').value = '';
+            document.getElementById('filterStockStatus').value = '';
+            document.getElementById('filterEstado').value = '';
+            
+            // Reapply filters (will show all materials)
+            applyFilters();
+        }
+
+        // Export to Excel with filters applied
+        async function exportarExcel() {
+            // Get filtered materials
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const filterCategoria = document.getElementById('filterCategoria').value;
+            const filterClasificacion = document.getElementById('filterClasificacion').value;
+            const filterFabricante = document.getElementById('filterFabricante').value;
+            const filterPlanta = document.getElementById('filterPlanta').value;
+            const filterArea = document.getElementById('filterArea').value;
+            const filterStockStatus = document.getElementById('filterStockStatus').value;
+            const filterEstado = document.getElementById('filterEstado').value;
+
+            const materialesFiltrados = materiales.filter(material => {
+                const matchesSearch = !searchTerm || 
+                    (material.codigo && material.codigo.toLowerCase().includes(searchTerm)) ||
+                    (material.descripcion && material.descripcion.toLowerCase().includes(searchTerm)) ||
+                    (material.descripcion_compuesta && material.descripcion_compuesta.toLowerCase().includes(searchTerm));
+
+                const matchesCategoria = !filterCategoria || material.categoria_codigo === filterCategoria;
+                const matchesClasificacion = !filterClasificacion || material.clasificacion_codigo === filterClasificacion;
+                const matchesFabricante = !filterFabricante || material.fabricante_codigo === filterFabricante;
+                const matchesPlanta = !filterPlanta || material.planta_codigo === filterPlanta;
+                const matchesArea = !filterArea || material.area_codigo === filterArea;
+                
+                const stockStatus = calculateStockStatus(material);
+                const matchesStockStatus = !filterStockStatus || stockStatus === filterStockStatus;
+                
+                const matchesEstado = !filterEstado || 
+                    (filterEstado === 'activo' ? material.activo : !material.activo);
+
+                return matchesSearch && matchesCategoria && matchesClasificacion && 
+                       matchesFabricante && matchesPlanta && matchesArea && 
+                       matchesStockStatus && matchesEstado;
+            });
+
+            if (materialesFiltrados.length === 0) {
+                showToast('No hay materiales para exportar', 'warning');
+                return;
+            }
+
+            // Transform data for Excel
+            const excelData = materialesFiltrados.map(material => {
+                const stockActual = parseFloat(material.stock_actual) || 0;
+                const precio = parseFloat(material.precio) || 0;
+                const stockStatus = calculateStockStatus(material);
+                
+                return {
+                    'Código': material.codigo || '',
+                    'Descripción': material.descripcion || '',
+                    'Descripción Compuesta': material.descripcion_compuesta || '',
+                    'Categoría': material.categoria_descripcion || material.categoria_codigo || '',
+                    'Clasificación': material.clasificacion_descripcion || material.clasificacion_codigo || '',
+                    'Fabricante': material.fabricante_nombre || material.fabricante_codigo || '',
+                    'Modelo': material.modelo || '',
+                    'Planta': material.planta_descripcion || material.planta_codigo || '',
+                    'Área': material.area_descripcion || material.area_codigo || '',
+                    'Unidad Medida': material.unidad_medida_codigo || '',
+                    'Stock Actual': stockActual,
+                    'Punto Reposición': parseFloat(material.punto_reposicion) || 0,
+                    'Stock Mínimo': parseFloat(material.stock_minimo) || 0,
+                    'Stock Máximo': parseFloat(material.stock_maximo) || 0,
+                    'Estado Stock': stockStatus === 'sin_stock' ? 'Sin Stock' : 
+                                   stockStatus === 'bajo' ? 'Bajo' : 
+                                   stockStatus === 'alto' ? 'Alto' : 'Normal',
+                    'Precio': precio,
+                    'Moneda': material.moneda_codigo || 'USD',
+                    'Valor Total Stock': (stockActual * precio).toFixed(2),
+                    'Ubicación': material.ubicacion || '',
+                    'Estado': material.activo ? 'Activo' : 'Inactivo',
+                    'Fecha Creación': material.created_at ? new Date(material.created_at).toLocaleDateString('es-ES') : '',
+                    'Fecha Actualización': material.updated_at ? new Date(material.updated_at).toLocaleDateString('es-ES') : ''
+                };
+            });
+
+            // Crear workbook con ExcelJS
+            const fecha = new Date().toLocaleDateString('es-PE');
+            const valorTotalStock = materialesFiltrados.reduce((sum, m) => sum + ((parseFloat(m.stock_actual) || 0) * (parseFloat(m.precio) || 0)), 0);
+            
+            const workbook = new ExcelJS.Workbook();
+            const worksheet = workbook.addWorksheet('Materiales');
+            
+            // Título
+            worksheet.mergeCells('A1:V1');
+            worksheet.getCell('A1').value = 'REPORTE DE MATERIALES - HP&K INVERSIONES S.R.L.';
+            worksheet.getCell('A1').font = { size: 14, bold: true, color: { argb: 'FFFFFFFF' } };
+            worksheet.getCell('A1').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF59E0B' } };
+            worksheet.getCell('A1').alignment = { vertical: 'middle', horizontal: 'center' };
+            worksheet.getRow(1).height = 25;
+            
+            // Subtítulo
+            worksheet.mergeCells('A2:V2');
+            worksheet.getCell('A2').value = `Fecha: ${fecha} | Total Items: ${materialesFiltrados.length} | Valor Total Stock: S/ ${valorTotalStock.toFixed(2)}`;
+            worksheet.getCell('A2').font = { size: 10, italic: true };
+            worksheet.getCell('A2').fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFEF3C7' } };
+            worksheet.getCell('A2').alignment = { vertical: 'middle', horizontal: 'center' };
+            
+            // Headers
+            const headers = ['Código', 'Descripción', 'Descripción Compuesta', 'Categoría', 'Clasificación', 'Fabricante', 'Modelo', 'Planta', 'Área', 'Unidad Medida', 'Stock Actual', 'Punto Reposición', 'Stock Mínimo', 'Stock Máximo', 'Estado Stock', 'Precio', 'Moneda', 'Valor Total Stock', 'Ubicación', 'Estado', 'Fecha Creación', 'Fecha Actualización'];
+            worksheet.getRow(4).values = headers;
+            worksheet.getRow(4).font = { bold: true, color: { argb: 'FFFFFFFF' } };
+            worksheet.getRow(4).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFD97706' } };
+            worksheet.getRow(4).alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
+            worksheet.getRow(4).height = 30;
+            
+            // Datos
+            excelData.forEach((mat, idx) => {
+                const row = worksheet.addRow([
+                    mat['Código'], mat['Descripción'], mat['Descripción Compuesta'], mat['Categoría'],
+                    mat['Clasificación'], mat['Fabricante'], mat['Modelo'], mat['Planta'], mat['Área'],
+                    mat['Unidad Medida'], mat['Stock Actual'], mat['Punto Reposición'], mat['Stock Mínimo'],
+                    mat['Stock Máximo'], mat['Estado Stock'], mat['Precio'], mat['Moneda'],
+                    mat['Valor Total Stock'], mat['Ubicación'], mat['Estado'],
+                    mat['Fecha Creación'], mat['Fecha Actualización']
+                ]);
+                
+                if (idx % 2 === 0) row.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF7FAFC' } };
+                
+                // Color según estado de stock
+                const estadoCell = row.getCell(15);
+                if (mat['Estado Stock'] === 'Sin Stock') {
+                    estadoCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFCA5A5' } };
+                    estadoCell.font = { bold: true, color: { argb: 'FF991B1B' } };
+                } else if (mat['Estado Stock'] === 'Bajo') {
+                    estadoCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFED7AA' } };
+                    estadoCell.font = { bold: true, color: { argb: 'FF92400E' } };
+                } else if (mat['Estado Stock'] === 'Alto') {
+                    estadoCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFBBF7D0' } };
+                    estadoCell.font = { bold: true, color: { argb: 'FF166534' } };
+                }
+                
+                // Formato
+                row.getCell(11).alignment = { horizontal: 'center' };
+                row.getCell(16).numFmt = '#,##0.00';
+                row.getCell(18).numFmt = '#,##0.00';
+            });
+            
+            // Anchos
+            worksheet.columns = [
+                {width: 15}, {width: 30}, {width: 40}, {width: 20}, {width: 20}, {width: 20},
+                {width: 20}, {width: 15}, {width: 15}, {width: 12}, {width: 12}, {width: 15},
+                {width: 12}, {width: 12}, {width: 12}, {width: 12}, {width: 10}, {width: 15},
+                {width: 15}, {width: 10}, {width: 15}, {width: 15}
+            ];
+            
+            // Bordes
+            worksheet.eachRow((row, rowNumber) => {
+                if (rowNumber >= 4) {
+                    row.eachCell((cell) => {
+                        cell.border = { top: {style:'thin', color:{argb:'FFE2E8F0'}}, left: {style:'thin', color:{argb:'FFE2E8F0'}}, bottom: {style:'thin', color:{argb:'FFE2E8F0'}}, right: {style:'thin', color:{argb:'FFE2E8F0'}} };
+                    });
+                }
+            });
+            
+            // Exportar
+            const buffer = await workbook.xlsx.writeBuffer();
+            const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+            const fechaArchivo = new Date().toISOString().slice(0, 10);
+            saveAs(blob, `Materiales_${fechaArchivo}.xlsx`);
+
+            showToast(`Exportados ${materialesFiltrados.length} materiales a Excel`, 'success');
+        }
+
+        // Render filtered table with stock alerts
+        function renderFilteredTable(materialesFiltrados) {
             const tbody = document.getElementById('tableBody');
             tbody.innerHTML = '';
 
-            // Validar que materiales sea un array
-            if (!Array.isArray(materiales)) {
+            if (materialesFiltrados.length === 0) {
                 tbody.innerHTML = `
                     <tr>
-                        <td colspan="8" class="px-6 py-8 text-center text-gray-500">
-                            <i class="fas fa-exclamation-circle text-3xl mb-2"></i>
-                            <p>No se pudieron cargar los inventarios</p>
+                        <td colspan="10" class="px-6 py-8 text-center text-gray-500">
+                            <i class="fas fa-search text-3xl mb-2"></i>
+                            <p>No se encontraron materiales con los filtros aplicados</p>
                         </td>
                     </tr>
                 `;
                 return;
             }
 
-            if (materiales.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="8" class="px-6 py-8 text-center text-gray-500">
-                            <i class="fas fa-inbox text-3xl mb-2"></i>
-                            <p>No hay inventarios registrados</p>
-                        </td>
-                    </tr>
-                `;
-                return;
-            }
+            materialesFiltrados.forEach(material => {
+                const stockStatus = calculateStockStatus(material);
+                const stockBadge = {
+                    'sin_stock': '<span class="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full bg-orange-100 text-orange-800">❌ Sin Stock</span>',
+                    'bajo': '<span class="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">⚠️ Bajo</span>',
+                    'normal': '<span class="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">✓ Normal</span>',
+                    'alto': '<span class="inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">📦 Alto</span>'
+                }[stockStatus];
 
-            materiales.forEach(material => {
                 const row = document.createElement('tr');
                 row.className = 'hover:bg-gray-50 transition';
                 row.innerHTML = `
-                    <td class="px-6 py-4 text-sm font-semibold text-gray-900">${material.codigo_sap || '-'}</td>
-                    <td class="px-6 py-4 text-sm text-gray-700">${material.nombre || '-'}</td>
-                    <td class="px-6 py-4 text-sm text-gray-600">${material.tipo_material || '-'}</td>
-                    <td class="px-6 py-4 text-sm text-gray-900 font-semibold">${material.stock_actual || 0}</td>
-                    <td class="px-6 py-4 text-sm text-gray-600">${material.unidad_medida_base || '-'}</td>
-                    <td class="px-6 py-4 text-sm text-gray-900">$${material.precio_estandar || 0}</td>
+                    <td class="px-6 py-4 text-sm font-semibold text-gray-900">${material.codigo || '-'}</td>
+                    <td class="px-6 py-4 text-sm text-gray-700">${material.descripcion || '-'}</td>
+                    <td class="px-6 py-4 text-sm text-gray-600">${material.categoria_descripcion || material.categoria_codigo || '-'}</td>
+                    <td class="px-6 py-4 text-sm text-center">
+                        <div class="flex flex-col items-center gap-1">
+                            <span class="font-semibold text-gray-900">${material.stock_actual || 0}</span>
+                            ${stockBadge}
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 text-sm text-center text-gray-600">${material.punto_reposicion || '-'}</td>
+                    <td class="px-6 py-4 text-sm text-gray-600">${material.unidad_medida_codigo || '-'}</td>
+                    <td class="px-6 py-4 text-sm text-right font-semibold text-gray-900">
+                        ${material.moneda_codigo || '$'} ${parseFloat(material.precio || 0).toFixed(4)}
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray-600">${material.ubicacion || '-'}</td>
                     <td class="px-6 py-4">
-                        <span class="px-3 py-1 text-xs font-semibold rounded-full ${getEstadoColor(material.estado)}">
-                            ${material.estado || 'activo'}
+                        <span class="px-3 py-1 text-xs font-semibold rounded-full ${material.activo ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}">
+                            ${material.activo ? 'Activo' : 'Inactivo'}
                         </span>
                     </td>
                     <td class="px-6 py-4 text-center">
@@ -610,39 +1403,6 @@
                 `;
                 tbody.appendChild(row);
             });
-        }
-
-        function getEstadoColor(estado) {
-            const colors = {
-                'activo': 'bg-green-100 text-green-800',
-                'inactivo': 'bg-gray-100 text-gray-800',
-                'descontinuado': 'bg-red-100 text-red-800'
-            };
-            return colors[estado] || 'bg-gray-100 text-gray-800';
-        }
-
-        // Filter table
-        function filterTable() {
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            const filterTipo = document.getElementById('filterTipo').value;
-            const filterEst = document.getElementById('filterEstado').value;
-            
-            const rows = document.querySelectorAll('#tableBody tr');
-            rows.forEach(row => {
-                const text = row.textContent.toLowerCase();
-                const matchesSearch = text.includes(searchTerm);
-                const matchesTipo = !filterTipo || text.includes(filterTipo.toLowerCase());
-                const matchesEst = !filterEst || text.includes(filterEst.toLowerCase());
-                
-                row.style.display = matchesSearch && matchesTipo && matchesEst ? '' : 'none';
-            });
-        }
-
-        function clearFilters() {
-            document.getElementById('searchInput').value = '';
-            document.getElementById('filterTipo').value = '';
-            document.getElementById('filterEstado').value = '';
-            filterTable();
         }
 
         // Form functions
@@ -771,6 +1531,222 @@
                 showToast('Error al guardar el item', 'error');
             }
         });
+
+        // ==================== SISTEMA DE NOTIFICACIONES DE STOCK ====================
+        
+        let notificationsList = [];
+        let notificationsFilter = 'all';
+
+        // Toggle panel de notificaciones
+        function toggleNotificationsPanel() {
+            const panel = document.getElementById('notifications-panel');
+            panel.classList.toggle('hidden');
+        }
+
+        // Agregar notificación
+        function addNotification(tipo, titulo, mensaje, material = null, autoClose = true) {
+            const notif = {
+                id: Date.now(),
+                tipo, // 'success', 'error', 'warning', 'info'
+                titulo,
+                mensaje,
+                material,
+                fecha: new Date(),
+                leida: false
+            };
+            
+            notificationsList.unshift(notif);
+            updateNotificationsBadge();
+            renderNotificationsList();
+            
+            // Notificación flotante
+            if (autoClose) {
+                showFloatingNotification(notif);
+            }
+        }
+
+        // Mostrar notificación flotante
+        function showFloatingNotification(notif) {
+            const container = document.getElementById('notifications-container');
+            
+            const iconClass = {
+                'success': 'fa-check-circle text-green-500',
+                'error': 'fa-times-circle text-red-500',
+                'warning': 'fa-exclamation-triangle text-yellow-500',
+                'info': 'fa-info-circle text-blue-500'
+            }[notif.tipo] || 'fa-bell text-gray-500';
+            
+            const bgClass = {
+                'success': 'bg-green-50 border-green-200',
+                'error': 'bg-red-50 border-red-200',
+                'warning': 'bg-yellow-50 border-yellow-200',
+                'info': 'bg-blue-50 border-blue-200'
+            }[notif.tipo] || 'bg-gray-50 border-gray-200';
+            
+            const notifElement = document.createElement('div');
+            notifElement.className = `${bgClass} border-l-4 rounded-lg shadow-lg p-4 mb-2 transform transition-all duration-300 translate-x-full`;
+            notifElement.id = `notif-float-${notif.id}`;
+            notifElement.innerHTML = `
+                <div class="flex items-start">
+                    <i class="fas ${iconClass} text-2xl mr-3 mt-1"></i>
+                    <div class="flex-1">
+                        <h4 class="font-semibold text-gray-800">${notif.titulo}</h4>
+                        <p class="text-sm text-gray-600 mt-1">${notif.mensaje}</p>
+                    </div>
+                    <button onclick="closeFloatingNotif(${notif.id})" class="ml-2 text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+            
+            container.appendChild(notifElement);
+            
+            // Animación de entrada
+            setTimeout(() => {
+                notifElement.classList.remove('translate-x-full');
+            }, 10);
+            
+            // Auto-cerrar después de 5 segundos
+            setTimeout(() => {
+                closeFloatingNotif(notif.id);
+            }, 5000);
+        }
+
+        // Cerrar notificación flotante
+        function closeFloatingNotif(id) {
+            const element = document.getElementById(`notif-float-${id}`);
+            if (element) {
+                element.classList.add('translate-x-full', 'opacity-0');
+                setTimeout(() => element.remove(), 300);
+            }
+        }
+
+        // Actualizar badge de notificaciones
+        function updateNotificationsBadge() {
+            const unread = notificationsList.filter(n => !n.leida).length;
+            const badge = document.getElementById('notifications-badge');
+            
+            if (unread > 0) {
+                badge.textContent = unread > 99 ? '99+' : unread;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+
+        // Renderizar lista de notificaciones
+        function renderNotificationsList() {
+            const list = document.getElementById('notifications-list');
+            
+            const filtered = notificationsFilter === 'all' 
+                ? notificationsList 
+                : notificationsList.filter(n => !n.leida);
+            
+            if (filtered.length === 0) {
+                list.innerHTML = `
+                    <div class="text-center text-gray-400 py-8">
+                        <i class="fas fa-bell-slash text-4xl mb-2"></i>
+                        <p>No hay notificaciones${notificationsFilter === 'unread' ? ' sin leer' : ''}</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            list.innerHTML = filtered.map(notif => {
+                const iconClass = {
+                    'success': 'fa-check-circle text-green-500',
+                    'error': 'fa-times-circle text-red-500',
+                    'warning': 'fa-exclamation-triangle text-yellow-500',
+                    'info': 'fa-info-circle text-blue-500'
+                }[notif.tipo] || 'fa-bell text-gray-500';
+                
+                const fecha = new Date(notif.fecha).toLocaleString('es-ES', { 
+                    day: '2-digit', 
+                    month: 'short', 
+                    hour: '2-digit', 
+                    minute: '2-digit' 
+                });
+                
+                return `
+                    <div class="bg-white border ${notif.leida ? 'border-gray-200' : 'border-green-300 bg-green-50'} rounded-lg p-3 cursor-pointer hover:shadow-md transition"
+                         onclick="markAsRead(${notif.id})">
+                        <div class="flex items-start">
+                            <i class="fas ${iconClass} text-xl mr-3 mt-1"></i>
+                            <div class="flex-1">
+                                <h5 class="font-semibold text-gray-800 text-sm">${notif.titulo}</h5>
+                                <p class="text-xs text-gray-600 mt-1">${notif.mensaje}</p>
+                                <p class="text-xs text-gray-400 mt-2">${fecha}</p>
+                            </div>
+                            ${!notif.leida ? '<div class="w-2 h-2 bg-green-500 rounded-full"></div>' : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Marcar como leída
+        function markAsRead(id) {
+            const notif = notificationsList.find(n => n.id === id);
+            if (notif) {
+                notif.leida = true;
+                updateNotificationsBadge();
+                renderNotificationsList();
+            }
+        }
+
+        // Filtrar notificaciones
+        function filterNotifications(tipo) {
+            notificationsFilter = tipo;
+            
+            document.querySelectorAll('.notif-filter-btn').forEach(btn => {
+                btn.classList.remove('active', 'bg-green-100', 'text-green-700', 'font-semibold');
+                btn.classList.add('bg-gray-100', 'text-gray-700');
+            });
+            
+            event.target.classList.add('active', 'bg-green-100', 'text-green-700', 'font-semibold');
+            event.target.classList.remove('bg-gray-100', 'text-gray-700');
+            
+            renderNotificationsList();
+        }
+
+        // Generar notificaciones automáticas al cargar materiales
+        function checkStockAlerts() {
+            let contadorCriticos = 0;
+            let contadorBajos = 0;
+            
+            materiales.forEach(material => {
+                const stockActual = parseFloat(material.stock_actual) || 0;
+                const stockMinimo = parseFloat(material.stock_minimo) || parseFloat(material.punto_reposicion) || 0;
+                const nombre = material.nombre || material.codigo_sap || 'Material sin nombre';
+                
+                // Stock crítico (0)
+                if (stockActual === 0 && contadorCriticos < 3) {
+                    addNotification('error', '❌ SIN STOCK', 
+                        `${nombre} se encuentra SIN STOCK`, material, false);
+                    contadorCriticos++;
+                }
+                // Stock bajo
+                else if (stockActual > 0 && stockActual < stockMinimo && contadorBajos < 5) {
+                    addNotification('warning', '⚠️ Stock Bajo', 
+                        `${nombre}: ${stockActual.toFixed(1)} ${material.unidad_medida_base || 'UN'} (Mín: ${stockMinimo.toFixed(1)})`, 
+                        material, false);
+                    contadorBajos++;
+                }
+            });
+            
+            // Resumen global
+            const sinStock = materiales.filter(m => (parseFloat(m.stock_actual) || 0) === 0).length;
+            const stockBajo = materiales.filter(m => {
+                const stock = parseFloat(m.stock_actual) || 0;
+                const minimo = parseFloat(m.stock_minimo) || parseFloat(m.punto_reposicion) || 0;
+                return stock > 0 && stock < minimo;
+            }).length;
+            
+            if (sinStock > 3 || stockBajo > 5) {
+                addNotification('info', '📊 Resumen de Inventario', 
+                    `${sinStock} materiales sin stock y ${stockBajo} con stock bajo`, null, false);
+            }
+        }
     </script>
 </body>
 </html>

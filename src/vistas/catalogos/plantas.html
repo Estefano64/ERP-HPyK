@@ -169,7 +169,7 @@
                 
                 renderTable(plantas);
             } catch (error) {
-                console.error('❌ Error al cargar plantas:', error);
+                console.error('Error al cargar plantas:', error);
                 showToast('Error al cargar plantas', 'error');
             }
         }
@@ -177,7 +177,7 @@
         function renderTable(plantas) {
             const tbody = document.getElementById('tableBody');
             if (!tbody) {
-                console.error('❌ No se encontró elemento tableBody');
+                console.error('No se encontró elemento tableBody');
                 return;
             }
             
@@ -256,9 +256,9 @@
                 document.getElementById('direccion').value = planta.direccion || '';
                 document.getElementById('activo').checked = planta.activo !== false;
                 document.getElementById('nombre').focus();
-                console.log('✅ Formulario completado');
+                console.log('Formulario completado');
             } catch (error) {
-                console.error('❌ Error al cargar planta:', error);
+                console.error('Error al cargar planta:', error);
                 showToast('Error al cargar planta', 'error');
             }
         }
@@ -278,7 +278,7 @@
                     showToast('Error al eliminar', 'error');
                 }
             } catch (error) {
-                console.error('❌ Error al eliminar:', error);
+                console.error('Error al eliminar:', error);
                 showToast('Error al eliminar', 'error');
             }
         }
@@ -320,7 +320,7 @@
                     showToast('Error al guardar', 'error');
                 }
             } catch (error) {
-                console.log('❌ Error al guardar:', error);
+                console.log('Error al guardar:', error);
                 showToast('Error al guardar', 'error');
             }
         });

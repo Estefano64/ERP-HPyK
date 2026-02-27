@@ -6,28 +6,33 @@ import sequelize from '../config/database';
 interface MaterialAttributes {
   material_id: number;
   codigo: string; // Autogenerado por software
+  descripcion_compuesta?: string; // Descripción completa
   descripcion: string;
   planta_codigo: string;
   area_codigo: string;
   categoria_codigo: string;
   clasificacion_codigo: string;
-  punto_reposicion?: number; // PRODUCCIÓN
-  stock_maximo?: number; // PRODUCCIÓN
+  punto_reposicion?: number; // PRODUCCIÓN - Punto de reposición
+  stock_maximo?: number; // PRODUCCIÓN - Stock máximo
   unidad_medida_codigo: string;
-  plazo_entrega?: number; // LOGÍSTICA
-  precio?: number; // LOGÍSTICA
-  moneda_codigo?: string; // LOGÍSTICA
-  fabricante_codigo?: string;
+  plazo_entrega?: number; // LOGÍSTICA - Días de entrega
+  precio?: number; // LOGÍSTICA - Precio unitario
+  moneda_codigo?: string; // LOGÍSTICA - Moneda
+  fabricante_codigo?: string; // Fabricante
   np?: string; // Número de parte
-  ubicacion?: string; // Para inventario físico
-  caja?: string; // Para inventario físico
+  stock_actual?: number; // Stock actual en almacén
+  ubicacion?: string; // Ubicación física (ej: A6)
+  activo?: boolean; // Estado del material
+  created_at?: Date;
+  updated_at?: Date;
 }
 
-interface MaterialCreationAttributes extends Optional<MaterialAttributes, 'material_id'> {}
+interface MaterialCreationAttributes extends Optional<MaterialAttributes, 'material_id' | 'descripcion_compuesta' | 'punto_reposicion' | 'stock_maximo' | 'plazo_entrega' | 'precio' | 'moneda_codigo' | 'fabricante_codigo' | 'np' | 'stock_actual' | 'ubicacion' | 'activo' | 'created_at' | 'updated_at'> {}
 
 class Material extends Model<MaterialAttributes, MaterialCreationAttributes> implements MaterialAttributes {
   public material_id!: number;
   public codigo!: string;
+  public descripcion_compuesta?: string;
   public descripcion!: string;
   public planta_codigo!: string;
   public area_codigo!: string;
@@ -40,9 +45,12 @@ class Material extends Model<MaterialAttributes, MaterialCreationAttributes> imp
   public precio?: number;
   public moneda_codigo?: string;
   public fabricante_codigo?: string;
-public np?: string;
+  public np?: string;
+  public stock_actual?: number;
   public ubicacion?: string;
-  public caja?: string;
+  public activo?: boolean;
+  public readonly created_at?: Date;
+  public readonly updated_at?: Date;
 }
 
 Material.init(
@@ -57,6 +65,11 @@ Material.init(
       allowNull: false,
       unique: true,
       comment: 'Código del material (autogenerado)',
+    },
+    descripcion_compuesta: {
+      type: DataTypes.TEXT,
+      allowNull: true,
+      comment: 'Descripción completa del material',
     },
     descripcion: {
       type: DataTypes.TEXT,
@@ -103,7 +116,7 @@ Material.init(
       comment: 'LOGÍSTICA - Plazo de entrega en días',
     },
     precio: {
-      type: DataTypes.DECIMAL(12, 2),
+      type: DataTypes.DECIMAL(15, 4),
       allowNull: true,
       comment: 'LOGÍSTICA - Precio unitario',
     },
@@ -123,21 +136,40 @@ Material.init(
       allowNull: true,
       comment: 'Número de parte del fabricante',
     },
+    stock_actual: {
+      type: DataTypes.DECIMAL(10, 2),
+      allowNull: true,
+      defaultValue: 0,
+      comment: 'Stock actual en almacén',
+    },
     ubicacion: {
-      type: DataTypes.STRING(20),
+      type: DataTypes.STRING(50),
       allowNull: true,
       comment: 'Ubicación física en almacén (ej: A6)',
     },
-    caja: {
-      type: DataTypes.STRING(50),
+    activo: {
+      type: DataTypes.BOOLEAN,
       allowNull: true,
-      comment: 'Identificador de caja (ej: CAJA 3)',
+      defaultValue: true,
+      comment: 'Estado del material (activo/inactivo)',
+    },
+    created_at: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      defaultValue: DataTypes.NOW,
+    },
+    updated_at: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      defaultValue: DataTypes.NOW,
     },
   },
   {
     sequelize,
     tableName: 'material',
-    timestamps: false,
+    timestamps: true,
+    createdAt: 'created_at',
+    updatedAt: 'updated_at',
   }
 );
 

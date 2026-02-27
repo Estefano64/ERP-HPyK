@@ -463,8 +463,8 @@ if (typeof module !== 'undefined' && module.exports) {
     };
 }
 
-console.log('✅ Configuraciones de catálogos cargadas');
-console.log(`📊 Total de catálogos configurados: ${Object.keys(catalogsConfig).length}`);
+console.log('Configuraciones de catálogos cargadas');
+console.log(`Total de catálogos configurados: ${Object.keys(catalogsConfig).length}`);
 console.log('\nCatálogos por categoría:');
 console.log('- Maestros Globales: 11');
 console.log('- Mantenimiento: 6');

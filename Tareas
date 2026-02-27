@@ -1,0 +1,66 @@
+1. Análisis General de los Archivos y su Propósito
+Sus archivos representan los módulos fundamentales de un ERP para un taller de reparación de maquinaria pesada:
+
+1 Log - material.xlsx: Módulo de Logística / Inventario. Es su maestro de materiales (repuestos e insumos). Contiene información crítica como códigos, descripciones, clasificaciones (Crítico, Consumible), niveles de stock (Punto de Reposición, Stock Máximo) y datos del fabricante. Las hojas adicionales (Planta, Area, Clasificación, etc.) son las tablas maestras que estandarizan los datos.
+
+2 Mant - equipos y Herramientos.xlsx: Módulo de Activos Fijos / Mantenimiento. Es el registro de todos los equipos que usted repara y las herramientas que utiliza. Contiene información técnica, ubicación (Planta, Área), estado (Status) y criticidad del activo.
+
+3. Todos - Estrategias.xlsx: Módulo de Planificación de Mantenimiento. Define las estrategias (actividades preventivas, rutinarias) que se aplican a los equipos. Incluye frecuencia, tipo de estrategia y el área responsable. Es la base para generar órdenes de trabajo preventivas automáticas.
+
+4. Log prod - Task list materiales.xlsx: Módulo de Ingeniería / Listas de Materiales (BOM - Bill of Materials). Este es un archivo de vital importancia. Es una "receta" o "explosión de materiales" que detalla, para cada reparación de un componente específico (e.g., "Rep, acum direccion, NA, 793D"), todos los materiales y servicios necesarios, junto con sus cantidades. Es el corazón de la planificación de una Orden de Trabajo (OT).
+
+5. Cod Rep.xlsx: Módulo de Maestro de Componentes. Actúa como un catálogo de los componentes principales que se reparan (cilindros, frenos, ruedas, etc.). Los asocia a un Cod Rep, una descripción, un tipo, una categoría de máquina, y un fabricante. La columna NP (Número de Parte) en otras hojas se vincula a este código.
+
+6. Ots.xlsx: Módulo de Gestión de Órdenes de Trabajo (OT). Es el centro de operaciones. Aquí se registra cada trabajo que entra al taller, desde la recepción hasta la entrega. Integra información del cliente, el componente a reparar (vía Cod Rep), los datos de recepción, los tiempos, los costos y los estados por los que pasa la OT. Las últimas hojas son tablas de estado que controlan el flujo.
+
+Tablas de planificacion.xlsx: Módulo de Planificación de Procesos / Ruta de Trabajo. Define las operaciones estándar (rellenado, cromado, rectificado, etc.) que se pueden realizar en diferentes partes de un componente (cilindro, vástago, tapa, pistón). Esencial para crear rutas de trabajo estándar y calcular tiempos.
+
+2. Propuesta de Arquitectura de Datos (Modelo Entidad-Relación)
+Para construir un ERP, necesitamos pasar de archivos planos a una base de datos relacional. Aquí un diagrama simplificado de cómo se conectarían sus tablas:
+
+Clientes (de 6. Ots.xlsx - Cliente) <-- (1:N) -- OTs (6. Ots.xlsx - Sheet1)
+
+Componentes Maestros (5. Cod Rep.xlsx - Cod Rep) <-- (1:N) -- OTs (a través del campo Cod Rep)
+
+Componentes Maestros (5. Cod Rep.xlsx - Cod Rep) <-- (1:N) -- Listas de Materiales (BOM) (4. Log prod - Task list materiales.xlsx), a través del campo N/P cod 1.
+
+Materiales (1 Log - material.xlsx - Sheet1) <-- (1:N) -- Listas de Materiales (BOM), a través del campo NP.
+
+Activos/Equipos (2 Mant - equipos y Herramientos.xlsx - Sheet1) <-- (1:N) -- Estrategias (3. Todos - Estrategias.xlsx - Sheet1) y OTs (cuando la OT es sobre un equipo específico).
+
+Tablas de Apoyo: Area, Planta, Fabricante, Status, Tipo, Und Med, etc., se convierten en tablas maestras para garantizar la integridad de los datos.
+
+3. Flujo de Procesos del Nuevo ERP
+Este es el "Cómo" funcionaría su negocio dentro del nuevo sistema.
+
+Recepción y Creación de OT:
+
+Un cliente trae un componente (ej. un cilindro de un camión 797F).
+
+El planificador busca el Cod Rep (ej. 277-7219) en el Maestro de Componentes (5. Cod Rep). Si no existe, se da de alta.
+
+Crea una nueva OT (6. Ots) seleccionando el cliente, el Cod Rep, y llenando los datos de recepción. El sistema puede autocompletar Tipo, Fabricante, Flota, etc., basado en el maestro.
+
+Planificación de la OT:
+
+Al ingresar el Cod Rep en la OT, el sistema consulta la Lista de Materiales (BOM 4. Log prod...) para ese componente.
+
+Se genera una lista preliminar de materiales y servicios necesarios.
+
+El planificador ajusta cantidades y verifica disponibilidad en el Inventario (1 Log - material).
+
+Se genera la "Ruta de Trabajo" basada en el tipo de reparación (General, Parcial) usando las operaciones estándar de las Tablas de planificacion.
+
+Ejecución y Seguimiento:
+
+La OT avanza por los diferentes estados (OT Status, Recursos Status, Taller Status).
+
+Los técnicos registran horas trabajadas, y se solicita material al almacén.
+
+El sistema puede calcular el % de avance (% PCR).
+
+Finalización y Facturación:
+
+Al terminar, se registra la entrega. Los estados se actualizan a "Terminado", "Entregado" y finalmente "Cobranza".
+
+Los costos de materiales y horas se consolidan para la facturación.

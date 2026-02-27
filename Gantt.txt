@@ -1,0 +1,408 @@
+================================================================================
+                    PLAN AJUSTADO ERP HP&K - CRONOGRAMA 1 MES
+                    Basado en Progreso Real Existente (60% completado)
+================================================================================
+
+FECHA INICIO: 24 Febrero 2026          FECHA FIN: 21 Marzo 2026
+HORARIO: Lunes-Viernes 7:30-18:00     TOTAL HORAS: 180h (4 semanas)
+RESPONSABLE: Equipo de Desarrollo      ESTADO: Plan Ajustado por Progreso Real
+
+================================================================================
+                          PROGRESO REAL IDENTIFICADO
+================================================================================
+✅ COMPLETADO (60% del proyecto):
+├── 🗄️ Base de datos PostgreSQL configurada y funcionando
+├── 🏗️ Estructura del proyecto TypeScript + Express + Sequelize
+├── 📊 35+ Modelos Sequelize implementados y sincronizados
+├── 🔗 Relaciones FK establecidas entre todas las tablas
+├── 📝 23 tablas catálogos con datos seed cargados
+├── 💻 Controladores básicos (Area, Compra, etc.) funcionando
+├── 🌐 Frontend básico con navegación y formularios
+├── 🐛 Errores críticos corregidos (tabla "compras", emoticones)
+├── 📋 APIs REST básicas operativas
+└── 🔄 Sistema de migraciones automáticas
+
+📊 **PROGRESO REAL ACTUAL**:
+Backend: 65% completado (vs 30% estimado)
+Frontend: 45% completado (vs 20% estimado) 
+Base de datos: 90% completada (vs 0% estimado)
+Integración: 30% completada (vs 0% estimado)
+
+================================================================================
+                            CRONOGRAMA DETALLADO
+================================================================================
+
+================================================================================
+                    SEMANA 1: COMPLETAR APIs Y VALIDACIONES
+                        24 Feb - 28 Feb (45 horas)
+================================================================================
+🎯 OBJETIVO: Completar funcionalidades faltantes en módulos existentes
+📊 META: Llevar backend de 65% → 85%, frontend de 45% → 65%
+
+LUNES 24 FEB (9h): REFINAMIENTO CATÁLOGOS
+────────────────────────────────────────────────────────────────────────────── 
+07:30-09:00 │ ✅ Revisar APIs existentes - identificar endpoints faltantes
+09:00-10:30 │ ✅ Completar validaciones en modelos Planta, Area, Fabricante
+10:30-12:00 │ ✅ Implementar búsquedas avanzadas + filtros en catálogos
+12:00-13:00 │ ALMUERZO
+13:00-14:30 │ ✅ Mejorar frontend: formularios responsivos + UX
+14:30-16:00 │ ✅ Testing APIs catálogos + corrección bugs menores
+16:00-17:30 │ ✅ Documentar endpoints existentes + postman collection
+
+MARTES 25 FEB (9h): MATERIALES Y INVENTARIO AVANZADO
+──────────────────────────────────────────────────────────────────────────────
+07:30-09:00 │ 🔧 Completar funcionalidades Material: stock alerts + auto-reorder
+09:00-10:30 │ 🔧 Implementar MovimientoInventario: validaciones + control stock
+10:30-12:00 │ 🔧 API valorización inventario: costos FIFO/LIFO + reportes
+12:00-13:00 │ ALMUERZO  
+13:00-14:30 │ 🔧 Frontend inventario: dashboard tiempo real + gráficos
+14:30-16:00 │ 🔧 Alertas automáticas: stock bajo + vencimientos
+16:00-17:30 │ ✅ Testing integración Material ↔ MovimientoInventario
+
+MIÉRCOLES 26 FEB (9h): ÓRDENES DE TRABAJO AVANZADAS
+──────────────────────────────────────────────────────────────────────────────
+07:30-09:00 │ 🔥 Completar modelo OrdenTrabajo: campos calculados + workflow
+09:00-10:30 │ 🔥 Estados OT: transiciones automáticas + reglas de negocio
+10:30-12:00 │ 🔥 Integración OT ↔ Materiales: explosión automática BOM
+12:00-13:00 │ ALMUERZO
+13:00-14:30 │ 🔥 Frontend OT: wizard creación + vista kanban estados
+14:30-16:00 │ 🔥 Tracking tiempo real: PCR calculation + progress bars
+16:00-17:30 │ ✅ Testing workflow completo OT end-to-end
+
+JUEVES 27 FEB (9h): EQUIPOS Y MANTENIMIENTO
+──────────────────────────────────────────────────────────────────────────────
+07:30-09:00 │ ⚙️ Completar modelo Equipo: historial + mantenimiento preventivo
+09:00-10:30 │ ⚙️ Estrategias automáticas: programación + notificaciones
+10:30-12:00 │ ⚙️ Rutas de trabajo: operaciones estándar + tiempos
+12:00-13:00 │ ALMUERZO
+13:00-14:30 │ ⚙️ Frontend equipos: fichas técnicas + historial visual
+14:30-16:00 │ ⚙️ Dashboard mantenimiento: KPIs + alertas preventivas
+16:00-17:30 │ ✅ Testing módulo mantenimiento completo
+
+VIERNES 28 FEB (9h): INTEGRACIÓN Y BOM
+──────────────────────────────────────────────────────────────────────────────
+07:30-09:00 │ 🧩 Componentes maestros: catálogo completo + precios
+09:00-10:30 │ 🧩 Listas materiales: BOM explosion engine + cálculos
+10:30-12:00 │ 🧩 Auto-generación: OT → BOM → Lista materiales
+12:00-13:00 │ ALMUERZO
+13:00-14:30 │ 🧩 Compras automáticas: materiales faltantes → PO
+14:30-16:00 │ 🧩 Testing integración completa: OT→BOM→Materiales→Compras
+16:00-17:30 │ ✅ CHECKPOINT SEMANA 1: Review completo + planning semana 2
+
+📋 ENTREGABLES SEMANA 1:
+• APIs completas con validaciones businesslogic
+• Frontend mejorado y responsive en todos los módulos
+• Integración OT-Materiales-BOM funcionando
+• Dashboard tiempo real para inventario y OT
+• Testing completo de flujos críticos
+
+================================================================================
+                      SEMANA 2: FUNCIONALIDADES AVANZADAS
+                         03 Mar - 07 Mar (45 horas)
+================================================================================
+🎯 OBJETIVO: Implementar funcionalidades avanzadas y optimizaciones
+📊 META: Backend 85% → 95%, Frontend 65% → 85%
+
+LUNES 03 MAR (9h): REPORTES Y ANALYTICS
+──────────────────────────────────────────────────────────────────────────────
+07:30-09:00 │ 📊 Sistema de reportes: templates dinámicos + configurables
+09:00-10:30 │ 📊 Reportes inventario: rotation + ABC analysis + dead stock
+10:30-12:00 │ 📊 Reportes OT: performance + tiempos + costos por cliente
+12:00-13:00 │ ALMUERZO
+13:00-14:30 │ 📊 Dashboard ejecutivo: KPIs tiempo real + drill-down
+14:30-16:00 │ 📊 Exportaciones: Excel + PDF automáticos con branding
+16:00-17:30 │ 📊 Configuración reportes: filtros personalizables por usuario
+
+MARTES 04 MAR (9h): OPTIMIZACIÓN Y PERFORMANCE
+──────────────────────────────────────────────────────────────────────────────
+07:30-09:00 │ ⚡ Optimización queries: índices + EXPLAIN + bottlenecks
+09:00-10:30 │ ⚡ Cache inteligente: catálogos + consultas frecuentes
+10:30-12:00 │ ⚡ Paginación avanzada: infinite scroll + lazy loading
+12:00-13:00 │ ALMUERZO
+13:00-14:30 │ ⚡ API rate limiting + security headers + CORS optimized
+14:30-16:00 │ ⚡ Frontend optimization: bundling + minification + CDN
+16:00-17:30 │ ⚡ Monitoring setup: logs + error tracking + performance metrics
+
+MIÉRCOLES 05 MAR (9h): SEGURIDAD Y USUARIOS
+──────────────────────────────────────────────────────────────────────────────
+07:30-09:00 │ 🔐 Sistema autenticación: JWT + refresh tokens + roles
+09:00-10:30 │ 🔐 Permisos granulares: por módulo + operación + data filtering
+10:30-12:00 │ 🔐 Audit trail: logging completo + user activity tracking
+12:00-13:00 │ ALMUERZO
+13:00-14:30 │ 🔐 Frontend: login + role-based UI + permission guards
+14:30-16:00 │ 🔐 Security testing: SQL injection + XSS + CSRF protection
+16:00-17:30 │ 🔐 Backup automático: DB + files + recovery procedures
+
+JUEVES 06 MAR (9h): INTEGRACIONES EXTERNAS
+──────────────────────────────────────────────────────────────────────────────
+07:30-09:00 │ 🔗 API integration: ERP external systems + accounting software
+09:00-10:30 │ 🔗 Email notifications: templates + triggers + SMTP setup
+10:30-12:00 │ 🔗 File management: uploads + storage + image processing
+12:00-13:00 │ ALMUERZO
+13:00-14:30 │ 🔗 Data import/export: Excel ↔ DB + CSV + XML formats
+14:30-16:00 │ 🔗 API documentation: Swagger + endpoint testing + examples
+16:00-17:30 │ 🔗 Webhooks setup: real-time notifications + event triggers
+
+VIERNES 07 MAR (9h): MOBILE Y RESPONSIVIDAD
+──────────────────────────────────────────────────────────────────────────────
+07:30-09:00 │ 📱 Mobile-first design: responsive breakpoints + touch gestures
+09:00-10:30 │ 📱 PWA setup: service worker + offline capability + caching
+10:30-12:00 │ 📱 Mobile APIs: optimized endpoints + reduced payloads
+12:00-13:00 │ ALMUERZO
+13:00-14:30 │ 📱 Touch interfaces: swipe gestures + mobile navigation
+14:30-16:00 │ 📱 Push notifications: browser + mobile + critical alerts
+16:00-17:30 │ ✅ CHECKPOINT SEMANA 2: Feature complete + UX testing
+
+📋 ENTREGABLES SEMANA 2:
+• Sistema de reportes completo y configurable
+• Performance optimizado para producción
+• Seguridad enterprise-grade implementada
+• Mobile-responsive en todos los módulos
+• Integraciones externas funcionando
+
+================================================================================
+                        SEMANA 3: TESTING Y REFINAMIENTO
+                          10 Mar - 14 Mar (45 horas)
+================================================================================
+🎯 OBJETIVO: Testing exhaustivo + bug fixes + refinamiento UX
+📊 META: Sistema 95% → 98%, UX/UI pulido, estable para producción
+
+LUNES 10 MAR (9h): TESTING AUTOMATIZADO
+──────────────────────────────────────────────────────────────────────────────
+07:30-09:00 │ 🧪 Unit tests: modelos + controllers + services (80% coverage)
+09:00-10:30 │ 🧪 Integration tests: APIs + database + external services
+10:30-12:00 │ 🧪 E2E testing: user journeys + critical workflows + UI
+12:00-13:00 │ ALMUERZO
+13:00-14:30 │ 🧪 Load testing: stress + performance + concurrent users
+14:30-16:00 │ 🧪 Security testing: penetration + vulnerability assessment
+16:00-17:30 │ 🧪 Automated CI/CD: build + test + deploy pipeline setup
+
+MARTES 11 MAR (9h): BUG FIXES Y ESTABILIZACIÓN
+──────────────────────────────────────────────────────────────────────────────
+07:30-09:00 │ 🐛 Bug tracking: categorización + priorización + assignment
+09:00-10:30 │ 🐛 Critical fixes: data integrity + calculation errors
+10:30-12:00 │ 🐛 UI/UX bugs: layout + responsiveness + browser compatibility
+12:00-13:00 │ ALMUERZO
+13:00-14:30 │ 🐛 Performance issues: query optimization + memory leaks
+14:30-16:00 │ 🐛 Integration bugs: API inconsistencies + data synchronization
+16:00-17:30 │ 🐛 Regression testing: verify fixes don't break existing features
+
+MIÉRCOLES 12 MAR (9h): UX/UI REFINAMIENTO
+──────────────────────────────────────────────────────────────────────────────
+07:30-09:00 │ 🎨 UI polish: consistent styling + branding + professional look
+09:00-10:30 │ 🎨 UX improvements: navigation + workflow + user feedback
+10:30-12:00 │ 🎨 Accessibility: WCAG compliance + keyboard navigation + screen readers
+12:00-13:00 │ ALMUERZO
+13:00-14:30 │ 🎨 User experience testing: workflow validation + feedback collection
+14:30-16:00 │ 🎨 Visual improvements: icons + loading states + error messages
+16:00-17:30 │ 🎨 Cross-browser testing: Chrome + Firefox + Safari + Edge
+
+JUEVES 13 MAR (9h): DOCUMENTACIÓN Y TRAINING
+──────────────────────────────────────────────────────────────────────────────
+07:30-09:00 │ 📚 Technical documentation: API docs + database schema + architecture
+09:00-10:30 │ 📚 User manuals: step-by-step guides + workflows + screenshots
+10:30-12:00 │ 📚 Training materials: videos + presentations + hands-on exercises
+12:00-13:00 │ ALMUERZO
+13:00-14:30 │ 📚 Admin documentation: deployment + maintenance + troubleshooting
+14:30-16:00 │ 📚 Developer documentation: code standards + contributing + setup
+16:00-17:30 │ 📚 Knowledge base: FAQs + troubleshooting + best practices
+
+VIERNES 14 MAR (9h): PREPARACIÓN DEPLOY
+──────────────────────────────────────────────────────────────────────────────
+07:30-09:00 │ 🚀 Production environment: server setup + configuration + security
+09:00-10:30 │ 🚀 Database migration: production data + backup + rollback plans
+10:30-12:00 │ 🚀 Deployment scripts: automated + rollback + monitoring
+12:00-13:00 │ ALMUERZO
+13:00-14:30 │ 🚀 Monitoring setup: alerts + logging + performance tracking
+14:30-16:00 │ 🚀 Final testing: production environment + user acceptance
+16:00-17:30 │ ✅ CHECKPOINT SEMANA 3: Production ready + documentation complete
+
+📋 ENTREGABLES SEMANA 3:
+• Test suite completa con 80%+ cobertura
+• Bugs críticos resueltos y sistema estabilizado
+• UX/UI pulido y profesional
+• Documentación completa técnica y usuario
+• Ambiente de producción configurado
+
+================================================================================
+                           SEMANA 4: GO-LIVE Y SOPORTE
+                            17 Mar - 21 Mar (45 horas)
+================================================================================
+🎯 OBJETIVO: Deploy producción + capacitación + soporte go-live
+📊 META: Sistema 100% operacional con usuarios trabajando
+
+LUNES 17 MAR (9h): DEPLOY PRODUCCIÓN
+──────────────────────────────────────────────────────────────────────────────
+07:30-09:00 │ 🚀 Final deployment: production release + database migration
+09:00-10:30 │ 🚀 Data migration: historical data + validation + verification
+10:30-12:00 │ 🚀 System monitoring: health checks + performance verification
+12:00-13:00 │ ALMUERZO
+13:00-14:30 │ 🚀 User account setup: roles + permissions + initial access
+14:30-16:00 │ 🚀 Integration testing: external systems + data flows
+16:00-17:30 │ 🚀 Backup verification: automated + manual + recovery testing
+
+MARTES 18 MAR (9h): CAPACITACIÓN USUARIOS
+──────────────────────────────────────────────────────────────────────────────
+07:30-09:00 │ 👥 Training session 1: Sistema overview + navigation + basics
+09:00-10:30 │ 👥 Training session 2: Catálogos + materiales + inventario
+10:30-12:00 │ 👥 Training session 3: Órdenes trabajo + workflow + estados
+12:00-13:00 │ ALMUERZO
+13:00-14:30 │ 👥 Training session 4: Reportes + dashboard + analytics
+14:30-16:00 │ 👥 Hands-on practice: guided exercises + real data entry
+16:00-17:30 │ 👥 Q&A session: questions + advanced features + tips
+
+MIÉRCOLES 19 MAR (9h): SOPORTE GO-LIVE
+──────────────────────────────────────────────────────────────────────────────
+07:30-09:00 │ 🆘 Live support: user assistance + real-time problem solving
+09:00-10:30 │ 🆘 Process validation: workflows + business rules + corrections
+10:30-12:00 │ 🆘 Performance monitoring: real usage + optimization + tuning
+12:00-13:00 │ ALMUERZO
+13:00-14:30 │ 🆘 User feedback: collecting + prioritizing + quick fixes
+14:30-16:00 │ 🆘 Data validation: entries + calculations + reports accuracy
+16:00-17:30 │ 🆘 System adjustments: configurations + permissions + workflows
+
+JUEVES 20 MAR (9h): OPTIMIZACIÓN POST-LAUNCH
+──────────────────────────────────────────────────────────────────────────────
+07:30-09:00 │ ⚡ Performance tuning: based on real usage patterns
+09:00-10:30 │ ⚡ User experience improvements: based on feedback + usage analytics
+10:30-12:00 │ ⚡ Process optimization: workflow refinement + efficiency gains
+12:00-13:00 │ ALMUERZO
+13:00-14:30 │ ⚡ Additional features: quick wins + user requests + enhancements
+14:30-16:00 │ ⚡ Integration refinements: external systems + data quality
+16:00-17:30 │ ⚡ Security hardening: based on production insights + monitoring
+
+VIERNES 21 MAR (9h): ENTREGA FINAL Y HANDOVER
+──────────────────────────────────────────────────────────────────────────────
+07:30-09:00 │ Final system validation: all modules + integrations + reports
+09:00-10:30 │ Knowledge transfer: technical handover + procedures + contacts
+10:30-12:00 │ Support procedures: escalation + maintenance + updates
+12:00-13:00 │ ALMUERZO
+13:00-14:30 │ Project closure: deliverables review + documentation + sign-off
+14:30-16:00 │ Future roadmap: enhancements + scaling + evolution plan
+16:00-17:30 │ PROYECTO COMPLETADO: ERP 100% funcional + usuarios operando
+
+ENTREGABLES SEMANA 4:
+• Sistema en producción completamente funcional
+• Usuarios capacitados y operando independientemente  
+• Documentación completa entregada
+• Soporte post go-live establecido
+• Plan de mantenimiento y evolución definido
+
+================================================================================
+                          HITOS AJUSTADOS - PROGRESO REAL
+================================================================================
+
+✅ **HITO 0**: Base Completada             - REALIZADO: Feb 2026 (60% ya hecho)
+🔧 **HITO 1**: APIs y Validaciones        - Meta: Viernes 28 Feb (70% → 85%)
+⚡ **HITO 2**: Funcionalidades Avanzadas   - Meta: Viernes 07 Mar (85% → 95%)
+🧪 **HITO 3**: Testing y Refinamiento     - Meta: Viernes 14 Mar (95% → 98%)
+🎯 **HITO 4**: Go-Live Exitoso            - Meta: Viernes 21 Mar (100% operacional)
+
+================================================================================
+                         RECURSOS AJUSTADOS POR PROGRESO
+================================================================================
+
+📊 **DISTRIBUCIÓN SEMANAL ACTUALIZADA (45h)**:
+├── Backend Completion: 22.5h (50%) - Completar funcionalidades faltantes
+├── Frontend Polish: 13.5h (30%) - UX/UI refinamiento y responsividad
+├── Testing & QA: 6.75h (15%) - Calidad y estabilidad
+└── Documentation: 2.25h (5%) - Documentación usuario y técnica
+
+👥 **EQUIPO OPTIMIZADO**:
+├── Lead Developer (Full-Stack): 45h/semana - Focus en integración
+├── Backend Specialist: 22.5h/semana - APIs avanzadas y optimización
+├── Frontend Developer: 13.5h/semana - UX refinamiento y responsive
+└── QA Tester: 6.75h/semana - Testing sistemático y validación
+
+💻 **STACK VALIDADO (ya funcionando)**:
+├── ✅ Backend: Node.js + TypeScript + Sequelize + PostgreSQL
+├── ✅ Frontend: TailwindCSS + Vanilla JS (ya responsive)
+├── ✅ Database: PostgreSQL con 35 tablas relacionadas
+└── 🔧 Deploy: Optimización para producción + monitoring
+
+================================================================================
+                        RIESGOS REDUCIDOS POR PROGRESO REAL
+================================================================================
+
+🟢 **RIESGOS ELIMINADOS** (ya resueltos):
+├── ~~Complejidad subestimada~~ → Base ya implementada sólidamente
+├── ~~Setup inicial BD~~ → 35 tablas funcionando con datos
+├── ~~Modelos Sequelize~~ → Todos implementados y sincronizados
+├── ~~Relaciones FK críticas~~ → Todas establecidas y validadas
+└── ~~Estructura básica del proyecto~~ → Completada y operativa
+
+🟡 **RIESGOS ACTUALES** (mitigación activa):
+├── **Refinamiento UX puede tomar más tiempo**
+│   └── Mitigación: Ya tiene base sólida, solo pulir detalles
+├── **Integración avanzada OT-BOM puede requerir ajustes**
+│   └── Mitigación: Base estructural lista, solo lógica de negocio
+├── **Performance en producción con datos reales**
+│   └── Mitigación: Tiempo dedicado específicamente a optimización
+└── **Capacitación usuarios puede requerir refuerzo**
+    └── Mitigación: 1 semana completa dedicada + documentación
+
+🔵 **NUEVOS RIESGOS MENORES**:
+├── Over-engineering por tiempo disponible adicional
+├── Scope creep con funcionalidades "nice to have"
+└── Perfectionism paralysis en lugar de launch
+
+================================================================================
+                         MÉTRICAS RECALIBRADAS
+================================================================================
+
+📈 **KPIs ACTUALES VALIDADOS**:
+├── Tablas implementadas: 35/35 ✅ (vs estimado 0/35)
+├── Modelos Sequelize: 35/35 ✅ (vs estimado 0/35)
+├── APIs básicas: 15/35 ✅ (~43% vs estimado 0%)
+├── Frontend básico: 10/35 ✅ (~30% vs estimado 0%)
+└── Relaciones FK: 100% ✅ (vs estimado 0%)
+
+⏱️ **CHECKPOINTS AJUSTADOS**:
+├── 09:30: Progress review + refinement priorities
+├── 12:00: Mid-morning quality check + user feedback
+├── 14:30: Post-lunch feature completion validation
+├── 16:30: End-of-day testing + next day enhancement planning
+└── 17:30: Soft stop + documentation + planning
+
+🎯 **CRITERIOS ÉXITO AJUSTADOS**:
+• 35 tablas funcionando optimizadamente con datos reales ✅ (ya logrado)
+• Flujo completo pulido: Cliente → OT → BOM → Materiales → Entrega
+• 10+ usuarios simultáneos operando sin conflictos (vs 3 original)
+• Reportes avanzados + dashboard ejecutivo completo
+• Backup/recovery + monitoring profesional
+• Performance <200ms en operaciones críticas (vs <500ms)
+• UX/UI nivel enterprise + mobile responsive
+
+================================================================================
+                        PLAN DE COMUNICACIÓN AJUSTADO
+================================================================================
+
+📞 **REUNIONES OPTIMIZADAS**:
+├── **Daily Standups**: 09:30-09:45 (15 min) - Focus en refinamiento
+├── **Weekly Reviews**: Viernes 16:30-17:15 (45 min) - Demo + retrospective
+├── **Client Updates**: Miércoles 17:15-17:45 (30 min) - Progress + UX feedback
+└── **Quality Gates**: Diario 16:30 (15 min) - Code review + testing status
+
+📊 **REPORTES ENFOCADOS**:
+├── Daily: Enhancement completado + UX improvements + next priorities
+├── Weekly: Feature completion + quality metrics + user feedback
+├── Issues: Performance alerts + user experience issues
+└── Final: Comprehensive handover + evolution roadmap
+
+================================================================================
+                               CHANGELOG ACTUALIZADO
+================================================================================
+
+v1.1 - 23 Feb 2026: 🔄 PLAN AJUSTADO POR PROGRESO REAL
+• RECALIBRACIÓN MAYOR: De estimado 25% → real 60% progreso identificado
+• Cronograma optimizado: 210h → 180h enfocadas en refinamiento
+• 35 tablas ya implementadas y funcionando con Sequelize
+• APIs básicas operativas, necesitan refinamiento avanzado
+• Frontend base establecido, requiere pulimiento UX/UI
+• Riesgos reducidos significativamente por base sólida existente
+• Enfoque cambió: construcción → refinamiento → optimización → go-live
+• Timeline mantenido pero con mayor probabilidad de éxito por base real
+
+ESTADO: 🚀 HIGHLY FEASIBLE - Base sólida permite enfoque en excelencia
+
+================================================================================

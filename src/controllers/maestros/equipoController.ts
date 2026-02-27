@@ -10,7 +10,7 @@ import UnidadMedida from '../../models/catalogs/UnidadMedida';
 import Fabricante from '../../models/catalogs/Fabricante';
 
 export const getAllEquipos = async (req: Request, res: Response) => {
-  console.log('\n⚙️ [GET ALL EQUIPOS] === INICIO DE SOLICITUD ===');
+  console.log('\n[GET ALL EQUIPOS] === INICIO DE SOLICITUD ===');
   try {
     console.log('[GET ALL EQUIPOS] Intentando obtener equipos...');
     const equipos = await Equipo.findAll({
@@ -26,11 +26,11 @@ export const getAllEquipos = async (req: Request, res: Response) => {
       ],
       order: [['equipo_id', 'ASC']]
     });
-    console.log(`[GET ALL EQUIPOS] ✅ ${equipos.length} equipos encontrados`);
+    console.log(`[GET ALL EQUIPOS] ${equipos.length} equipos encontrados`);
     console.log('[GET ALL EQUIPOS] Primer equipo (ejemplo):', equipos[0] ? JSON.stringify(equipos[0], null, 2).substring(0, 500) + '...' : 'No hay equipos');
     res.json(equipos);
   } catch (error) {
-    console.error('[GET ALL EQUIPOS] ❌ ERROR DETALLADO:');
+    console.error('[GET ALL EQUIPOS] ERROR DETALLADO:');
     console.error('[GET ALL EQUIPOS] Error message:', error instanceof Error ? error.message : 'Unknown error');
     console.error('[GET ALL EQUIPOS] Error stack:', error instanceof Error ? error.stack : 'No stack trace');
     res.status(500).json({ 

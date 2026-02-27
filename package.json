@@ -7,7 +7,9 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "dev": "ts-node src/index.ts",
-    "dev:watch": "ts-node-dev --respawn --transpile-only src/index.ts"
+    "dev:watch": "ts-node-dev --respawn --transpile-only src/index.ts",
+    "seed": "ts-node src/seeds/catalogs.seed.ts",
+    "seed:all": "ts-node src/seeds/seed-all.ts"
   },
   "keywords": [],
   "author": "",

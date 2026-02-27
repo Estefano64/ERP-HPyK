@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard de Stock - HP&K ERP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="/vistas/shared/navigation.js"></script>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation Menu -->
+    <div id="navigation-container"></div>
+
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-red-600 to-red-800 text-white shadow-lg">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <i class="fas fa-exclamation-triangle text-3xl"></i>
+                    <div>
+                        <h1 class="text-2xl font-bold">Dashboard de Alertas de Stock</h1>
+                        <p class="text-red-200 text-sm">Monitoreo de Inventario Crítico</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <button onclick="refrescar()" class="bg-red-700 hover:bg-red-800 px-4 py-2 rounded-lg transition">
+                        <i class="fas fa-sync-alt"></i> Actualizar
+                    </button>
+                    <a href="/logistica/materiales.html" class="bg-red-700 hover:bg-red-800 px-4 py-2 rounded-lg transition">
+                        <i class="fas fa-arrow-left"></i> Volver
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-6 py-6">
+        <!-- Alert Summary Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+            <div class="bg-white rounded-lg shadow-lg p-6 border-l-4 border-orange-500">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm font-medium">Sin Stock</p>
+                        <p class="text-3xl font-bold text-orange-600" id="countSinStock">0</p>
+                        <p class="text-xs text-gray-400 mt-1">Urgente</p>
+                    </div>
+                    <div class="bg-orange-100 rounded-full p-4">
+                        <i class="fas fa-times-circle text-orange-600 text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-lg p-6 border-l-4 border-red-500">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm font-medium">Stock Bajo</p>
+                        <p class="text-3xl font-bold text-red-600" id="countStockBajo">0</p>
+                        <p class="text-xs text-gray-400 mt-1">Requiere reposición</p>
+                    </div>
+                    <div class="bg-red-100 rounded-full p-4">
+                        <i class="fas fa-exclamation-triangle text-red-600 text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-lg p-6 border-l-4 border-green-500">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm font-medium">Stock Normal</p>
+                        <p class="text-3xl font-bold text-green-600" id="countStockNormal">0</p>
+                        <p class="text-xs text-gray-400 mt-1">En rango óptimo</p>
+                    </div>
+                    <div class="bg-green-100 rounded-full p-4">
+                        <i class="fas fa-check-circle text-green-600 text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-lg p-6 border-l-4 border-blue-500">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm font-medium">Stock Alto</p>
+                        <p class="text-3xl font-bold text-blue-600" id="countStockAlto">0</p>
+                        <p class="text-xs text-gray-400 mt-1">Sobre stock</p>
+                    </div>
+                    <div class="bg-blue-100 rounded-full p-4">
+                        <i class="fas fa-layer-group text-blue-600 text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter Tabs -->
+        <div class="bg-white rounded-lg shadow-lg mb-6">
+            <div class="border-b border-gray-200">
+                <nav class="flex -mb-px">
+                    <button onclick="filtrarPorEstado('sin_stock')" 
+                        class="tab-button px-6 py-4 text-sm font-medium border-b-2 border-orange-500 text-orange-600" 
+                        data-tab="sin_stock">
+                        <i class="fas fa-times-circle mr-2"></i> Sin Stock
+                    </button>
+                    <button onclick="filtrarPorEstado('bajo')" 
+                        class="tab-button px-6 py-4 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300" 
+                        data-tab="bajo">
+                        <i class="fas fa-exclamation-triangle mr-2"></i> Stock Bajo
+                    </button>
+                    <button onclick="filtrarPorEstado('normal')" 
+                        class="tab-button px-6 py-4 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300" 
+                        data-tab="normal">
+                        <i class="fas fa-check-circle mr-2"></i> Stock Normal
+                    </button>
+                    <button onclick="filtrarPorEstado('alto')" 
+                        class="tab-button px-6 py-4 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300" 
+                        data-tab="alto">
+                        <i class="fas fa-layer-group mr-2"></i> Stock Alto
+                    </button>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Materials Table with Alerts -->
+        <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+            <div class="p-4 bg-gray-50 border-b border-gray-200">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-lg font-semibold text-gray-700">
+                        <span id="tituloTabla">Materiales Sin Stock</span>
+                        <span class="text-sm font-normal text-gray-500 ml-2">(<span id="countFiltrado">0</span> items)</span>
+                    </h3>
+                    <input type="text" id="searchInput" placeholder="Buscar material..."
+                        class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                        oninput="buscarMaterial()">
+                </div>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="min-w-full">
+                    <thead class="bg-gray-100">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase">Código</th>
+                            <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase">Descripción</th>
+                            <th class="px-6 py-3 text-center text-xs font-bold text-gray-700 uppercase">Stock Actual</th>
+                            <th class="px-6 py-3 text-center text-xs font-bold text-gray-700 uppercase">P. Reposición</th>
+                            <th class="px-6 py-3 text-center text-xs font-bold text-gray-700 uppercase">Stock Máx.</th>
+                            <th class="px-6 py-3 text-center text-xs font-bold text-gray-700 uppercase">Estado</th>
+                            <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase">Ubicación</th>
+                            <th class="px-6 py-3 text-center text-xs font-bold text-gray-700 uppercase">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody" class="divide-y divide-gray-200">
+                        <!-- Data will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="hidden fixed top-4 right-4 px-6 py-4 rounded-lg shadow-lg z-50 text-white bg-green-500">
+        <span id="toastMessage"></span>
+    </div>
+
+    <script>
+        let materiales = [];
+        let materialesFiltrados = [];
+        let filtroActual = 'sin_stock';
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            cargarMateriales();
+        });
+
+        // Toast notification
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            toast.className = `fixed top-4 right-4 px-6 py-4 rounded-lg shadow-lg z-50 text-white ${
+                type === 'success' ? 'bg-green-500' : 'bg-red-500'
+            }`;
+            toastMessage.textContent = message;
+            toast.classList.remove('hidden');
+            setTimeout(() => toast.classList.add('hidden'), 3000);
+        }
+
+        // Calculate stock status
+        function calculateStockStatus(material) {
+            const stockActual = parseFloat(material.stock_actual) || 0;
+            const puntoRepo = parseFloat(material.punto_reposicion) || 0;
+            const stockMaximo = parseFloat(material.stock_maximo) || (puntoRepo * 3);
+            
+            if (stockActual === 0) return 'sin_stock';
+            if (stockActual < puntoRepo) return 'bajo';
+            if (stockActual >= stockMaximo * 0.9) return 'alto';
+            return 'normal';
+        }
+
+        // Load materials
+        async function cargarMateriales() {
+            try {
+                const response = await fetch('/api/materiales');
+                
+                if (!response.ok) throw new Error('Error al cargar materiales');
+                
+                materiales = await response.json();
+                actualizarContadores();
+                filtrarPorEstado(filtroActual);
+                showToast('Dashboard actualizado');
+            } catch (error) {
+                console.error('Error:', error);
+                showToast('Error al cargar datos', 'error');
+            }
+        }
+
+        // Update counters
+        function actualizarContadores() {
+            const contadores = materiales.reduce((acc, material) => {
+                const estado = calculateStockStatus(material);
+                acc[estado] = (acc[estado] || 0) + 1;
+                return acc;
+            }, {});
+
+            document.getElementById('countSinStock').textContent = contadores.sin_stock || 0;
+            document.getElementById('countStockBajo').textContent = contadores.bajo || 0;
+            document.getElementById('countStockNormal').textContent = contadores.normal || 0;
+            document.getElementById('countStockAlto').textContent = contadores.alto || 0;
+        }
+
+        // Filter by status
+        function filtrarPorEstado(estado) {
+            filtroActual = estado;
+            
+            // Update tab buttons
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                const tab = btn.getAttribute('data-tab');
+                if (tab === estado) {
+                    const colors = {
+                        'sin_stock': 'border-orange-500 text-orange-600',
+                        'bajo': 'border-red-500 text-red-600',
+                        'normal': 'border-green-500 text-green-600',
+                        'alto': 'border-blue-500 text-blue-600'
+                    };
+                    btn.className = `tab-button px-6 py-4 text-sm font-medium border-b-2 ${colors[estado]}`;
+                } else {
+                    btn.className = 'tab-button px-6 py-4 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300';
+                }
+            });
+
+            // Update title
+            const titulos = {
+                'sin_stock': 'Materiales Sin Stock',
+                'bajo': 'Materiales con Stock Bajo',
+                'normal': 'Materiales con Stock Normal',
+                'alto': 'Materiales con Sobre Stock'
+            };
+            document.getElementById('tituloTabla').textContent = titulos[estado];
+
+            // Filter materials
+            materialesFiltrados = materiales.filter(m => calculateStockStatus(m) === estado);
+            document.getElementById('countFiltrado').textContent = materialesFiltrados.length;
+            renderTable();
+        }
+
+        // Search material
+        function buscarMaterial() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            
+            if (!searchTerm) {
+                filtrarPorEstado(filtroActual);
+                return;
+            }
+
+            materialesFiltrados = materiales.filter(m => {
+                const matchesEstado = calculateStockStatus(m) === filtroActual;
+                const matchesSearch = 
+                    (m.codigo && m.codigo.toLowerCase().includes(searchTerm)) ||
+                    (m.descripcion && m.descripcion.toLowerCase().includes(searchTerm));
+                return matchesEstado && matchesSearch;
+            });
+
+            document.getElementById('countFiltrado').textContent = materialesFiltrados.length;
+            renderTable();
+        }
+
+        // Render table
+        function renderTable() {
+            const tbody = document.getElementById('tableBody');
+            
+            if (materialesFiltrados.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="px-6 py-8 text-center text-gray-500">
+                            <i class="fas fa-inbox text-3xl mb-2"></i>
+                            <p>No hay materiales con este estado de stock</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = materialesFiltrados.map(material => {
+                const estado = calculateStockStatus(material);
+                const badges = {
+                    'sin_stock': '<span class="inline-flex items-center px-3 py-1 text-xs font-semibold rounded-full bg-orange-100 text-orange-800"><i class="fas fa-times-circle mr-1"></i> Sin Stock</span>',
+                    'bajo': '<span class="inline-flex items-center px-3 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800"><i class="fas fa-exclamation-triangle mr-1"></i> Bajo</span>',
+                    'normal': '<span class="inline-flex items-center px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800"><i class="fas fa-check-circle mr-1"></i> Normal</span>',
+                    'alto': '<span class="inline-flex items-center px-3 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800"><i class="fas fa-layer-group mr-1"></i> Alto</span>'
+                };
+
+                return `
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="px-6 py-4 text-sm font-semibold text-gray-900">${material.codigo || '-'}</td>
+                        <td class="px-6 py-4 text-sm text-gray-700">${material.descripcion || '-'}</td>
+                        <td class="px-6 py-4 text-sm text-center font-semibold ${estado === 'sin_stock' ? 'text-orange-600' : estado === 'bajo' ? 'text-red-600' : 'text-gray-900'}">
+                            ${material.stock_actual || 0}
+                        </td>
+                        <td class="px-6 py-4 text-sm text-center text-gray-600">${material.punto_reposicion || '-'}</td>
+                        <td class="px-6 py-4 text-sm text-center text-gray-600">${material.stock_maximo || '-'}</td>
+                        <td class="px-6 py-4 text-center">${badges[estado]}</td>
+                        <td class="px-6 py-4 text-sm text-gray-600">${material.ubicacion || '-'}</td>
+                        <td class="px-6 py-4 text-center">
+                            <button onclick="generarOC(${material.id})" class="text-blue-600 hover:text-blue-800 mx-1" title="Generar OC">
+                                <i class="fas fa-shopping-cart"></i>
+                            </button>
+                            <a href="/logistica/materiales.html" class="text-green-600 hover:text-green-800 mx-1" title="Ver Detalle">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Refresh data
+        function refrescar() {
+            cargarMateriales();
+        }
+
+        // Generate purchase order (redirect to OC module)
+        function generarOC(materialId) {
+            // Redirect to purchase orders page
+            window.location.href = '../compras/ordenes-compra.html';
+        }
+    </script>
+</body>
+</html>

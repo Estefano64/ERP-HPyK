@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mantenimiento - HP&K ERP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="/vistas/shared/navigation.js"></script>
+    <style>
+        .fade-in-up {
+            animation: fadeInUp 0.6s ease-out;
+        }
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .delay-1 { animation-delay: 0.1s; }
+        .delay-2 { animation-delay: 0.2s; }
+        .delay-3 { animation-delay: 0.3s; }
+        
+        .module-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .module-card:hover {
+            transform: translateY(-8px) scale(1.02);
+        }
+        .module-card.active {
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.5);
+        }
+        
+        .content-section {
+            display: none;
+        }
+        .content-section.active {
+            display: block;
+            animation: fadeInUp 0.4s ease-out;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation Menu -->
+    <div id="navigation-container"></div>
+
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-blue-600 to-blue-800 text-white shadow-lg">
+        <div class="container mx-auto px-3 md:px-6 py-4 md:py-6">
+            <div class="flex items-center justify-between flex-wrap md:flex-nowrap gap-2">
+                <div class="flex items-center space-x-2 md:space-x-4">
+                    <i class="fas fa-tools text-2xl md:text-4xl"></i>
+                    <div>
+                        <h1 class="text-xl md:text-3xl font-bold">MANTENIMIENTO</h1>
+                        <p class="text-blue-200 text-xs md:text-sm hidden sm:block">Gestión del parque de equipos industriales</p>
+                    </div>
+                </div>
+                <a href="/index.html" class="bg-blue-700 hover:bg-blue-800 px-4 md:px-6 py-2 rounded-lg transition flex items-center text-sm md:text-base">
+                    <i class="fas fa-home mr-2"></i> <span class="hidden sm:inline">Inicio</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-3 md:px-6 py-4 md:py-8">
+        <!-- Header Section -->
+        <div class="mb-6 md:mb-8">
+            <h2 class="text-xl md:text-2xl font-bold text-gray-800 mb-2">Parque de Equipos</h2>
+            <p class="text-sm md:text-base text-gray-600">Gestión y seguimiento de equipos industriales</p>
+        </div>
+
+        <!-- Accesos Directos - Solo Equipos -->
+        <div class="max-w-2xl mx-auto">
+            
+            <!-- EQUIPOS -->
+            <div class="bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow">
+                <div class="bg-gradient-to-r from-cyan-600 to-cyan-700 text-white px-4 md:px-6 py-3 md:py-4 rounded-t-lg">
+                    <div class="flex items-center space-x-2 md:space-x-3">
+                        <i class="fas fa-cogs text-xl md:text-2xl"></i>
+                        <h3 class="text-lg md:text-xl font-bold">EQUIPOS</h3>
+                    </div>
+                </div>
+                <div class="p-4 md:p-6">
+                    <p class="text-gray-600 text-xs md:text-sm mb-3 md:mb-4">
+                        Gestión y seguimiento de equipos industriales
+                    </p>
+                    <div class="space-y-2">
+                        <a href="/mantenimiento/equipos.html" class="flex items-center justify-between px-3 md:px-4 py-2 md:py-3 bg-cyan-50 hover:bg-cyan-100 rounded-lg transition group">
+                            <span class="flex items-center space-x-2">
+                                <i class="fas fa-list text-cyan-600"></i>
+                                <span class="text-gray-700 group-hover:text-cyan-700 font-medium text-sm md:text-base">Listado de Equipos</span>
+                            </span>
+                            <i class="fas fa-chevron-right text-gray-400 group-hover:text-cyan-600"></i>
+                        </a>
+                        
+                        <a href="/mantenimiento/equipos.html?accion=crear" class="flex items-center justify-between px-3 md:px-4 py-2 md:py-3 bg-cyan-50 hover:bg-cyan-100 rounded-lg transition group">
+                            <span class="flex items-center space-x-2">
+                                <i class="fas fa-plus-circle text-cyan-600"></i>
+                                <span class="text-gray-700 group-hover:text-cyan-700 font-medium text-sm md:text-base">Agregar Equipo</span>
+                            </span>
+                            <i class="fas fa-chevron-right text-gray-400 group-hover:text-cyan-600"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Animación de entrada para las cards
+            const cards = document.querySelectorAll('.bg-white');
+            cards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.style.opacity = '0';
+                    card.style.transform = 'translateY(20px)';
+                    card.style.transition = 'all 0.5s ease';
+                    
+                    setTimeout(() => {
+                        card.style.opacity = '1';
+                        card.style.transform = 'translateY(0)';
+                    }, 50);
+                }, index * 100);
+            });
+        });
+    </script>
+</body>
+</html>

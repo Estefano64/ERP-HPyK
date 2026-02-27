@@ -1,0 +1,225 @@
+NUEVO CRONOGRAMA INTEGRANDO PRODUCCIÓN Y LOGÍSTICA
+SEMANA 1-2: FUNDACIÓN (Igual que antes)
+Preparación
+
+Base de datos
+
+Migración de materiales
+
+SEMANA 3-4: MÓDULO DE LOGÍSTICA - ALMACÉN
+Tarea	Descripción	Módulo
+L1	Desarrollo: Inventario general (stock)	ALMACÉN
+L2	Desarrollo: Catalogar materiales (CRUD)	ALMACÉN
+L3	Desarrollo: Gestión de herramientas y equipos	ALMACÉN
+L4	Desarrollo: Gestión de consumibles	ALMACÉN
+L5	Desarrollo: Alertas de stock mínimo	ALMACÉN
+SEMANA 5-6: MÓDULO DE LOGÍSTICA - COMPRAS
+Tarea	Descripción	Módulo
+L6	Migración/CRUD de proveedores	COMPRAS
+L7	Desarrollo: Creación de Orden de Compra (OC)	COMPRAS
+L8	Desarrollo: Generar número de OC automático	COMPRAS
+L9	Desarrollo: Imprimir OC en PDF	COMPRAS
+L10	Desarrollo: Listado de OC con filtros por estado	COMPRAS
+L11	Desarrollo: Seguimiento de estados de OC	COMPRAS
+SEMANA 7: MÓDULO DE LOGÍSTICA - RECURSOS SOLICITADOS
+Tarea	Descripción	Módulo
+L12	Desarrollo: Vista de requerimientos pendientes	RECURSOS
+L13	Desarrollo: Agrupación de requerimientos por proveedor	RECURSOS
+L14	Desarrollo: Generar OC desde requerimientos agrupados	RECURSOS
+L15	Integración: Requerimientos ↔ OC	RECURSOS
+SEMANA 8: MÓDULO DE LOGÍSTICA - TRANSPORTE
+Tarea	Descripción	Módulo
+L16	Desarrollo: Gestión de citas de despacho	TRANSPORTE
+L17	Desarrollo: Vista de OT listas para despacho	TRANSPORTE
+L18	Desarrollo: Generación de guías de remisión	TRANSPORTE
+L19	Desarrollo: Impresión de guías	TRANSPORTE
+SEMANA 9-10: MÓDULO DE PRODUCCIÓN - BASE DE DATOS Y DASHBOARD
+Tarea	Descripción	Módulo
+P1	Desarrollo: Base de datos de producción (vista unificada)	PROD - BD
+P2	Desarrollo: Dashboard con KPIs de producción	PROD - Dashboard
+P3	KPIs: OTs activas, cumplimiento, horas trabajadas	PROD - Dashboard
+P4	KPIs: % PCR global, top 10 fallas recurrentes	PROD - Dashboard
+SEMANA 11: MÓDULO DE PRODUCCIÓN - REQUERIMIENTOS
+Tarea	Descripción	Módulo
+P5	Desarrollo: Creación de requerimientos desde OT	PROD - Req
+P6	Desarrollo: Aprobación de requerimientos	PROD - Req
+P7	Integración: Requerimientos de producción → Logística	PROD - Req
+SEMANA 12: MÓDULO DE PRODUCCIÓN - PLANIFICACIÓN Y PROGRAMACIÓN
+Tarea	Descripción	Módulo
+P8	Desarrollo: Planificación de recursos (máquinas, personal)	PROD - Planif
+P9	Desarrollo: Programación de OTs en el tiempo	PROD - Prog
+P10	Desarrollo: Vista Gantt de producción	PROD - Prog
+P11	Desarrollo: Asignación de tareas a técnicos	PROD - Prog
+📊 NUEVO GANTT DETALLADO (14 Semanas)
+text
+SEMANA 1-2: FUNDACIÓN (Preparación + BD + Materiales)
+──────────────────────────────────────────────────────
+[===== BASE DE DATOS Y MATERIALES =====]
+
+SEMANA 3-4: LOGÍSTICA - ALMACÉN
+──────────────────────────────────────────────────────
+     [===== INVENTARIO =====][===== HERRAMIENTAS =====]
+
+SEMANA 5-6: LOGÍSTICA - COMPRAS
+──────────────────────────────────────────────────────
+          [===== PROVEEDORES =====][===== OC =====]
+
+SEMANA 7: LOGÍSTICA - RECURSOS SOLICITADOS
+──────────────────────────────────────────────────────
+               [===== REQ PENDIENTES =====]
+
+SEMANA 8: LOGÍSTICA - TRANSPORTE
+──────────────────────────────────────────────────────
+                    [===== DESPACHOS =====]
+
+SEMANA 9-10: PRODUCCIÓN - BD Y DASHBOARD
+──────────────────────────────────────────────────────
+                         [===== DASHBOARD =====]
+
+SEMANA 11: PRODUCCIÓN - REQUERIMIENTOS
+──────────────────────────────────────────────────────
+                              [===== REQ PROD =====]
+
+SEMANA 12-14: PRODUCCIÓN - PLANIFICACIÓN Y PROGRAMACIÓN
+──────────────────────────────────────────────────────
+                                   [===== GANTT =====]
+📋 REQUERIMIENTOS FUNCIONALES POR MÓDULO
+MÓDULO PRODUCCIÓN (P1-P11)
+ID	Requerimiento	Prioridad
+P1	Base de datos centralizada de producción	🔴 Alta
+P2	Dashboard con métricas en tiempo real	🔴 Alta
+P3	Visualización de OTs activas por estado	🔴 Alta
+P4	Gráfico de cumplimiento de plazos	🟡 Media
+P5	Creación de requerimientos de materiales desde OT	🔴 Alta
+P6	Flujo de aprobación de requerimientos	🟡 Media
+P7	Envío automático de requerimientos a Logística	🟡 Media
+P8	Planificación de capacidad de taller	🔴 Alta
+P9	Asignación de técnicos a OTs	🔴 Alta
+P10	Vista Gantt de programación semanal	🔴 Alta
+P11	Reporte de productividad por técnico	🟢 Baja
+MÓDULO LOGÍSTICA (L1-L19)
+ID	Requerimiento	Prioridad
+L1	Control de stock en tiempo real	🔴 Alta
+L2	Catalogación de materiales (CRUD)	🔴 Alta
+L3	Gestión de herramientas y equipos	🟡 Media
+L4	Gestión de consumibles	🟡 Media
+L5	Alertas automáticas de stock mínimo	🔴 Alta
+L6	Registro de proveedores	🔴 Alta
+L7	Creación de Orden de Compra	🔴 Alta
+L8	Numeración automática de OC	🔴 Alta
+L9	Generación de PDF de OC	🔴 Alta
+L10	Listado de OC con filtros	🟡 Media
+L11	Seguimiento de estados de OC	🟡 Media
+L12	Vista de requerimientos pendientes	🔴 Alta
+L13	Agrupación de requerimientos por proveedor	🔴 Alta
+L14	Generación de OC desde agrupación	🔴 Alta
+L15	Trazabilidad requerimiento → OC	🟡 Media
+L16	Agenda de citas de despacho	🟡 Media
+L17	Vista de OT listas para despachar	🔴 Alta
+L18	Generación de guías de remisión	🔴 Alta
+L19	Impresión de guías	🔴 Alta
+🏗️ ARQUITECTURA DE MENÚS EN EL SISTEMA
+text
+ERP TALLER
+│
+├── 🏭 PRODUCCIÓN
+│   ├── 📊 DASHBOARD
+│   │   ├── Resumen general
+│   │   ├── OTs por estado (gráfico)
+│   │   ├── Cumplimiento de plazos
+│   │   └── Top fallas recurrentes
+│   │
+│   ├── 📁 BASE DE DATOS
+│   │   ├── Componentes (Cod Rep)
+│   │   ├── Equipos
+│   │   ├── Estrategias
+│   │   └── Listas de materiales (BOM)
+│   │
+│   ├── 📋 REQUERIMIENTOS
+│   │   ├── Nuevo requerimiento
+│   │   ├── Requerimientos pendientes
+│   │   ├── Requerimientos aprobados
+│   │   └── Historial
+│   │
+│   ├── 📅 PLANIFICACIÓN
+│   │   ├── Capacidad de taller
+│   │   ├── Asignación de recursos
+│   │   └── Carga de trabajo
+│   │
+│   └── ⏱️ PROGRAMACIÓN
+│       ├── Vista Gantt
+│       ├── Asignación de técnicos
+│       └── Seguimiento diario
+│
+└── 📦 LOGÍSTICA
+    ├── 🏢 ALMACÉN
+    │   ├── Inventario general
+    │   ├── Herramientas y equipos
+    │   ├── Suministros y repuestos
+    │   ├── Consumibles
+    │   └── Catalogar (gestión de materiales)
+    │
+    ├── 💰 COMPRAS
+    │   ├── Proveedores
+    │   ├── Nueva Orden de Compra
+    │   ├── Listado de OC
+    │   │   ├── Borrador
+    │   │   ├── Enviada
+    │   │   ├── Confirmada
+    │   │   ├── En tránsito
+    │   │   └── Recibida
+    │   └── Historial de OC
+    │
+    ├── 📌 RECURSOS SOLICITADOS
+    │   ├── Requerimientos pendientes
+    │   ├── Agrupar por proveedor
+    │   └── Generar OC desde agrupación
+    │
+    └── 🚚 TRANSPORTE
+        ├── Citas de despacho
+        ├── OT listas para despacho
+        ├── Generar guía
+        └── Historial de despachos
+🎯 PLAN DE ATAQUE RECOMENDADO (POR DÓNDE EMPEZAR)
+FASE 1 (Semanas 1-4) - FUNDACIÓN + ALMACÉN
+text
+1. Base de datos (ya tenemos el script)
+2. Migrar materiales
+3. Desarrollar módulo de ALMACÉN (inventario)
+   ✓ Ver stock
+   ✓ Entradas/salidas
+   ✓ Alertas
+FASE 2 (Semanas 5-6) - COMPRAS BÁSICAS
+text
+4. Proveedores
+5. Órdenes de Compra básicas
+6. PDF de OC
+FASE 3 (Semanas 7-8) - PRODUCCIÓN BÁSICA + REQUERIMIENTOS
+text
+7. Dashboard básico
+8. Requerimientos desde producción
+9. Integración requerimientos → compras
+FASE 4 (Semanas 9-10) - COMPLETAR LOGÍSTICA
+text
+10. Recursos solicitados (agrupación)
+11. Transporte y despachos
+FASE 5 (Semanas 11-14) - COMPLETAR PRODUCCIÓN
+text
+12. Planificación avanzada
+13. Programación con Gantt
+14. Reportes finales
+✅ CHECKLIST PARA EMPEZAR (HOY MISMO)
+Definir prioridad: ¿Qué módulo es más urgente? (¿Almacén? ¿Producción?)
+
+Seleccionar tecnología: Django + PostgreSQL (recomendado)
+
+Configurar entorno de desarrollo
+
+Ejecutar script SQL (ya lo tiene)
+
+Diseñar mockups de los accesos directos
+
+Formar equipo: ¿Desarrollador interno o externo?
+
+Establecer fecha de primer entregable (MVP con Almacén funcionando)
+

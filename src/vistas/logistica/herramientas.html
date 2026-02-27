@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Herramientas - HP&K ERP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+    <script src="/vistas/shared/navigation.js"></script>
+    <style>
+        .dropdown-menu { display: none; }
+        .dropdown.active .dropdown-menu { display: block; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation Menu -->
+    <div id="navigation-container"></div>
+    
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-cyan-600 to-cyan-800 text-white shadow-lg">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <i class="fas fa-tools text-3xl"></i>
+                    <div>
+                        <h1 class="text-2xl font-bold">Gestión de Herramientas y Equipos</h1>
+                        <p class="text-cyan-200 text-sm">Control de Préstamos y Mantenimiento</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <a href="/src/vistas/logistica/materiales.html" class="bg-cyan-700 hover:bg-cyan-800 px-4 py-2 rounded-lg transition">
+                        <i class="fas fa-box"></i> Inventario
+                    </a>
+                    <a href="/index.html" class="bg-cyan-700 hover:bg-cyan-800 px-4 py-2 rounded-lg transition">
+                        <i class="fas fa-home"></i> Inicio
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-6 py-6">
+        <!-- Dashboard KPIs -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <!-- Total Herramientas -->
+            <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg shadow-lg p-6 text-white transform hover:scale-105 transition">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-blue-100 text-sm mb-1">🔧 Total Herramientas</p>
+                        <h3 class="text-3xl font-bold" id="total-herramientas">0</h3>
+                        <p class="text-blue-200 text-xs mt-1">Registradas</p>
+                    </div>
+                    <div class="bg-white bg-opacity-20 rounded-full p-3">
+                        <i class="fas fa-toolbox text-3xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Disponibles -->
+            <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-lg shadow-lg p-6 text-white transform hover:scale-105 transition cursor-pointer" onclick="filtrarEstado('disponible')">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-green-100 text-sm mb-1">✅ Disponibles</p>
+                        <h3 class="text-3xl font-bold" id="herramientas-disponibles">0</h3>
+                        <p class="text-green-200 text-xs mt-1">Listas para usar</p>
+                    </div>
+                    <div class="bg-white bg-opacity-20 rounded-full p-3">
+                        <i class="fas fa-check-circle text-3xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- En Uso -->
+            <div class="bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg shadow-lg p-6 text-white transform hover:scale-105 transition cursor-pointer" onclick="filtrarEstado('en_uso')">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-orange-100 text-sm mb-1">👷 En Uso</p>
+                        <h3 class="text-3xl font-bold" id="herramientas-en-uso">0</h3>
+                        <p class="text-orange-200 text-xs mt-1">Prestadas</p>
+                    </div>
+                    <div class="bg-white bg-opacity-20 rounded-full p-3">
+                        <i class="fas fa-user-check text-3xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- En Mantenimiento -->
+            <div class="bg-gradient-to-br from-red-500 to-red-600 rounded-lg shadow-lg p-6 text-white transform hover:scale-105 transition cursor-pointer" onclick="filtrarEstado('mantenimiento')">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-red-100 text-sm mb-1">⚙️ Mantenimiento</p>
+                        <h3 class="text-3xl font-bold" id="herramientas-mantenimiento">0</h3>
+                        <p class="text-red-200 text-xs mt-1">Requieren revisión</p>
+                    </div>
+                    <div class="bg-white bg-opacity-20 rounded-full p-3">
+                        <i class="fas fa-wrench text-3xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="bg-white rounded-lg shadow-lg mb-8">
+            <div class="border-b border-gray-200">
+                <nav class="flex space-x-2 px-6" aria-label="Tabs">
+                    <button onclick="switchTab('herramientas')" id="tab-herramientas" 
+                        class="tab-button whitespace-nowrap px-6 py-4 text-sm font-semibold border-b-2 border-cyan-600 text-cyan-600">
+                        <i class="fas fa-toolbox mr-2"></i>Herramientas
+                    </button>
+                    <button onclick="switchTab('prestamos')" id="tab-prestamos" 
+                        class="tab-button whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300 border-b-2 border-transparent">
+                        <i class="fas fa-handshake mr-2"></i>Préstamos
+                    </button>
+                    <button onclick="switchTab('mantenimientos')" id="tab-mantenimientos" 
+                        class="tab-button whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300 border-b-2 border-transparent">
+                        <i class="fas fa-calendar-alt mr-2"></i>Mantenimientos
+                    </button>
+                </nav>
+            </div>
+
+            <!-- Tab 1: Herramientas -->
+            <div id="content-herramientas" class="tab-content p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl font-bold text-gray-800 flex items-center">
+                        <i class="fas fa-toolbox text-cyan-600 mr-2"></i>
+                        Catálogo de Herramientas
+                    </h3>
+                    <button onclick="showNewHerramientaForm()" 
+                        class="bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 text-white px-6 py-2 rounded-lg transition flex items-center">
+                        <i class="fas fa-plus mr-2"></i>Nueva Herramienta
+                    </button>
+                </div>
+
+                <!-- Filtros -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Buscar</label>
+                        <input type="text" id="search-herramienta" placeholder="Código, nombre..." 
+                            oninput="filterHerramientas()"
+                            class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-cyan-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Estado</label>
+                        <select id="filter-estado" onchange="filterHerramientas()" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-cyan-500">
+                            <option value="">Todos</option>
+                            <option value="disponible">✅ Disponible</option>
+                            <option value="en_uso">👷 En Uso</option>
+                            <option value="mantenimiento">⚙️ Mantenimiento</option>
+                            <option value="dañado">❌ Dañado</option>
+                            <option value="baja">🗑️ Dado de Baja</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Categoría</label>
+                        <select id="filter-categoria" onchange="filterHerramientas()" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-cyan-500">
+                            <option value="">Todas</option>
+                            <option value="manuales">Manuales</option>
+                            <option value="electricas">Eléctricas</option>
+                            <option value="medicion">Medición</option>
+                            <option value="seguridad">Seguridad</option>
+                        </select>
+                    </div>
+                    <div class="flex items-end">
+                        <button onclick="clearFilters()" 
+                            class="w-full bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded transition">
+                            <i class="fas fa-times mr-2"></i>Limpiar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tabla -->
+                <div class="overflow-x-auto">
+                    <table class="min-w-full">
+                        <thead class="bg-gradient-to-r from-gray-100 to-gray-200">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase">Código</th>
+                                <th class="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase">Nombre</th>
+                                <th class="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase">Categoría</th>
+                                <th class="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase">Marca/Modelo</th>
+                                <th class="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase">Ubicación</th>
+                                <th class="px-4 py-3 text-center text-xs font-bold text-gray-700 uppercase">Estado</th>
+                                <th class="px-4 py-3 text-center text-xs font-bold text-gray-700 uppercase">Último Uso</th>
+                                <th class="px-4 py-3 text-center text-xs font-bold text-gray-700 uppercase">Próx. Mantenimiento</th>
+                                <th class="px-4 py-3 text-center text-xs font-bold text-gray-700 uppercase">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="herramientas-table" class="divide-y divide-gray-200">
+                            <tr>
+                                <td colspan="9" class="px-6 py-8 text-center text-gray-500">
+                                    <i class="fas fa-tools text-3xl mb-2"></i>
+                                    <p>No hay herramientas registradas</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Botón Exportar -->
+                <div class="mt-6 flex justify-end">
+                    <button onclick="exportarHerramientas()" 
+                        class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg transition flex items-center">
+                        <i class="fas fa-file-excel mr-2"></i>Exportar Excel
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tab 2: Préstamos -->
+            <div id="content-prestamos" class="tab-content hidden p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl font-bold text-gray-800 flex items-center">
+                        <i class="fas fa-handshake text-cyan-600 mr-2"></i>
+                        Control de Préstamos
+                    </h3>
+                    <button onclick="showNewPrestamoForm()" 
+                        class="bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 text-white px-6 py-2 rounded-lg transition flex items-center">
+                        <i class="fas fa-plus mr-2"></i>Nuevo Préstamo
+                    </button>
+                </div>
+
+                <!-- Filtros Préstamos -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Buscar</label>
+                        <input type="text" id="search-prestamo" placeholder="Responsable, herramienta..." 
+                            oninput="filterPrestamos()"
+                            class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-cyan-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Estado</label>
+                        <select id="filter-prestamo-estado" onchange="filterPrestamos()" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-cyan-500">
+                            <option value="">Todos</option>
+                            <option value="activo">🟢 Activo</option>
+                            <option value="vencido">🔴 Vencido</option>
+                            <option value="devuelto">✅ Devuelto</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Fecha</label>
+                        <input type="date" id="filter-prestamo-fecha" onchange="filterPrestamos()" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-cyan-500">
+                    </div>
+                    <div class="flex items-end">
+                        <button onclick="clearPrestamoFilters()" 
+                            class="w-full bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded transition">
+                            <i class="fas fa-times mr-2"></i>Limpiar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tabla Préstamos -->
+                <div class="overflow-x-auto">
+                    <table class="min-w-full">
+                        <thead class="bg-gradient-to-r from-gray-100 to-gray-200">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase">Herramienta</th>
+                                <th class="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase">Responsable</th>
+                                <th class="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase">Proyecto/OT</th>
+                                <th class="px-4 py-3 text-center text-xs font-bold text-gray-700 uppercase">Fecha Préstamo</th>
+                                <th class="px-4 py-3 text-center text-xs font-bold text-gray-700 uppercase">Fecha Devolución</th>
+                                <th class="px-4 py-3 text-center text-xs font-bold text-gray-700 uppercase">Estado</th>
+                                <th class="px-4 py-3 text-center text-xs font-bold text-gray-700 uppercase">Días</th>
+                                <th class="px-4 py-3 text-center text-xs font-bold text-gray-700 uppercase">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="prestamos-table" class="divide-y divide-gray-200">
+                            <tr>
+                                <td colspan="8" class="px-6 py-8 text-center text-gray-500">
+                                    <i class="fas fa-handshake text-3xl mb-2"></i>
+                                    <p>No hay préstamos registrados</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tab 3: Mantenimientos -->
+            <div id="content-mantenimientos" class="tab-content hidden p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl font-bold text-gray-800 flex items-center">
+                        <i class="fas fa-calendar-alt text-cyan-600 mr-2"></i>
+                        Calendario de Mantenimientos
+                    </h3>
+                    <button onclick="showNewMantenimientoForm()" 
+                        class="bg-gradient-to-r from-cyan-500 to-cyan-600 hover:from-cyan-600 hover:to-cyan-700 text-white px-6 py-2 rounded-lg transition flex items-center">
+                        <i class="fas fa-plus mr-2"></i>Programar Mantenimiento
+                    </button>
+                </div>
+
+                <!-- Alertas de Mantenimientos Pendientes -->
+                <div id="alertas-mantenimiento" class="mb-6">
+                    <!-- Se llena dinámicamente -->
+                </div>
+
+                <!-- Filtros Mantenimientos -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Buscar Herramienta</label>
+                        <input type="text" id="search-mantenimiento" placeholder="Código, nombre..." 
+                            oninput="filterMantenimientos()"
+                            class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-cyan-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Estado</label>
+                        <select id="filter-mant-estado" onchange="filterMantenimientos()" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-cyan-500">
+                            <option value="">Todos</option>
+                            <option value="pendiente">⏳ Pendiente</option>
+                            <option value="en_proceso">🔧 En Proceso</option>
+                            <option value="completado">✅ Completado</option>
+                        </select>
+                    </div>
+                    <div class="flex items-end">
+                        <button onclick="clearMantFilters()" 
+                            class="w-full bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded transition">
+                            <i class="fas fa-times mr-2"></i>Limpiar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tabla Mantenimientos -->
+                <div class="overflow-x-auto">
+                    <table class="min-w-full">
+                        <thead class="bg-gradient-to-r from-gray-100 to-gray-200">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase">Herramienta</th>
+                                <th class="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase">Tipo</th>
+                                <th class="px-4 py-3 text-center text-xs font-bold text-gray-700 uppercase">Fecha Programada</th>
+                                <th class="px-4 py-3 text-center text-xs font-bold text-gray-700 uppercase">Última Realización</th>
+                                <th class="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase">Responsable</th>
+                                <th class="px-4 py-3 text-center text-xs font-bold text-gray-700 uppercase">Estado</th>
+                                <th class="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase">Observaciones</th>
+                                <th class="px-4 py-3 text-center text-xs font-bold text-gray-700 uppercase">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="mantenimientos-table" class="divide-y divide-gray-200">
+                            <tr>
+                                <td colspan="8" class="px-6 py-8 text-center text-gray-500">
+                                    <i class="fas fa-calendar-check text-3xl mb-2"></i>
+                                    <p>No hay mantenimientos programados</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Nueva Herramienta -->
+    <div id="modal-herramienta" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+        <div class="bg-white rounded-lg shadow-2xl max-w-3xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+            <div class="bg-gradient-to-r from-cyan-600 to-cyan-700 text-white px-6 py-4 flex justify-between items-center">
+                <h3 class="text-xl font-bold flex items-center">
+                    <i class="fas fa-toolbox mr-2"></i>
+                    <span id="modal-herr-title">Nueva Herramienta</span>
+                </h3>
+                <button onclick="closeHerramientaModal()" class="text-white hover:text-gray-200">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+            </div>
+            
+            <form id="form-herramienta" class="p-6 space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Código*</label>
+                        <input type="text" id="herr-codigo" required 
+                            class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-cyan-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Nombre*</label>
+                        <input type="text" id="herr-nombre" required 
+                            class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-cyan-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Categoría*</label>
+                        <select id="herr-categoria" required 
+                            class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-cyan-500">
+                            <option value="">Seleccione...</option>
+                            <option value="manuales">Herramientas Manuales</option>
+                            <option value="electricas">Herramientas Eléctricas</option>
+                            <option value="medicion">Equipos de Medición</option>
+                            <option value="seguridad">Equipos de Seguridad</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Estado*</label>
+                        <select id="herr-estado" required 
+                            class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-cyan-500">
+                            <option value="disponible">✅ Disponible</option>
+                            <option value="en_uso">👷 En Uso</option>
+                            <option value="mantenimiento">⚙️ Mantenimiento</option>
+                            <option value="dañado">❌ Dañado</option>
+                            <option value="baja">🗑️ Dado de Baja</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Marca</label>
+                        <input type="text" id="herr-marca" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-cyan-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Modelo</label>
+                        <input type="text" id="herr-modelo" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-cyan-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Nro. Serie</label>
+                        <input type="text" id="herr-serie" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-cyan-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Ubicación*</label>
+                        <input type="text" id="herr-ubicacion" required placeholder="Ej: Taller - Estante A3" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-cyan-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Fecha Adquisición</label>
+                        <input type="date" id="herr-fecha-adquisicion" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-cyan-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Próximo Mantenimiento</label>
+                        <input type="date" id="herr-proximo-mant" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-cyan-500">
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
+                    <textarea id="herr-descripcion" rows="2" 
+                        class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-cyan-500"></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Observaciones</label>
+                    <textarea id="herr-observaciones" rows="2" 
+                        class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-cyan-500"></textarea>
+                </div>
+
+                <div class="flex gap-3 pt-4">
+                    <button type="submit" 
+                        class="flex-1 bg-gradient-to-r from-cyan-600 to-cyan-700 hover:from-cyan-700 hover:to-cyan-800 text-white px-6 py-3 rounded-lg transition">
+                        <i class="fas fa-save mr-2"></i>Guardar
+                    </button>
+                    <button type="button" onclick="closeHerramientaModal()" 
+                        class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 px-6 py-3 rounded-lg transition">
+                        <i class="fas fa-times mr-2"></i>Cancelar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Nuevo Préstamo -->
+    <div id="modal-prestamo" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+        <div class="bg-white rounded-lg shadow-2xl max-w-2xl w-full mx-4">
+            <div class="bg-gradient-to-r from-cyan-600 to-cyan-700 text-white px-6 py-4 flex justify-between items-center">
+                <h3 class="text-xl font-bold flex items-center">
+                    <i class="fas fa-handshake mr-2"></i>Nuevo Préstamo
+                </h3>
+                <button onclick="closePrestamoModal()" class="text-white hover:text-gray-200">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+            </div>
+            
+            <form id="form-prestamo" class="p-6 space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Herramienta*</label>
+                        <select id="prest-herramienta" required 
+                            class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-cyan-500">
+                            <option value="">Seleccione...</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Responsable*</label>
+                        <input type="text" id="prest-responsable" required 
+                            class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-cyan-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Proyecto/OT</label>
+                        <input type="text" id="prest-proyecto" placeholder="Ej: OT-2024-001" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-cyan-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Fecha Préstamo*</label>
+                        <input type="date" id="prest-fecha-inicio" required 
+                            class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-cyan-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Fecha Devolución Estimada*</label>
+                        <input type="date" id="prest-fecha-fin" required 
+                            class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-cyan-500">
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Observaciones</label>
+                    <textarea id="prest-observaciones" rows="2" 
+                        class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-cyan-500"></textarea>
+                </div>
+
+                <div class="flex gap-3 pt-4">
+                    <button type="submit" 
+                        class="flex-1 bg-gradient-to-r from-cyan-600 to-cyan-700 hover:from-cyan-700 hover:to-cyan-800 text-white px-6 py-3 rounded-lg transition">
+                        <i class="fas fa-save mr-2"></i>Registrar Préstamo
+                    </button>
+                    <button type="button" onclick="closePrestamoModal()" 
+                        class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 px-6 py-3 rounded-lg transition">
+                        <i class="fas fa-times mr-2"></i>Cancelar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Nuevo Mantenimiento -->
+    <div id="modal-mantenimiento" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+        <div class="bg-white rounded-lg shadow-2xl max-w-2xl w-full mx-4">
+            <div class="bg-gradient-to-r from-cyan-600 to-cyan-700 text-white px-6 py-4 flex justify-between items-center">
+                <h3 class="text-xl font-bold flex items-center">
+                    <i class="fas fa-wrench mr-2"></i>Programar Mantenimiento
+                </h3>
+                <button onclick="closeMantenimientoModal()" class="text-white hover:text-gray-200">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+            </div>
+            
+            <form id="form-mantenimiento" class="p-6 space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Herramienta*</label>
+                        <select id="mant-herramienta" required 
+                            class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-cyan-500">
+                            <option value="">Seleccione...</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Tipo*</label>
+                        <select id="mant-tipo" required 
+                            class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-cyan-500">
+                            <option value="">Seleccione...</option>
+                            <option value="preventivo">Preventivo</option>
+                            <option value="correctivo">Correctivo</option>
+                            <option value="calibracion">Calibración</option>
+                            <option value="limpieza">Limpieza</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Fecha Programada*</label>
+                        <input type="date" id="mant-fecha-programada" required 
+                            class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-cyan-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Responsable*</label>
+                        <input type="text" id="mant-responsable" required 
+                            class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-cyan-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Estado*</label>
+                        <select id="mant-estado" required 
+                            class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-cyan-500">
+                            <option value="pendiente">⏳ Pendiente</option>
+                            <option value="en_proceso">🔧 En Proceso</option>
+                            <option value="completado">✅ Completado</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Observaciones</label>
+                    <textarea id="mant-observaciones" rows="3" 
+                        class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-cyan-500"></textarea>
+                </div>
+
+                <div class="flex gap-3 pt-4">
+                    <button type="submit" 
+                        class="flex-1 bg-gradient-to-r from-cyan-600 to-cyan-700 hover:from-cyan-700 hover:to-cyan-800 text-white px-6 py-3 rounded-lg transition">
+                        <i class="fas fa-save mr-2"></i>Programar
+                    </button>
+                    <button type="button" onclick="closeMantenimientoModal()" 
+                        class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 px-6 py-3 rounded-lg transition">
+                        <i class="fas fa-times mr-2"></i>Cancelar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="hidden fixed top-4 right-4 px-6 py-4 rounded-lg shadow-lg z-50 text-white">
+        <div class="flex items-center">
+            <i class="fas fa-check-circle mr-2"></i>
+            <span id="toastMessage"></span>
+        </div>
+    </div>
+
+    <script src="/src/vistas/logistica/herramientas.js"></script>
+</body>
+</html>

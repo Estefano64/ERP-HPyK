@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Control de Consumibles - ERP HPyK</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="/src/components/navigation.js"></script>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <div id="nav-container"></div>
+
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-purple-600 to-purple-800 text-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold flex items-center">
+                        <i class="fas fa-box-open mr-3"></i>
+                        Control de Consumibles
+                    </h1>
+                    <p class="text-purple-100 mt-1">Gestión de Stock y Consumo</p>
+                </div>
+                <div class="flex gap-2">
+                    <a href="materiales.html" class="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg text-sm transition">
+                        <i class="fas fa-warehouse mr-2"></i>Materiales
+                    </a>
+                    <a href="index.html" class="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg text-sm transition">
+                        <i class="fas fa-home mr-2"></i>Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard KPIs -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+            <!-- Total Consumibles -->
+            <div class="bg-gradient-to-br from-blue-500 to-blue-700 rounded-lg shadow-lg p-4 text-white">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-blue-100 text-sm font-medium">Total Consumibles</p>
+                        <p class="text-3xl font-bold mt-1" id="total-consumibles">0</p>
+                        <p class="text-blue-100 text-xs mt-1">Tipos registrados</p>
+                    </div>
+                    <div class="bg-white/20 rounded-full p-3">
+                        <i class="fas fa-boxes text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stock Normal -->
+            <div class="bg-gradient-to-br from-green-500 to-green-700 rounded-lg shadow-lg p-4 text-white cursor-pointer hover:scale-105 transition" onclick="filtrarStock('normal')">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-green-100 text-sm font-medium">Stock Normal</p>
+                        <p class="text-3xl font-bold mt-1" id="consumibles-normal">0</p>
+                        <p class="text-green-100 text-xs mt-1">Sin alertas</p>
+                    </div>
+                    <div class="bg-white/20 rounded-full p-3">
+                        <i class="fas fa-check-circle text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stock Bajo -->
+            <div class="bg-gradient-to-br from-orange-500 to-orange-700 rounded-lg shadow-lg p-4 text-white cursor-pointer hover:scale-105 transition" onclick="filtrarStock('bajo')">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-orange-100 text-sm font-medium">Stock Bajo</p>
+                        <p class="text-3xl font-bold mt-1" id="consumibles-bajo">0</p>
+                        <p class="text-orange-100 text-xs mt-1">Requieren atención</p>
+                    </div>
+                    <div class="bg-white/20 rounded-full p-3">
+                        <i class="fas fa-exclamation-triangle text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stock Crítico -->
+            <div class="bg-gradient-to-br from-red-500 to-red-700 rounded-lg shadow-lg p-4 text-white cursor-pointer hover:scale-105 transition" onclick="filtrarStock('critico')">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-red-100 text-sm font-medium">Stock Crítico</p>
+                        <p class="text-3xl font-bold mt-1" id="consumibles-critico">0</p>
+                        <p class="text-red-100 text-xs mt-1">Reposición urgente</p>
+                    </div>
+                    <div class="bg-white/20 rounded-full p-3">
+                        <i class="fas fa-bell text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Consumo Mensual -->
+            <div class="bg-gradient-to-br from-indigo-500 to-indigo-700 rounded-lg shadow-lg p-4 text-white">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-indigo-100 text-sm font-medium">Consumo Mensual</p>
+                        <p class="text-3xl font-bold mt-1" id="consumo-mensual">$0</p>
+                        <p class="text-indigo-100 text-xs mt-1">Últimos 30 días</p>
+                    </div>
+                    <div class="bg-white/20 rounded-full p-3">
+                        <i class="fas fa-chart-line text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="bg-white rounded-lg shadow mb-6">
+            <div class="border-b border-gray-200">
+                <nav class="flex -mb-px">
+                    <button id="tab-consumibles" onclick="switchTab('consumibles')" class="py-4 px-6 text-sm font-medium border-b-2 border-purple-600 text-purple-600">
+                        <i class="fas fa-box-open mr-2"></i>Catálogo de Consumibles
+                    </button>
+                    <button id="tab-movimientos" onclick="switchTab('movimientos')" class="py-4 px-6 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                        <i class="fas fa-exchange-alt mr-2"></i>Movimientos de Consumo
+                    </button>
+                    <button id="tab-estadisticas" onclick="switchTab('estadisticas')" class="py-4 px-6 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300">
+                        <i class="fas fa-chart-bar mr-2"></i>Estadísticas
+                    </button>
+                </nav>
+            </div>
+        </div>
+
+        <!-- Tab Content: Consumibles -->
+        <div id="content-consumibles" class="tab-content">
+            <div class="bg-white rounded-lg shadow-lg">
+                <!-- Header -->
+                <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+                    <h2 class="text-xl font-bold text-gray-800">
+                        <i class="fas fa-box-open text-purple-600 mr-2"></i>
+                        Catálogo de Consumibles
+                    </h2>
+                    <button onclick="showNewConsumibleForm()" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition flex items-center gap-2">
+                        <i class="fas fa-plus"></i>
+                        Nuevo Consumible
+                    </button>
+                </div>
+
+                <!-- Filters -->
+                <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+                    <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                        <div class="md:col-span-2">
+                            <input type="text" id="search-consumible" placeholder="🔍 Buscar por código, nombre..." 
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                                   oninput="filterConsumibles()">
+                        </div>
+                        <div>
+                            <select id="filter-categoria" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500" onchange="filterConsumibles()">
+                                <option value="">Todas las Categorías</option>
+                                <option value="epp">EPP</option>
+                                <option value="limpieza">Limpieza</option>
+                                <option value="oficina">Oficina</option>
+                                <option value="herramientas">Herramientas Descartables</option>
+                                <option value="mantenimiento">Mantenimiento</option>
+                            </select>
+                        </div>
+                        <div>
+                            <select id="filter-stock-nivel" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500" onchange="filterConsumibles()">
+                                <option value="">Todos los Niveles</option>
+                                <option value="normal">Normal</option>
+                                <option value="bajo">Bajo</option>
+                                <option value="critico">Crítico</option>
+                            </select>
+                        </div>
+                        <div>
+                            <button onclick="clearFilters()" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg transition">
+                                <i class="fas fa-times mr-2"></i>Limpiar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Table -->
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Código</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nombre</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Categoría</th>
+                                <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Unidad</th>
+                                <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Stock Actual</th>
+                                <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Stock Mínimo</th>
+                                <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Nivel</th>
+                                <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Consumo/Mes</th>
+                                <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Último Mov.</th>
+                                <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="consumibles-table" class="bg-white divide-y divide-gray-200">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Export -->
+                <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
+                    <button onclick="exportarConsumibles()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition flex items-center gap-2">
+                        <i class="fas fa-file-excel"></i>
+                        Exportar a Excel
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab Content: Movimientos -->
+        <div id="content-movimientos" class="tab-content hidden">
+            <div class="bg-white rounded-lg shadow-lg">
+                <!-- Header -->
+                <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+                    <h2 class="text-xl font-bold text-gray-800">
+                        <i class="fas fa-exchange-alt text-purple-600 mr-2"></i>
+                        Movimientos de Consumo
+                    </h2>
+                    <button onclick="showNewMovimientoForm()" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition flex items-center gap-2">
+                        <i class="fas fa-plus"></i>
+                        Registrar Consumo
+                    </button>
+                </div>
+
+                <!-- Filters -->
+                <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div class="md:col-span-2">
+                            <input type="text" id="search-movimiento" placeholder="🔍 Buscar por consumible, responsable..." 
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                                   oninput="filterMovimientos()">
+                        </div>
+                        <div>
+                            <input type="date" id="filter-fecha" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500" onchange="filterMovimientos()">
+                        </div>
+                        <div>
+                            <button onclick="clearMovFilters()" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg transition">
+                                <i class="fas fa-times mr-2"></i>Limpiar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Table -->
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Fecha</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Consumible</th>
+                                <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Cantidad</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Responsable</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Destino/OT</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Motivo</th>
+                                <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="movimientos-table" class="bg-white divide-y divide-gray-200">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab Content: Estadísticas -->
+        <div id="content-estadisticas" class="tab-content hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Top Consumidos -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
+                        <i class="fas fa-trophy text-yellow-500 mr-2"></i>
+                        Top 10 Más Consumidos
+                    </h3>
+                    <div id="top-consumidos" class="space-y-3">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <!-- Consumo por Categoría -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
+                        <i class="fas fa-chart-pie text-blue-500 mr-2"></i>
+                        Consumo por Categoría
+                    </h3>
+                    <div id="consumo-categoria" class="space-y-3">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <!-- Alertas de Reposición -->
+                <div class="bg-white rounded-lg shadow-lg p-6 lg:col-span-2">
+                    <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
+                        <i class="fas fa-exclamation-triangle text-red-500 mr-2"></i>
+                        Alertas de Reposición
+                    </h3>
+                    <div id="alertas-reposicion" class="space-y-3">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Nuevo/Editar Consumible -->
+    <div id="modal-consumible" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="bg-purple-600 text-white px-6 py-4 rounded-t-lg">
+                <h3 class="text-xl font-bold" id="modal-cons-title">Nuevo Consumible</h3>
+            </div>
+            <form id="form-consumible" class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Código *</label>
+                        <input type="text" id="cons-codigo" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500" placeholder="CONS-001">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Nombre *</label>
+                        <input type="text" id="cons-nombre" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500" placeholder="Guantes de látex">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Categoría *</label>
+                        <select id="cons-categoria" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+                            <option value="">Seleccione...</option>
+                            <option value="epp">EPP (Equipo Protección Personal)</option>
+                            <option value="limpieza">Limpieza</option>
+                            <option value="oficina">Oficina</option>
+                            <option value="herramientas">Herramientas Descartables</option>
+                            <option value="mantenimiento">Mantenimiento</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Unidad de Medida *</label>
+                        <select id="cons-unidad" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+                            <option value="">Seleccione...</option>
+                            <option value="unidad">Unidad</option>
+                            <option value="paquete">Paquete</option>
+                            <option value="caja">Caja</option>
+                            <option value="litro">Litro</option>
+                            <option value="kilogramo">Kilogramo</option>
+                            <option value="metro">Metro</option>
+                            <option value="par">Par</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Stock Actual *</label>
+                        <input type="number" id="cons-stock" required min="0" step="1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500" placeholder="100">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Stock Mínimo *</label>
+                        <input type="number" id="cons-stock-minimo" required min="0" step="1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500" placeholder="20">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Marca</label>
+                        <input type="text" id="cons-marca" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500" placeholder="3M">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Proveedor</label>
+                        <input type="text" id="cons-proveedor" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500" placeholder="Proveedor ABC">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Ubicación</label>
+                        <input type="text" id="cons-ubicacion" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500" placeholder="Almacén - Estante B2">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Precio Unitario</label>
+                        <input type="number" id="cons-precio" min="0" step="0.01" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500" placeholder="0.00">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Descripción</label>
+                        <textarea id="cons-descripcion" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500" placeholder="Descripción del consumible..."></textarea>
+                    </div>
+                </div>
+
+                <div class="flex gap-3 mt-6">
+                    <button type="submit" class="flex-1 bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg transition font-medium">
+                        <i class="fas fa-save mr-2"></i>Guardar
+                    </button>
+                    <button type="button" onclick="closeConsumibleModal()" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 px-6 py-2 rounded-lg transition font-medium">
+                        <i class="fas fa-times mr-2"></i>Cancelar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Registrar Consumo -->
+    <div id="modal-movimiento" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full">
+            <div class="bg-purple-600 text-white px-6 py-4 rounded-t-lg">
+                <h3 class="text-xl font-bold">Registrar Consumo</h3>
+            </div>
+            <form id="form-movimiento" class="p-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Consumible *</label>
+                        <select id="mov-consumible" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+                            <option value="">Seleccione...</option>
+                            <!-- Populated by JS -->
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Cantidad *</label>
+                        <input type="number" id="mov-cantidad" required min="1" step="1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500" placeholder="1">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Fecha *</label>
+                        <input type="date" id="mov-fecha" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Responsable *</label>
+                        <input type="text" id="mov-responsable" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500" placeholder="Nombre completo">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Destino/OT</label>
+                        <input type="text" id="mov-destino" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500" placeholder="OT-2024-001 o área">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Motivo del Consumo *</label>
+                        <textarea id="mov-motivo" required rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500" placeholder="Describe el motivo del consumo..."></textarea>
+                    </div>
+                </div>
+
+                <div class="flex gap-3 mt-6">
+                    <button type="submit" class="flex-1 bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg transition font-medium">
+                        <i class="fas fa-save mr-2"></i>Registrar
+                    </button>
+                    <button type="button" onclick="closeMovimientoModal()" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 px-6 py-2 rounded-lg transition font-medium">
+                        <i class="fas fa-times mr-2"></i>Cancelar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="hidden fixed top-4 right-4 px-6 py-4 rounded-lg shadow-lg z-50">
+        <div class="flex items-center gap-2">
+            <i class="fas fa-check-circle text-xl"></i>
+            <span id="toastMessage"></span>
+        </div>
+    </div>
+
+    <script src="/src/vistas/logistica/consumibles.js"></script>
+</body>
+</html>

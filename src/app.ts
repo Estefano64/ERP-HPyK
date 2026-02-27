@@ -41,6 +41,18 @@ import CodigoReparacion from './models/CodigoReparacion';
 import Tarea from './models/Tarea';
 import OrdenTrabajo from './models/OrdenTrabajo';
 
+// Importar modelos de Logística
+import Compra from './models/Compra';
+import CompraDetalle from './models/CompraDetalle';
+import OrdenCompra from './models/OrdenCompra';
+import OrdenCompraView from './models/OrdenCompraView';
+import Almacen from './models/Almacen';
+import MovimientoInventario from './models/MovimientoInventario';
+import Proveedor from './models/Proveedor';
+import OTHistorial from './models/OTHistorial';
+import OTRepuesto from './models/OTRepuesto';
+import Herramienta from './models/Herramienta';
+
 // Importar rutas centralizadas
 import apiRoutes from './routes/index';
 
@@ -66,6 +78,14 @@ app.get('/index.html', (req: Request, res: Response) => {
 });
 
 // LOGÍSTICA
+app.get('/logistica', (req: Request, res: Response) => {
+  res.redirect('/logistica/index.html');
+});
+
+app.get('/logistica/index.html', (req: Request, res: Response) => {
+  res.sendFile(path.join(__dirname, 'vistas', 'logistica', 'index.html'));
+});
+
 app.get('/logistica/materiales.html', (req: Request, res: Response) => {
   res.sendFile(path.join(__dirname, 'vistas', 'logistica', 'materiales.html'));
 });
@@ -73,7 +93,9 @@ app.get('/logistica/materiales.html', (req: Request, res: Response) => {
 app.get('/logistica/almacenes.html', (req: Request, res: Response) => {
   res.sendFile(path.join(__dirname, 'vistas', 'logistica', 'almacenes.html'));
 });
-
+app.get('/logistica/ordenes-compra.html', (req: Request, res: Response) => {
+  res.sendFile(path.join(__dirname, 'vistas', 'logistica', 'ordenes-compra.html'));
+});
 app.get('/logistica/movimientos.html', (req: Request, res: Response) => {
   res.sendFile(path.join(__dirname, 'vistas', 'logistica', 'movimientos.html'));
 });
@@ -86,7 +108,23 @@ app.get('/logistica/compras.html', (req: Request, res: Response) => {
   res.sendFile(path.join(__dirname, 'vistas', 'logistica', 'compras.html'));
 });
 
+app.get('/logistica/inventario-valorizado.html', (req: Request, res: Response) => {
+  res.sendFile(path.join(__dirname, 'vistas', 'logistica', 'inventario-valorizado.html'));
+});
+
+app.get('/logistica/dashboard-stock.html', (req: Request, res: Response) => {
+  res.sendFile(path.join(__dirname, 'vistas', 'logistica', 'dashboard-stock.html'));
+});
+
+app.get('/logistica/herramientas.html', (req: Request, res: Response) => {
+  res.sendFile(path.join(__dirname, 'vistas', 'logistica', 'herramientas.html'));
+});
+
 // MANTENIMIENTO
+app.get('/mantenimiento/index.html', (req: Request, res: Response) => {
+  res.sendFile(path.join(__dirname, 'vistas', 'mantenimiento', 'index.html'));
+});
+
 app.get('/mantenimiento/equipos.html', (req: Request, res: Response) => {
   res.sendFile(path.join(__dirname, 'vistas', 'mantenimiento', 'equipos.html'));
 });
@@ -108,6 +146,10 @@ app.get('/mantenimiento/estrategias.html', (req: Request, res: Response) => {
 });
 
 // PRODUCCIÓN
+app.get('/produccion/index.html', (req: Request, res: Response) => {
+  res.sendFile(path.join(__dirname, 'vistas', 'produccion', 'index.html'));
+});
+
 app.get('/produccion/productos.html', (req: Request, res: Response) => {
   res.sendFile(path.join(__dirname, 'vistas', 'produccion', 'productos.html'));
 });
@@ -137,6 +179,10 @@ app.get('/produccion/tareas.html', (req: Request, res: Response) => {
 });
 
 // OPERATIVOS
+app.get('/operativos/index.html', (req: Request, res: Response) => {
+  res.sendFile(path.join(__dirname, 'vistas', 'operativos', 'index.html'));
+});
+
 app.get('/operativos/ordenes-trabajo.html', (req: Request, res: Response) => {
   res.sendFile(path.join(__dirname, 'vistas', 'operativos', 'ordenes-trabajo.html'));
 });
@@ -257,7 +303,7 @@ const startServer = async () => {
     // await runMigrations();
 
     // Sincronizar modelos con la base de datos EN ORDEN CORRECTO
-    console.log('⚙️ Sincronizando modelos con NUEVA ESTRUCTURA...');
+    console.log('Sincronizando modelos con NUEVA ESTRUCTURA...');
     console.log('   1/4 Creando catálogos básicos...');
     
     // NIVEL 1: Catálogos sin dependencias
@@ -299,22 +345,32 @@ const startServer = async () => {
     await Equipo.sync({ force: false });
     await Estrategia.sync({ force: false });
     await CodigoReparacion.sync({ force: false });
+    await Almacen.sync({ force: false });
+    await Proveedor.sync({ force: false });
+    await Herramienta.sync({ force: false });
+    await OrdenTrabajo.sync({ force: false }); // Mover antes de Compra
+    await Compra.sync({ force: false });
+    await OrdenCompra.sync({ force: false });
+    await OrdenCompraView.sync({ force: false });
     
     console.log('   4/4 Creando tablas de relación...');
     // NIVEL 4: Tablas que dependen de tablas principales
     await Tarea.sync({ force: false });
-    await OrdenTrabajo.sync({ force: false });
+    await CompraDetalle.sync({ force: false });
+    await MovimientoInventario.sync({ force: false });
+    await OTHistorial.sync({ force: false });
+    await OTRepuesto.sync({ force: false });
     
     console.log('✓ ¡TABLAS CREADAS CON NUEVA ESTRUCTURA!');
 
     // Iniciar servidor Express
     app.listen(PORT, () => {
-      console.log(`\n🚀 Servidor corriendo en http://localhost:${PORT}`);
-      console.log(`📊 Dashboard disponible en http://localhost:${PORT}`);
-      console.log(`📋 API disponible en http://localhost:${PORT}/api`);
+      console.log(`\nServidor corriendo en http://localhost:${PORT}`);
+      console.log(`Dashboard disponible en http://localhost:${PORT}`);
+      console.log(`API disponible en http://localhost:${PORT}/api`);
     });
   } catch (error) {
-    console.error('❌ Error al iniciar el servidor:', error);
+    console.error('Error al iniciar el servidor:', error);
     process.exit(1);
   }
 };

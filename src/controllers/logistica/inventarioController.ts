@@ -24,22 +24,22 @@ export const getInventarioValorizado = async (req: Request, res: Response): Prom
       if (fechaInicio) {
         const movimientosIniciales = await MovimientoInventario.findAll({
           where: {
-            materialId: material.material_id,
-            fecha: { [Op.lt]: new Date(fechaInicio as string) },
+            material_id: material.material_id,
+            fecha_movimiento: { [Op.lt]: new Date(fechaInicio as string) },
           },
         });
 
         stockInicial = movimientosIniciales.reduce((acc, mov) => {
-          if (mov.tipo === 'Entrada') return acc + parseFloat(mov.cantidad.toString());
-          if (mov.tipo === 'Salida') return acc - parseFloat(mov.cantidad.toString());
+          if (mov.tipo_movimiento === 'ENTRADA') return acc + parseFloat(mov.cantidad.toString());
+          if (mov.tipo_movimiento === 'SALIDA') return acc - parseFloat(mov.cantidad.toString());
           return acc;
         }, 0);
       }
 
       // Calcular movimientos en el período
-      const whereClause: any = { materialId: material.material_id };
+      const whereClause: any = { material_id: material.material_id };
       if (fechaInicio && fechaFin) {
-        whereClause.fecha = {
+        whereClause.fecha_movimiento = {
           [Op.gte]: new Date(fechaInicio as string),
           [Op.lte]: new Date(fechaFin as string),
         };
@@ -47,7 +47,7 @@ export const getInventarioValorizado = async (req: Request, res: Response): Prom
 
       const movimientos = await MovimientoInventario.findAll({
         where: whereClause,
-        order: [['fecha', 'ASC']],
+        order: [['fecha_movimiento', 'ASC']],
       });
 
       // Obtener primer y último movimiento del período
@@ -56,8 +56,8 @@ export const getInventarioValorizado = async (req: Request, res: Response): Prom
 
       // Calcular stock final
       const stockFinal = stockInicial + movimientos.reduce((acc, mov) => {
-        if (mov.tipo === 'Entrada') return acc + parseFloat(mov.cantidad.toString());
-        if (mov.tipo === 'Salida') return acc - parseFloat(mov.cantidad.toString());
+        if (mov.tipo_movimiento === 'ENTRADA') return acc + parseFloat(mov.cantidad.toString());
+        if (mov.tipo_movimiento === 'SALIDA') return acc - parseFloat(mov.cantidad.toString());
         return acc;
       }, 0);
 
@@ -67,13 +67,12 @@ export const getInventarioValorizado = async (req: Request, res: Response): Prom
 
       inventario.push({
         numero: inventario.length + 1,
-        fecha1: primerMovimiento?.fecha || null,
-        fecha2: ultimoMovimiento?.fecha || null,
+        fecha1: primerMovimiento?.fecha_movimiento || null,
+        fecha2: ultimoMovimiento?.fecha_movimiento || null,
         codigo: material.codigo,
         descripcion: material.descripcion,
         stockInicial: stockInicial,
         ubicacion: material.ubicacion || '',
-        caja: material.caja || '',
         precioUnitario: precioUnitario,
         stockFinal: stockFinal,
         total: total,
@@ -105,12 +104,12 @@ export const getResumenInventario = async (req: Request, res: Response): Promise
 
     for (const material of materiales) {
       const movimientos = await MovimientoInventario.findAll({
-        where: { materialId: material.material_id },
+        where: { material_id: material.material_id },
       });
 
       const stockActual = movimientos.reduce((acc, mov) => {
-        if (mov.tipo === 'Entrada') return acc + parseFloat(mov.cantidad.toString());
-        if (mov.tipo === 'Salida') return acc - parseFloat(mov.cantidad.toString());
+        if (mov.tipo_movimiento === 'ENTRADA') return acc + parseFloat(mov.cantidad.toString());
+        if (mov.tipo_movimiento === 'SALIDA') return acc - parseFloat(mov.cantidad.toString());
         return acc;
       }, 0);
 
@@ -127,7 +126,7 @@ export const getResumenInventario = async (req: Request, res: Response): Promise
 
     const movimientosMes = await MovimientoInventario.count({
       where: {
-        fecha: { [Op.gte]: inicioMes },
+        fecha_movimiento: { [Op.gte]: inicioMes },
       },
     });
 

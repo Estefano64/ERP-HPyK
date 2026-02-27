@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Órdenes de Trabajo - HP&K ERP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="/vistas/shared/navigation.js"></script>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation Menu -->
+    <div id="navigation-container"></div>
+
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-orange-600 to-orange-800 text-white shadow-lg">
+        <div class="container mx-auto px-6 py-6">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <i class="fas fa-clipboard-list text-4xl"></i>
+                    <div>
+                        <h1 class="text-3xl font-bold">Módulo de Órdenes de Trabajo</h1>
+                        <p class="text-orange-200 text-sm">Gestión integral de OT y reportes operativos</p>
+                    </div>
+                </div>
+                <a href="/index.html" class="bg-orange-700 hover:bg-orange-800 px-6 py-2 rounded-lg transition flex items-center">
+                    <i class="fas fa-arrow-left mr-2"></i> Volver al Inicio
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-6 py-8">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6">ACCESOS DIRECTOS</h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            
+            <!-- 1. ÓRDENES DE TRABAJO -->
+            <div class="bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow">
+                <div class="bg-gradient-to-r from-orange-600 to-orange-700 text-white px-6 py-4 rounded-t-lg">
+                    <div class="flex items-center space-x-3">
+                        <i class="fas fa-clipboard-list text-2xl"></i>
+                        <h3 class="text-xl font-bold">ÓRDENES DE TRABAJO</h3>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <p class="text-gray-600 text-sm mb-4">
+                        Gestión completa de órdenes de trabajo
+                    </p>
+                    <div class="space-y-2">
+                        <a href="/operativos/ordenes-trabajo.html" class="flex items-center justify-between px-4 py-3 bg-orange-50 hover:bg-orange-100 rounded-lg transition group">
+                            <span class="flex items-center space-x-2">
+                                <i class="fas fa-list text-orange-600"></i>
+                                <span class="text-gray-700 group-hover:text-orange-700 font-medium">Ver Todas las OT</span>
+                            </span>
+                            <i class="fas fa-chevron-right text-gray-400 group-hover:text-orange-600"></i>
+                        </a>
+                        
+                        <a href="/operativos/ordenes-trabajo.html?accion=crear" class="flex items-center justify-between px-4 py-3 bg-orange-50 hover:bg-orange-100 rounded-lg transition group">
+                            <span class="flex items-center space-x-2">
+                                <i class="fas fa-plus-circle text-orange-600"></i>
+                                <span class="text-gray-700 group-hover:text-orange-700 font-medium">Nueva OT</span>
+                            </span>
+                            <i class="fas fa-chevron-right text-gray-400 group-hover:text-orange-600"></i>
+                        </a>
+                        
+                        <a href="/operativos/ordenes-trabajo.html?estado=abierta" class="flex items-center justify-between px-4 py-3 bg-orange-50 hover:bg-orange-100 rounded-lg transition group">
+                            <span class="flex items-center space-x-2">
+                                <i class="fas fa-folder-open text-orange-600"></i>
+                                <span class="text-gray-700 group-hover:text-orange-700 font-medium">OT Abiertas</span>
+                            </span>
+                            <i class="fas fa-chevron-right text-gray-400 group-hover:text-orange-600"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. REPORTES -->
+            <div class="bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow">
+                <div class="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-4 rounded-t-lg">
+                    <div class="flex items-center space-x-3">
+                        <i class="fas fa-chart-line text-2xl"></i>
+                        <h3 class="text-xl font-bold">REPORTES</h3>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <p class="text-gray-600 text-sm mb-4">
+                        Análisis y reportes de órdenes de trabajo
+                    </p>
+                    <div class="space-y-2">
+                        <a href="/operativos/reporte-general.html" class="flex items-center justify-between px-4 py-3 bg-blue-50 hover:bg-blue-100 rounded-lg transition group">
+                            <span class="flex items-center space-x-2">
+                                <i class="fas fa-file-chart-line text-blue-600"></i>
+                                <span class="text-gray-700 group-hover:text-blue-700 font-medium">Reporte General</span>
+                            </span>
+                            <i class="fas fa-chevron-right text-gray-400 group-hover:text-blue-600"></i>
+                        </a>
+                        
+                        <a href="/operativos/reportes.html?tipo=mensual" class="flex items-center justify-between px-4 py-3 bg-blue-50 hover:bg-blue-100 rounded-lg transition group">
+                            <span class="flex items-center space-x-2">
+                                <i class="fas fa-calendar text-blue-600"></i>
+                                <span class="text-gray-700 group-hover:text-blue-700 font-medium">Reporte Mensual</span>
+                            </span>
+                            <i class="fas fa-chevron-right text-gray-400 group-hover:text-blue-600"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. SEGUIMIENTO -->
+            <div class="bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow">
+                <div class="bg-gradient-to-r from-green-600 to-green-700 text-white px-6 py-4 rounded-t-lg">
+                    <div class="flex items-center space-x-3">
+                        <i class="fas fa-tasks text-2xl"></i>
+                        <h3 class="text-xl font-bold">SEGUIMIENTO</h3>
+                    </div>
+                </div>
+                <div class="p-6">
+                    <p class="text-gray-600 text-sm mb-4">
+                        Seguimiento y control de estados
+                    </p>
+                    <div class="space-y-2">
+                        <a href="/operativos/ordenes-trabajo.html?estado=en_proceso" class="flex items-center justify-between px-4 py-3 bg-green-50 hover:bg-green-100 rounded-lg transition group">
+                            <span class="flex items-center space-x-2">
+                                <i class="fas fa-spinner text-green-600"></i>
+                                <span class="text-gray-700 group-hover:text-green-700 font-medium">En Proceso</span>
+                            </span>
+                            <i class="fas fa-chevron-right text-gray-400 group-hover:text-green-600"></i>
+                        </a>
+                        
+                        <a href="/operativos/ordenes-trabajo.html?estado=cerrada" class="flex items-center justify-between px-4 py-3 bg-green-50 hover:bg-green-100 rounded-lg transition group">
+                            <span class="flex items-center space-x-2">
+                                <i class="fas fa-check-circle text-green-600"></i>
+                                <span class="text-gray-700 group-hover:text-green-700 font-medium">Cerradas</span>
+                            </span>
+                            <i class="fas fa-chevron-right text-gray-400 group-hover:text-green-600"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Animación de entrada para las cards
+            const cards = document.querySelectorAll('.bg-white');
+            cards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.style.opacity = '0';
+                    card.style.transform = 'translateY(20px)';
+                    card.style.transition = 'all 0.5s ease';
+                    
+                    setTimeout(() => {
+                        card.style.opacity = '1';
+                        card.style.transform = 'translateY(0)';
+                    }, 50);
+                }, index * 100);
+            });
+        });
+    </script>
+</body>
+</html>

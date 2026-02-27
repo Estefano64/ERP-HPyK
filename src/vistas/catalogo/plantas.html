@@ -318,7 +318,7 @@
                 document.getElementById('direccion').value = planta.direccion || '';
                 document.getElementById('activo').checked = planta.activo !== false;
                 document.getElementById('nombre').focus();
-                console.log('✅ Formulario completado');
+                console.log('Formulario completado');
             } catch (error) {
                 console.error('Error al cargar planta:', error);
                 showToast('Error al cargar la planta', 'error');

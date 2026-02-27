@@ -1,15 +1,7 @@
 import { Router } from 'express';
-import * as herramientaController from '../controllers/mantenimiento/herramientaController';
 import * as codigoReparacionController from '../controllers/mantenimiento/codigoReparacionController';
 
 const router = Router();
-
-// Herramientas
-router.get('/herramientas', herramientaController.getAllHerramientas);
-router.get('/herramientas/:id', herramientaController.getHerramientaById);
-router.post('/herramientas', herramientaController.createHerramienta);
-router.put('/herramientas/:id', herramientaController.updateHerramienta);
-router.delete('/herramientas/:id', herramientaController.deleteHerramienta);
 
 // Códigos de Reparación
 router.get('/codigos-reparacion', codigoReparacionController.getAllCodigosReparacion);

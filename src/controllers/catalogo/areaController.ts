@@ -21,12 +21,12 @@ const ensureAreaTableStructure = async () => {
         ALTER TABLE area 
         ADD COLUMN planta_codigo VARCHAR(10)
       `);
-      console.log('[AREA MIGRATION] ✅ Columna planta_codigo agregada exitosamente');
+      console.log('[AREA MIGRATION] Columna planta_codigo agregada exitosamente');
     } else {
-      console.log('[AREA MIGRATION] ✅ Columna planta_codigo ya existe');
+      console.log('[AREA MIGRATION] Columna planta_codigo ya existe');
     }
   } catch (error) {
-    console.error('[AREA MIGRATION] ❌ Error en migración:', error);
+    console.error('[AREA MIGRATION] Error en migración:', error);
     throw error;
   }
 };
@@ -52,12 +52,12 @@ export const getAllAreas = async (req: Request, res: Response) => {
       order: [['codigo', 'ASC']]
     });
     
-    console.log(`[GET ALL AREAS] ✅ ${areas.length} areas encontradas con include`);
+    console.log(`[GET ALL AREAS] ${areas.length} areas encontradas con include`);
     console.log('[GET ALL AREAS] Primera área (ejemplo):', areas[0] ? JSON.stringify(areas[0], null, 2) : 'No hay áreas');
     
     res.json(areas);
   } catch (error) {
-    console.error('[GET ALL AREAS] ❌ ERROR DETALLADO:');
+    console.error('[GET ALL AREAS] ERROR DETALLADO:');
     console.error('[GET ALL AREAS] Error message:', error instanceof Error ? error.message : 'Unknown error');
     console.error('[GET ALL AREAS] Error stack:', error instanceof Error ? error.stack : 'No stack trace');
     console.error('[GET ALL AREAS] Error completo:', error);

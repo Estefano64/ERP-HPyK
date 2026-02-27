@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instrucciones - Imágenes para Orden de Compra</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #667eea;
+            margin-top: 25px;
+        }
+        .step {
+            background: #f8f9fa;
+            padding: 15px;
+            margin: 15px 0;
+            border-left: 4px solid #667eea;
+            border-radius: 5px;
+        }
+        .filename {
+            background: #e7f3ff;
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            color: #0066cc;
+            font-weight: bold;
+        }
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .success {
+            background: #d4edda;
+            border: 1px solid #28a745;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        ul {
+            line-height: 1.8;
+        }
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📋 Configuración de Imágenes para Órdenes de Compra</h1>
+        
+        <p>Para que las órdenes de compra se generen con el formato profesional de HP&K, necesitas agregar 3 imágenes en formato PNG en esta carpeta.</p>
+
+        <h2>🖼️ Imágenes Requeridas</h2>
+
+        <div class="step">
+            <h3>1️⃣ Logo de HP&K</h3>
+            <p><strong>Nombre del archivo:</strong> <span class="filename">logo-hpk.png</span></p>
+            <p><strong>Descripción:</strong> Logo de HP&K INVERSIONES S.R.L. (azul y celeste)</p>
+            <p><strong>Uso:</strong> Aparece en la esquina superior izquierda del PDF</p>
+            <p><strong>Dimensiones recomendadas:</strong> 200 x 60 píxeles</p>
+        </div>
+
+        <div class="step">
+            <h3>2️⃣ Firma de Diego Jaime</h3>
+            <p><strong>Nombre del archivo:</strong> <span class="filename">firma-diego-jaime.png</span></p>
+            <p><strong>Descripción:</strong> Firma manuscrita con sello "HP&K INVERSIONES SRL - ELABORADO POR"</p>
+            <p><strong>Uso:</strong> Aparece en el cuadro "ELABORADO POR"</p>
+            <p><strong>Dimensiones recomendadas:</strong> 150 x 60 píxeles</p>
+        </div>
+
+        <div class="step">
+            <h3>3️⃣ Firma de Diego Muñoz</h3>
+            <p><strong>Nombre del archivo:</strong> <span class="filename">firma-diego-munoz.png</span></p>
+            <p><strong>Descripción:</strong> Firma manuscrita con sello "HP&K INVERSIONES SRL - Sup de Operaciones"</p>
+            <p><strong>Uso:</strong> Aparece en el cuadro "REVISADO POR"</p>
+            <p><strong>Dimensiones recomendadas:</strong> 150 x 60 píxeles</p>
+        </div>
+
+        <h2>📝 Instrucciones Paso a Paso</h2>
+
+        <div class="warning">
+            <strong>⚠️ IMPORTANTE:</strong> Los nombres de los archivos deben ser EXACTAMENTE como se indica (respetando mayúsculas y minúsculas).
+        </div>
+
+        <ol>
+            <li>Guarda las 3 imágenes que te proporcionaron en esta carpeta (<code>assets</code>)</li>
+            <li>Asegúrate de que los nombres sean:
+                <ul>
+                    <li><code>logo-hpk.png</code></li>
+                    <li><code>firma-diego-jaime.png</code></li>
+                    <li><code>firma-diego-munoz.png</code></li>
+                </ul>
+            </li>
+            <li>Refresca la página del ERP en tu navegador (F5)</li>
+            <li>Ve a <strong>Compras → Órdenes de Compra</strong></li>
+            <li>Haz clic en el botón de PDF (icono morado) de cualquier orden</li>
+        </ol>
+
+        <h2>✅ Verificación</h2>
+
+        <div class="success">
+            <strong>✓ Si las imágenes se cargaron correctamente:</strong> Verás en la consola del navegador (F12) el mensaje:
+            <br><br>
+            <code>Imágenes OC cargadas: { logo: 'OK', firmaDiegoJaime: 'OK', firmaDiegoMunoz: 'OK' }</code>
+        </div>
+
+        <div class="step">
+            <h3>🔍 ¿Cómo verificar?</h3>
+            <ol>
+                <li>Abre el navegador</li>
+                <li>Presiona <strong>F12</strong> para abrir las herramientas de desarrollo</li>
+                <li>Ve a la pestaña <strong>"Console"</strong></li>
+                <li>Revisa los mensajes de carga de imágenes</li>
+            </ol>
+        </div>
+
+        <h2>🚨 Solución de Problemas</h2>
+
+        <div class="step">
+            <h3>Si las imágenes no aparecen en el PDF:</h3>
+            <ul>
+                <li>Verifica que los nombres de los archivos sean exactos</li>
+                <li>Asegúrate de que las imágenes estén en formato PNG</li>
+                <li>Refresca la página del ERP (F5) después de copiar las imágenes</li>
+                <li>Verifica que las imágenes no estén dañadas abriendo con un visor de imágenes</li>
+            </ul>
+        </div>
+
+        <h2>📌 Notas Adicionales</h2>
+
+        <ul>
+            <li>Si las imágenes NO están disponibles, el PDF se generará igual pero con texto en lugar de las imágenes</li>
+            <li>Las imágenes se cargan automáticamente al abrir la sección de Órdenes de Compra</li>
+            <li>El formato PNG con fondo transparente es recomendado para mejor visualización</li>
+            <li>Las dimensiones son flexibles pero se ajustarán automáticamente en el PDF</li>
+        </ul>
+
+        <hr style="margin: 30px 0;">
+
+        <p style="text-align: center; color: #666;">
+            <strong>HP&K INVERSIONES S.R.L.</strong><br>
+            Sistema ERP - Módulo de Compras
+        </p>
+    </div>
+</body>
+</html>

@@ -92,7 +92,7 @@ async function seedDatabase() {
     // FABRICANTES
     console.log('Sembrando Fabricantes...');
     await Fabricante.bulkCreate([
-      { codigo: 'CATERPILLAR', nombre: 'Caterpillar Inc.', pais: 'USA', activo: true },
+      { codigo: 'CAT', nombre: 'Caterpillar Inc.', pais: 'USA', activo: true },
       { codigo: 'CUMMINS', nombre: 'Cummins Inc.', pais: 'USA', activo: true },
       { codigo: 'VOLVO', nombre: 'Volvo Group', pais: 'Sweden', activo: true },
       { codigo: 'MAN', nombre: 'MAN SE', pais: 'Germany', activo: true },
@@ -127,9 +127,9 @@ async function seedDatabase() {
     console.log('Sembrando Status de Equipos...');
     await StatusEquipo.bulkCreate([
       { codigo: 'OPERATIVO', nombre: 'Operativo', activo: true },
-      { codigo: 'MANTENIMIENTO', nombre: 'En Mantenimiento', activo: true },
-      { codigo: 'FUERA_SERVICIO', nombre: 'Fuera de Servicio', activo: true },
-      { codigo: 'REPARACION', nombre: 'En Reparación', activo: true },
+      { codigo: 'MANT', nombre: 'En Mantenimiento', activo: true },
+      { codigo: 'BAJA', nombre: 'Fuera de Servicio', activo: true },
+      { codigo: 'REPARANDO', nombre: 'En Reparación', activo: true },
     ], { ignoreDuplicates: true });
     console.log('✓ 4 status de equipos creados\n');
 
@@ -169,9 +169,9 @@ async function seedDatabase() {
     // TIPOS DE ESTRATEGIAS
     console.log('Sembrando Tipos de Estrategias...');
     await TipoEstrategia.bulkCreate([
-      { codigo: 'PREVENTIVO', nombre: 'Mantenimiento Preventivo', activo: true },
-      { codigo: 'PREDICTIVO', nombre: 'Mantenimiento Predictivo', activo: true },
-      { codigo: 'CORRECTIVO', nombre: 'Mantenimiento Correctivo', activo: true },
+      { codigo: 'PREV', nombre: 'Mantenimiento Preventivo', activo: true },
+      { codigo: 'PRED', nombre: 'Mantenimiento Predictivo', activo: true },
+      { codigo: 'CORR', nombre: 'Mantenimiento Correctivo', activo: true },
     ], { ignoreDuplicates: true });
     console.log('✓ 3 tipos de estrategias creados\n');
 
@@ -224,8 +224,8 @@ async function seedDatabase() {
     await Posicion.bulkCreate([
       { codigo: 'FRONTAL', nombre: 'Frontal', activo: true },
       { codigo: 'TRASERO', nombre: 'Trasero', activo: true },
-      { codigo: 'LATERAL_IZQ', nombre: 'Lateral Izquierdo', activo: true },
-      { codigo: 'LATERAL_DER', nombre: 'Lateral Derecho', activo: true },
+      { codigo: 'LAT_IZQ', nombre: 'Lateral Izquierdo', activo: true },
+      { codigo: 'LAT_DER', nombre: 'Lateral Derecho', activo: true },
       { codigo: 'SUPERIOR', nombre: 'Superior', activo: true },
       { codigo: 'INFERIOR', nombre: 'Inferior', activo: true },
     ], { ignoreDuplicates: true });
@@ -334,9 +334,9 @@ async function seedDatabase() {
     // STATUS DE TALLER
     console.log('Sembrando Status de Taller...');
     await TallerStatus.bulkCreate([
-      { codigo: 'NO_INGRESADO', nombre: 'No Ingresado', activo: true },
+      { codigo: 'NO_INGRESO', nombre: 'No Ingresado', activo: true },
       { codigo: 'EN_TALLER', nombre: 'En Taller', activo: true },
-      { codigo: 'EN_REPARACION', nombre: 'En Reparación', activo: true },
+      { codigo: 'REPARANDO', nombre: 'En Reparación', activo: true },
       { codigo: 'FINALIZADO', nombre: 'Finalizado', activo: true },
       { codigo: 'ENTREGADO', nombre: 'Entregado', activo: true },
     ], { ignoreDuplicates: true });

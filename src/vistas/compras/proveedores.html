@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Proveedores - ERP HPyK</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="/src/components/navigation.js"></script>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <div id="nav-container"></div>
+
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-indigo-600 to-indigo-800 text-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold flex items-center">
+                        <i class="fas fa-truck mr-3"></i>
+                        Gestión de Proveedores
+                    </h1>
+                    <p class="text-indigo-100 mt-1">Directorio y Calificación de Proveedores</p>
+                </div>
+                <div class="flex gap-2">
+                    <a href="ordenes-compra.html" class="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg text-sm transition">
+                        <i class="fas fa-shopping-cart mr-2"></i>Órdenes de Compra
+                    </a>
+                    <a href="../logistica/index.html" class="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg text-sm transition">
+                        <i class="fas fa-home mr-2"></i>Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard KPIs -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+            <!-- Total Proveedores -->
+            <div class="bg-gradient-to-br from-blue-500 to-blue-700 rounded-lg shadow-lg p-4 text-white">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-blue-100 text-sm font-medium">Total Proveedores</p>
+                        <p class="text-3xl font-bold mt-1" id="total-proveedores">0</p>
+                        <p class="text-blue-100 text-xs mt-1">Registrados</p>
+                    </div>
+                    <div class="bg-white/20 rounded-full p-3">
+                        <i class="fas fa-building text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Proveedores Activos -->
+            <div class="bg-gradient-to-br from-green-500 to-green-700 rounded-lg shadow-lg p-4 text-white cursor-pointer hover:scale-105 transition" onclick="filtrarEstado('activo')">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-green-100 text-sm font-medium">Activos</p>
+                        <p class="text-3xl font-bold mt-1" id="proveedores-activos">0</p>
+                        <p class="text-green-100 text-xs mt-1">Operativos</p>
+                    </div>
+                    <div class="bg-white/20 rounded-full p-3">
+                        <i class="fas fa-check-circle text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Proveedores Inactivos -->
+            <div class="bg-gradient-to-br from-gray-500 to-gray-700 rounded-lg shadow-lg p-4 text-white cursor-pointer hover:scale-105 transition" onclick="filtrarEstado('inactivo')">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-100 text-sm font-medium">Inactivos</p>
+                        <p class="text-3xl font-bold mt-1" id="proveedores-inactivos">0</p>
+                        <p class="text-gray-100 text-xs mt-1">Sin operaciones</p>
+                    </div>
+                    <div class="bg-white/20 rounded-full p-3">
+                        <i class="fas fa-pause-circle text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Calificación Promedio -->
+            <div class="bg-gradient-to-br from-yellow-500 to-yellow-700 rounded-lg shadow-lg p-4 text-white">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-yellow-100 text-sm font-medium">Calificación</p>
+                        <p class="text-3xl font-bold mt-1" id="calificacion-promedio">0.0</p>
+                        <p class="text-yellow-100 text-xs mt-1">Promedio general</p>
+                    </div>
+                    <div class="bg-white/20 rounded-full p-3">
+                        <i class="fas fa-star text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Días Crédito Promedio -->
+            <div class="bg-gradient-to-br from-purple-500 to-purple-700 rounded-lg shadow-lg p-4 text-white">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-purple-100 text-sm font-medium">Crédito Promedio</p>
+                        <p class="text-3xl font-bold mt-1" id="credito-promedio">0</p>
+                        <p class="text-purple-100 text-xs mt-1">Días</p>
+                    </div>
+                    <div class="bg-white/20 rounded-full p-3">
+                        <i class="fas fa-calendar-alt text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="bg-white rounded-lg shadow-lg">
+            <!-- Header -->
+            <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+                <h2 class="text-xl font-bold text-gray-800">
+                    <i class="fas fa-list text-indigo-600 mr-2"></i>
+                    Directorio de Proveedores
+                </h2>
+                <button onclick="showNewProveedorForm()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg transition flex items-center gap-2">
+                    <i class="fas fa-plus"></i>
+                    Nuevo Proveedor
+                </button>
+            </div>
+
+            <!-- Filters -->
+            <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                    <div class="md:col-span-2">
+                        <input type="text" id="search-proveedor" placeholder="🔍 Buscar por RUC, razón social, nombre comercial..." 
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                               oninput="filterProveedores()">
+                    </div>
+                    <div>
+                        <select id="filter-categoria" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" onchange="filterProveedores()">
+                            <option value="">Todas las Categorías</option>
+                            <option value="materiales">Materiales</option>
+                            <option value="herramientas">Herramientas</option>
+                            <option value="consumibles">Consumibles</option>
+                            <option value="servicios">Servicios</option>
+                            <option value="equipos">Equipos</option>
+                            <option value="transporte">Transporte</option>
+                        </select>
+                    </div>
+                    <div>
+                        <select id="filter-estado" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" onchange="filterProveedores()">
+                            <option value="">Todos los Estados</option>
+                            <option value="activo">Activos</option>
+                            <option value="inactivo">Inactivos</option>
+                        </select>
+                    </div>
+                    <div>
+                        <button onclick="clearFilters()" class="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg transition">
+                            <i class="fas fa-times mr-2"></i>Limpiar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Table -->
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">RUC/NIT</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Razón Social</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Categoría</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Contacto</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Teléfono</th>
+                            <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Calificación</th>
+                            <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Crédito</th>
+                            <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Estado</th>
+                            <th class="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="proveedores-table" class="bg-white divide-y divide-gray-200">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Export -->
+            <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex items-center justify-between">
+                <div class="text-sm text-gray-600">
+                    <span id="total-registros">0</span> registros encontrados
+                </div>
+                <button onclick="exportarProveedores()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition flex items-center gap-2">
+                    <i class="fas fa-file-excel"></i>
+                    Exportar a Excel
+                </button>
+            </div>
+        </div>
+
+        <!-- Top Proveedores -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+            <!-- Mejor Calificados -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-trophy text-yellow-500 mr-2"></i>
+                    Top 5 Mejor Calificados
+                </h3>
+                <div id="top-calificados" class="space-y-3">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <!-- Más Usados -->
+            <div class="bg-white rounded-lg shadow-lg p-6">
+                <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
+                    <i class="fas fa-chart-line text-blue-500 mr-2"></i>
+                    Top 5 Más Utilizados
+                </h3>
+                <div id="top-utilizados" class="space-y-3">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Nuevo/Editar Proveedor -->
+    <div id="modal-proveedor" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="bg-indigo-600 text-white px-6 py-4 rounded-t-lg">
+                <h3 class="text-xl font-bold" id="modal-prov-title">Nuevo Proveedor</h3>
+            </div>
+            <form id="form-proveedor" class="p-6">
+                <!-- Información General -->
+                <div class="mb-6">
+                    <h4 class="text-lg font-bold text-gray-800 mb-3 flex items-center">
+                        <i class="fas fa-info-circle text-indigo-600 mr-2"></i>
+                        Información General
+                    </h4>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">RUC/NIT *</label>
+                            <input type="text" id="prov-ruc" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="20123456789">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Razón Social *</label>
+                            <input type="text" id="prov-razon-social" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="Empresa S.A.C.">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Nombre Comercial</label>
+                            <input type="text" id="prov-nombre-comercial" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="Nombre comercial o marca">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Categoría *</label>
+                            <select id="prov-categoria" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                                <option value="">Seleccione...</option>
+                                <option value="materiales">Materiales</option>
+                                <option value="herramientas">Herramientas</option>
+                                <option value="consumibles">Consumibles</option>
+                                <option value="servicios">Servicios</option>
+                                <option value="equipos">Equipos</option>
+                                <option value="transporte">Transporte</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Información de Contacto -->
+                <div class="mb-6">
+                    <h4 class="text-lg font-bold text-gray-800 mb-3 flex items-center">
+                        <i class="fas fa-address-book text-indigo-600 mr-2"></i>
+                        Información de Contacto
+                    </h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Nombre de Contacto *</label>
+                            <input type="text" id="prov-contacto" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="Juan Pérez">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Teléfono *</label>
+                            <input type="tel" id="prov-telefono" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="+51 999 999 999">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Email *</label>
+                            <input type="email" id="prov-email" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="contacto@empresa.com">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Teléfono Alternativo</label>
+                            <input type="tel" id="prov-telefono-alt" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="Opcional">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Dirección *</label>
+                            <input type="text" id="prov-direccion" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="Av. Principal 123, Lima">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Ciudad</label>
+                            <input type="text" id="prov-ciudad" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="Lima">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">País</label>
+                            <input type="text" id="prov-pais" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="Perú">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Condiciones Comerciales -->
+                <div class="mb-6">
+                    <h4 class="text-lg font-bold text-gray-800 mb-3 flex items-center">
+                        <i class="fas fa-handshake text-indigo-600 mr-2"></i>
+                        Condiciones Comerciales
+                    </h4>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Días de Crédito</label>
+                            <input type="number" id="prov-dias-credito" min="0" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="30">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Tiempo Entrega (días)</label>
+                            <input type="number" id="prov-tiempo-entrega" min="0" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="7">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Calificación (1-5)</label>
+                            <input type="number" id="prov-calificacion" min="1" max="5" step="0.1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="5.0">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Banco</label>
+                            <input type="text" id="prov-banco" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="BCP">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Cuenta Bancaria</label>
+                            <input type="text" id="prov-cuenta" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="191-1234567-0-00">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Estado *</label>
+                            <select id="prov-estado" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                                <option value="activo">Activo</option>
+                                <option value="inactivo">Inactivo</option>
+                            </select>
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Página Web</label>
+                            <input type="url" id="prov-web" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="https://www.empresa.com">
+                        </div>
+                        <div class="md:col-span-3">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Observaciones</label>
+                            <textarea id="prov-observaciones" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500" placeholder="Notas adicionales..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex gap-3 mt-6">
+                    <button type="submit" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-lg transition font-medium">
+                        <i class="fas fa-save mr-2"></i>Guardar
+                    </button>
+                    <button type="button" onclick="closeProveedorModal()" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 px-6 py-2 rounded-lg transition font-medium">
+                        <i class="fas fa-times mr-2"></i>Cancelar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="hidden fixed top-4 right-4 px-6 py-4 rounded-lg shadow-lg z-50">
+        <div class="flex items-center gap-2">
+            <i class="fas fa-check-circle text-xl"></i>
+            <span id="toastMessage"></span>
+        </div>
+    </div>
+
+    <script src="/src/vistas/compras/proveedores.js"></script>
+</body>
+</html>

@@ -5,6 +5,7 @@ import * as movimientoController from '../controllers/logistica/movimientoContro
 import * as ordenCompraController from '../controllers/logistica/ordenCompraController';
 import * as compraController from '../controllers/logistica/compraController';
 import * as inventarioController from '../controllers/logistica/inventarioController';
+import * as herramientaController from '../controllers/logistica/herramientaController';
 
 const router = Router();
 
@@ -36,6 +37,13 @@ router.post('/compras', ordenCompraController.createOrdenCompra);
 router.put('/compras/:id', ordenCompraController.updateOrdenCompra);
 router.delete('/compras/:id', ordenCompraController.deleteOrdenCompra);
 
+// === NUEVA VISTA DE ÓRDENES DE COMPRA (Basada en interfaz moderna) ===
+// Vista moderna con filtros y paginación
+router.get('/ordenes-compra', ordenCompraController.getAllOrdenesCompra);
+router.post('/ordenes-compra', ordenCompraController.createOrdenCompraView);
+router.get('/ordenes-compra/export', ordenCompraController.exportarOrdenesExcel);
+router.get('/ordenes-compra/stats', ordenCompraController.getEstadisticasOrdenes);
+
 // === ÓRDENES DE COMPRA DESDE OT (Nuevo módulo de integración OT-Repuestos-PO) ===
 // Generar Order de Compra desde repuestos de una OT
 router.post('/compras/from-ot', compraController.createCompraFromOT);
@@ -55,5 +63,14 @@ router.get('/inventario-valorizado', inventarioController.getInventarioValorizad
 
 // Obtener resumen de inventario
 router.get('/inventario-resumen', inventarioController.getResumenInventario);
+
+// === HERRAMIENTAS (Recursos de Inventario) ===
+router.get('/herramientas', herramientaController.getAllHerramientas);
+router.get('/herramientas/:id', herramientaController.getHerramientaById);
+router.post('/herramientas', herramientaController.createHerramienta);
+router.put('/herramientas/:id', herramientaController.updateHerramienta);
+router.delete('/herramientas/:id', herramientaController.deleteHerramienta);
+router.post('/herramientas/:id/checkout', herramientaController.checkOutHerramienta);
+router.post('/herramientas/:id/checkin', herramientaController.checkInHerramienta);
 
 export default router;

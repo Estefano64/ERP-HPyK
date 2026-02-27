@@ -166,7 +166,7 @@ Los estilos del menú están en `nav-menu.html`. Para cambios globales:
 
 ## Archivos Convertidos
 
-✅ **Completados:**
+**Completados:**
 - `/vistas/catalogo/areas.html`
 - `/vistas/logistica/materiales.html` (en progreso)
 

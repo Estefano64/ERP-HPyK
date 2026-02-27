@@ -1,0 +1,687 @@
+-- =====================================================
+-- ESTRUCTURA DE TABLAS PARA ERP DE TALLER DE REPARACIONES
+-- =====================================================
+
+-- =====================================================
+-- 1. TABLAS MAESTRAS BÁSICAS (CATÁLOGOS)
+-- =====================================================
+
+-- Tabla: plantas
+CREATE TABLE plantas (
+    id SERIAL PRIMARY KEY,
+    codigo VARCHAR(7) UNIQUE NOT NULL,
+    descripcion VARCHAR(100) NOT NULL,
+    activo BOOLEAN DEFAULT true,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Tabla: areas
+CREATE TABLE areas (
+    id SERIAL PRIMARY KEY,
+    codigo VARCHAR(2) UNIQUE NOT NULL,
+    descripcion VARCHAR(50) NOT NULL,
+    activo BOOLEAN DEFAULT true
+);
+
+-- Tabla: categorias_material
+CREATE TABLE categorias_material (
+    id SERIAL PRIMARY KEY,
+    codigo VARCHAR(3) UNIQUE NOT NULL,
+    descripcion VARCHAR(50) NOT NULL,
+    observacion VARCHAR(100),
+    activo BOOLEAN DEFAULT true
+);
+
+-- Tabla: clasificaciones
+CREATE TABLE clasificaciones (
+    id SERIAL PRIMARY KEY,
+    codigo VARCHAR(4) UNIQUE NOT NULL,
+    descripcion VARCHAR(100) NOT NULL,
+    activo BOOLEAN DEFAULT true
+);
+
+-- Tabla: unidades_medida
+CREATE TABLE unidades_medida (
+    id SERIAL PRIMARY KEY,
+    codigo VARCHAR(3) UNIQUE NOT NULL,
+    descripcion VARCHAR(50) NOT NULL,
+    activo BOOLEAN DEFAULT true
+);
+
+-- Tabla: fabricantes
+CREATE TABLE fabricantes (
+    id SERIAL PRIMARY KEY,
+    codigo VARCHAR(20) UNIQUE NOT NULL,
+    nombre VARCHAR(100) NOT NULL,
+    activo BOOLEAN DEFAULT true
+);
+
+-- Tabla: monedas
+CREATE TABLE monedas (
+    id SERIAL PRIMARY KEY,
+    codigo VARCHAR(3) UNIQUE NOT NULL,
+    descripcion VARCHAR(20) NOT NULL,
+    simbolo VARCHAR(1),
+    activo BOOLEAN DEFAULT true
+);
+
+-- =====================================================
+-- 2. MÓDULO DE INVENTARIO (MATERIALES)
+-- =====================================================
+
+-- Tabla: materiales (corresponde a 1 Log - material.xlsx)
+CREATE TABLE materiales (
+    id SERIAL PRIMARY KEY,
+    codigo_material DECIMAL(10,1),
+    descripcion_compuesta TEXT,
+    descripcion TEXT,
+    planta_id INTEGER REFERENCES plantas(id),
+    area_id INTEGER REFERENCES areas(id),
+    categoria_id INTEGER REFERENCES categorias_material(id),
+    clasificacion_id INTEGER REFERENCES clasificaciones(id),
+    punto_reposicion DECIMAL(10,2),
+    stock_maximo DECIMAL(10,2),
+    unidad_medida_id INTEGER REFERENCES unidades_medida(id),
+    plazo_entrega INTEGER,
+    precio DECIMAL(15,4),
+    moneda_id INTEGER REFERENCES monedas(id),
+    fabricante_id INTEGER REFERENCES fabricantes(id),
+    np VARCHAR(100),
+    stock_actual DECIMAL(10,2) DEFAULT 0,
+    ubicacion VARCHAR(50),
+    activo BOOLEAN DEFAULT true,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Tabla: movimientos_inventario (control de entradas/salidas)
+CREATE TABLE movimientos_inventario (
+    id SERIAL PRIMARY KEY,
+    material_id INTEGER REFERENCES materiales(id),
+    tipo_movimiento VARCHAR(10) CHECK (tipo_movimiento IN ('ENTRADA', 'SALIDA', 'AJUSTE')),
+    cantidad DECIMAL(10,2) NOT NULL,
+    documento_referencia VARCHAR(50),
+    observacion TEXT,
+    usuario VARCHAR(50),
+    fecha_movimiento TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- =====================================================
+-- 3. MÓDULO DE ACTIVOS (EQUIPOS Y HERRAMIENTAS)
+-- =====================================================
+
+-- Tabla: sub_areas
+CREATE TABLE sub_areas (
+    id SERIAL PRIMARY KEY,
+    codigo VARCHAR(3) UNIQUE NOT NULL,
+    descripcion VARCHAR(100) NOT NULL
+);
+
+-- Tabla: tipos_equipo
+CREATE TABLE tipos_equipo (
+    id SERIAL PRIMARY KEY,
+    codigo VARCHAR(3) UNIQUE NOT NULL,
+    descripcion VARCHAR(50) NOT NULL
+);
+
+-- Tabla: criticidades
+CREATE TABLE criticidades (
+    id SERIAL PRIMARY KEY,
+    codigo DECIMAL(2,1) UNIQUE NOT NULL,
+    descripcion VARCHAR(20) NOT NULL
+);
+
+-- Tabla: equipos (corresponde a 2 Mant - equipos y Herramientos.xlsx)
+CREATE TABLE equipos (
+    id SERIAL PRIMARY KEY,
+    usuario VARCHAR(50),
+    equipo VARCHAR(100),
+    descripcion TEXT,
+    status VARCHAR(3) CHECK (status IN ('OPE', 'INO', 'REP', 'STD', 'BAJ')),
+    area_id INTEGER REFERENCES areas(id),
+    sub_area_id INTEGER REFERENCES sub_areas(id),
+    tipo_id INTEGER REFERENCES tipos_equipo(id),
+    fecha_inicio DATE,
+    fecha_fabricacion DATE,
+    fabricante_id INTEGER REFERENCES fabricantes(id),
+    modelo VARCHAR(100),
+    nserie VARCHAR(100),
+    np VARCHAR(100),
+    capacidad DECIMAL(10,2),
+    unidad_medida_id INTEGER REFERENCES unidades_medida(id),
+    texto TEXT,
+    planta_id INTEGER REFERENCES plantas(id),
+    criticidad_id INTEGER REFERENCES criticidades(id)
+);
+
+-- =====================================================
+-- 4. MÓDULO DE COMPONENTES (COD REP)
+-- =====================================================
+
+-- Tabla: tipos_componente (de 5. Cod Rep.xlsx - Tipo)
+CREATE TABLE tipos_componente (
+    id SERIAL PRIMARY KEY,
+    codigo VARCHAR(3) UNIQUE NOT NULL,
+    descripcion VARCHAR(50) NOT NULL
+);
+
+-- Tabla: categorias_flota (de 5. Cod Rep.xlsx - Categoría)
+CREATE TABLE categorias_flota (
+    id SERIAL PRIMARY KEY,
+    codigo VARCHAR(3) UNIQUE NOT NULL,
+    descripcion VARCHAR(50) NOT NULL
+);
+
+-- Tabla: flotas (modelos de máquinas)
+CREATE TABLE flotas (
+    id SERIAL PRIMARY KEY,
+    codigo VARCHAR(20) UNIQUE NOT NULL,
+    descripcion VARCHAR(100),
+    categoria_id INTEGER REFERENCES categorias_flota(id)
+);
+
+-- Tabla: posiciones
+CREATE TABLE posiciones (
+    id SERIAL PRIMARY KEY,
+    codigo VARCHAR(3) UNIQUE NOT NULL,
+    descripcion VARCHAR(50) NOT NULL
+);
+
+-- Tabla: componentes_maestros (corresponde a 5. Cod Rep.xlsx - Cod Rep)
+CREATE TABLE componentes_maestros (
+    id SERIAL PRIMARY KEY,
+    codigo_rep VARCHAR(50) UNIQUE,
+    usuario VARCHAR(50),
+    descripcion VARCHAR(200) NOT NULL,
+    tipo_componente_id INTEGER REFERENCES tipos_componente(id),
+    categoria_flota_id INTEGER REFERENCES categorias_flota(id),
+    flota_id INTEGER REFERENCES flotas(id),
+    fabricante_id INTEGER REFERENCES fabricantes(id),
+    np VARCHAR(100),
+    posicion_id INTEGER REFERENCES posiciones(id),
+    precio_referencia DECIMAL(15,4),
+    activo BOOLEAN DEFAULT true
+);
+
+-- =====================================================
+-- 5. MÓDULO DE LISTAS DE MATERIALES (BOM)
+-- =====================================================
+
+-- Tabla: listas_materiales (corresponde a 4. Log prod - Task list materiales.xlsx)
+CREATE TABLE listas_materiales (
+    id SERIAL PRIMARY KEY,
+    usuario VARCHAR(50),
+    actividad VARCHAR(100),
+    cod_rep VARCHAR(50),
+    np_cod1 VARCHAR(100),
+    np_cod2 VARCHAR(100),
+    id_tubo VARCHAR(50),
+    od_vas VARCHAR(50),
+    descripcion TEXT,
+    item INTEGER,
+    tipo VARCHAR(3) CHECK (tipo IN ('MAC', 'CAD', 'SER')),
+    material_id INTEGER REFERENCES materiales(id),
+    requerimiento DECIMAL(10,2),
+    ref_descripcion VARCHAR(200),
+    np VARCHAR(100),
+    texto TEXT,
+    precio DECIMAL(15,4),
+    componente_maestro_id INTEGER REFERENCES componentes_maestros(id)
+);
+
+CREATE INDEX idx_listas_materiales_cod_rep ON listas_materiales(cod_rep);
+
+-- =====================================================
+-- 6. MÓDULO DE ESTRATEGIAS DE MANTENIMIENTO
+-- =====================================================
+
+-- Tabla: tipo_estrategias
+CREATE TABLE tipo_estrategias (
+    id SERIAL PRIMARY KEY,
+    codigo VARCHAR(2) UNIQUE NOT NULL,
+    descripcion VARCHAR(50) NOT NULL
+);
+
+-- Tabla: estrategias (corresponde a 3. Todos - Estrategias.xlsx)
+CREATE TABLE estrategias (
+    id SERIAL PRIMARY KEY,
+    usuario VARCHAR(50),
+    estrategia VARCHAR(200),
+    area_id INTEGER REFERENCES areas(id),
+    equipo VARCHAR(100),
+    actividad TEXT,
+    frecuencia DECIMAL(10,2),
+    unidad_medida_id INTEGER REFERENCES unidades_medida(id),
+    descripcion_estrategia TEXT,
+    tipo_estrategia_id INTEGER REFERENCES tipo_estrategias(id),
+    status VARCHAR(2) CHECK (status IN ('AC', 'PR', 'EL'))
+);
+
+-- =====================================================
+-- 7. MÓDULO DE ÓRDENES DE TRABAJO (OT)
+-- =====================================================
+
+-- Tabla: clientes (de 6. Ots.xlsx - Cliente)
+CREATE TABLE clientes (
+    id SERIAL PRIMARY KEY,
+    codigo VARCHAR(20) UNIQUE NOT NULL,
+    nombre_completo VARCHAR(200) NOT NULL,
+    ruc VARCHAR(11),
+    direccion TEXT,
+    telefono VARCHAR(20),
+    contacto VARCHAR(100),
+    activo BOOLEAN DEFAULT true
+);
+
+-- Tablas de estado para OT
+CREATE TABLE ot_status (
+    id SERIAL PRIMARY KEY,
+    nombre VARCHAR(50) UNIQUE NOT NULL
+);
+
+CREATE TABLE recursos_status (
+    id SERIAL PRIMARY KEY,
+    nombre VARCHAR(50) UNIQUE NOT NULL
+);
+
+CREATE TABLE taller_status (
+    id SERIAL PRIMARY KEY,
+    nombre VARCHAR(50) UNIQUE NOT NULL
+);
+
+-- Tabla: atencion_reparacion (tipos de atención)
+CREATE TABLE atencion_reparacion (
+    id SERIAL PRIMARY KEY,
+    codigo VARCHAR(20) UNIQUE NOT NULL,
+    descripcion TEXT
+);
+
+-- Tabla: tipo_reparacion
+CREATE TABLE tipo_reparacion (
+    id SERIAL PRIMARY KEY,
+    codigo VARCHAR(20) UNIQUE NOT NULL,
+    descripcion TEXT
+);
+
+-- Tabla: tipo_garantia
+CREATE TABLE tipo_garantia (
+    id SERIAL PRIMARY KEY,
+    codigo VARCHAR(20) UNIQUE NOT NULL,
+    descripcion TEXT
+);
+
+-- Tabla: prioridades_atencion
+CREATE TABLE prioridades_atencion (
+    id SERIAL PRIMARY KEY,
+    codigo VARCHAR(5) UNIQUE NOT NULL,
+    descripcion VARCHAR(50) NOT NULL
+);
+
+-- Tabla: ordenes_trabajo (corresponde a 6. Ots.xlsx - Sheet1)
+CREATE TABLE ordenes_trabajo (
+    id SERIAL PRIMARY KEY,
+    ot_numero VARCHAR(50) UNIQUE,
+    cliente_id INTEGER REFERENCES clientes(id),
+    estrategia BOOLEAN DEFAULT false,
+    cod_rep_id INTEGER REFERENCES componentes_maestros(id),
+    tipo VARCHAR(50),
+    np VARCHAR(100),
+    descripcion TEXT,
+    fabricante_id INTEGER REFERENCES fabricantes(id),
+    flota_id INTEGER REFERENCES flotas(id),
+    posicion_id INTEGER REFERENCES posiciones(id),
+    equipo VARCHAR(100),
+    ns VARCHAR(100),
+    plaqueteo VARCHAR(50),
+    wo_cliente VARCHAR(100),
+    po_cliente VARCHAR(100),
+    id_viajero VARCHAR(100),
+    guia_remision_llegada VARCHAR(100),
+    empresa_entrega VARCHAR(100),
+    fecha_recepcion DATE,
+    pcr DECIMAL(10,2),
+    horas_trabajadas DECIMAL(10,2) DEFAULT 0,
+    porcentaje_pcr DECIMAL(5,2) GENERATED ALWAYS AS (CASE WHEN pcr > 0 THEN (horas_trabajadas / pcr) * 100 ELSE 0 END) STORED,
+    garantia BOOLEAN DEFAULT false,
+    atencion_reparacion_id INTEGER REFERENCES atencion_reparacion(id),
+    tipo_reparacion_id INTEGER REFERENCES tipo_reparacion(id),
+    tipo_garantia_id INTEGER REFERENCES tipo_garantia(id),
+    prioridad_id INTEGER REFERENCES prioridades_atencion(id),
+    contrato_dias INTEGER,
+    base_metalica BOOLEAN DEFAULT false,
+    comentarios TEXT,
+    fecha_requerimiento_cliente DATE,
+    ot_status_id INTEGER REFERENCES ot_status(id),
+    recursos_status_id INTEGER REFERENCES recursos_status(id),
+    taller_status_id INTEGER REFERENCES taller_status(id),
+    created_by VARCHAR(50),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- =====================================================
+-- 8. PLANIFICACIÓN DE TALLER (RUTAS DE TRABAJO)
+-- =====================================================
+
+-- Tabla: tipo_operacion (de Tablas de planificacion.xlsx)
+CREATE TABLE tipo_operacion (
+    id SERIAL PRIMARY KEY,
+    codigo VARCHAR(10) UNIQUE NOT NULL,
+    descripcion VARCHAR(100) NOT NULL,
+    area_trabajo VARCHAR(20)
+);
+
+-- Tabla: operaciones_estandar
+CREATE TABLE operaciones_estandar (
+    id SERIAL PRIMARY KEY,
+    tipo_operacion_id INTEGER REFERENCES tipo_operacion(id),
+    estandar BOOLEAN DEFAULT true,
+    descripcion_completa TEXT,
+    horas_estimadas DECIMAL(8,2),
+    especialidad VARCHAR(50)
+);
+
+-- Tabla: rutas_trabajo (operaciones planificadas para una OT)
+CREATE TABLE rutas_trabajo (
+    id SERIAL PRIMARY KEY,
+    orden_trabajo_id INTEGER REFERENCES ordenes_trabajo(id),
+    operacion_id INTEGER REFERENCES tipo_operacion(id),
+    secuencia INTEGER,
+    descripcion TEXT,
+    horas_estimadas DECIMAL(8,2),
+    horas_reales DECIMAL(8,2),
+    fecha_inicio DATE,
+    fecha_fin DATE,
+    responsable VARCHAR(100),
+    estado VARCHAR(20) DEFAULT 'PENDIENTE'
+);
+
+-- =====================================================
+-- 9. TABLAS DE RELACIÓN Y LOGS
+-- =====================================================
+
+-- Tabla: materiales_por_ot (materiales solicitados para una OT)
+CREATE TABLE materiales_por_ot (
+    id SERIAL PRIMARY KEY,
+    orden_trabajo_id INTEGER REFERENCES ordenes_trabajo(id),
+    material_id INTEGER REFERENCES materiales(id),
+    cantidad_requerida DECIMAL(10,2),
+    cantidad_entregada DECIMAL(10,2) DEFAULT 0,
+    precio_unitario DECIMAL(15,4),
+    estado VARCHAR(20) DEFAULT 'PENDIENTE',
+    fecha_requerimiento DATE,
+    fecha_entrega DATE,
+    observacion TEXT
+);
+
+-- Tabla: historial_estados_ot (tracking de cambios de estado)
+CREATE TABLE historial_estados_ot (
+    id SERIAL PRIMARY KEY,
+    orden_trabajo_id INTEGER REFERENCES ordenes_trabajo(id),
+    ot_status_id INTEGER REFERENCES ot_status(id),
+    recursos_status_id INTEGER REFERENCES recursos_status(id),
+    taller_status_id INTEGER REFERENCES taller_status(id),
+    usuario VARCHAR(50),
+    comentario TEXT,
+    fecha_cambio TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- =====================================================
+-- 10. INSERCIÓN DE DATOS DE EJEMPLO (TABLAS MAESTRAS)
+-- =====================================================
+
+-- Insertar plantas
+INSERT INTO plantas (codigo, descripcion) VALUES 
+('AQPTA01', 'Taller de reparacion Arequipa');
+
+-- Insertar areas
+INSERT INTO areas (codigo, descripcion) VALUES 
+('PR', 'Producción'),
+('SG', 'Seguridad'),
+('LG', 'Logistica'),
+('MT', 'Mantenimiento'),
+('AD', 'Administración');
+
+-- Insertar categorias de material
+INSERT INTO categorias_material (codigo, descripcion, observacion) VALUES 
+('CON', 'Consumible', NULL),
+('CRI', 'Crítico', NULL),
+('REP', 'Repuesto', NULL),
+('CAP', 'Capital', '>$5,000'),
+('OBS', 'Obsoleto', 'baja'),
+('FAB', 'Fabricado', NULL);
+
+-- Insertar clasificaciones
+INSERT INTO clasificaciones (codigo, descripcion) VALUES 
+('KITS', 'Kit de sellos'),
+('ROTU', 'Rótulas'),
+('LIMP', 'Limpiadores'),
+('COJI', 'Cojinete'),
+('SELL', 'Sellos'),
+('BARR', 'Barras'),
+('TUBO', 'Tubos'),
+('PERN', 'Pernos'),
+('ARAN', 'Arandelas'),
+('TUER', 'Tuercas'),
+('DISC', 'Discos'),
+('SENS', 'Sensores'),
+('GUIA', 'Guia'),
+('TAPO', 'Tapon'),
+('INSE', 'Insertos'),
+('SUMI', 'Suministros'),
+('TAPA', 'Tapa'),
+('EPPS', 'Equipo de seguridad'),
+('UNIF', 'Uniformes'),
+('SEGU', 'Seguros'),
+('ACER', 'Acero'),
+('BLAD', 'Bladder'),
+('ACEI', 'Aceite');
+
+-- Insertar unidades de medida
+INSERT INTO unidades_medida (codigo, descripcion) VALUES 
+('mm', 'Milímetro'),
+('cm', 'Centímetro'),
+('m', 'Metro'),
+('in', 'Pulgada'),
+('kg', 'Kilogramo'),
+('t', 'Tonelada'),
+('h', 'Hora'),
+('m2', 'Metro cuadrado'),
+('m3', 'Metro cubico'),
+('lt', 'litro'),
+('gl', 'galones'),
+('und', 'unidad'),
+('cil', 'cilindro'),
+('año', 'año'),
+('mes', 'mes'),
+('dia', 'dia'),
+('km', 'Kilometros'),
+('amp', 'Amperaje'),
+('lbf', 'Libras Fuerza');
+
+-- Insertar fabricantes
+INSERT INTO fabricantes (codigo, nombre) VALUES 
+('CATERPILLAR', 'Caterpillar'),
+('KOMATSU', 'Komatsu'),
+('ALTERNATIVO', 'Alternativo'),
+('MACHEN', 'Machen'),
+('CAT', 'Caterpillar'),
+('KOM', 'Komatsu'),
+('EPIROC', 'Epiroc');
+
+-- Insertar monedas
+INSERT INTO monedas (codigo, descripcion, simbolo) VALUES 
+('USD', 'Dólar', '$'),
+('SOL', 'Soles', 'S/');
+
+-- Insertar sub_areas
+INSERT INTO sub_areas (codigo, descripcion) VALUES 
+('EVA', 'Evaluación'),
+('BRU', 'Bruñido'),
+('SOL', 'Soldadura'),
+('MAQ', 'Maquinado'),
+('PIN', 'Pintura'),
+('CRO', 'Cromado'),
+('HER', 'Herramientas'),
+('EQP', 'Equipos'),
+('VEH', 'Vehículos'),
+('INF', 'Infraestructura'),
+('ASU', 'Almacén de Suministros'),
+('ARE', 'Almacén de Repuestos');
+
+-- Insertar tipos de equipo
+INSERT INTO tipos_equipo (codigo, descripcion) VALUES 
+('HER', 'Herramientas'),
+('EQP', 'Equipos'),
+('VEH', 'Vehiculos'),
+('INF', 'Infraestructura'),
+('MAQ', 'Maquinas');
+
+-- Insertar criticidades
+INSERT INTO criticidades (codigo, descripcion) VALUES 
+(1.0, 'Alta'),
+(2.0, 'Media'),
+(3.0, 'Baja');
+
+-- Insertar tipos de componente
+INSERT INTO tipos_componente (codigo, descripcion) VALUES 
+('CIL', 'Cilindro'),
+('RUE', 'Rueda'),
+('ENR', 'Enrrollador'),
+('FRE', 'Frenos'),
+('LIN', 'Links'),
+('ACU', 'Acumulador');
+
+-- Insertar categorias de flota
+INSERT INTO categorias_flota (codigo, descripcion) VALUES 
+('CAM', 'Camion'),
+('MOT', 'Motoniveladora'),
+('TRU', 'Tractor de ruedas'),
+('TOR', 'Tractor de orugas'),
+('EXC', 'Excavadora'),
+('PAL', 'Pala');
+
+-- Insertar posiciones
+INSERT INTO posiciones (codigo, descripcion) VALUES 
+('LH', 'Izquierda'),
+('RH', 'Derecha'),
+('NA', 'No Afecta'),
+('DEL', 'Delantero'),
+('POS', 'Posterior');
+
+-- Insertar tipos de estrategia
+INSERT INTO tipo_estrategias (codigo, descripcion) VALUES 
+('CC', 'Cambio de componente'),
+('MP', 'Mantenimiento preventivo'),
+('RP', 'Reparación'),
+('SG', 'Seguridad'),
+('IN', 'Inspección'),
+('AU', 'Auditoria'),
+('ME', 'Mejora'),
+('CR', 'Control crítico');
+
+-- Insertar clientes
+INSERT INTO clientes (codigo, nombre_completo) VALUES 
+('SPCC Cua', 'Minera Southern Peru Cuajone'),
+('SPCC Toq', 'Minera Southern Peru Toquepala'),
+('SPCC Ilo', 'Refineria Southern Peru Ilo'),
+('Cerro Verde', 'Minera Cerro Verde'),
+('Antapaccay', 'Minera Antapaccay'),
+('Las Bambas', 'Minera Las Bambas'),
+('Chinalco', 'Minera Chinalco'),
+('Quellaveco', 'Minera Quellaveco'),
+('Unimaq', 'Empresa Unimaq'),
+('Triton', 'Empresa Triton'),
+('Peru Rail', 'Empresa Peru Rail'),
+('Hudbay', 'Minera Hudbay'),
+('Cosapi', 'Empresa Cosapi'),
+('Inkabor', 'Empresa Inkabor'),
+('OWM Peru', 'Empresa OWM Peru'),
+('ICC', 'Empresa ICC');
+
+-- Insertar estados de OT
+INSERT INTO ot_status (nombre) VALUES 
+('Abierta'),
+('Cerrada'),
+('No Ejecutada');
+
+-- Insertar estados de recursos
+INSERT INTO recursos_status (nombre) VALUES 
+('En revision procesos'),
+('Recursos solicitados'),
+('En cotización'),
+('En aprobación'),
+('En espera de recursos'),
+('Recursos completos');
+
+-- Insertar estados de taller
+INSERT INTO taller_status (nombre) VALUES 
+('Pdt Evaluación'),
+('Programado Evaluación'),
+('Pdt proceso'),
+('Programado Proceso'),
+('Terminado'),
+('Entregado'),
+('Cobranza');
+
+-- Insertar tipos de atención reparación
+INSERT INTO atencion_reparacion (codigo, descripcion) VALUES 
+('Contrato', 'Tiene contrato de reparación, solo si tiene adicionales se para por aprobación sino continua.'),
+('Presupuesto', 'Necesita aprobación del cliente despues de evaluación.'),
+('Emergencia', 'No se necesita aprobaciones.');
+
+-- Insertar tipos de reparación
+INSERT INTO tipo_reparacion (codigo, descripcion) VALUES 
+('General', 'reparación a 0 horas'),
+('Parcial', 'reparación para llegar al PCR'),
+('Eval & Lim', 'Componente sin trabajo, para evaluar'),
+('Vestido', 'Componente llega por partes solo para ensamble');
+
+-- Insertar tipos de garantía
+INSERT INTO tipo_garantia (codigo, descripcion) VALUES 
+('Cliente', 'No es garantia (operacional, etc).'),
+('Por definir', 'En proceso'),
+('HPK', 'Responsable HPK'),
+('Comercial', 'No es garantia, pero se acepta para mantener los buenos lazos');
+
+-- Insertar prioridades de atención
+INSERT INTO prioridades_atencion (codigo, descripcion) VALUES 
+('1.0', 'Alta'),
+('2.0', 'Media'),
+('3.0', 'Baja'),
+('E', 'Emergencia');
+
+-- Insertar tipos de operación (de Tablas de planificacion.xlsx)
+INSERT INTO tipo_operacion (codigo, descripcion, area_trabajo) VALUES 
+('RELC', 'Rellenado de alojamiento de cilindro', 'CILINDRO'),
+('BARC', 'Barrenado de alojamiento de cilindro', 'CILINDRO'),
+('BRUC', 'Bruñido de cilindro', 'CILINDRO'),
+('COR-C', 'Corte de cilindro', 'CILINDRO'),
+('MAQ-ENBC', 'Maq. Encastre de brida', 'CILINDRO'),
+('MAQ-ENCC', 'Maq. Encastre de cáncamo / tapa posterior', 'CILINDRO'),
+('ENC-TC', 'Encastre de tubo de cilindro', 'CILINDRO'),
+('SOL-JC', 'Soldadura de juntas de cilindro', 'CILINDRO'),
+('MAQ-DSALC', 'Maq. Diam. Salida de cilindro', 'CILINDRO'),
+('FAB-SC', 'Fab dados/soportes de cilindro', 'CILINDRO'),
+('SOLD SC', 'Sold. Dados soportes de cilindro', 'CILINDRO'),
+('FAB-BC', 'Fab bocina de cilindro', 'CILINDRO'),
+('RELV', 'Rellenado de alojamiento de vástago', 'VASTAGO'),
+('BARV', 'Barrenado de alojamiento de vástago', 'VASTAGO'),
+('CROV', 'Cromado de vástago', 'VASTAGO'),
+('COR-V', 'Corte de vástago', 'VASTAGO'),
+('ENC-CV', 'Encastre de cáncamo de vástago', 'VASTAGO'),
+('ENC-BV', 'Encastre de barra de vástago', 'VASTAGO'),
+('MAQ-EV', 'Maq. Espiga de vástago', 'VASTAGO'),
+('SOL-JV', 'Soldadura de Junta de vástago', 'VASTAGO'),
+('MAQ-SV', 'Maq. Soldadura de vástago', 'VASTAGO'),
+('FAB-BV', 'Fab bocina de vástago', 'VASTAGO'),
+('PUL-T', 'Pulido de tapa', 'TAPA'),
+('REC-T', 'Rectificado de tapa', 'TAPA'),
+('FAB-T', 'Fabricación de tapa', 'TAPA'),
+('PUL-P', 'Pulido de pistón', 'PISTON'),
+('REC-P', 'Rectificado de pistón', 'PISTON'),
+('FAB-P', 'Fabricación de pistón', 'PISTON');
+
+-- =====================================================
+-- FIN DE LA ESTRUCTURA
+-- =====================================================
