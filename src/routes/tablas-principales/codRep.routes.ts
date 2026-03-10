@@ -7,15 +7,18 @@
  */
 
 import { Router } from 'express';
-import * as registroReparacionController from '../../controllers/operativos/registroReparacionController';
+import * as codigoReparacionController from '../../controllers/mantenimiento/codigoReparacionController';
+import * as tareaController from '../../controllers/operativos/tareaController';
 
 const router = Router();
 
 // CRUD completo de códigos de reparación
-router.get('/', registroReparacionController.getAllRegistrosReparacion);
-router.get('/:id', registroReparacionController.getRegistroReparacionById);
-router.post('/', registroReparacionController.createRegistroReparacion);
-router.put('/:id', registroReparacionController.updateRegistroReparacion);
-router.delete('/:id', registroReparacionController.deleteRegistroReparacion);
+router.get('/', codigoReparacionController.getAllCodigosReparacion);
+// Task List de un CodRep (ANTES de /:id para evitar ambigüedad de Express)
+router.get('/:id/task-list', tareaController.getTaskListByCodRep);
+router.get('/:id', codigoReparacionController.getCodigoReparacionById);
+router.post('/', codigoReparacionController.createCodigoReparacion);
+router.put('/:id', codigoReparacionController.updateCodigoReparacion);
+router.delete('/:id', codigoReparacionController.deleteCodigoReparacion);
 
 export default router;

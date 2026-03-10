@@ -22,6 +22,8 @@ const router = Router();
 // CRUD completo de órdenes de trabajo
 router.get('/', ordenTrabajoController.getAllOrdenesTrabajo);
 router.get('/estadisticas', ordenTrabajoController.getEstadisticasOrdenesTrabajo);
+// Vista unificada de seguimiento — ANTES de /:id para no ser capturada como ID
+router.get('/produccion-tracking', ordenTrabajoController.getProduccionTracking);
 router.get('/:id', ordenTrabajoController.getOrdenTrabajoById);
 router.post('/', ordenTrabajoController.createOrdenTrabajo);
 router.put('/:id', ordenTrabajoController.updateOrdenTrabajo);
@@ -30,6 +32,9 @@ router.delete('/:id', ordenTrabajoController.deleteOrdenTrabajo);
 // === REPUESTOS DE OT ===
 // Obtener repuestos de una OT específica
 router.get('/:otId/repuestos', otRepuestoController.getRepuestosByOT);
+
+// Auto-generar repuestos desde Task List del CodRep de la OT
+router.post('/:otId/repuestos/from-task-list', otRepuestoController.createRepuestosFromTaskList);
 
 // Crear repuestos para una OT (batch)
 router.post('/:otId/repuestos', otRepuestoController.createRepuestos);

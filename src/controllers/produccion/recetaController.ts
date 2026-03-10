@@ -1,11 +1,9 @@
 import { Request, Response } from 'express';
 import Receta from '../../models/Receta';
-import Categoria from '../../models/catalogs/Categoria';
 
 export const getAllRecetas = async (req: Request, res: Response) => {
   try {
     const recetas = await Receta.findAll({
-      include: [{ model: Categoria, as: 'categoria' }],
       order: [['nombre', 'ASC']],
     });
     res.json(recetas);
@@ -18,7 +16,6 @@ export const getRecetaById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const receta = await Receta.findByPk(parseInt(id as string), {
-      include: [{ model: Categoria, as: 'categoria' }],
     });
     
     if (!receta) {

@@ -20,6 +20,8 @@ interface MaterialAttributes {
   moneda_codigo?: string; // LOGÍSTICA - Moneda
   fabricante_codigo?: string; // Fabricante
   np?: string; // Número de parte
+  modelo?: string; // INVENTARIO - Modelo del equipo al que aplica
+  caja?: string; // INVENTARIO - Caja/bin de almacén (ej: CAJA 3)
   stock_actual?: number; // Stock actual en almacén
   ubicacion?: string; // Ubicación física (ej: A6)
   activo?: boolean; // Estado del material
@@ -27,7 +29,7 @@ interface MaterialAttributes {
   updated_at?: Date;
 }
 
-interface MaterialCreationAttributes extends Optional<MaterialAttributes, 'material_id' | 'descripcion_compuesta' | 'punto_reposicion' | 'stock_maximo' | 'plazo_entrega' | 'precio' | 'moneda_codigo' | 'fabricante_codigo' | 'np' | 'stock_actual' | 'ubicacion' | 'activo' | 'created_at' | 'updated_at'> {}
+interface MaterialCreationAttributes extends Optional<MaterialAttributes, 'material_id' | 'descripcion_compuesta' | 'punto_reposicion' | 'stock_maximo' | 'plazo_entrega' | 'precio' | 'moneda_codigo' | 'fabricante_codigo' | 'np' | 'modelo' | 'caja' | 'stock_actual' | 'ubicacion' | 'activo' | 'created_at' | 'updated_at'> {}
 
 class Material extends Model<MaterialAttributes, MaterialCreationAttributes> implements MaterialAttributes {
   public material_id!: number;
@@ -46,6 +48,8 @@ class Material extends Model<MaterialAttributes, MaterialCreationAttributes> imp
   public moneda_codigo?: string;
   public fabricante_codigo?: string;
   public np?: string;
+  public modelo?: string;
+  public caja?: string;
   public stock_actual?: number;
   public ubicacion?: string;
   public activo?: boolean;
@@ -135,6 +139,16 @@ Material.init(
       type: DataTypes.STRING(100),
       allowNull: true,
       comment: 'Número de parte del fabricante',
+    },
+    modelo: {
+      type: DataTypes.STRING(100),
+      allowNull: true,
+      comment: 'INVENTARIO - Modelo del equipo al que aplica el repuesto',
+    },
+    caja: {
+      type: DataTypes.STRING(50),
+      allowNull: true,
+      comment: 'INVENTARIO - Caja/bin físico en almacén (ej: CAJA 3)',
     },
     stock_actual: {
       type: DataTypes.DECIMAL(10, 2),

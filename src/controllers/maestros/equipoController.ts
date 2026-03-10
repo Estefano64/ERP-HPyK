@@ -15,13 +15,13 @@ export const getAllEquipos = async (req: Request, res: Response) => {
     console.log('[GET ALL EQUIPOS] Intentando obtener equipos...');
     const equipos = await Equipo.findAll({
       include: [
-        { model: StatusEquipo, as: 'status', attributes: ['codigo', 'descripcion'] },
+        { model: StatusEquipo, as: 'status', attributes: ['codigo', 'nombre'] },
         { model: Area, as: 'area', attributes: ['codigo', 'nombre'] },
         { model: SubArea, as: 'sub_area', attributes: ['codigo', 'nombre'] },
-        { model: TipoEquipo, as: 'tipo', attributes: ['codigo', 'descripcion'] },
+        { model: TipoEquipo, as: 'tipo', attributes: ['codigo', 'nombre'] },
         { model: Planta, as: 'planta', attributes: ['codigo', 'nombre'] },
-        { model: Criticidad, as: 'criticidad', attributes: ['codigo', 'descripcion'] },
-        { model: UnidadMedida, as: 'unidad_medida', attributes: ['codigo', 'descripcion'] },
+        { model: Criticidad, as: 'criticidad', attributes: ['codigo', 'nombre'] },
+        { model: UnidadMedida, as: 'unidad_medida', attributes: ['codigo', 'nombre'] },
         { model: Fabricante, as: 'fabricante', attributes: ['codigo', 'nombre'] }
       ],
       order: [['equipo_id', 'ASC']]

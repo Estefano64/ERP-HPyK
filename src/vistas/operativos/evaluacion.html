@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evaluación Técnica - HP&K ERP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="/vistas/shared/navigation.js"></script>
+</head>
+<body class="bg-gray-50">
+    <div id="navigation-container"></div>
+
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-purple-700 to-purple-900 text-white shadow-lg">
+        <div class="container mx-auto px-6 py-5">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <i class="fas fa-microscope text-4xl"></i>
+                    <div>
+                        <h1 class="text-2xl font-bold">Evaluación Técnica</h1>
+                        <p id="header-subtitulo" class="text-purple-200 text-sm">Cargando datos de la OT...</p>
+                    </div>
+                </div>
+                <a href="/operativos/ordenes-trabajo.html"
+                   class="bg-purple-800 hover:bg-purple-900 px-5 py-2 rounded-lg transition flex items-center text-sm">
+                    <i class="fas fa-arrow-left mr-2"></i> Volver a OTs
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Barra de datos OT -->
+    <div id="ot-info-bar" class="bg-white border-b border-gray-200 shadow-sm hidden">
+        <div class="container mx-auto px-6 py-3">
+            <div class="flex flex-wrap gap-6 text-sm">
+                <div>
+                    <span class="text-gray-500">OT:</span>
+                    <span id="info-ot" class="font-bold text-gray-900 ml-1">-</span>
+                </div>
+                <div>
+                    <span class="text-gray-500">Equipo:</span>
+                    <span id="info-equipo" class="font-semibold text-gray-800 ml-1">-</span>
+                </div>
+                <div>
+                    <span class="text-gray-500">N/P:</span>
+                    <span id="info-np" class="font-semibold text-gray-800 ml-1">-</span>
+                </div>
+                <div>
+                    <span class="text-gray-500">Serie:</span>
+                    <span id="info-ns" class="font-semibold text-gray-800 ml-1">-</span>
+                </div>
+                <div>
+                    <span class="text-gray-500">Recepción:</span>
+                    <span id="info-recepcion" class="font-semibold text-gray-800 ml-1">-</span>
+                </div>
+                <div>
+                    <span class="text-gray-500">Estado Taller:</span>
+                    <span id="info-estado" class="font-semibold text-purple-700 ml-1">-</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenido principal -->
+    <div class="container mx-auto px-6 py-8 max-w-4xl">
+
+        <!-- Toast -->
+        <div id="toast" class="hidden fixed top-4 right-4 z-50 px-5 py-3 rounded-lg shadow-lg text-white text-sm font-medium"></div>
+
+        <!-- SECCIÓN 1: Datos de la Evaluación -->
+        <div class="bg-white rounded-lg shadow-md mb-6">
+            <div class="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-6 py-4 rounded-t-lg flex items-center">
+                <span class="bg-white text-blue-700 font-bold rounded-full w-7 h-7 flex items-center justify-center text-sm mr-3">1</span>
+                <h2 class="text-lg font-bold">Datos de la Evaluación</h2>
+            </div>
+            <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">
+                        Evaluador <span class="text-red-500">*</span>
+                    </label>
+                    <input id="evaluador" type="text" placeholder="Nombre del técnico evaluador"
+                           class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">
+                        Fecha de Evaluación <span class="text-red-500">*</span>
+                    </label>
+                    <input id="fecha_evaluacion" type="date"
+                           class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">N° Informe Evaluación</label>
+                    <input id="nro_informe_evaluacion" type="text" placeholder="Ej: 245024-E"
+                           class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Fecha Entrega Informe al Cliente</label>
+                    <input id="fecha_entrega_informe" type="date" onchange="calcDias()"
+                           class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
+                </div>
+                <div class="md:col-span-2">
+                    <div id="dias-evaluacion-box" class="hidden bg-blue-50 border border-blue-200 rounded-lg px-4 py-3 flex items-center space-x-3">
+                        <i class="fas fa-clock text-blue-500"></i>
+                        <span class="text-sm text-blue-800">
+                            Días de evaluación (desde recepción):
+                            <strong id="dias-evaluacion-valor" class="text-blue-900 text-base ml-1">-</strong> días
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN 2: Clasificación por Componente -->
+        <div class="bg-white rounded-lg shadow-md mb-6">
+            <div class="bg-gradient-to-r from-orange-500 to-orange-600 text-white px-6 py-4 rounded-t-lg flex items-center">
+                <span class="bg-white text-orange-600 font-bold rounded-full w-7 h-7 flex items-center justify-center text-sm mr-3">2</span>
+                <h2 class="text-lg font-bold">Clasificación por Componente</h2>
+            </div>
+            <div class="p-6 space-y-5">
+
+                <!-- Cilindro -->
+                <div class="border border-blue-200 rounded-lg p-4 bg-blue-50">
+                    <div class="flex items-center justify-between flex-wrap gap-3">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-4 h-4 rounded bg-blue-500"></div>
+                            <span class="font-bold text-gray-800 text-base">CILINDRO</span>
+                        </div>
+                        <div class="flex gap-4">
+                            <label class="flex items-center space-x-1 cursor-pointer">
+                                <input type="radio" name="reparacion_cil" value="STD" class="text-blue-600">
+                                <span class="text-sm font-medium text-gray-700">Estándar</span>
+                            </label>
+                            <label class="flex items-center space-x-1 cursor-pointer">
+                                <input type="radio" name="reparacion_cil" value="NOSTD" class="text-orange-500">
+                                <span class="text-sm font-medium text-gray-700">No Estándar</span>
+                            </label>
+                            <label class="flex items-center space-x-1 cursor-pointer">
+                                <input type="radio" name="reparacion_cil" value="NA" checked class="text-gray-400">
+                                <span class="text-sm text-gray-500">No aplica</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="mt-3 grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+                        <div class="bg-green-50 border border-green-200 rounded px-3 py-2">
+                            <span class="font-semibold text-green-700">STD:</span>
+                            <span class="text-green-600 ml-1">Relleno (RELC) → Barrenado (BARC) → Bruñido (BRUC)</span>
+                        </div>
+                        <div class="bg-orange-50 border border-orange-200 rounded px-3 py-2">
+                            <span class="font-semibold text-orange-700">No STD:</span>
+                            <span class="text-orange-600 ml-1">Corte → Maquinado → Encajado → Soldadura → Fabricación</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vástago -->
+                <div class="border border-orange-200 rounded-lg p-4 bg-orange-50">
+                    <div class="flex items-center justify-between flex-wrap gap-3">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-4 h-4 rounded bg-orange-400"></div>
+                            <span class="font-bold text-gray-800 text-base">VÁSTAGO</span>
+                        </div>
+                        <div class="flex gap-4">
+                            <label class="flex items-center space-x-1 cursor-pointer">
+                                <input type="radio" name="reparacion_vas" value="STD" class="text-blue-600">
+                                <span class="text-sm font-medium text-gray-700">Estándar</span>
+                            </label>
+                            <label class="flex items-center space-x-1 cursor-pointer">
+                                <input type="radio" name="reparacion_vas" value="NOSTD" class="text-orange-500">
+                                <span class="text-sm font-medium text-gray-700">No Estándar</span>
+                            </label>
+                            <label class="flex items-center space-x-1 cursor-pointer">
+                                <input type="radio" name="reparacion_vas" value="NA" checked class="text-gray-400">
+                                <span class="text-sm text-gray-500">No aplica</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="mt-3 grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+                        <div class="bg-green-50 border border-green-200 rounded px-3 py-2">
+                            <span class="font-semibold text-green-700">STD:</span>
+                            <span class="text-green-600 ml-1">Relleno (RELV) → Cromado (CROV) → Maquinado (BARV)</span>
+                        </div>
+                        <div class="bg-red-50 border border-red-200 rounded px-3 py-2">
+                            <span class="font-semibold text-red-700">No STD:</span>
+                            <span class="text-red-600 ml-1">Corte → Encajado → Soldadura → Fabricación</span>
+                        </div>
+                    </div>
+                    <div id="aviso-cromado" class="hidden mt-2 bg-yellow-50 border border-yellow-300 rounded px-3 py-2 text-xs text-yellow-800">
+                        <i class="fas fa-exclamation-triangle mr-1 text-yellow-600"></i>
+                        <strong>Vástago No STD:</strong> Incluye cromado externo con tiempo estimado de <strong>73 a 114 días</strong>. Coordinar con proveedor con anticipación.
+                    </div>
+                </div>
+
+                <!-- Tapa -->
+                <div class="border border-green-200 rounded-lg p-4 bg-green-50">
+                    <div class="flex items-center justify-between flex-wrap gap-3">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-4 h-4 rounded bg-green-500"></div>
+                            <span class="font-bold text-gray-800 text-base">TAPA</span>
+                        </div>
+                        <div class="flex gap-4">
+                            <label class="flex items-center space-x-1 cursor-pointer">
+                                <input type="radio" name="reparacion_tapa" value="STD" class="text-blue-600">
+                                <span class="text-sm font-medium text-gray-700">Estándar</span>
+                            </label>
+                            <label class="flex items-center space-x-1 cursor-pointer">
+                                <input type="radio" name="reparacion_tapa" value="NOSTD" class="text-orange-500">
+                                <span class="text-sm font-medium text-gray-700">No Estándar</span>
+                            </label>
+                            <label class="flex items-center space-x-1 cursor-pointer">
+                                <input type="radio" name="reparacion_tapa" value="NA" checked class="text-gray-400">
+                                <span class="text-sm text-gray-500">No aplica</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="mt-3 grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+                        <div class="bg-green-100 border border-green-300 rounded px-3 py-2">
+                            <span class="font-semibold text-green-700">STD:</span>
+                            <span class="text-green-700 ml-1">Pulido (PUL-T) → Recubrimiento (REC-T)</span>
+                        </div>
+                        <div class="bg-orange-50 border border-orange-200 rounded px-3 py-2">
+                            <span class="font-semibold text-orange-700">No STD:</span>
+                            <span class="text-orange-600 ml-1">Fabricación nueva (FAB-T)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pistón -->
+                <div class="border border-yellow-200 rounded-lg p-4 bg-yellow-50">
+                    <div class="flex items-center justify-between flex-wrap gap-3">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-4 h-4 rounded bg-yellow-400"></div>
+                            <span class="font-bold text-gray-800 text-base">PISTÓN</span>
+                        </div>
+                        <div class="flex gap-4">
+                            <label class="flex items-center space-x-1 cursor-pointer">
+                                <input type="radio" name="reparacion_piston" value="STD" class="text-blue-600">
+                                <span class="text-sm font-medium text-gray-700">Estándar</span>
+                            </label>
+                            <label class="flex items-center space-x-1 cursor-pointer">
+                                <input type="radio" name="reparacion_piston" value="NOSTD" class="text-orange-500">
+                                <span class="text-sm font-medium text-gray-700">No Estándar</span>
+                            </label>
+                            <label class="flex items-center space-x-1 cursor-pointer">
+                                <input type="radio" name="reparacion_piston" value="NA" checked class="text-gray-400">
+                                <span class="text-sm text-gray-500">No aplica</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="mt-3 grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+                        <div class="bg-yellow-100 border border-yellow-300 rounded px-3 py-2">
+                            <span class="font-semibold text-yellow-700">STD:</span>
+                            <span class="text-yellow-700 ml-1">Pulido (PUL-P) → Recubrimiento (REC-P)</span>
+                        </div>
+                        <div class="bg-orange-50 border border-orange-200 rounded px-3 py-2">
+                            <span class="font-semibold text-orange-700">No STD:</span>
+                            <span class="text-orange-600 ml-1">Fabricación nueva (FAB-P)</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- SECCIÓN 3: Resultado y Estado -->
+        <div class="bg-white rounded-lg shadow-md mb-6">
+            <div class="bg-gradient-to-r from-teal-600 to-teal-700 text-white px-6 py-4 rounded-t-lg flex items-center">
+                <span class="bg-white text-teal-700 font-bold rounded-full w-7 h-7 flex items-center justify-center text-sm mr-3">3</span>
+                <h2 class="text-lg font-bold">Resultado y Estado</h2>
+            </div>
+            <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Tipo de Reparación</label>
+                    <select id="tipo_reparacion_codigo"
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-400">
+                        <option value="">-- Seleccionar --</option>
+                        <option value="General">General</option>
+                        <option value="Parcial">Parcial</option>
+                        <option value="Eval & Lim">Eval & Lim</option>
+                        <option value="Vestido">Vestido</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Tipo de Atención</label>
+                    <select id="atencion_reparacion_codigo"
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-400">
+                        <option value="">-- Seleccionar --</option>
+                        <option value="Contrato">Contrato</option>
+                        <option value="Presupuesto">Presupuesto</option>
+                        <option value="Emergencia">Emergencia</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Estado Taller</label>
+                    <select id="taller_status_codigo"
+                            class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-400">
+                        <option value="Pdt Evaluación">Pdt Evaluación</option>
+                        <option value="Programado Evaluación" selected>Programado Evaluación</option>
+                        <option value="Pdt proceso">Pdt proceso</option>
+                        <option value="Programado Proceso">Programado Proceso</option>
+                        <option value="Terminado">Terminado</option>
+                        <option value="Entregado">Entregado</option>
+                        <option value="Cobranza">Cobranza</option>
+                    </select>
+                </div>
+                <div class="md:col-span-2">
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Comentarios / Observaciones</label>
+                    <textarea id="comentarios" rows="3" placeholder="Observaciones técnicas de la evaluación..."
+                              class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-400 resize-none"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN 4: Requerimientos (visible solo si hay CodRep con task list) -->
+        <div id="seccion-tasklist" class="hidden bg-white rounded-lg shadow-md mb-6">
+            <div class="bg-gradient-to-r from-indigo-600 to-indigo-700 text-white px-6 py-4 rounded-t-lg flex items-center">
+                <span class="bg-white text-indigo-700 font-bold rounded-full w-7 h-7 flex items-center justify-center text-sm mr-3">4</span>
+                <h2 class="text-lg font-bold">Requerimientos Automáticos</h2>
+            </div>
+            <div class="p-6">
+                <div class="bg-indigo-50 border border-indigo-200 rounded-lg p-4 flex items-start space-x-3">
+                    <i class="fas fa-clipboard-list text-indigo-600 mt-0.5 text-lg"></i>
+                    <div class="flex-1">
+                        <p class="font-semibold text-indigo-800 text-sm" id="tasklist-info">
+                            Task List disponible con ítems listos para generar
+                        </p>
+                        <p class="text-xs text-indigo-600 mt-1">
+                            Al guardar la evaluación, se crearán automáticamente los requerimientos de repuestos y servicios
+                            asociados al código de reparación de esta OT.
+                        </p>
+                    </div>
+                </div>
+                <label class="flex items-center space-x-3 mt-4 cursor-pointer">
+                    <input type="checkbox" id="generar-tasklist" checked
+                           class="w-4 h-4 text-indigo-600 rounded focus:ring-indigo-500">
+                    <span class="text-sm font-medium text-gray-700">
+                        Generar requerimientos automáticamente al guardar esta evaluación
+                    </span>
+                </label>
+            </div>
+        </div>
+
+        <!-- Botones de acción -->
+        <div class="flex justify-end space-x-4 mt-2 pb-10">
+            <a href="/operativos/ordenes-trabajo.html"
+               class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition font-medium text-sm">
+                <i class="fas fa-times mr-2"></i> Cancelar
+            </a>
+            <button onclick="guardarEvaluacion()"
+                    class="px-8 py-3 bg-purple-700 hover:bg-purple-800 text-white rounded-lg transition font-semibold text-sm flex items-center">
+                <i class="fas fa-save mr-2"></i> Guardar Evaluación
+            </button>
+        </div>
+
+    </div><!-- /container -->
+
+    <script>
+        let otId = null;
+        let otData = null;
+        let codRepId = null;
+
+        // ── Utilidades ────────────────────────────────────────────────
+        function showToast(msg, type = 'success') {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.className = `fixed top-4 right-4 z-50 px-5 py-3 rounded-lg shadow-lg text-white text-sm font-medium ${
+                type === 'error' ? 'bg-red-600' : type === 'warning' ? 'bg-yellow-600' : 'bg-green-600'
+            }`;
+            t.classList.remove('hidden');
+            setTimeout(() => t.classList.add('hidden'), 3500);
+        }
+
+        function fmtDate(isoStr) {
+            if (!isoStr) return '-';
+            return new Date(isoStr).toLocaleDateString('es-PE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        }
+
+        function isoToInputDate(isoStr) {
+            if (!isoStr) return '';
+            return new Date(isoStr).toISOString().split('T')[0];
+        }
+
+        // ── Calcular días desde recepción ─────────────────────────────
+        function calcDias() {
+            if (!otData || !otData.fecha_recepcion) return;
+            const fechaEntrega = document.getElementById('fecha_entrega_informe').value;
+            if (!fechaEntrega) {
+                document.getElementById('dias-evaluacion-box').classList.add('hidden');
+                return;
+            }
+            const recepcion = new Date(otData.fecha_recepcion);
+            const entrega   = new Date(fechaEntrega);
+            const dias = Math.round((entrega - recepcion) / (1000 * 60 * 60 * 24));
+            document.getElementById('dias-evaluacion-valor').textContent = dias >= 0 ? dias : '—';
+            document.getElementById('dias-evaluacion-box').classList.remove('hidden');
+        }
+
+        // ── Cargar datos de la OT ──────────────────────────────────────
+        async function loadOT(id) {
+            try {
+                const res = await fetch(`/api/ot/${id}`);
+                if (!res.ok) throw new Error('OT no encontrada');
+                otData = await res.json();
+
+                // Header
+                document.getElementById('header-subtitulo').textContent =
+                    `OT: ${otData.ot || id}  |  ${otData.equipo_codigo || ''}  |  NS: ${otData.ns || '-'}`;
+                document.getElementById('ot-info-bar').classList.remove('hidden');
+
+                // Barra de info
+                document.getElementById('info-ot').textContent       = otData.ot || id;
+                document.getElementById('info-equipo').textContent    = otData.equipo_codigo || '-';
+                document.getElementById('info-np').textContent        = otData.np || '-';
+                document.getElementById('info-ns').textContent        = otData.ns || '-';
+                document.getElementById('info-recepcion').textContent = fmtDate(otData.fecha_recepcion);
+                document.getElementById('info-estado').textContent    = otData.taller_status_codigo || '-';
+
+                // Pre-llenar campos con datos ya guardados
+                if (otData.evaluador)               document.getElementById('evaluador').value = otData.evaluador;
+                if (otData.fecha_evaluacion)        document.getElementById('fecha_evaluacion').value = isoToInputDate(otData.fecha_evaluacion);
+                if (otData.nro_informe_evaluacion)  document.getElementById('nro_informe_evaluacion').value = otData.nro_informe_evaluacion;
+                if (otData.fecha_entrega_informe)   document.getElementById('fecha_entrega_informe').value = isoToInputDate(otData.fecha_entrega_informe);
+                if (otData.tipo_reparacion_codigo)  document.getElementById('tipo_reparacion_codigo').value = otData.tipo_reparacion_codigo;
+                if (otData.atencion_reparacion_codigo) document.getElementById('atencion_reparacion_codigo').value = otData.atencion_reparacion_codigo;
+                if (otData.taller_status_codigo)    document.getElementById('taller_status_codigo').value = otData.taller_status_codigo;
+                if (otData.comentarios)             document.getElementById('comentarios').value = otData.comentarios;
+
+                // Pre-llenar clasificación STD/NoSTD
+                ['cil', 'vas', 'tapa', 'piston'].forEach(comp => {
+                    const val = otData[`reparacion_${comp}`];
+                    if (val) {
+                        const radio = document.querySelector(`input[name="reparacion_${comp}"][value="${val}"]`);
+                        if (radio) radio.checked = true;
+                    }
+                });
+
+                // Alerta cromado si vástago ya era NOSTD
+                actualizarAvisoCromado();
+                calcDias();
+
+                // Task list
+                if (otData.id_cod_rep) {
+                    codRepId = otData.id_cod_rep;
+                    checkTaskList(codRepId);
+                }
+
+            } catch (err) {
+                showToast('Error al cargar la OT: ' + err.message, 'error');
+                document.getElementById('header-subtitulo').textContent = 'Error al cargar datos';
+            }
+        }
+
+        // ── Comprobar si hay task list disponible ─────────────────────
+        async function checkTaskList(codRepId) {
+            try {
+                const res = await fetch(`/api/cod-rep/${codRepId}/task-list`);
+                if (!res.ok) return;
+                const tareas = await res.json();
+                if (tareas && tareas.length > 0) {
+                    document.getElementById('seccion-tasklist').classList.remove('hidden');
+                    document.getElementById('tasklist-info').textContent =
+                        `Task List disponible: ${tareas.length} ítem(s) listos para generar requerimientos`;
+                }
+            } catch (_) { /* sin task list, no mostrar sección */ }
+        }
+
+        // ── Aviso cromado vástago NOSTD ───────────────────────────────
+        function actualizarAvisoCromado() {
+            const radioNOSTD = document.querySelector('input[name="reparacion_vas"][value="NOSTD"]');
+            const aviso = document.getElementById('aviso-cromado');
+            if (radioNOSTD && radioNOSTD.checked) {
+                aviso.classList.remove('hidden');
+            } else {
+                aviso.classList.add('hidden');
+            }
+        }
+        document.addEventListener('change', e => {
+            if (e.target.name === 'reparacion_vas') actualizarAvisoCromado();
+        });
+
+        // ── Guardar evaluación ────────────────────────────────────────
+        async function guardarEvaluacion() {
+            const evaluador      = document.getElementById('evaluador').value.trim();
+            const fechaEval      = document.getElementById('fecha_evaluacion').value;
+
+            if (!evaluador) {
+                showToast('El campo Evaluador es obligatorio', 'error');
+                document.getElementById('evaluador').focus();
+                return;
+            }
+            if (!fechaEval) {
+                showToast('La Fecha de Evaluación es obligatoria', 'error');
+                document.getElementById('fecha_evaluacion').focus();
+                return;
+            }
+
+            const payload = {
+                evaluador,
+                fecha_evaluacion:          fechaEval,
+                nro_informe_evaluacion:    document.getElementById('nro_informe_evaluacion').value.trim() || undefined,
+                fecha_entrega_informe:     document.getElementById('fecha_entrega_informe').value || undefined,
+                reparacion_cil:            document.querySelector('input[name="reparacion_cil"]:checked')?.value,
+                reparacion_vas:            document.querySelector('input[name="reparacion_vas"]:checked')?.value,
+                reparacion_tapa:           document.querySelector('input[name="reparacion_tapa"]:checked')?.value,
+                reparacion_piston:         document.querySelector('input[name="reparacion_piston"]:checked')?.value,
+                tipo_reparacion_codigo:    document.getElementById('tipo_reparacion_codigo').value || undefined,
+                atencion_reparacion_codigo: document.getElementById('atencion_reparacion_codigo').value || undefined,
+                taller_status_codigo:      document.getElementById('taller_status_codigo').value,
+                comentarios:               document.getElementById('comentarios').value.trim() || undefined,
+            };
+
+            const btn = document.querySelector('button[onclick="guardarEvaluacion()"]');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Guardando...';
+
+            try {
+                // 1. Guardar campos de evaluación en la OT
+                const resOT = await fetch(`/api/ot/${otId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (!resOT.ok) {
+                    const err = await resOT.json();
+                    throw new Error(err.error || 'Error al guardar');
+                }
+
+                // 2. Generar requerimientos desde Task List (si está marcado y hay CodRep)
+                const generar = document.getElementById('generar-tasklist');
+                if (generar && !generar.closest('#seccion-tasklist').classList.contains('hidden') && generar.checked && codRepId) {
+                    const resReq = await fetch(`/api/ot/${otId}/repuestos/from-task-list`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ usuario: payload.evaluador })
+                    });
+                    if (resReq.ok) {
+                        const data = await resReq.json();
+                        showToast(`Evaluación guardada. ${data.repuestos?.length || 0} requerimiento(s) generados.`, 'success');
+                    } else {
+                        showToast('Evaluación guardada. No se pudieron generar requerimientos.', 'warning');
+                    }
+                } else {
+                    showToast('Evaluación guardada correctamente.', 'success');
+                }
+
+                // 3. Redirigir después de breve pausa
+                setTimeout(() => {
+                    window.location.href = '/operativos/ordenes-trabajo.html';
+                }, 1500);
+
+            } catch (err) {
+                showToast('Error: ' + err.message, 'error');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-save mr-2"></i> Guardar Evaluación';
+            }
+        }
+
+        // ── Inicialización ─────────────────────────────────────────────
+        document.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            otId = params.get('id');
+            if (!otId) {
+                showToast('No se especificó una OT. Redirigiendo...', 'error');
+                setTimeout(() => window.location.href = '/operativos/ordenes-trabajo.html', 2000);
+                return;
+            }
+            loadOT(otId);
+        });
+    </script>
+</body>
+</html>

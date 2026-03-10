@@ -94,7 +94,7 @@ Equipo.init(
       allowNull: true,
     },
     fabricante_codigo: {
-      type: DataTypes.STRING(10),
+      type: DataTypes.STRING(20),
       allowNull: true,
       references: { model: 'fabricante', key: 'codigo' },
     },

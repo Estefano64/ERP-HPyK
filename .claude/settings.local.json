@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -c \"import pandas; print\\(''pandas available''\\)\")",
+      "Bash(python:*)",
+      "Bash(choco:*)",
+      "Bash(pip install:*)",
+      "Bash(python3:*)",
+      "Bash(where python3:*)",
+      "Bash(where python:*)",
+      "Bash(\"C:/Program Files/Python312/python.exe\":*)",
+      "Bash(xargs wc:*)",
+      "Bash(xargs ls:*)",
+      "Bash(xargs cat:*)",
+      "Bash(node:*)",
+      "Bash(npx tsc:*)",
+      "Bash(grep:*)",
+      "Bash(curl:*)"
+    ]
+  }
+}

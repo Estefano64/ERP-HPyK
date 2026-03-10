@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clasificaciones - HP&K ERP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="/vistas/shared/navigation.js"></script>
+    <style>.modal { display: none; } .modal.active { display: flex; }</style>
+</head>
+<body class="bg-gray-50">
+    <div id="navigation-container"></div>
+    <div class="container mx-auto px-4 py-8">
+        <div class="mb-6 flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-800 flex items-center">
+                    <i class="fas fa-sitemap text-purple-600 mr-3"></i> Clasificaciones
+                </h1>
+                <p class="text-gray-600 mt-1">Catálogo de clasificaciones del sistema</p>
+            </div>
+            <button onclick="openModal()" class="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-lg font-semibold transition flex items-center">
+                <i class="fas fa-plus mr-2"></i> Nueva Clasificación
+            </button>
+        </div>
+        <div class="mb-4">
+            <input type="text" id="searchInput" placeholder="Buscar clasificación..." onkeyup="filterTable()"
+                class="border border-gray-300 rounded-lg px-4 py-2 w-64 focus:outline-none focus:ring-2 focus:ring-purple-500">
+        </div>
+        <div class="bg-white rounded-lg shadow overflow-hidden">
+            <table class="w-full">
+                <thead class="bg-purple-700 text-white">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs uppercase">Código</th>
+                        <th class="px-6 py-3 text-left text-xs uppercase">Nombre</th>
+                        <th class="px-6 py-3 text-left text-xs uppercase">Descripción</th>
+                        <th class="px-6 py-3 text-left text-xs uppercase">Estado</th>
+                        <th class="px-6 py-3 text-center text-xs uppercase">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody" class="divide-y divide-gray-200">
+                    <tr><td colspan="5" class="text-center py-8 text-gray-500">Cargando...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="catalogModal" class="modal fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-lg">
+            <div class="bg-purple-700 text-white px-6 py-4 flex justify-between items-center rounded-t-lg">
+                <h2 class="text-xl font-bold"><span id="modalTitle">Nueva Clasificación</span></h2>
+                <button onclick="closeModal()" class="text-white hover:text-gray-200"><i class="fas fa-times text-2xl"></i></button>
+            </div>
+            <form id="catalogForm" class="p-6 space-y-4">
+                <div><label class="block text-sm font-semibold text-gray-700 mb-1">Código *</label>
+                    <input type="text" name="codigo" required maxlength="10" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500"></div>
+                <div><label class="block text-sm font-semibold text-gray-700 mb-1">Nombre *</label>
+                    <input type="text" name="nombre" required maxlength="100" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500"></div>
+                <div><label class="block text-sm font-semibold text-gray-700 mb-1">Descripción</label>
+                    <textarea name="descripcion" rows="2" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-purple-500"></textarea></div>
+                <div class="flex items-center">
+                    <input type="checkbox" name="activo" checked class="w-4 h-4 text-purple-600 border-gray-300 rounded">
+                    <label class="ml-2 text-sm font-semibold text-gray-700">Activo</label>
+                </div>
+                <div class="flex justify-end space-x-3 pt-2">
+                    <button type="button" onclick="closeModal()" class="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-100">Cancelar</button>
+                    <button type="submit" class="px-6 py-2 bg-purple-700 text-white rounded-lg hover:bg-purple-800"><i class="fas fa-save mr-2"></i>Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API = '/api/catalogos/clasificaciones';
+        let records = [], editKey = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadRecords();
+            document.getElementById('catalogForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const form = e.target;
+                const data = { codigo: form.codigo.value, nombre: form.nombre.value, descripcion: form.descripcion.value || null, activo: form.activo.checked };
+                const url = editKey ? `${API}/${editKey}` : API;
+                const res = await fetch(url, { method: editKey ? 'PUT' : 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(data) });
+                if (res.ok) { closeModal(); loadRecords(); } else { alert('Error al guardar'); }
+            });
+        });
+
+        async function loadRecords() {
+            const res = await fetch(API);
+            records = await res.json();
+            renderTable();
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('tableBody');
+            if (!records.length) { tbody.innerHTML = '<tr><td colspan="5" class="text-center py-8 text-gray-500">No hay clasificaciones registradas</td></tr>'; return; }
+            tbody.innerHTML = records.map(r => `
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-3 font-semibold text-sm">${r.codigo}</td>
+                    <td class="px-6 py-3 text-sm">${r.nombre}</td>
+                    <td class="px-6 py-3 text-sm text-gray-500">${r.descripcion || '-'}</td>
+                    <td class="px-6 py-3"><span class="px-2 py-1 rounded-full text-xs ${r.activo ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">${r.activo ? 'Activo' : 'Inactivo'}</span></td>
+                    <td class="px-6 py-3 text-center space-x-2">
+                        <button onclick="editRecord('${r.codigo}')" class="text-blue-600 hover:text-blue-800"><i class="fas fa-edit"></i></button>
+                        <button onclick="deleteRecord('${r.codigo}')" class="text-red-600 hover:text-red-800"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>`).join('');
+        }
+
+        function filterTable() {
+            const q = document.getElementById('searchInput').value.toLowerCase();
+            document.querySelectorAll('#tableBody tr').forEach(r => r.style.display = r.textContent.toLowerCase().includes(q) ? '' : 'none');
+        }
+
+        function openModal() { editKey = null; document.getElementById('modalTitle').textContent = 'Nueva Clasificación'; document.getElementById('catalogForm').reset(); document.querySelector('[name="activo"]').checked = true; document.getElementById('catalogModal').classList.add('active'); }
+        function closeModal() { document.getElementById('catalogModal').classList.remove('active'); editKey = null; }
+
+        function editRecord(codigo) {
+            const r = records.find(x => x.codigo === codigo);
+            if (!r) return;
+            editKey = codigo;
+            document.getElementById('modalTitle').textContent = 'Editar Clasificación';
+            const form = document.getElementById('catalogForm');
+            form.codigo.value = r.codigo; form.nombre.value = r.nombre; form.descripcion.value = r.descripcion || ''; form.activo.checked = r.activo;
+            document.getElementById('catalogModal').classList.add('active');
+        }
+
+        async function deleteRecord(codigo) {
+            if (!confirm('¿Eliminar esta clasificación?')) return;
+            const res = await fetch(`${API}/${codigo}`, { method: 'DELETE' });
+            if (res.ok) loadRecords(); else alert('Error al eliminar');
+        }
+    </script>
+</body>
+</html>

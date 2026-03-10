@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { Op } from 'sequelize';
 import Tarea from '../../models/Tarea';
 import OrdenTrabajo from '../../models/OrdenTrabajo';
 import Material from '../../models/Material';
@@ -81,25 +82,36 @@ export const getTareasByOrdenTrabajo = async (req: Request, res: Response) => {
     if (!ordenTrabajo.id_cod_rep) {
       return res.json([]);
     }
-    
-    // Buscar tareas con el mismo cod_rep_codigo
+
+    // Buscar CodigoReparacion para obtener el codigo string y np
+    const codRep = await CodigoReparacion.findByPk(ordenTrabajo.id_cod_rep);
+    if (!codRep) {
+      return res.json([]);
+    }
+
+    // Buscar tareas por cod_rep_codigo (string) O por np_cod1 (fallback cuando Excel no tiene Cod Rep)
     const tareas = await Tarea.findAll({
-      where: { cod_rep_codigo: ordenTrabajo.id_cod_rep },
+      where: {
+        [Op.or]: [
+          { cod_rep_codigo: codRep.codigo },
+          ...(codRep.np ? [{ np_cod1: codRep.np }] : [])
+        ]
+      },
       include: [
-        { 
-          model: Material, 
+        {
+          model: Material,
           as: 'material',
-          required: false 
+          required: false
         },
-        { 
-          model: CodigoReparacion, 
+        {
+          model: CodigoReparacion,
           as: 'codigo_reparacion',
-          required: false 
+          required: false
         },
-        { 
-          model: TipoTarea, 
+        {
+          model: TipoTarea,
           as: 'tipo',
-          required: false 
+          required: false
         }
       ],
       order: [['item_numero', 'ASC']]
@@ -140,13 +152,44 @@ export const deleteTarea = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
     const deleted = await Tarea.destroy({ where: { tarea_id: id } });
-    
+
     if (!deleted) {
       return res.status(404).json({ error: 'Tarea no encontrada' });
     }
-    
+
     res.json({ message: 'Tarea eliminada correctamente' });
   } catch (error) {
     res.status(500).json({ error: 'Error al eliminar tarea', details: error });
+  }
+};
+
+// Obtener task list por CodigoReparacion ID — usado por el banner de Task List en la OT
+export const getTaskListByCodRep = async (req: Request, res: Response) => {
+  try {
+    const codRep = await CodigoReparacion.findByPk(parseInt(req.params.id as string));
+    if (!codRep) {
+      return res.status(404).json({ error: 'CodRep no encontrado' });
+    }
+
+    const tareas = await Tarea.findAll({
+      where: {
+        [Op.or]: [
+          { cod_rep_codigo: codRep.codigo },
+          ...(codRep.np ? [{ np_cod1: codRep.np }] : [])
+        ]
+      },
+      include: [
+        {
+          model: Material,
+          as: 'material',
+          required: false
+        }
+      ],
+      order: [['item_numero', 'ASC']]
+    });
+
+    res.json(tareas);
+  } catch (error) {
+    res.status(500).json({ error: 'Error al obtener task list', details: error });
   }
 };

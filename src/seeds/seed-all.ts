@@ -1,5 +1,6 @@
 import sequelize from '../config/database';
 import seedDatabase from './catalogs.seed';
+import seedProveedoresAlmacenes from './seed-proveedores-almacenes';
 import Material from '../models/Material';
 import Equipo from '../models/Equipo';
 import Herramienta from '../models/Herramienta';
@@ -14,200 +15,169 @@ async function seedAll() {
     console.log('       INICIANDO POBLACIÓN COMPLETA DE LA BASE DE DATOS        ');
     console.log('═══════════════════════════════════════════════════════════════\n');
 
+    // Sincronizar modelos (crear tablas si no existen)
+    console.log('🔄 Sincronizando modelos con la base de datos...');
+    await sequelize.sync({ force: false });
+    console.log('✓ Tablas sincronizadas\n');
+
     // 1. Poblar catálogos primero
     console.log('📦 PASO 1: Poblando catálogos maestros...\n');
     await seedDatabase();
 
-    // 2. Poblar materiales
+    // 1.5. Poblar proveedores y almacenes
+    console.log('📦 PASO 1.5: Poblando proveedores y almacenes...\n');
+    await seedProveedoresAlmacenes();
+
+    // 2. Poblar materiales — Repuestos reales para cilindros hidráulicos HP&K
     console.log('\n📦 PASO 2: Creando materiales de ejemplo...');
     const materiales = await Material.bulkCreate([
       {
         codigo: 'MAT-001',
-        np: 'NP-12345',
-        descripcion: 'Rodamiento de bolas SKF 6205',
-        descripcion_compuesta: 'Rodamiento de bolas SKF 6205 - Alta precisión para aplicaciones industriales',
-        planta_codigo: 'LIMA',
-        area_codigo: 'MANT',
-        categoria_codigo: 'REP',
-        clasificacion_codigo: 'A',
-        unidad_medida_codigo: 'UND',
-        punto_reposicion: 10,
-        stock_maximo: 25,
-        stock_actual: 8,
-        precio: 45.50,
+        np: 'NP-KS-CAT-001',
+        descripcion: 'Kit de sellos CAT 793',
+        descripcion_compuesta: 'Kit de sellos hidráulicos para cilindro dirección CAT 793',
+        planta_codigo: 'AQPTA01',
+        area_codigo: 'LG',
+        categoria_codigo: 'CRI',
+        clasificacion_codigo: 'KITS',
+        unidad_medida_codigo: 'und',
+        punto_reposicion: 2,
+        stock_maximo: 10,
+        stock_actual: 4,
+        precio: 380.00,
         moneda_codigo: 'USD',
         fabricante_codigo: 'CAT',
-        ubicacion: 'A-01-15',
+        ubicacion: 'A-01-01',
         activo: true
       },
       {
         codigo: 'MAT-002',
-        np: 'NP-67890',
-        descripcion: 'Filtro de aceite industrial',
-        descripcion_compuesta: 'Filtro de aceite industrial - Compatible con motores diesel',
-        planta_codigo: 'LIMA',
-        area_codigo: 'MANT',
-        categoria_codigo: 'CONS',
-        clasificacion_codigo: 'B',
-        unidad_medida_codigo: 'UND',
-        punto_reposicion: 15,
-        stock_maximo: 30,
-        stock_actual: 20,
-        precio: 22.00,
+        np: 'NP-KS-KOM-001',
+        descripcion: 'Kit de sellos Komatsu 930E',
+        descripcion_compuesta: 'Kit de sellos para cilindro de suspensión Komatsu 930E',
+        planta_codigo: 'AQPTA01',
+        area_codigo: 'LG',
+        categoria_codigo: 'CRI',
+        clasificacion_codigo: 'KITS',
+        unidad_medida_codigo: 'und',
+        punto_reposicion: 3,
+        stock_maximo: 12,
+        stock_actual: 6,
+        precio: 450.00,
         moneda_codigo: 'USD',
-        fabricante_codigo: 'CUMMINS',
-        ubicacion: 'B-02-08',
+        fabricante_codigo: 'KOMATSU',
+        ubicacion: 'A-01-02',
         activo: true
       },
       {
         codigo: 'MAT-003',
-        np: 'NP-11223',
-        descripcion: 'Aceite lubricante SAE 15W-40',
-        descripcion_compuesta: 'Aceite lubricante SAE 15W-40 - Multigrado para uso industrial pesado',
-        planta_codigo: 'CALLAO',
-        area_codigo: 'ALMACEN',
-        categoria_codigo: 'CONS',
-        clasificacion_codigo: 'A',
-        unidad_medida_codigo: 'GLN',
-        punto_reposicion: 50,
-        stock_maximo: 120,
-        stock_actual: 0,
-        precio: 18.75,
+        np: 'NP-ACEI-HID-001',
+        descripcion: 'Aceite hidráulico ISO VG 46',
+        descripcion_compuesta: 'Aceite hidráulico para pruebas en banco HP&K',
+        planta_codigo: 'AQPTA01',
+        area_codigo: 'LG',
+        categoria_codigo: 'CON',
+        clasificacion_codigo: 'ACEI',
+        unidad_medida_codigo: 'lt',
+        punto_reposicion: 100,
+        stock_maximo: 500,
+        stock_actual: 250,
+        precio: 5.80,
         moneda_codigo: 'USD',
-        fabricante_codigo: 'GE',
+        fabricante_codigo: 'ALT',
         ubicacion: 'C-01-01',
         activo: true
       },
       {
         codigo: 'MAT-004',
-        np: 'NP-44556',
-        descripcion: 'Sello mecánico para bomba',
-        descripcion_compuesta: 'Sello mecánico para bomba centrífuga - Material cerámico',
-        planta_codigo: 'LIMA',
-        area_codigo: 'MANT',
+        np: 'NP-VAS-CR-001',
+        descripcion: 'Vástago cromado D=120mm L=2000mm',
+        descripcion_compuesta: 'Vástago cromado duro para cilindro hidráulico minero',
+        planta_codigo: 'AQPTA01',
+        area_codigo: 'LG',
         categoria_codigo: 'REP',
-        clasificacion_codigo: 'B',
-        unidad_medida_codigo: 'UND',
-        punto_reposicion: 5,
-        stock_maximo: 12,
-        stock_actual: 15,
-        precio: 85.00,
+        clasificacion_codigo: 'BARR',
+        unidad_medida_codigo: 'und',
+        punto_reposicion: 1,
+        stock_maximo: 4,
+        stock_actual: 2,
+        precio: 1200.00,
         moneda_codigo: 'USD',
-        fabricante_codigo: 'VOLVO',
-        ubicacion: 'A-03-20',
+        fabricante_codigo: 'ALT',
+        ubicacion: 'B-01-01',
         activo: true
       },
       {
         codigo: 'MAT-005',
-        np: 'NP-77889',
-        descripcion: 'Kit de empaquetaduras turbo',
-        descripcion_compuesta: 'Kit completo de empaquetaduras para turbocompresor - Incluye todos los sellos',
-        planta_codigo: 'LIMA',
-        area_codigo: 'PROD',
-        categoria_codigo: 'REP',
-        clasificacion_codigo: 'A',
-        unidad_medida_codigo: 'UND',
-        punto_reposicion: 8,
-        stock_maximo: 15,
-        stock_actual: 12,
-        precio: 125.50,
+        np: 'NP-ROTU-CAT-001',
+        descripcion: 'Rótula esférica CAT 793/797',
+        descripcion_compuesta: 'Rótula esférica para articulación de cilindro CAT serie 700',
+        planta_codigo: 'AQPTA01',
+        area_codigo: 'LG',
+        categoria_codigo: 'CRI',
+        clasificacion_codigo: 'ROTU',
+        unidad_medida_codigo: 'und',
+        punto_reposicion: 2,
+        stock_maximo: 8,
+        stock_actual: 3,
+        precio: 680.00,
         moneda_codigo: 'USD',
-        fabricante_codigo: 'MAN',
-        ubicacion: 'A-01-05',
+        fabricante_codigo: 'CAT',
+        ubicacion: 'A-02-05',
         activo: true
       }
     ], { ignoreDuplicates: true });
     console.log(`✓ ${materiales.length} materiales creados\n`);
 
-    // 3. Poblar equipos
-    console.log('🔧 PASO 3: Creando equipos de ejemplo...');
+    // 3. Poblar equipos — PARQUE DE EQUIPO real HP&K (34 activos)
+    console.log('🔧 PASO 3: Creando equipos reales HP&K (PARQUE DE EQUIPO)...');
     const equipos = await Equipo.bulkCreate([
-      {
-        codigo: 'EQ-TURBO-001',
-        descripcion: 'Turbocompresor Caterpillar 3516',
-        status_codigo: 'OPERATIVO',
-        area_codigo: 'PROD',
-        sub_area_codigo: 'PROD-TURBO',
-        tipo_codigo: 'TURBO',
-        fecha_inicio: new Date('2024-01-15'),
-        fecha_fabricacion: new Date('2023-11-20'),
-        fabricante_codigo: 'CAT',
-        modelo: 'CAT-3516-TURBO',
-        numero_serie: 'SN-TURBO-001-2023',
-        numero_parte: 'NP-TURBO-3516',
-        capacidad: 1500.00,
-        unidad_medida_codigo: 'HR',
-        observaciones: 'Turbocompresor de alta eficiencia para uso industrial',
-        planta_codigo: 'LIMA',
-        criticidad_codigo: 'ALTA'
-      },
-      {
-        codigo: 'EQ-MOTOR-001',
-        descripcion: 'Motor Diesel Cummins QSK50',
-        status_codigo: 'OPERATIVO',
-        area_codigo: 'PROD',
-        sub_area_codigo: 'PROD-MOTOR',
-        tipo_codigo: 'MOTOR',
-        fecha_inicio: new Date('2024-02-01'),
-        fecha_fabricacion: new Date('2023-12-10'),
-        fabricante_codigo: 'CUMMINS',
-        modelo: 'QSK50-G4',
-        numero_serie: 'SN-MOTOR-001-2023',
-        numero_parte: 'NP-MOTOR-QSK50',
-        capacidad: 2000.00,
-        unidad_medida_codigo: 'HR',
-        observaciones: 'Motor diesel de alta potencia',
-        planta_codigo: 'LIMA',
-        criticidad_codigo: 'ALTA'
-      },
-      {
-        codigo: 'EQ-COMP-001',
-        descripcion: 'Compresor de aire industrial',
-        status_codigo: 'OPERATIVO',
-        area_codigo: 'MANT',
-        sub_area_codigo: 'MANT-PREV',
-        tipo_codigo: 'COMPRESOR',
-        fecha_inicio: new Date('2023-10-01'),
-        fecha_fabricacion: new Date('2023-08-15'),
-        fabricante_codigo: 'GE',
-        modelo: 'GE-COMP-500',
-        numero_serie: 'SN-COMP-001-2023',
-        numero_parte: 'NP-COMP-500',
-        capacidad: 500.00,
-        unidad_medida_codigo: 'HR',
-        planta_codigo: 'CALLAO',
-        criticidad_codigo: 'MEDIA'
-      },
-      {
-        codigo: 'EQ-BOMBA-001',
-        descripcion: 'Bomba centrífuga Volvo',
-        status_codigo: 'MANT',
-        area_codigo: 'MANT',
-        sub_area_codigo: 'MANT-CORR',
-        tipo_codigo: 'BOMBA',
-        fecha_inicio: new Date('2024-01-05'),
-        fabricante_codigo: 'VOLVO',
-        modelo: 'VOLVO-BC-350',
-        numero_serie: 'SN-BOMBA-001-2024',
-        numero_parte: 'NP-BOMBA-350',
-        planta_codigo: 'LIMA',
-        criticidad_codigo: 'BAJA'
-      },
-      {
-        codigo: 'EQ-GEN-001',
-        descripcion: 'Generador eléctrico MAN',
-        status_codigo: 'OPERATIVO',
-        area_codigo: 'PROD',
-        tipo_codigo: 'GENERADOR',
-        fecha_inicio: new Date('2023-11-10'),
-        fabricante_codigo: 'MAN',
-        modelo: 'MAN-GEN-1000',
-        numero_serie: 'SN-GEN-001-2023',
-        planta_codigo: 'CALLAO',
-        criticidad_codigo: 'ALTA'
-      }
+      // --- EQUIPOS DE EVALUACIÓN ---
+      { codigo: 'HPK-BPR-01', descripcion: 'Banco de Pruebas 1', status_codigo: 'OPERATIVO', area_codigo: 'PR', tipo_codigo: 'BPR', fecha_inicio: new Date('2019-01-01'), fabricante_codigo: 'COLUMBIA', modelo: 'Columbia Chrome', planta_codigo: 'AQPTA01', criticidad_codigo: 'ALTA', observaciones: 'Banco de pruebas hidráulicas principal' },
+      { codigo: 'HPK-BPR-02', descripcion: 'Banco de Pruebas 2', status_codigo: 'OPERATIVO', area_codigo: 'PR', tipo_codigo: 'BPR', fecha_inicio: new Date('2016-01-01'), planta_codigo: 'AQPTA01', criticidad_codigo: 'ALTA' },
+      // --- EQUIPOS DE BRUÑIDO ---
+      { codigo: 'HPK-BRU-01', descripcion: 'Bruñidora', status_codigo: 'OPERATIVO', area_codigo: 'PR', tipo_codigo: 'BRU', fecha_inicio: new Date('2017-01-01'), planta_codigo: 'AQPTA01', criticidad_codigo: 'ALTA' },
+      // --- EQUIPOS DE MAQUINADO ---
+      { codigo: 'HPK-TOR-01', descripcion: 'Torno SP6-3000', status_codigo: 'OPERATIVO', area_codigo: 'PR', tipo_codigo: 'TOR', fecha_inicio: new Date('2024-01-01'), fabricante_codigo: 'SARO', modelo: 'SP6-3000', planta_codigo: 'AQPTA01', criticidad_codigo: 'ALTA' },
+      { codigo: 'HPK-TOR-02', descripcion: 'Torno Niles', status_codigo: 'OPERATIVO', area_codigo: 'PR', tipo_codigo: 'TOR', fecha_inicio: new Date('2019-01-01'), fabricante_codigo: 'NILES', modelo: 'Niles', planta_codigo: 'AQPTA01', criticidad_codigo: 'ALTA' },
+      { codigo: 'HPK-TOR-03', descripcion: 'Torno KNUTH 4', status_codigo: 'OPERATIVO', area_codigo: 'PR', tipo_codigo: 'TOR', fecha_inicio: new Date('2021-01-01'), modelo: 'Sinus 330/3000', planta_codigo: 'AQPTA01', criticidad_codigo: 'ALTA' },
+      { codigo: 'HPK-TOR-04', descripcion: 'Torno TK1000', status_codigo: 'OPERATIVO', area_codigo: 'PR', tipo_codigo: 'TOR', fecha_inicio: new Date('2023-01-01'), modelo: 'TKM1000', planta_codigo: 'AQPTA01', criticidad_codigo: 'ALTA' },
+      { codigo: 'HPK-FRE-01', descripcion: 'Fresadora Zayer', status_codigo: 'OPERATIVO', area_codigo: 'PR', tipo_codigo: 'FRE', fecha_inicio: new Date('2018-01-01'), fabricante_codigo: 'ZAYER', modelo: 'Zayer', planta_codigo: 'AQPTA01', criticidad_codigo: 'MEDIA' },
+      { codigo: 'HPK-MAN-01', descripcion: 'Mandrinadora BFT90/3-1', status_codigo: 'MANT', area_codigo: 'PR', tipo_codigo: 'MANDRIN', fecha_inicio: new Date('2023-01-01'), fabricante_codigo: 'UNION', modelo: 'BFT90/3-1', planta_codigo: 'AQPTA01', criticidad_codigo: 'ALTA', observaciones: 'Panel digital no se visualiza - correctivo pendiente' },
+      { codigo: 'HPK-BAR-01', descripcion: 'Barrenador Portátil', status_codigo: 'OPERATIVO', area_codigo: 'PR', tipo_codigo: 'BAR', fecha_inicio: new Date('2019-01-01'), planta_codigo: 'AQPTA01', criticidad_codigo: 'MEDIA' },
+      { codigo: 'HPK-BAR-02', descripcion: 'Barrenador y Soldador WS2-PLUS', status_codigo: 'OPERATIVO', area_codigo: 'PR', tipo_codigo: 'BAR', fecha_inicio: new Date('2025-01-01'), fabricante_codigo: 'SIR_MEC', modelo: 'WS2-PLUS', planta_codigo: 'AQPTA01', criticidad_codigo: 'ALTA' },
+      { codigo: 'HPK-TAL-01', descripcion: 'Taladro de Banco', status_codigo: 'OPERATIVO', area_codigo: 'PR', tipo_codigo: 'TAL', fecha_inicio: new Date('2018-01-01'), modelo: 'KM38', planta_codigo: 'AQPTA01', criticidad_codigo: 'BAJA' },
+      { codigo: 'HPK-SIE-01', descripcion: 'Sierra Cinta', status_codigo: 'OPERATIVO', area_codigo: 'PR', tipo_codigo: 'SIE', fecha_inicio: new Date('2024-01-01'), modelo: 'BS-1018B', planta_codigo: 'AQPTA01', criticidad_codigo: 'BAJA' },
+      // --- EQUIPOS DE SOLDADURA ---
+      { codigo: 'HPK-SOL-01', descripcion: 'Máquina de Soldar Miller 652', status_codigo: 'OPERATIVO', area_codigo: 'PR', tipo_codigo: 'SOL', fecha_inicio: new Date('2019-01-01'), fabricante_codigo: 'MILLER', modelo: '652CC/CV', planta_codigo: 'AQPTA01', criticidad_codigo: 'MEDIA' },
+      { codigo: 'HPK-SOL-02', descripcion: 'Máquina de Soldar Miller XMT 350', status_codigo: 'OPERATIVO', area_codigo: 'PR', tipo_codigo: 'SOL', fecha_inicio: new Date('2019-01-01'), fabricante_codigo: 'MILLER', modelo: 'XMT 350', planta_codigo: 'AQPTA01', criticidad_codigo: 'MEDIA' },
+      { codigo: 'HPK-SOL-03', descripcion: 'Máquina de Soldar MIG Eurofil', status_codigo: 'OPERATIVO', area_codigo: 'PR', tipo_codigo: 'SOL', fecha_inicio: new Date('2019-01-01'), modelo: 'EUROFIL 300', planta_codigo: 'AQPTA01', criticidad_codigo: 'BAJA' },
+      { codigo: 'HPK-SOL-04', descripcion: 'Máquina de Soldar Lincoln XL', status_codigo: 'OPERATIVO', area_codigo: 'PR', tipo_codigo: 'SOL', fecha_inicio: new Date('2024-01-01'), fabricante_codigo: 'LINCOLN', modelo: 'Flextec 350x', planta_codigo: 'AQPTA01', criticidad_codigo: 'MEDIA' },
+      { codigo: 'HPK-SOL-05', descripcion: 'Máquina de Soldar Lincoln XP', status_codigo: 'OPERATIVO', area_codigo: 'PR', tipo_codigo: 'SOL', fecha_inicio: new Date('2025-01-01'), fabricante_codigo: 'LINCOLN', modelo: 'Flextec 350x', planta_codigo: 'AQPTA01', criticidad_codigo: 'MEDIA' },
+      { codigo: 'HPK-OXI-01', descripcion: 'Equipos de Oxicorte', status_codigo: 'OPERATIVO', area_codigo: 'PR', tipo_codigo: 'OXI', planta_codigo: 'AQPTA01', criticidad_codigo: 'BAJA' },
+      // --- EQUIPOS DE INFRAESTRUCTURA/UTILIDADES ---
+      { codigo: 'HPK-COM-01', descripcion: 'Compresor de Aire 1 Wilson', status_codigo: 'OPERATIVO', area_codigo: 'MT', tipo_codigo: 'COM', fecha_inicio: new Date('2025-01-01'), fabricante_codigo: 'WILSON', modelo: 'W-10380', planta_codigo: 'AQPTA01', criticidad_codigo: 'ALTA' },
+      { codigo: 'HPK-PRE-01', descripcion: 'Prensa Hidráulica 120TN', status_codigo: 'OPERATIVO', area_codigo: 'PR', tipo_codigo: 'PRE_HID', fecha_inicio: new Date('2023-01-01'), planta_codigo: 'AQPTA01', criticidad_codigo: 'ALTA' },
+      { codigo: 'HPK-TRQ-01', descripcion: 'Torqueador Hidráulico', status_codigo: 'OPERATIVO', area_codigo: 'PR', tipo_codigo: 'TRQ', fecha_inicio: new Date('2022-01-01'), planta_codigo: 'AQPTA01', criticidad_codigo: 'MEDIA' },
+      // --- MONTACARGAS ---
+      { codigo: 'HPK-MTC-01', descripcion: 'Montacargas HANGCHA CPQYD38', status_codigo: 'OPERATIVO', area_codigo: 'LG', tipo_codigo: 'MTC', fecha_inicio: new Date('2023-01-01'), fabricante_codigo: 'HANGCHA', modelo: 'CPQYD38', planta_codigo: 'AQPTA01', criticidad_codigo: 'ALTA' },
+      { codigo: 'HPK-MTC-02', descripcion: 'Montacargas CAT GP30NM-GLP', status_codigo: 'OPERATIVO', area_codigo: 'LG', tipo_codigo: 'MTC', fecha_inicio: new Date('2020-01-01'), fabricante_codigo: 'CAT', modelo: 'GP30NM-GLP', planta_codigo: 'AQPTA01', criticidad_codigo: 'ALTA' },
+      { codigo: 'HPK-MTC-03', descripcion: 'Montacargas HYUNDAI 30LE-7', status_codigo: 'OPERATIVO', area_codigo: 'LG', tipo_codigo: 'MTC', fecha_inicio: new Date('2025-01-01'), fabricante_codigo: 'HYUNDAI', modelo: '30LE-7', planta_codigo: 'AQPTA01', criticidad_codigo: 'ALTA' },
+      // --- FLOTA VEHICULAR ---
+      { codigo: 'HPK-CAM-01', descripcion: 'Camión JAC VCX-893', status_codigo: 'OPERATIVO', area_codigo: 'LG', tipo_codigo: 'CAM', fecha_inicio: new Date('2023-01-01'), fabricante_codigo: 'JAC', modelo: 'HFC1040KN', numero_serie: 'VCX-893', planta_codigo: 'AQPTA01', criticidad_codigo: 'MEDIA' },
+      { codigo: 'HPK-CAM-02', descripcion: 'Camión JAC VAS-798', status_codigo: 'OPERATIVO', area_codigo: 'LG', tipo_codigo: 'CAM', fecha_inicio: new Date('2023-01-01'), fabricante_codigo: 'JAC', modelo: 'HFC1120KN', numero_serie: 'VAS-798', planta_codigo: 'AQPTA01', criticidad_codigo: 'MEDIA' },
+      { codigo: 'HPK-CMT-01', descripcion: 'Camioneta Toyota Hilux VBX-924', status_codigo: 'OPERATIVO', area_codigo: 'LG', tipo_codigo: 'CMT', fecha_inicio: new Date('2023-01-01'), fabricante_codigo: 'TOYOTA', modelo: 'Hilux', numero_serie: 'VBX-924', planta_codigo: 'AQPTA01', criticidad_codigo: 'MEDIA' },
+      { codigo: 'HPK-CMT-02', descripcion: 'Camioneta Toyota Fortuner V9M-357', status_codigo: 'OPERATIVO', area_codigo: 'LG', tipo_codigo: 'CMT', fecha_inicio: new Date('2018-01-01'), fabricante_codigo: 'TOYOTA', modelo: 'Fortuner', numero_serie: 'V9M-357', planta_codigo: 'AQPTA01', criticidad_codigo: 'MEDIA' },
+      { codigo: 'HPK-CMT-03', descripcion: 'Camioneta VW Saveiro VCM-825', status_codigo: 'OPERATIVO', area_codigo: 'LG', tipo_codigo: 'CMT', fecha_inicio: new Date('2023-01-01'), fabricante_codigo: 'VW', modelo: 'Saveiro', numero_serie: 'VCM-825', planta_codigo: 'AQPTA01', criticidad_codigo: 'BAJA' },
+      // --- HERRAMIENTAS ELÉCTRICAS (activos de taller) ---
+      { codigo: 'HPK-ESM-01', descripcion: 'Esmeril de Banco', status_codigo: 'OPERATIVO', area_codigo: 'PR', tipo_codigo: 'HPW', fecha_inicio: new Date('2024-01-01'), fabricante_codigo: 'MAKITA', planta_codigo: 'AQPTA01', criticidad_codigo: 'BAJA' },
+      { codigo: 'HPK-ESA-01', descripcion: 'Esmeril Angular 4"', status_codigo: 'OPERATIVO', area_codigo: 'PR', tipo_codigo: 'HPW', fecha_inicio: new Date('2021-01-01'), fabricante_codigo: 'BOSCH', planta_codigo: 'AQPTA01', criticidad_codigo: 'BAJA' },
+      { codigo: 'HPK-ESA-02', descripcion: 'Esmeril Angular 7"', status_codigo: 'OPERATIVO', area_codigo: 'PR', tipo_codigo: 'HPW', fecha_inicio: new Date('2021-01-01'), fabricante_codigo: 'BOSCH', planta_codigo: 'AQPTA01', criticidad_codigo: 'BAJA' },
+      { codigo: 'HPK-TAL-02', descripcion: 'Taladro Manual Bosch', status_codigo: 'OPERATIVO', area_codigo: 'PR', tipo_codigo: 'HPW', fecha_inicio: new Date('2021-01-01'), fabricante_codigo: 'BOSCH', planta_codigo: 'AQPTA01', criticidad_codigo: 'BAJA' },
+      { codigo: 'HPK-PIS-01', descripcion: 'Pistola Neumática 3/4" Snapon', status_codigo: 'OPERATIVO', area_codigo: 'PR', tipo_codigo: 'HPW', fecha_inicio: new Date('2022-01-01'), fabricante_codigo: 'SNAPON', planta_codigo: 'AQPTA01', criticidad_codigo: 'BAJA' },
+      { codigo: 'HPK-AMO-01', descripcion: 'Amoladora Metabo 9"', status_codigo: 'OPERATIVO', area_codigo: 'PR', tipo_codigo: 'HPW', fecha_inicio: new Date('2020-01-01'), fabricante_codigo: 'METABO', planta_codigo: 'AQPTA01', criticidad_codigo: 'BAJA' },
     ], { ignoreDuplicates: true });
-    console.log(`✓ ${equipos.length} equipos creados\n`);
+    console.log(`✓ ${equipos.length} equipos reales HP&K creados\n`);
 
     // 3.5 Poblar herramientas
     console.log('🛠️  PASO 3.5: Creando herramientas...');
@@ -271,266 +241,215 @@ async function seedAll() {
     ], { ignoreDuplicates: true });
     console.log(`✓ ${herramientas.length} herramientas creadas\n`);
 
-    // 4. Poblar códigos de reparación
+    // 4. Poblar códigos de reparación — Tipos de trabajo HP&K (cilindros hidráulicos)
     console.log('🔨 PASO 4: Creando códigos de reparación...');
     const codigosRep = await CodigoReparacion.bulkCreate([
       {
-        codigo: 'REP-TURBO-001',
-        tipo_codigo: 'OVERHAUL',
-        categoria_codigo: 'MECANICO',
-        descripcion: 'Overhaul completo de turbocompresor',
+        codigo: 'CIL-CAT-793-DIR',
+        tipo_codigo: 'CIL',
+        categoria_codigo: 'CAM',
+        descripcion: 'Reparación cilindro dirección CAT 793',
         fabricante_codigo: 'CAT',
-        flota_codigo: 'INDUSTRIAL',
-        posicion_codigo: 'FRONTAL',
-        np: 'NP-TURBO-3516',
-        precio: 8500.00
+        flota_codigo: '793',
+        posicion_codigo: 'DEL',
+        np: 'NP-CIL-793-DIR',
+        precio: 9500.00
       },
       {
-        codigo: 'REP-MOTOR-001',
-        tipo_codigo: 'PREVENTIVO',
-        categoria_codigo: 'MECANICO',
-        descripcion: 'Mantenimiento preventivo motor diesel',
-        fabricante_codigo: 'CUMMINS',
-        flota_codigo: 'MINERIA',
-        posicion_codigo: 'FRONTAL',
-        np: 'NP-MOTOR-QSK50',
-        precio: 3500.00
+        codigo: 'CIL-CAT-793-SUS',
+        tipo_codigo: 'CIL',
+        categoria_codigo: 'CAM',
+        descripcion: 'Reparación cilindro suspensión CAT 793',
+        fabricante_codigo: 'CAT',
+        flota_codigo: '793',
+        posicion_codigo: 'LH',
+        np: 'NP-CIL-793-SUS',
+        precio: 11000.00
       },
       {
-        codigo: 'REP-COMP-001',
-        tipo_codigo: 'CORRECTIVO',
-        categoria_codigo: 'MECANICO',
-        descripcion: 'Reparación correctiva de compresor',
-        fabricante_codigo: 'GE',
-        flota_codigo: 'INDUSTRIAL',
-        posicion_codigo: 'LAT_IZQ',
-        precio: 1200.00
+        codigo: 'CIL-KOM-930-SUS',
+        tipo_codigo: 'CIL',
+        categoria_codigo: 'CAM',
+        descripcion: 'Reparación cilindro suspensión Komatsu 930E',
+        fabricante_codigo: 'KOMATSU',
+        flota_codigo: '930E',
+        posicion_codigo: 'LH',
+        np: 'NP-CIL-930-SUS',
+        precio: 13500.00
       },
       {
-        codigo: 'REP-BOMBA-001',
-        tipo_codigo: 'CORRECTIVO',
-        categoria_codigo: 'HIDRAULICO',
-        descripcion: 'Cambio de sellos mecánicos bomba',
-        fabricante_codigo: 'VOLVO',
-        flota_codigo: 'INDUSTRIAL',
-        posicion_codigo: 'INFERIOR',
-        precio: 850.00
+        codigo: 'CIL-CAT-16M-NIV',
+        tipo_codigo: 'CIL',
+        categoria_codigo: 'MOT',
+        descripcion: 'Reparación cilindro nivelación CAT 16M',
+        fabricante_codigo: 'CAT',
+        flota_codigo: '16M',
+        posicion_codigo: 'NA',
+        np: 'NP-CIL-16M-NIV',
+        precio: 5800.00
       }
     ], { ignoreDuplicates: true });
     console.log(`✓ ${codigosRep.length} códigos de reparación creados\n`);
 
-    // 5. Poblar estrategias
+    // 5. Poblar estrategias — Planes de mantenimiento de equipos HP&K
     console.log('📋 PASO 5: Creando estrategias...');
     const estrategias = await Estrategia.bulkCreate([
       {
-        codigo: 'EST-PREV-001',
-        area_codigo: 'PROD',
-        equipo_codigo: 'EQ-TURBO-001',
-        actividad_codigo: 'ACT-PREV-001',
-        frecuencia: 180,
-        unidad_medida_codigo: 'DIA',
-        descripcion: 'Estrategia preventiva turbos industriales - Mantenimiento cada 6 meses',
-        tipo_estrategia_codigo: 'PREV',
-        status_codigo: 'ACTIVA'
-      },
-      {
-        codigo: 'EST-PREV-002',
-        area_codigo: 'PROD',
-        equipo_codigo: 'EQ-MOTOR-001',
-        actividad_codigo: 'ACT-PREV-002',
+        codigo: 'EST-BPR-001',
+        area_codigo: 'PR',
+        equipo_codigo: 'HPK-BPR-01',
+        actividad_codigo: 'ACT-BPR-001',
         frecuencia: 90,
-        unidad_medida_codigo: 'DIA',
-        descripcion: 'Estrategia preventiva motores diesel - Mantenimiento cada 3 meses',
-        tipo_estrategia_codigo: 'PREV',
-        status_codigo: 'ACTIVA'
+        unidad_medida_codigo: 'dia',
+        descripcion: 'Mantenimiento preventivo Banco de Pruebas 1 - cada 3 meses',
+        tipo_estrategia_codigo: 'MP',
+        status_codigo: 'AC'
       },
       {
-        codigo: 'EST-PRED-001',
-        area_codigo: 'MANT',
-        equipo_codigo: 'EQ-COMP-001',
-        actividad_codigo: 'ACT-PRED-001',
-        frecuencia: 60,
-        unidad_medida_codigo: 'DIA',
-        descripcion: 'Estrategia predictiva análisis aceite - Análisis mensual',
-        tipo_estrategia_codigo: 'PRED',
-        status_codigo: 'ACTIVA'
+        codigo: 'EST-TOR-001',
+        area_codigo: 'PR',
+        equipo_codigo: 'HPK-TOR-01',
+        actividad_codigo: 'ACT-TOR-001',
+        frecuencia: 180,
+        unidad_medida_codigo: 'dia',
+        descripcion: 'Mantenimiento preventivo Tornos - cada 6 meses',
+        tipo_estrategia_codigo: 'MP',
+        status_codigo: 'AC'
+      },
+      {
+        codigo: 'EST-MTC-001',
+        area_codigo: 'MT',
+        equipo_codigo: 'HPK-MTC-01',
+        actividad_codigo: 'ACT-MTC-001',
+        frecuencia: 250,
+        unidad_medida_codigo: 'h',
+        descripcion: 'Mantenimiento montacargas HANGCHA cada 250 horas',
+        tipo_estrategia_codigo: 'CC',
+        status_codigo: 'AC'
       }
     ], { ignoreDuplicates: true });
     console.log(`✓ ${estrategias.length} estrategias creadas\n`);
 
-    // 6. Poblar tareas
+    // 6. Poblar tareas — Actividades de mantenimiento HP&K
     console.log('📝 PASO 6: Creando tareas...');
     const tareas = await Tarea.bulkCreate([
       {
-        actividad_codigo: 'ACT-PREV-001',
-        cod_rep_codigo: 'REP-TURBO-001',
-        descripcion: 'Inspección visual de componentes turbo',
+        actividad_codigo: 'ACT-BPR-001',
+        descripcion: 'Inspección de conexiones y sellos banco de pruebas',
         item_numero: 1,
-        tipo_codigo: 'SERVICIO',
+        tipo_codigo: 'SER',
         requerimiento: 1,
-        texto: 'Inspección completa de componentes críticos del turbocompresor',
-        precio: 50.00
+        texto: 'Revisar conexiones hidráulicas, manómetros y sellos del banco de pruebas',
+        precio: 120.00
       },
       {
-        actividad_codigo: 'ACT-PREV-001',
-        cod_rep_codigo: 'REP-TURBO-001',
-        descripcion: 'Cambio de rodamientos',
+        actividad_codigo: 'ACT-BPR-001',
+        descripcion: 'Cambio de aceite hidráulico banco de pruebas',
         item_numero: 2,
-        tipo_codigo: 'MATERIAL',
-        material_codigo: 'MAT-001',
-        requerimiento: 2,
-        np: 'NP-12345',
-        ref_descripcion: 'Rodamiento principal y secundario'
-      },
-      {
-        actividad_codigo: 'ACT-PREV-002',
-        cod_rep_codigo: 'REP-MOTOR-001',
-        descripcion: 'Cambio de filtros y aceite',
-        item_numero: 1,
-        tipo_codigo: 'MATERIAL',
+        tipo_codigo: 'MAC',
         material_codigo: 'MAT-003',
-        requerimiento: 4,
-        np: 'NP-11223'
+        requerimiento: 20,
+        np: 'NP-ACEI-HID-001'
       },
       {
-        actividad_codigo: 'ACT-PRED-001',
-        descripcion: 'Análisis de vibraciones',
+        actividad_codigo: 'ACT-TOR-001',
+        descripcion: 'Lubricación guías y husillos torno',
         item_numero: 1,
-        tipo_codigo: 'SERVICIO',
+        tipo_codigo: 'MAC',
+        material_codigo: 'MAT-003',
+        requerimiento: 2,
+        np: 'NP-ACEI-HID-001'
+      },
+      {
+        actividad_codigo: 'ACT-TOR-001',
+        descripcion: 'Inspección de mordazas y portaherramientas',
+        item_numero: 2,
+        tipo_codigo: 'SER',
         requerimiento: 1,
-        texto: 'Medición y análisis predictivo de vibraciones',
+        texto: 'Verificar apriete y desgaste de mordazas del plato de torno',
         precio: 80.00
       },
       {
-        actividad_codigo: 'ACT-PREV-001',
-        cod_rep_codigo: 'REP-TURBO-001',
-        descripcion: 'Reemplazo kit empaquetaduras',
-        item_numero: 3,
-        tipo_codigo: 'MATERIAL',
-        material_codigo: 'MAT-005',
-        requerimiento: 1,
-        np: 'NP-77889'
+        actividad_codigo: 'ACT-MTC-001',
+        descripcion: 'Cambio de aceite motor montacargas',
+        item_numero: 1,
+        tipo_codigo: 'MAC',
+        material_codigo: 'MAT-003',
+        requerimiento: 8,
+        np: 'NP-ACEI-HID-001'
       }
     ], { ignoreDuplicates: true });
     console.log(`✓ ${tareas.length} tareas creadas\n`);
 
-    // 7. Poblar órdenes de trabajo
+    // 7. Poblar órdenes de trabajo — OTs de ejemplo HP&K (cilindros hidráulicos mineros)
     console.log('🎫 PASO 7: Creando órdenes de trabajo...');
     const ordenesTrabajoData = [
       {
         ot: 'OT-2024-001',
-        id_cliente: 1, // Minera del Sur
-        estrategia: true,
-        tipo: 'Overhaul',
-        descripcion: 'Overhaul completo de turbocompresor CAT 3516',
-        equipo_codigo: 'EQ-TURBO-001',
-        ns: 'SN-TURBO-001-2023',
-        fecha_ot: new Date('2024-02-01'),
-        fecha_ingreso: new Date('2024-02-05'),
-        fecha_inicio_trabajo: new Date('2024-02-10'),
-        pcr: 1500.00,
-        horas: 1450.00,
-        garantia_codigo: 'NO',
-        atencion_reparacion_codigo: 'PROGRAMADO',
-        tipo_reparacion_codigo: 'OVERHAUL',
-        prioridad_atencion_codigo: 'MEDIA',
-        contrato_dias: 30,
-        ot_status_codigo: 'EN_PROCESO',
-        recursos_status_codigo: 'COMPLETO',
-        taller_status_codigo: 'REPARANDO',
+        estrategia: false,
+        tipo: 'General',
+        descripcion: 'Reparación cilindro dirección CAT 793 - Las Bambas',
+        ns: 'SN-CAT793-DIR-001',
+        fecha_recepcion: new Date('2024-03-01'),
+        pcr: 12000.00,
+        horas: 10500.00,
+        garantia_codigo: 'No',
+        atencion_reparacion_codigo: 'Contrato',
+        tipo_reparacion_codigo: 'General',
+        prioridad_atencion_codigo: '1',
+        contrato_dias: 45,
+        ot_status_codigo: 'Cerrada',
+        recursos_status_codigo: 'Recursos completos',
+        taller_status_codigo: 'Entregado',
+        nro_informe_evaluacion: '245024-E',
+        nro_cotizacion: '245024-C',
+        monto_cotizacion: 9500.00,
+        fecha_entrega: new Date('2024-04-10'),
+        nro_factura: 'F001-00245',
         usuario_crea: 'Admin',
         fecha_creacion: new Date()
       },
       {
         ot: 'OT-2024-002',
-        id_cliente: 2, // Transportes del Norte
-        estrategia: true,
-        tipo: 'Preventivo',
-        descripcion: 'Mantenimiento preventivo motor Cummins QSK50',
-        equipo_codigo: 'EQ-MOTOR-001',
-        ns: 'SN-MOTOR-001-2023',
-        fecha_ot: new Date('2024-02-15'),
-        fecha_ingreso: new Date('2024-02-16'),
-        pcr: 2000.00,
-        horas: 1950.00,
-        garantia_codigo: 'SI',
-        tipo_garantia_codigo: 'FABRICANTE',
-        atencion_reparacion_codigo: 'NORMAL',
-        tipo_reparacion_codigo: 'PREVENTIVO',
-        prioridad_atencion_codigo: 'BAJA',
-        contrato_dias: 15,
-        ot_status_codigo: 'ABIERTA',
-        recursos_status_codigo: 'PARCIAL',
-        taller_status_codigo: 'NO_INGRESO',
+        estrategia: false,
+        tipo: 'General',
+        descripcion: 'Reparación cilindro suspensión Komatsu 930E - Antapaccay',
+        ns: 'SN-KOM930-SUS-002',
+        fecha_recepcion: new Date('2024-04-15'),
+        pcr: 15000.00,
+        horas: 14200.00,
+        garantia_codigo: 'Si',
+        tipo_garantia_codigo: 'HPK',
+        atencion_reparacion_codigo: 'Presupuesto',
+        tipo_reparacion_codigo: 'General',
+        prioridad_atencion_codigo: '2',
+        contrato_dias: 60,
+        ot_status_codigo: 'Abierta',
+        recursos_status_codigo: 'En espera de recursos',
+        taller_status_codigo: 'Pdt proceso',
+        nro_informe_evaluacion: '245025-E',
+        nro_cotizacion: '245025-C',
+        monto_cotizacion: 13500.00,
         usuario_crea: 'Admin',
         fecha_creacion: new Date()
       },
       {
         ot: 'OT-2024-003',
-        id_cliente: 1,
         estrategia: false,
-        tipo: 'Correctivo',
-        descripcion: 'Reparación de fuga en compresor de aire',
-        equipo_codigo: 'EQ-COMP-001',
-        ns: 'SN-COMP-001-2023',
-        fecha_ot: new Date('2024-02-20'),
-        fecha_ingreso: new Date('2024-02-20'),
-        fecha_inicio_trabajo: new Date('2024-02-21'),
-        pcr: 500.00,
-        horas: 480.00,
-        garantia_codigo: 'NO',
-        atencion_reparacion_codigo: 'URGENTE',
-        tipo_reparacion_codigo: 'CORRECTIVO',
-        prioridad_atencion_codigo: 'URGENTE',
-        contrato_dias: 7,
-        ot_status_codigo: 'EN_PROCESO',
-        recursos_status_codigo: 'COMPLETO',
-        taller_status_codigo: 'REPARANDO',
-        usuario_crea: 'Admin',
-        fecha_creacion: new Date()
-      },
-      {
-        ot: 'OT-2024-004',
-        id_cliente: 2,
-        estrategia: false,
-        tipo: 'Correctivo',
-        descripcion: 'Cambio de sellos mecánicos bomba Volvo',
-        equipo_codigo: 'EQ-BOMBA-001',
-        ns: 'SN-BOMBA-001-2024',
-        fecha_ot: new Date('2024-02-22'),
-        fecha_ingreso: new Date('2024-02-23'),
-        garantia_codigo: 'SI',
-        tipo_garantia_codigo: 'TALLER',
-        atencion_reparacion_codigo: 'NORMAL',
-        tipo_reparacion_codigo: 'CORRECTIVO',
-        prioridad_atencion_codigo: 'ALTA',
-        contrato_dias: 10,
-        ot_status_codigo: 'ABIERTA',
-        recursos_status_codigo: 'PENDIENTE',
-        taller_status_codigo: 'NO_INGRESO',
-        usuario_crea: 'Admin',
-        fecha_creacion: new Date()
-      },
-      {
-        ot: 'OT-2024-005',
-        id_cliente: 1,
-        estrategia: false,
-        tipo: 'Inspección',
-        descripcion: 'Inspección anual generador MAN',
-        equipo_codigo: 'EQ-GEN-001',
-        ns: 'SN-GEN-001-2023',
-        fecha_ot: new Date('2024-02-25'),
-        fecha_ingreso: new Date('2024-02-26'),
-        fecha_inicio_trabajo: new Date('2024-02-26'),
-        fecha_termino: new Date('2024-02-26'),
-        garantia_codigo: 'NO',
-        atencion_reparacion_codigo: 'PROGRAMADO',
-        tipo_reparacion_codigo: 'INSPECCION',
-        prioridad_atencion_codigo: 'MEDIA',
-        contrato_dias: 1,
-        ot_status_codigo: 'CERRADA',
-        recursos_status_codigo: 'COMPLETO',
-        taller_status_codigo: 'ENTREGADO',
+        tipo: 'Parcial',
+        descripcion: 'Reparación parcial cilindro dirección CAT 793 - Las Bambas',
+        ns: 'SN-CAT793-DIR-003',
+        fecha_recepcion: new Date('2024-05-02'),
+        pcr: 12000.00,
+        horas: 6000.00,
+        garantia_codigo: 'No',
+        atencion_reparacion_codigo: 'Emergencia',
+        tipo_reparacion_codigo: 'Parcial',
+        prioridad_atencion_codigo: 'E',
+        contrato_dias: 20,
+        ot_status_codigo: 'Abierta',
+        recursos_status_codigo: 'En cotización',
+        taller_status_codigo: 'Pdt Evaluación',
         usuario_crea: 'Admin',
         fecha_creacion: new Date()
       }

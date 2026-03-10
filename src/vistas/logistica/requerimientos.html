@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Requerimientos de Compra - HP&K ERP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="/vistas/shared/navigation.js"></script>
+    <style>
+        .badge-estado {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .badge-pendiente   { background:#fef3c7; color:#92400e; }
+        .badge-aprobado    { background:#d1fae5; color:#065f46; }
+        .badge-en-po       { background:#dbeafe; color:#1e40af; }
+        .badge-completado  { background:#f3f4f6; color:#374151; }
+        .badge-anulado     { background:#fee2e2; color:#991b1b; }
+        .badge-prioridad-e { background:#dc2626; color:#fff; }
+        .badge-prioridad-1 { background:#ea580c; color:#fff; }
+        .badge-prioridad-2 { background:#d97706; color:#fff; }
+        .badge-prioridad-3 { background:#65a30d; color:#fff; }
+        .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:1000; align-items:center; justify-content:center; }
+        .modal-overlay.open { display:flex; }
+        tr:hover td { background:#f8fafc; }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div id="navigation-container"></div>
+
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-orange-600 to-orange-800 text-white shadow-lg">
+        <div class="container mx-auto px-4 py-5">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <i class="fas fa-list-check text-4xl"></i>
+                    <div>
+                        <h1 class="text-2xl md:text-3xl font-bold">REQUERIMIENTOS DE COMPRA</h1>
+                        <p class="text-orange-200 text-sm">Solicitudes de materiales de todas las Órdenes de Trabajo</p>
+                    </div>
+                </div>
+                <a href="/logistica/index.html" class="bg-orange-700 hover:bg-orange-800 px-5 py-2 rounded-lg transition flex items-center text-sm">
+                    <i class="fas fa-arrow-left mr-2"></i>Logística
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mx-auto px-4 py-6">
+
+        <!-- Tarjetas resumen -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <div class="bg-white rounded-lg shadow p-4 flex items-center space-x-3">
+                <div class="bg-yellow-100 rounded-full p-3"><i class="fas fa-clock text-yellow-600 text-xl"></i></div>
+                <div>
+                    <p class="text-xs text-gray-500">Pendientes</p>
+                    <p id="count-pendiente" class="text-2xl font-bold text-yellow-600">—</p>
+                </div>
+            </div>
+            <div class="bg-white rounded-lg shadow p-4 flex items-center space-x-3">
+                <div class="bg-blue-100 rounded-full p-3"><i class="fas fa-file-invoice text-blue-600 text-xl"></i></div>
+                <div>
+                    <p class="text-xs text-gray-500">En PO</p>
+                    <p id="count-enpo" class="text-2xl font-bold text-blue-600">—</p>
+                </div>
+            </div>
+            <div class="bg-white rounded-lg shadow p-4 flex items-center space-x-3">
+                <div class="bg-green-100 rounded-full p-3"><i class="fas fa-check-circle text-green-600 text-xl"></i></div>
+                <div>
+                    <p class="text-xs text-gray-500">Aprobados</p>
+                    <p id="count-aprobado" class="text-2xl font-bold text-green-600">—</p>
+                </div>
+            </div>
+            <div class="bg-white rounded-lg shadow p-4 flex items-center space-x-3">
+                <div class="bg-gray-100 rounded-full p-3"><i class="fas fa-layer-group text-gray-600 text-xl"></i></div>
+                <div>
+                    <p class="text-xs text-gray-500">Total activos</p>
+                    <p id="count-total" class="text-2xl font-bold text-gray-700">—</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filtros -->
+        <div class="bg-white rounded-lg shadow p-4 mb-4">
+            <div class="flex flex-wrap gap-3 items-end">
+                <div>
+                    <label class="block text-xs text-gray-500 mb-1">Estado</label>
+                    <select id="filtro-estado" onchange="loadRequerimientos()" class="border rounded px-3 py-1.5 text-sm">
+                        <option value="">Todos (activos)</option>
+                        <option value="Pendiente">Pendiente</option>
+                        <option value="Aprobado">Aprobado</option>
+                        <option value="En PO">En PO</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-500 mb-1">Prioridad</label>
+                    <select id="filtro-prioridad" onchange="applyLocalFilters()" class="border rounded px-3 py-1.5 text-sm">
+                        <option value="">Todas</option>
+                        <option value="E">Emergencia</option>
+                        <option value="1">Alta (1)</option>
+                        <option value="2">Media (2)</option>
+                        <option value="3">Normal (3)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs text-gray-500 mb-1">Buscar</label>
+                    <input id="filtro-buscar" oninput="applyLocalFilters()" type="text" placeholder="OT, material, cliente…" class="border rounded px-3 py-1.5 text-sm w-52">
+                </div>
+                <button onclick="loadRequerimientos()" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-1.5 rounded text-sm">
+                    <i class="fas fa-sync mr-1"></i>Actualizar
+                </button>
+            </div>
+        </div>
+
+        <!-- Tabla -->
+        <div class="bg-white rounded-lg shadow overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm">
+                    <thead class="bg-gray-700 text-white">
+                        <tr>
+                            <th class="px-3 py-3 text-left">Prior.</th>
+                            <th class="px-3 py-3 text-left">OT #</th>
+                            <th class="px-3 py-3 text-left">Cliente</th>
+                            <th class="px-3 py-3 text-left">Equipo</th>
+                            <th class="px-3 py-3 text-left">Material</th>
+                            <th class="px-3 py-3 text-center">Cant.</th>
+                            <th class="px-3 py-3 text-left">Estado</th>
+                            <th class="px-3 py-3 text-left">PO #</th>
+                            <th class="px-3 py-3 text-left">Fecha</th>
+                            <th class="px-3 py-3 text-center">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-body">
+                        <tr><td colspan="10" class="text-center py-8 text-gray-400">Cargando…</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div id="tabla-footer" class="px-4 py-2 bg-gray-50 text-xs text-gray-500 border-t"></div>
+        </div>
+    </div>
+
+    <!-- Modal Generar OC -->
+    <div id="modal-oc" class="modal-overlay">
+        <div class="bg-white rounded-xl shadow-xl w-full max-w-lg mx-4 p-6">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-xl font-bold text-gray-800"><i class="fas fa-file-invoice mr-2 text-orange-500"></i>Generar Orden de Compra</h2>
+                <button onclick="cerrarModalOC()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+            </div>
+            <div id="modal-oc-info" class="bg-orange-50 rounded-lg p-3 mb-4 text-sm text-gray-700"></div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Proveedor *</label>
+                    <select id="oc-proveedor" class="w-full border rounded-lg px-3 py-2 text-sm">
+                        <option value="">Cargando proveedores…</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Almacén destino *</label>
+                    <select id="oc-almacen" class="w-full border rounded-lg px-3 py-2 text-sm">
+                        <option value="">Cargando almacenes…</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Fecha entrega esperada</label>
+                    <input id="oc-fecha" type="date" class="w-full border rounded-lg px-3 py-2 text-sm">
+                </div>
+            </div>
+            <div class="flex justify-end gap-3 mt-6">
+                <button onclick="cerrarModalOC()" class="px-4 py-2 text-sm bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">Cancelar</button>
+                <button onclick="confirmarGenerarOC()" class="px-5 py-2 text-sm bg-orange-500 text-white rounded-lg hover:bg-orange-600 font-medium">
+                    <i class="fas fa-check mr-2"></i>Generar OC
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    let allData = [];
+    let modalRepuestoId = null;
+    let modalOtId = null;
+
+    // ─── Helpers ───────────────────────────────────────────────────────────────
+
+    function badgeEstado(estado) {
+        const map = {
+            'Pendiente': 'badge-pendiente',
+            'Aprobado':  'badge-aprobado',
+            'En PO':     'badge-en-po',
+            'COM':       'badge-completado',
+            'ANU':       'badge-anulado',
+        };
+        const cls = map[estado] || 'badge-completado';
+        return `<span class="badge-estado ${cls}">${estado || '—'}</span>`;
+    }
+
+    function badgePrioridad(p) {
+        const map = {
+            'E': ['badge-prioridad-e', 'EMERG'],
+            '1': ['badge-prioridad-1', 'Alta'],
+            '2': ['badge-prioridad-2', 'Media'],
+            '3': ['badge-prioridad-3', 'Normal'],
+        };
+        const [cls, label] = map[p] || ['badge-completado', p || '—'];
+        return `<span class="badge-estado ${cls}">${label}</span>`;
+    }
+
+    function fmtDate(d) {
+        if (!d) return '—';
+        return new Date(d).toLocaleDateString('es-PE', { day:'2-digit', month:'2-digit', year:'2-digit' });
+    }
+
+    // ─── Carga de datos ────────────────────────────────────────────────────────
+
+    async function loadRequerimientos() {
+        const estado = document.getElementById('filtro-estado').value;
+        const url = estado
+            ? `/api/logistica/requerimientos?estado=${encodeURIComponent(estado)}`
+            : '/api/logistica/requerimientos';
+
+        document.getElementById('tabla-body').innerHTML =
+            '<tr><td colspan="10" class="text-center py-8 text-gray-400"><i class="fas fa-spinner fa-spin mr-2"></i>Cargando…</td></tr>';
+
+        try {
+            const res = await fetch(url);
+            allData = await res.json();
+            applyLocalFilters();
+            updateCounts();
+        } catch (e) {
+            document.getElementById('tabla-body').innerHTML =
+                '<tr><td colspan="10" class="text-center py-8 text-red-400">Error al cargar datos</td></tr>';
+        }
+    }
+
+    function applyLocalFilters() {
+        const prioridad = document.getElementById('filtro-prioridad').value;
+        const buscar = document.getElementById('filtro-buscar').value.toLowerCase();
+
+        let data = allData;
+
+        if (prioridad) {
+            data = data.filter(r => r.prioridad_atencion_codigo === prioridad);
+        }
+
+        if (buscar) {
+            data = data.filter(r =>
+                (r.numero_ot || '').toLowerCase().includes(buscar) ||
+                (r.material_nombre || '').toLowerCase().includes(buscar) ||
+                (r.material_codigo || '').toLowerCase().includes(buscar) ||
+                (r.cliente_nombre || '').toLowerCase().includes(buscar) ||
+                (r.equipo_codigo || '').toLowerCase().includes(buscar) ||
+                (r.descripcion || '').toLowerCase().includes(buscar)
+            );
+        }
+
+        renderTabla(data);
+    }
+
+    function updateCounts() {
+        // Always fetch fresh counts from all active reqs (ignoring local filters)
+        const pending  = allData.filter(r => r.estado === 'Pendiente').length;
+        const enpo     = allData.filter(r => r.estado === 'En PO').length;
+        const aprobado = allData.filter(r => r.estado === 'Aprobado').length;
+        document.getElementById('count-pendiente').textContent = pending;
+        document.getElementById('count-enpo').textContent = enpo;
+        document.getElementById('count-aprobado').textContent = aprobado;
+        document.getElementById('count-total').textContent = allData.length;
+    }
+
+    function renderTabla(data) {
+        const tbody = document.getElementById('tabla-body');
+        const footer = document.getElementById('tabla-footer');
+
+        if (!data.length) {
+            tbody.innerHTML = '<tr><td colspan="10" class="text-center py-10 text-gray-400">Sin registros</td></tr>';
+            footer.textContent = '';
+            return;
+        }
+
+        const rows = data.map(r => {
+            const matLabel = r.material_nombre
+                ? `<span class="font-medium">${r.material_nombre}</span><br><span class="text-gray-400 text-xs">${r.material_codigo || ''}</span>`
+                : (r.descripcion ? `<span class="italic text-gray-500">${r.descripcion}</span>` : '—');
+
+            const accionesPendiente = r.estado === 'Pendiente'
+                ? `<button onclick="aprobarRepuesto(${r.id})" title="Aprobar" class="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-xs mr-1"><i class="fas fa-check"></i> Aprobar</button>
+                   <button onclick="abrirModalOC(${r.id}, ${r.ot_id}, '${(r.material_nombre || r.descripcion || '').replace(/'/g,"\\'")}', ${r.cantidad})" title="Generar OC" class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs mr-1"><i class="fas fa-file-invoice"></i> OC</button>`
+                : '';
+
+            const accionesAprobado = r.estado === 'Aprobado'
+                ? `<button onclick="abrirModalOC(${r.id}, ${r.ot_id}, '${(r.material_nombre || r.descripcion || '').replace(/'/g,"\\'")}', ${r.cantidad})" title="Generar OC" class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs mr-1"><i class="fas fa-file-invoice"></i> OC</button>`
+                : '';
+
+            return `<tr class="border-b">
+                <td class="px-3 py-2">${badgePrioridad(r.prioridad_atencion_codigo)}</td>
+                <td class="px-3 py-2 font-mono text-xs font-semibold">${r.numero_ot || r.ot_id}</td>
+                <td class="px-3 py-2 text-xs">${r.cliente_nombre || '—'}</td>
+                <td class="px-3 py-2 text-xs font-mono">${r.equipo_codigo || '—'}</td>
+                <td class="px-3 py-2 text-xs">${matLabel}</td>
+                <td class="px-3 py-2 text-center font-semibold">${r.cantidad}</td>
+                <td class="px-3 py-2">${badgeEstado(r.estado)}</td>
+                <td class="px-3 py-2 text-xs font-mono">${r.numero_po || '—'}</td>
+                <td class="px-3 py-2 text-xs">${fmtDate(r.fecha_solicitud)}</td>
+                <td class="px-3 py-2 text-center whitespace-nowrap">
+                    ${accionesPendiente}${accionesAprobado}
+                    <button onclick="verOT(${r.ot_id})" title="Ver OT" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-2 py-1 rounded text-xs"><i class="fas fa-external-link-alt"></i></button>
+                </td>
+            </tr>`;
+        }).join('');
+
+        tbody.innerHTML = rows;
+        footer.textContent = `${data.length} registro(s)`;
+    }
+
+    // ─── Acciones ──────────────────────────────────────────────────────────────
+
+    async function aprobarRepuesto(id) {
+        if (!confirm('¿Aprobar este requerimiento?')) return;
+        try {
+            const res = await fetch(`/api/ot/repuestos/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ estado: 'Aprobado', usuario_aprueba: 'Logística' })
+            });
+            if (!res.ok) throw new Error(await res.text());
+            await loadRequerimientos();
+            showToast('Requerimiento aprobado', 'success');
+        } catch (e) {
+            showToast('Error al aprobar: ' + e.message, 'error');
+        }
+    }
+
+    function verOT(otId) {
+        window.open(`/operativos/ordenes-trabajo.html?ot_id=${otId}`, '_blank');
+    }
+
+    // ─── Modal OC ──────────────────────────────────────────────────────────────
+
+    async function abrirModalOC(repuestoId, otId, materialNombre, cantidad) {
+        modalRepuestoId = repuestoId;
+        modalOtId = otId;
+
+        document.getElementById('modal-oc-info').innerHTML =
+            `<strong>OT:</strong> ${otId} &nbsp;|&nbsp; <strong>Material:</strong> ${materialNombre} &nbsp;|&nbsp; <strong>Cantidad:</strong> ${cantidad}`;
+
+        // Fecha por defecto: 15 días
+        const fecha = new Date();
+        fecha.setDate(fecha.getDate() + 15);
+        document.getElementById('oc-fecha').value = fecha.toISOString().split('T')[0];
+
+        document.getElementById('modal-oc').classList.add('open');
+
+        // Cargar proveedores y almacenes en paralelo
+        await Promise.all([cargarProveedores(), cargarAlmacenes()]);
+    }
+
+    function cerrarModalOC() {
+        document.getElementById('modal-oc').classList.remove('open');
+        modalRepuestoId = null;
+        modalOtId = null;
+    }
+
+    async function cargarProveedores() {
+        try {
+            const res = await fetch('/api/logistica/proveedores');
+            const data = await res.json();
+            const sel = document.getElementById('oc-proveedor');
+            sel.innerHTML = '<option value="">— Seleccionar proveedor —</option>' +
+                data.map(p => `<option value="${p.id}">${p.razonSocial}</option>`).join('');
+        } catch { /* ignore */ }
+    }
+
+    async function cargarAlmacenes() {
+        try {
+            const res = await fetch('/api/logistica/almacenes');
+            const data = await res.json();
+            const sel = document.getElementById('oc-almacen');
+            sel.innerHTML = '<option value="">— Seleccionar almacén —</option>' +
+                data.map(a => `<option value="${a.id}">${a.nombre}</option>`).join('');
+        } catch { /* ignore */ }
+    }
+
+    async function confirmarGenerarOC() {
+        const proveedor_id = document.getElementById('oc-proveedor').value;
+        const almacen_id = document.getElementById('oc-almacen').value;
+        const fecha_entrega_esperada = document.getElementById('oc-fecha').value;
+
+        if (!proveedor_id || !almacen_id) {
+            showToast('Seleccione proveedor y almacén', 'error');
+            return;
+        }
+
+        try {
+            const res = await fetch('/api/logistica/compras/from-ot', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    ot_id: modalOtId,
+                    proveedor_id: parseInt(proveedor_id),
+                    almacen_id: parseInt(almacen_id),
+                    repuestos_ids: [modalRepuestoId],
+                    fecha_entrega_esperada,
+                    usuario: 'Logística'
+                })
+            });
+
+            if (!res.ok) {
+                const err = await res.json();
+                throw new Error(err.error || 'Error desconocido');
+            }
+
+            const result = await res.json();
+            cerrarModalOC();
+            await loadRequerimientos();
+            showToast(`OC generada: ${result.compra?.numero_po || ''}`, 'success');
+        } catch (e) {
+            showToast('Error al generar OC: ' + e.message, 'error');
+        }
+    }
+
+    // ─── Toast ─────────────────────────────────────────────────────────────────
+
+    function showToast(msg, type = 'info') {
+        const el = document.createElement('div');
+        const colors = { success: 'bg-green-600', error: 'bg-red-600', info: 'bg-blue-600' };
+        el.className = `fixed bottom-6 right-6 ${colors[type] || colors.info} text-white px-5 py-3 rounded-lg shadow-lg text-sm z-50 transition-opacity`;
+        el.textContent = msg;
+        document.body.appendChild(el);
+        setTimeout(() => { el.style.opacity = '0'; setTimeout(() => el.remove(), 400); }, 3000);
+    }
+
+    // ─── Init ──────────────────────────────────────────────────────────────────
+
+    document.addEventListener('DOMContentLoaded', loadRequerimientos);
+    </script>
+</body>
+</html>

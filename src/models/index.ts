@@ -170,14 +170,14 @@ export function setupAssociations() {
   Equipo.hasMany(Estrategia, { foreignKey: 'equipo_codigo', sourceKey: 'codigo', as: 'estrategias' });
   Equipo.hasMany(OrdenTrabajo, { foreignKey: 'equipo_codigo', sourceKey: 'codigo', as: 'ordenes_trabajo' });
   
-  Estrategia.hasMany(OrdenTrabajo, { foreignKey: 'estrategia_codigo', sourceKey: 'codigo', as: 'ordenes_trabajo' });
-  
+  // Estrategia.hasMany(OrdenTrabajo, { foreignKey: 'estrategia_codigo', sourceKey: 'codigo', as: 'ordenes_trabajo' });
+
   CodigoReparacion.hasMany(Tarea, { foreignKey: 'cod_rep_codigo', sourceKey: 'codigo', as: 'tareas' });
-  CodigoReparacion.hasMany(OrdenTrabajo, { foreignKey: 'cod_rep_codigo', sourceKey: 'codigo', as: 'ordenes_trabajo' });
-  
+  CodigoReparacion.hasMany(OrdenTrabajo, { foreignKey: 'id_cod_rep', as: 'ordenes_trabajo' });
+
   Material.hasMany(Tarea, { foreignKey: 'material_codigo', sourceKey: 'codigo', as: 'tareas' });
-  
-  Cliente.hasMany(OrdenTrabajo, { foreignKey: 'cliente_id', as: 'ordenes_trabajo' });
+
+  Cliente.hasMany(OrdenTrabajo, { foreignKey: 'id_cliente', as: 'ordenes_trabajo' });
 
   // ========================================
   // ASOCIACIONES DE LOGÍSTICA
@@ -199,9 +199,17 @@ export function setupAssociations() {
   Material.hasMany(CompraDetalle, { foreignKey: 'material_id', as: 'compra_detalles' });
   CompraDetalle.belongsTo(Material, { foreignKey: 'material_id', as: 'material' });
   
-  // OrdenTrabajo - Compra (One-to-Many)
+  // OrdenTrabajo - Compra (One-to-Many, legacy ot_id)
   OrdenTrabajo.hasMany(Compra, { foreignKey: 'ot_id', as: 'compras' });
   Compra.belongsTo(OrdenTrabajo, { foreignKey: 'ot_id', as: 'orden_trabajo' });
+
+  // OTRepuesto - OrdenTrabajo / Material (Many-to-One)
+  OTRepuesto.belongsTo(OrdenTrabajo, { foreignKey: 'ot_id', as: 'orden_trabajo' });
+  OrdenTrabajo.hasMany(OTRepuesto, { foreignKey: 'ot_id', as: 'repuestos' });
+  OTRepuesto.belongsTo(Material, { foreignKey: 'material_id', as: 'material' });
+  Material.hasMany(OTRepuesto, { foreignKey: 'material_id', as: 'ot_repuestos' });
+  OTRepuesto.belongsTo(Compra, { foreignKey: 'po_id', as: 'compra' });
+  OTRepuesto.belongsTo(Proveedor, { foreignKey: 'proveedor_id', as: 'proveedor' });
 
   console.log('✓ Asociaciones de modelos configuradas');
 }
@@ -275,6 +283,17 @@ export default {
   Tarea,
   CodigoReparacion,
   OrdenTrabajo,
+  // Modelos de Logística
+  Compra,
+  CompraDetalle,
+  OrdenCompra,
+  OrdenCompraView,
+  Almacen,
+  MovimientoInventario,
+  Proveedor,
+  OTHistorial,
+  OTRepuesto,
+  Herramienta,
   // Catálogos
   Planta,
   Area,

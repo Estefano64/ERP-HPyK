@@ -25,7 +25,7 @@ TipoGarantia.init(
       autoIncrement: true,
     },
     codigo: {
-      type: DataTypes.STRING(10),
+      type: DataTypes.STRING(30),
       allowNull: false,
       unique: true,
     },

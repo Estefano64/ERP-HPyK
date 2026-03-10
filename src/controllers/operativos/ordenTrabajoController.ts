@@ -372,9 +372,57 @@ export const getEstadisticasOrdenesTrabajo = async (req: Request, res: Response)
 
   } catch (error: any) {
     console.error('Error al obtener estadísticas:', error);
-    res.status(500).json({ 
-      error: 'Error al obtener estadísticas', 
-      details: error.message 
+    res.status(500).json({
+      error: 'Error al obtener estadísticas',
+      details: error.message
     });
+  }
+};
+
+// Vista unificada de seguimiento de producción — avance por componente de todas las OTs activas
+export const getProduccionTracking = async (req: Request, res: Response) => {
+  try {
+    const { prioridad, taller_status, search } = req.query;
+
+    let whereClause = `WHERE ot.ot_status_codigo = 'Abierta'`;
+    if (prioridad) whereClause += ` AND ot.prioridad_atencion_codigo = '${String(prioridad).replace(/'/g, "''")}'`;
+    if (taller_status) whereClause += ` AND ot.taller_status_codigo = '${String(taller_status).replace(/'/g, "''")}'`;
+    if (search) {
+      const s = String(search).replace(/'/g, "''");
+      whereClause += ` AND (ot.ot ILIKE '%${s}%' OR ot.equipo_codigo ILIKE '%${s}%' OR c.razon_social ILIKE '%${s}%')`;
+    }
+
+    const query = `
+      SELECT
+        ot.id, ot.ot, ot.descripcion, ot.equipo_codigo, ot.tipo_reparacion_codigo, ot.np,
+        ot.prioridad_atencion_codigo, ot.taller_status_codigo, ot.ot_status_codigo,
+        ot.recursos_status_codigo,
+        COALESCE(ot.pct_cilindro, 0)    AS pct_cilindro,
+        COALESCE(ot.pct_vastago, 0)     AS pct_vastago,
+        COALESCE(ot.pct_tapa, 0)        AS pct_tapa,
+        COALESCE(ot.pct_piston, 0)      AS pct_piston,
+        COALESCE(ot.pct_cuerpo_int_1, 0) AS pct_cuerpo_int_1,
+        COALESCE(ot.pct_cuerpo_int_2, 0) AS pct_cuerpo_int_2,
+        COALESCE(ot.pct_otros, 0)       AS pct_otros,
+        ot.fecha_recepcion, ot.fecha_requerimiento_cliente,
+        ROUND(
+          (COALESCE(ot.pct_cilindro,0) + COALESCE(ot.pct_vastago,0) +
+           COALESCE(ot.pct_tapa,0)    + COALESCE(ot.pct_piston,0)) / 4.0, 1
+        ) AS pct_general,
+        c.razon_social AS cliente_nombre
+      FROM orden_trabajo ot
+      LEFT JOIN cliente c ON ot.id_cliente = c.cliente_id
+      ${whereClause}
+      ORDER BY
+        CASE ot.prioridad_atencion_codigo
+          WHEN 'E' THEN 1 WHEN '1' THEN 2 WHEN '2' THEN 3 ELSE 4 END,
+        ot.fecha_recepcion ASC NULLS LAST
+    `;
+
+    const [results] = await sequelize.query(query);
+    res.json(results);
+  } catch (error: any) {
+    console.error('Error getProduccionTracking:', error);
+    res.status(500).json({ error: 'Error al obtener seguimiento de producción', details: error.message });
   }
 };

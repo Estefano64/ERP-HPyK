@@ -141,6 +141,16 @@
                     <p class="text-xs text-gray-100 mt-1 hidden sm:block">Ubicaciones</p>
                 </div>
             </div>
+
+            <!-- 7. REQUERIMIENTOS -->
+            <a href="/logistica/requerimientos.html" class="module-card bg-gradient-to-br from-orange-400 to-orange-600 rounded-lg shadow-lg p-4 md:p-6 text-white fade-in-up delay-6 relative block no-underline">
+                <div class="text-center">
+                    <i class="fas fa-list-check text-2xl md:text-4xl mb-2 md:mb-3 opacity-90"></i>
+                    <h3 class="text-sm md:text-lg font-bold">REQUERIMIENTOS</h3>
+                    <p class="text-xs text-orange-100 mt-1 hidden sm:block">Compras de OTs</p>
+                    <span id="badge-requerimientos" class="hidden absolute top-2 right-2 bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">0</span>
+                </div>
+            </a>
         </div>
 
         <!-- Tabs/Pestañas Area -->
@@ -2764,7 +2774,7 @@
 
         async function loadProveedoresOC() {
             try {
-                const response = await fetch('/api/proveedores');
+                const response = await fetch('/api/logistica/proveedores');
                 if (response.ok) {
                     proveedoresOC = await response.json();
                 } else {
@@ -2826,7 +2836,8 @@
                     : '<option value="">Todos los Proveedores</option>';
                 
                 proveedoresOC.forEach(p => {
-                    select.innerHTML += `<option value="${p.id}">${p.razon_social} (${p.ruc})</option>`;
+                    const nombre = p.razonSocial || p.razon_social || p.nombre || '';
+                    select.innerHTML += `<option value="${p.id}">${nombre}${p.ruc ? ' (' + p.ruc + ')' : ''}</option>`;
                 });
                 
                 if (currentValue) select.value = currentValue;
@@ -2835,17 +2846,19 @@
 
         async function loadOrdenes() {
             try {
-                const response = await fetch('/api/ordenes-compra');
+                const response = await fetch('/api/logistica/compras');
                 if (response.ok) {
-                    ordenes = await response.json();
+                    const data = await response.json();
+                    ordenes = Array.isArray(data) ? data : (data.data || []);
                 } else {
-                    ordenes = generateSampleOrdenes();
+                    console.error('Error al cargar OCs:', response.status);
+                    ordenes = [];
                 }
                 renderOrdenes();
                 updateOrdenDashboard();
             } catch (error) {
-                console.error('Error:', error);
-                ordenes = generateSampleOrdenes();
+                console.error('Error al cargar órdenes:', error);
+                ordenes = [];
                 renderOrdenes();
                 updateOrdenDashboard();
             }
@@ -2864,7 +2877,7 @@
         function generateNextOCNumber() {
             const year= new Date().getFullYear();
             const prefix = `OC-${year}-`;
-            const existingNumbers = ordenes.filter(o => o.numero.startsWith(prefix)).map(o => parseInt(o.numero.split('-')[2])).filter(n => !isNaN(n));
+            const existingNumbers = ordenes.filter(o => (o.numero_oc || o.numero || '').startsWith(prefix)).map(o => parseInt((o.numero_oc || o.numero || '').split('-')[2])).filter(n => !isNaN(n));
             const maxNumber = existingNumbers.length > 0 ? Math.max(...existingNumbers) : 0;
             const nextNumber = (maxNumber + 1).toString().padStart(4, '0');
             return `${prefix}${nextNumber}`;
@@ -2885,13 +2898,15 @@
                 const estadoBadge = getEstadoBadge(o.estado);
                 const monedaSymbol = o.moneda === 'USD' ? '$' : 'S/';
                 
+                const fmtDate = d => d ? new Date(d).toLocaleDateString('es-PE') : '-';
+                const total = parseFloat(o.total_final || o.total || 0);
                 return `
                     <tr class="hover:bg-gray-50">
-                        <td class="px-4 py-3 text-sm font-bold text-green-700">${o.numero}</td>
-                        <td class="px-4 py-3 text-sm">${o.proveedor_nombre}</td>
-                        <td class="px-4 py-3 text-center text-sm">${new Date(o.fecha_emision).toLocaleDateString('es-ES')}</td>
-                        <td class="px-4 py-3 text-center text-sm">${new Date(o.fecha_entrega).toLocaleDateString('es-ES')}</td>
-                        <td class="px-4 py-3 text-right text-sm font-bold">${monedaSymbol} ${o.total.toLocaleString('es-ES', {minimumFractionDigits:2})}</td>
+                        <td class="px-4 py-3 text-sm font-bold text-green-700">${o.numero_oc || o.numero || '-'}</td>
+                        <td class="px-4 py-3 text-sm">${o.proveedor_nombre || '-'}</td>
+                        <td class="px-4 py-3 text-center text-sm">${fmtDate(o.fecha_orden || o.fecha_emision)}</td>
+                        <td class="px-4 py-3 text-center text-sm">${fmtDate(o.fecha_entrega_requerida || o.fecha_entrega)}</td>
+                        <td class="px-4 py-3 text-right text-sm font-bold">${monedaSymbol} ${total.toLocaleString('es-PE', {minimumFractionDigits:2})}</td>
                         <td class="px-4 py-3 text-center">${estadoBadge}</td>
                         <td class="px-4 py-3 text-center">
                             <button onclick="viewOrden(${o.id})" class="text-blue-600 hover:text-blue-800 mx-1" title="Ver"><i class="fas fa-eye"></i></button>
@@ -2999,23 +3014,61 @@
                 tbody.innerHTML = '<tr><td colspan="7" class="px-4 py-3 text-center text-gray-500 text-sm">No hay productos agregados. Haga clic en "Agregar Producto"</td></tr>';
                 return;
             }
+            
             tbody.innerHTML = productRows.map((row, index) => `
-                <tr>
-                    <td class="px-3 py-2 border-b"><input type="text" value="${row.codigo}" onchange="updateProductRow(${row.id}, 'codigo', this.value)" list="materiales-list" class="w-full px-2 py-1 border border-gray-300 rounded text-sm" placeholder="MAT-001"></td>
-                    <td class="px-3 py-2 border-b"><input type="text" value="${row.descripcion}" onchange="updateProductRow(${row.id}, 'descripcion', this.value)" class="w-full px-2 py-1 border border-gray-300 rounded text-sm" placeholder="Descripción del producto"></td>
-                    <td class="px-3 py-2 border-b"><input type="text" value="${row.unidad}" onchange="updateProductRow(${row.id}, 'unidad', this.value)" class="w-24 px-2 py-1 border border-gray-300 rounded text-sm text-center" placeholder="Und"></td>
-                    <td class="px-3 py-2 border-b"><input type="number" value="${row.cantidad}" onchange="updateProductRow(${row.id}, 'cantidad', parseFloat(this.value))" min="0.01" step="0.01" class="w-24 px-2 py-1 border border-gray-300 rounded text-sm text-center" placeholder="1"></td>
-                    <td class="px-3 py-2 border-b"><input type="number" value="${row.precio_unitario}" onchange="updateProductRow(${row.id}, 'precio_unitario', parseFloat(this.value))" min="0" step="0.01" class="w-28 px-2 py-1 border border-gray-300 rounded text-sm text-right" placeholder="0.00"></td>
+                <tr data-row-id="${row.id}">
+                    <td class="px-3 py-2 border-b">
+                        <input type="text" 
+                               value="${row.codigo || ''}" 
+                               data-row-id="${row.id}"
+                               data-field="codigo"
+                               list="materiales-list" 
+                               class="codigo-input w-full px-2 py-1 border border-gray-300 rounded text-sm" 
+                               placeholder="MAT-001">
+                    </td>
+                    <td class="px-3 py-2 border-b"><input type="text" value="${row.descripcion || ''}" data-row-id="${row.id}" data-field="descripcion" class="w-full px-2 py-1 border border-gray-300 rounded text-sm" placeholder="Descripción del producto"></td>
+                    <td class="px-3 py-2 border-b"><input type="text" value="${row.unidad || ''}" data-row-id="${row.id}" data-field="unidad" class="w-24 px-2 py-1 border border-gray-300 rounded text-sm text-center" placeholder="Und"></td>
+                    <td class="px-3 py-2 border-b"><input type="number" value="${row.cantidad}" data-row-id="${row.id}" data-field="cantidad" class="w-24 px-2 py-1 border border-gray-300 rounded text-sm text-center" placeholder="1" min="0.01" step="0.01"></td>
+                    <td class="px-3 py-2 border-b"><input type="number" value="${row.precio_unitario}" data-row-id="${row.id}" data-field="precio_unitario" class="w-28 px-2 py-1 border border-gray-300 rounded text-sm text-right" placeholder="0.00" min="0" step="0.01"></td>
                     <td class="px-3 py-2 border-b text-right text-sm font-semibold">${row.subtotal.toFixed(2)}</td>
                     <td class="px-3 py-2 border-b text-center"><button type="button" onclick="removeProductRow(${row.id})" class="text-red-600 hover:text-red-800" title="Eliminar"><i class="fas fa-trash"></i></button></td>
                 </tr>
             `).join('');
+            
+            // Asegurar que el datalist existe
             if (!document.getElementById('materiales-list')) {
                 const datalist = document.createElement('datalist');
                 datalist.id = 'materiales-list';
                 datalist.innerHTML = materiales.map(m => `<option value="${m.codigo}">${m.nombre}</option>`).join('');
                 document.body.appendChild(datalist);
             }
+            
+            // Agregar event listeners a los inputs
+            tbody.querySelectorAll('input').forEach(input => {
+                const rowId = parseInt(input.getAttribute('data-row-id'));
+                const field = input.getAttribute('data-field');
+                
+                if (field === 'codigo') {
+                    input.addEventListener('input', function() {
+                        const material = materiales.find(m => m.codigo === this.value);
+                        if (material) {
+                            updateProductRow(rowId, 'codigo', this.value);
+                        }
+                    });
+                    input.addEventListener('change', function() {
+                        updateProductRow(rowId, 'codigo', this.value);
+                    });
+                } else if (field === 'cantidad' || field === 'precio_unitario') {
+                    input.addEventListener('input', function() {
+                        const value = parseFloat(this.value) || (field === 'cantidad' ? 1 : 0);
+                        updateProductRow(rowId, field, value);
+                    });
+                } else if (field) {
+                    input.addEventListener('change', function() {
+                        updateProductRow(rowId, field, this.value);
+                    });
+                }
+            });
         }
 
         function updateProductRow(rowId, field, value) {
@@ -3028,10 +3081,29 @@
                     row.descripcion = material.nombre;
                     row.unidad = material.unidad;
                     row.precio_unitario = material.precio_unitario || 0;
+                    
+                    // Actualizar directamente los inputs DOM sin re-renderizar
+                    const inputs = document.querySelectorAll(`input[data-row-id="${rowId}"]`);
+                    inputs.forEach(input => {
+                        const inputField = input.getAttribute('data-field');
+                        if (inputField === 'descripcion') {
+                            input.value = row.descripcion;
+                        } else if (inputField === 'unidad') {
+                            input.value = row.unidad;
+                        } else if (inputField === 'precio_unitario') {
+                            input.value = row.precio_unitario;
+                        }
+                    });
                 }
             }
             row.subtotal = row.cantidad * row.precio_unitario;
-            renderProductRows();
+            
+            // Actualizar el subtotal en el DOM
+            const subtotalCell = document.querySelector(`tr[data-row-id="${rowId}"] td:nth-child(6)`);
+            if (subtotalCell) {
+                subtotalCell.textContent = (row.subtotal || 0).toFixed(2);
+            }
+            
             calculateTotals();
         }
 
@@ -3054,27 +3126,44 @@
             }
             ordenEditingId = id;
             document.getElementById('modal-orden-title').textContent = 'Editar Orden de Compra';
-            document.getElementById('orden-numero').value = orden.numero;
-            document.getElementById('numero-oc-display').textContent = orden.numero;
+            document.getElementById('orden-numero').value = orden.numero_oc || orden.numero || '';
+            document.getElementById('numero-oc-display').textContent = orden.numero_oc || orden.numero || '';
             document.getElementById('orden-proveedor').value = orden.proveedor_id;
             document.getElementById('orden-estado').value = orden.estado;
-            document.getElementById('orden-fecha-emision').value = orden.fecha_emision;
-            document.getElementById('orden-fecha-entrega').value = orden.fecha_entrega;
-            document.getElementById('orden-condicion-pago').value = orden.condicion_pago;
-            document.getElementById('orden-moneda').value = orden.moneda;
+            document.getElementById('orden-fecha-emision').value = (orden.fecha_orden || orden.fecha_emision || '').split('T')[0];
+            document.getElementById('orden-fecha-entrega').value = (orden.fecha_entrega_requerida || orden.fecha_entrega || '').split('T')[0];
+            document.getElementById('orden-condicion-pago').value = orden.forma_pago || orden.condicion_pago || 'contado';
+            document.getElementById('orden-moneda').value = orden.moneda || 'PEN';
             document.getElementById('orden-observaciones').value = orden.observaciones || '';
-            productRows = orden.productos.map(p => ({id: Date.now() + Math.random(), codigo: p.codigo, descripcion: p.descripcion, unidad: p.unidad, cantidad: p.cantidad, precio_unitario: p.precio_unitario, subtotal: p.subtotal}));
+            productRows = [{id: Date.now(), codigo: orden.material_codigo || '', descripcion: orden.descripcion || orden.material_nombre || '', unidad: orden.unidad_medida || '', cantidad: parseFloat(orden.cantidad) || 1, precio_unitario: parseFloat(orden.precio_unitario) || 0, subtotal: parseFloat(orden.subtotal) || 0}];
             renderProductRows();
             calculateTotals();
             document.getElementById('modal-orden').classList.remove('hidden');
         }
 
+        function getProductosOrden(orden) {
+            if (Array.isArray(orden.productos) && orden.productos.length > 0) return orden.productos;
+            return [{
+                codigo: orden.material_codigo || '-',
+                descripcion: orden.descripcion || orden.material_nombre || '-',
+                unidad: orden.unidad_medida || 'und',
+                cantidad: parseFloat(orden.cantidad) || 1,
+                precio_unitario: parseFloat(orden.precio_unitario) || 0,
+                subtotal: parseFloat(orden.subtotal) || 0
+            }];
+        }
+
         function viewOrden(id) {
             const orden = ordenes.find(o => o.id === id);
             if (!orden) return;
-            const productos = orden.productos.map((p, i) => `${i + 1}. ${p.descripcion} (${p.codigo}) - ${p.cantidad} ${p.unidad} x S/ ${p.precio_unitario.toFixed(2)} = S/ ${p.subtotal.toFixed(2)}`).join('\n');
+            const prods = getProductosOrden(orden);
+            const productosStr = prods.map((p, i) => `${i + 1}. ${p.descripcion} (${p.codigo}) - ${p.cantidad} ${p.unidad} x S/ ${parseFloat(p.precio_unitario||0).toFixed(2)} = S/ ${parseFloat(p.subtotal||0).toFixed(2)}`).join('\n');
             const monedaSymbol = orden.moneda === 'USD' ? '$' : 'S/';
-            const detalles = `ORDEN DE COMPRA\n\nNúmero: ${orden.numero}\nProveedor: ${orden.proveedor_nombre}\nFecha Emisión: ${new Date(orden.fecha_emision).toLocaleDateString('es-ES')}\nFecha Entrega: ${new Date(orden.fecha_entrega).toLocaleDateString('es-ES')}\nEstado: ${orden.estado.toUpperCase().replace('_', ' ')}\nCondición Pago: ${orden.condicion_pago.replace('_', ' ')}\nMoneda: ${orden.moneda}\n\nPRODUCTOS:\n${productos}\n\nTOTALES:\nSubtotal: ${monedaSymbol} ${orden.subtotal.toFixed(2)}\nIGV (18%): ${monedaSymbol} ${orden.igv.toFixed(2)}\nTOTAL: ${monedaSymbol} ${orden.total.toFixed(2)}\n\n${orden.observaciones ? 'Observaciones: ' + orden.observaciones : ''}\nCreado por: ${orden.creado_por}\nFecha Creación: ${new Date(orden.fecha_creacion).toLocaleDateString('es-ES')}\n${orden.fecha_recepcion ? 'Recibido: ' + new Date(orden.fecha_recepcion).toLocaleDateString('es-ES') : ''}`.trim();
+            const total = parseFloat(orden.total_final || orden.total || 0);
+            const subtotal = parseFloat(orden.subtotal || 0);
+            const igv = total - subtotal;
+            const fmtD = d => d ? new Date(d).toLocaleDateString('es-PE') : '-';
+            const detalles = `ORDEN DE COMPRA\n\nNúmero: ${orden.numero_oc || orden.numero || '-'}\nProveedor: ${orden.proveedor_nombre || '-'}\nFecha Orden: ${fmtD(orden.fecha_orden || orden.fecha_emision)}\nFecha Entrega: ${fmtD(orden.fecha_entrega_requerida || orden.fecha_entrega)}\nEstado: ${(orden.estado||'-').toUpperCase().replace('_',' ')}\nForma Pago: ${orden.forma_pago || orden.condicion_pago || '-'}\nMoneda: ${orden.moneda||'PEN'}\n\nPRODUCTOS:\n${productosStr}\n\nTOTALES:\nSubtotal: ${monedaSymbol} ${subtotal.toFixed(2)}\nIGV (18%): ${monedaSymbol} ${igv.toFixed(2)}\nTOTAL: ${monedaSymbol} ${total.toFixed(2)}\n\n${orden.observaciones ? 'Observaciones: ' + orden.observaciones : ''}`.trim();
             alert(detalles);
         }
 
@@ -3085,10 +3174,10 @@
                 showToast('Solo se pueden eliminar órdenes en borrador', 'error');
                 return;
             }
-            if (!confirm(`¿Eliminar la orden ${orden.numero}?`)) return;
-            ordenes = ordenes.filter(o => o.id !== id);
-            renderOrdenes();
-            updateOrdenDashboard();
+            if (!confirm(`¿Eliminar la orden ${orden.numero_oc || orden.numero}?`)) return;
+            fetch(`/api/logistica/compras/${id}`, { method: 'DELETE' })
+                .then(r => r.ok ? loadOrdenes() : r.json().then(e => showToast('Error: ' + (e.error || r.status), 'error')))
+                .catch(() => showToast('Error de conexión', 'error'));
             showToast('Orden eliminada correctamente', 'success');
         }
 
@@ -3116,39 +3205,69 @@
                 return;
             }
             const proveedor_id = parseInt(document.getElementById('orden-proveedor').value);
-            const proveedor = proveedoresOC.find(p => p.id === proveedor_id);
-            const subtotal = productRows.reduce((sum, row) => sum + row.subtotal, 0);
-            const igv = subtotal * 0.18;
-            const total = subtotal + igv;
-            const data = {
-                numero: document.getElementById('orden-numero').value,
-                proveedor_id: proveedor_id,
-                proveedor_nombre: proveedor ? proveedor.razon_social : '',
-                fecha_emision: document.getElementById('orden-fecha-emision').value,
-                fecha_entrega: document.getElementById('orden-fecha-entrega').value,
-                estado: document.getElementById('orden-estado').value,
-                condicion_pago: document.getElementById('orden-condicion-pago').value,
-                moneda: document.getElementById('orden-moneda').value,
-                subtotal: subtotal,
-                igv: igv,
-                total: total,
-                observaciones: document.getElementById('orden-observaciones').value,
-                productos: productRows.map(({ id, ...rest }) => rest),
-                creado_por: 'Admin',
-                fecha_creacion: new Date().toISOString().split('T')[0]
-            };
-            if (ordenEditingId) {
-                const index = ordenes.findIndex(o => o.id === ordenEditingId);
-                ordenes[index] = { ...ordenes[index], ...data };
-                showToast('Orden actualizada correctamente', 'success');
-            } else {
-                data.id = ordenes.length > 0 ? Math.max(...ordenes.map(o => o.id)) + 1 : 1;
-                ordenes.push(data);
-                showToast('Orden creada correctamente', 'success');
+            if (!proveedor_id || isNaN(proveedor_id)) {
+                showToast('Debe seleccionar un proveedor', 'error');
+                return;
             }
-            closeOrdenModal();
-            renderOrdenes();
-            updateOrdenDashboard();
+            const numero_oc = document.getElementById('orden-numero').value;
+            const fecha_orden = document.getElementById('orden-fecha-emision').value;
+            if (!fecha_orden) {
+                showToast('La fecha de emisión es requerida', 'error');
+                return;
+            }
+            const subtotal = productRows.reduce((sum, row) => sum + (row.subtotal || 0), 0);
+            const igv_porcentaje = 18;
+            const total_final = subtotal * (1 + igv_porcentaje / 100);
+            const firstRow = productRows[0] || {};
+            const descripcionCombinada = productRows.length > 1
+                ? productRows.map((r, i) => `${i+1}. ${r.descripcion || r.codigo} (${r.cantidad} ${r.unidad})`).join(' | ')
+                : (firstRow.descripcion || firstRow.codigo || '');
+            const data = {
+                numero_oc,
+                fecha_orden,
+                fecha_entrega_requerida: document.getElementById('orden-fecha-entrega').value || null,
+                proveedor_id,
+                estado: document.getElementById('orden-estado').value || 'borrador',
+                forma_pago: document.getElementById('orden-condicion-pago').value || 'contado',
+                moneda: document.getElementById('orden-moneda').value || 'PEN',
+                observaciones: document.getElementById('orden-observaciones').value || '',
+                descripcion: descripcionCombinada,
+                cantidad: parseFloat(firstRow.cantidad) || 1,
+                unidad_medida: firstRow.unidad || 'und',
+                precio_unitario: parseFloat(firstRow.precio_unitario) || 0,
+                subtotal,
+                igv_porcentaje,
+                total_final,
+                user_crea: 'Admin'
+            };
+            try {
+                let response;
+                if (ordenEditingId) {
+                    response = await fetch(`/api/logistica/compras/${ordenEditingId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(data)
+                    });
+                } else {
+                    response = await fetch('/api/logistica/compras', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(data)
+                    });
+                }
+                if (response.ok) {
+                    closeOrdenModal();
+                    await loadOrdenes();
+                    showToast(ordenEditingId ? 'Orden actualizada correctamente' : 'Orden creada correctamente', 'success');
+                    ordenEditingId = null;
+                } else {
+                    const err = await response.json().catch(() => ({}));
+                    showToast('Error al guardar: ' + (err.error || err.details || response.status), 'error');
+                }
+            } catch (error) {
+                console.error('Error al guardar orden:', error);
+                showToast('Error de conexión al guardar', 'error');
+            }
         }
 
         // === IMÁGENES PARA PDF (Base64) ===
@@ -3248,7 +3367,7 @@
             doc.setFontSize(14);
             doc.setFont(undefined, 'bold');
             doc.setTextColor(0, 100, 0); // Verde
-            doc.text(orden.numero, 147, 24);
+            doc.text(orden.numero_oc || orden.numero || '-', 147, 24);
             
             // === TÍTULO CENTRADO ===
             doc.setFillColor(192, 192, 192);
@@ -3264,7 +3383,7 @@
             doc.setFont(undefined, 'normal');
             doc.text(`Señor (es):`, 15, yPos);
             doc.setFont(undefined, 'bold');
-            doc.text(proveedor.razon_social || orden.proveedor_nombre, 40, yPos);
+            doc.text(proveedor.razonSocial || proveedor.razon_social || orden.proveedor_nombre || '-', 40, yPos);
             
             yPos += 4;
             doc.setFont(undefined, 'normal');
@@ -3298,11 +3417,11 @@
             yPos += 4;
             doc.setFont(undefined, 'normal');
             doc.text(`Fecha Emisión:`, 130, yPos);
-            doc.text(new Date(orden.fecha_emision).toLocaleDateString('es-PE'), 165, yPos);
+            doc.text(new Date(orden.fecha_orden || orden.fecha_emision).toLocaleDateString('es-PE'), 165, yPos);
             
             yPos += 4;
             doc.text(`Ref. Pedido:`, 130, yPos);
-            doc.text(orden.numero.split('-')[2] || 'N/A', 165, yPos);
+            doc.text(((orden.numero_oc || orden.numero || '').split('-')[2]) || 'N/A', 165, yPos);
             
             yPos += 4;
             doc.text(`Moneda:`, 130, yPos);
@@ -3310,7 +3429,7 @@
             
             yPos += 4;
             doc.text(`Forma de pago:`, 130, yPos);
-            const formaPago = orden.condicion_pago.replace('credito_', 'CRÉDITO ').replace('contado', 'CONTADO').toUpperCase();
+            const formaPago = (orden.forma_pago || orden.condicion_pago || 'contado').replace('credito_', 'CRÉDITO ').replace('contado', 'CONTADO').toUpperCase();
             doc.text(formaPago, 165, yPos);
             
             yPos += 4;
@@ -3322,15 +3441,16 @@
             doc.text('BN', 165, yPos);
             
             // === TABLA DE PRODUCTOS ===
-            const tableData = orden.productos.map((p, idx) => [
+            const prods = getProductosOrden(orden);
+            const tableData = prods.map((p, idx) => [
                 (idx + 1).toString(),
-                p.cantidad.toString(),
-                p.codigo,
-                p.descripcion,
-                p.unidad,
-                new Date(orden.fecha_entrega).toLocaleDateString('es-PE', { day: '2-digit', month: 'short' }),
-                p.precio_unitario.toFixed(2),
-                p.subtotal.toFixed(2)
+                (parseFloat(p.cantidad)||1).toString(),
+                p.codigo || '-',
+                p.descripcion || '-',
+                p.unidad || 'und',
+                new Date(orden.fecha_entrega_requerida || orden.fecha_entrega || Date.now()).toLocaleDateString('es-PE', { day: '2-digit', month: 'short' }),
+                parseFloat(p.precio_unitario||0).toFixed(2),
+                parseFloat(p.subtotal||0).toFixed(2)
             ]);
             
             doc.autoTable({
@@ -3374,7 +3494,7 @@
             // Subtotal
             doc.text('Subtotal', xTotales, finalY);
             doc.text(monedaSymbol, xTotales + 25, finalY);
-            doc.text(orden.subtotal.toFixed(2), xTotales + 50, finalY, { align: 'right' });
+            doc.text(parseFloat(orden.subtotal||0).toFixed(2), xTotales + 50, finalY, { align: 'right' });
             
             // Descuento (0 por ahora)
             doc.text('Dscto.', xTotales, finalY + 5);
@@ -3384,7 +3504,7 @@
             // IGV
             doc.text('IGV      18%', xTotales, finalY + 10);
             doc.text(monedaSymbol, xTotales + 25, finalY + 10);
-            doc.text(orden.igv.toFixed(2), xTotales + 50, finalY + 10, { align: 'right' });
+            doc.text((parseFloat(orden.total_final||orden.total||0) - parseFloat(orden.subtotal||0)).toFixed(2), xTotales + 50, finalY + 10, { align: 'right' });
             
             // Otros
             doc.text('Otros  %', xTotales, finalY + 15);
@@ -3395,7 +3515,7 @@
             doc.setFont(undefined, 'bold');
             doc.text('Total', xTotales, finalY + 20);
             doc.text(monedaSymbol, xTotales + 25, finalY + 20);
-            doc.text(orden.total.toFixed(2), xTotales + 50, finalY + 20, { align: 'right' });
+            doc.text(parseFloat(orden.total_final||orden.total||0).toFixed(2), xTotales + 50, finalY + 20, { align: 'right' });
             
             // Nota sobre cuenta interbancaria
             doc.setFont(undefined, 'italic');
@@ -3485,7 +3605,7 @@
             });
             
             // Guardar PDF
-            doc.save(`OC_${orden.numero}.pdf`);
+            doc.save(`OC_${orden.numero_oc || orden.numero}.pdf`);
             showToast('PDF generado correctamente', 'success');
         }
 
@@ -3529,7 +3649,9 @@
             
             // Datos
             ordenes.forEach((o, idx) => {
-                const row = worksheet.addRow([o.numero, o.proveedor_nombre, o.fecha_emision, o.fecha_entrega, o.estado, o.condicion_pago, o.moneda, o.subtotal, o.igv, o.total, o.productos.length, o.observaciones || '-', o.creado_por, o.fecha_creacion]);
+                const total = parseFloat(o.total_final || o.total || 0);
+                const subtotal = parseFloat(o.subtotal || 0);
+                const row = worksheet.addRow([o.numero_oc || o.numero, o.proveedor_nombre, (o.fecha_orden || o.fecha_emision || '').split('T')[0], (o.fecha_entrega_requerida || o.fecha_entrega || '').split('T')[0], o.estado, o.forma_pago || o.condicion_pago, o.moneda, subtotal, total - subtotal, total, 1, o.observaciones || '-', o.user_crea || o.creado_por, (o.createdAt || o.fecha_creacion || '').split('T')[0]]);
                 
                 if (idx % 2 === 0) row.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF7FAFC' } };
                 
@@ -4889,6 +5011,20 @@
             renderOTs();
             renderGuias();
         }
+
+        // Badge requerimientos pendientes
+        document.addEventListener('DOMContentLoaded', function() {
+            fetch('/api/logistica/requerimientos?estado=Pendiente')
+                .then(r => r.json())
+                .then(data => {
+                    const badge = document.getElementById('badge-requerimientos');
+                    if (badge && Array.isArray(data) && data.length > 0) {
+                        badge.textContent = data.length;
+                        badge.classList.remove('hidden');
+                    }
+                })
+                .catch(() => { /* silently ignore */ });
+        });
     </script>
 </body>
 </html>

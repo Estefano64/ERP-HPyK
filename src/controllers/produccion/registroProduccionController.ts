@@ -1,11 +1,9 @@
 import { Request, Response } from 'express';
 import RegistroProduccion from '../../models/RegistroProduccion';
-import Planta from '../../models/catalogs/Planta';
 
 export const getAllRegistrosProduccion = async (req: Request, res: Response) => {
   try {
     const registros = await RegistroProduccion.findAll({
-      include: [{ model: Planta, as: 'planta' }],
       order: [['fecha', 'DESC']],
     });
     res.json(registros);
@@ -18,7 +16,6 @@ export const getRegistroProduccionById = async (req: Request, res: Response) => 
   try {
     const { id } = req.params;
     const registro = await RegistroProduccion.findByPk(parseInt(id as string), {
-      include: [{ model: Planta, as: 'planta' }],
     });
     
     if (!registro) {

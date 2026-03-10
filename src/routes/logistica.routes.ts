@@ -32,6 +32,7 @@ router.delete('/movimientos/:id', movimientoController.deleteMovimiento);
 
 // Órdenes de Compra
 router.get('/compras', ordenCompraController.getAllOrdenesCompra);
+router.get('/compras/:id/pdf', ordenCompraController.getOrdenCompraPDF);
 router.get('/compras/:id', ordenCompraController.getOrdenCompraById);
 router.post('/compras', ordenCompraController.createOrdenCompra);
 router.put('/compras/:id', ordenCompraController.updateOrdenCompra);
@@ -43,6 +44,9 @@ router.get('/ordenes-compra', ordenCompraController.getAllOrdenesCompra);
 router.post('/ordenes-compra', ordenCompraController.createOrdenCompraView);
 router.get('/ordenes-compra/export', ordenCompraController.exportarOrdenesExcel);
 router.get('/ordenes-compra/stats', ordenCompraController.getEstadisticasOrdenes);
+
+// === REQUERIMIENTOS DE COMPRA (Vista central logística — todos los repuestos de OTs) ===
+router.get('/requerimientos', compraController.getRequerimientosPendientes);
 
 // === ÓRDENES DE COMPRA DESDE OT (Nuevo módulo de integración OT-Repuestos-PO) ===
 // Generar Order de Compra desde repuestos de una OT

@@ -4,9 +4,13 @@
  */
 
 import { Request, Response } from 'express';
-import { QueryTypes } from 'sequelize';
+import { Op, QueryTypes } from 'sequelize';
 import OTRepuesto from '../../models/OTRepuesto';
 import OTHistorial from '../../models/OTHistorial';
+import OrdenTrabajo from '../../models/OrdenTrabajo';
+import CodigoReparacion from '../../models/CodigoReparacion';
+import Tarea from '../../models/Tarea';
+import Material from '../../models/Material';
 import sequelize from '../../config/database';
 
 // Helper para asegurar que el parámetro sea string
@@ -20,14 +24,14 @@ export const getRepuestosByOT = async (req: Request, res: Response) => {
     const otId = ensureString(req.params.otId);
     
     const repuestos = await sequelize.query(
-      `SELECT 
+      `SELECT
         otr.*,
-        m.nombre as material_nombre,
-        m.codigo_sap as material_codigo,
-        p.razonSocial as proveedor_nombre,
+        m.descripcion as material_nombre,
+        m.codigo as material_codigo,
+        p."razonSocial" as proveedor_nombre,
         po.numero_po as po_numero
       FROM ot_repuestos otr
-      LEFT JOIN materiales m ON otr.material_id = m.id
+      LEFT JOIN material m ON otr.material_id = m.material_id
       LEFT JOIN proveedores p ON otr.proveedor_id = p.id
       LEFT JOIN compras po ON otr.po_id = po.id
       WHERE otr.ot_id = :otId
@@ -141,6 +145,104 @@ export const updateRepuesto = async (req: Request, res: Response) => {
   } catch (error) {
     console.error('Error al actualizar repuesto:', error);
     res.status(400).json({ error: 'Error al actualizar repuesto', details: error });
+  }
+};
+
+// Generar repuestos automáticamente desde el Task List del CodRep de la OT
+export const createRepuestosFromTaskList = async (req: Request, res: Response) => {
+  const transaction = await sequelize.transaction();
+  try {
+    const otId = parseInt(req.params.otId as string);
+    const { usuario } = req.body;
+
+    // 1. Obtener OT
+    const ot = await OrdenTrabajo.findByPk(otId);
+    if (!ot) {
+      await transaction.rollback();
+      return res.status(404).json({ error: 'OT no encontrada' });
+    }
+    if (!ot.id_cod_rep) {
+      await transaction.rollback();
+      return res.status(400).json({ error: 'OT no tiene CodRep asignado' });
+    }
+
+    // 2. Obtener CodigoReparacion
+    const codRep = await CodigoReparacion.findByPk(ot.id_cod_rep);
+    if (!codRep) {
+      await transaction.rollback();
+      return res.status(404).json({ error: 'CodRep no encontrado' });
+    }
+
+    // 3. Obtener task list por codigo string o por np_cod1 (fallback)
+    const tareas = await Tarea.findAll({
+      where: {
+        [Op.or]: [
+          { cod_rep_codigo: codRep.codigo },
+          ...(codRep.np ? [{ np_cod1: codRep.np }] : [])
+        ]
+      },
+      order: [['item_numero', 'ASC']]
+    });
+
+    if (!tareas.length) {
+      await transaction.rollback();
+      return res.status(404).json({ error: 'No hay task list para este CodRep' });
+    }
+
+    // 4. Materiales ya en la OT (evitar duplicados)
+    const existentes = await OTRepuesto.findAll({ where: { ot_id: otId } });
+    const materialesExistentes = new Set(
+      existentes.map((r: any) => r.material_id).filter((id: any) => id != null)
+    );
+
+    // 5. Crear repuestos
+    const creados: any[] = [];
+    for (const tarea of tareas) {
+      let material_id: number | null = null;
+
+      if (tarea.material_codigo) {
+        const mat = await Material.findOne({ where: { codigo: tarea.material_codigo } });
+        material_id = mat ? mat.material_id : null;
+        if (material_id !== null && materialesExistentes.has(material_id)) {
+          continue; // ya existe este material — omitir
+        }
+      }
+
+      const repuesto = await OTRepuesto.create({
+        ot_id: otId,
+        material_id: material_id ?? undefined,  // undefined = omitido por Sequelize si es null
+        descripcion: tarea.descripcion || tarea.ref_descripcion || '',
+        tipo_codigo: tarea.tipo_codigo,
+        cantidad: tarea.requerimiento,
+        texto: tarea.texto || undefined,
+        precio_unitario: tarea.precio || undefined,
+        estado: 'Pendiente',
+        usuario_solicita: usuario || 'Admin',
+        fecha_solicitud: new Date()
+      }, { transaction });
+
+      creados.push(repuesto);
+    }
+
+    // 6. Registrar en historial
+    await OTHistorial.create({
+      ot_id: otId,
+      tipo_operacion: 'Otro',
+      descripcion: `Task List generado: ${creados.length} ítem(s) desde CodRep ${codRep.codigo}`,
+      usuario: usuario || 'Admin',
+      fecha: new Date(),
+      datos_adicionales: JSON.stringify({ cod_rep: codRep.codigo, items: creados.length })
+    }, { transaction });
+
+    await transaction.commit();
+    res.status(201).json({
+      message: `${creados.length} repuesto(s) generados desde Task List`,
+      repuestos: creados
+    });
+  } catch (error) {
+    await transaction.rollback();
+    console.error('Error createRepuestosFromTaskList:', error);
+    res.status(500).json({ error: 'Error al generar desde task list', details: error });
   }
 };
 

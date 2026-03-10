@@ -56,6 +56,33 @@
         <div id="formSection" class="hidden bg-white rounded-lg shadow-lg p-6 mb-8">
             <h3 class="text-2xl font-bold text-gray-800 mb-6" id="formTitle">Nueva Orden de Compra</h3>
             <form id="compraForm" class="space-y-6">
+
+                <!-- Vinculación a OT -->
+                <div class="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                    <h4 class="text-lg font-semibold text-gray-700 mb-4 flex items-center">
+                        <i class="fas fa-link text-orange-500 mr-2"></i>
+                        Vinculación a Orden de Trabajo (Opcional)
+                    </h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Orden de Trabajo</label>
+                            <select id="ot_id" onchange="onOTChange(this)"
+                                class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-orange-400 focus:border-transparent">
+                                <option value="">Sin OT vinculada...</option>
+                            </select>
+                        </div>
+                        <div id="ot-info-panel" class="hidden bg-white border border-orange-200 rounded-lg p-3">
+                            <p class="text-xs text-gray-500 uppercase font-semibold mb-2">Datos de la OT seleccionada</p>
+                            <div class="grid grid-cols-2 gap-2 text-sm">
+                                <div><span class="text-gray-500">Equipo:</span> <span id="ot-equipo" class="font-medium">-</span></div>
+                                <div><span class="text-gray-500">Estado:</span> <span id="ot-estado" class="font-medium">-</span></div>
+                                <div><span class="text-gray-500">Tipo Rep.:</span> <span id="ot-tipo-rep" class="font-medium">-</span></div>
+                                <div><span class="text-gray-500">Prioridad:</span> <span id="ot-prioridad" class="font-medium">-</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="bg-gray-50 rounded-lg p-4">
                     <h4 class="text-lg font-semibold text-gray-700 mb-4 flex items-center">
                         <i class="fas fa-file-invoice text-cyan-600 mr-2"></i>
@@ -370,6 +397,16 @@
             document.getElementById('precio_unitario').addEventListener('input', calcularTotal);
             document.getElementById('igv_porcentaje').addEventListener('input', calcularTotal);
             document.getElementById('descuento_porcentaje').addEventListener('input', calcularTotal);
+            document.getElementById('material_id').addEventListener('change', function() {
+                const opt = this.options[this.selectedIndex];
+                if (opt && opt.dataset.descripcion) {
+                    document.getElementById('descripcion').value = opt.dataset.descripcion;
+                }
+                if (opt && opt.dataset.precio && !document.getElementById('precio_unitario').value) {
+                    document.getElementById('precio_unitario').value = opt.dataset.precio;
+                    calcularTotal();
+                }
+            });
         });
 
         function calcularTotal() {
@@ -397,32 +434,81 @@
             setTimeout(() => toast.classList.add('hidden'), 3000);
         }
 
+        let _otsCache = [];
+
         async function loadCatalogos() {
             try {
-                const [proveedores, almacenes] = await Promise.all([
+                const [proveedores, almacenes, materiales, otsData] = await Promise.all([
                     fetch('/api/logistica/proveedores').then(r => r.json()),
-                    fetch('/api/logistica/almacenes').then(r => r.json())
+                    fetch('/api/logistica/almacenes').then(r => r.json()),
+                    fetch('/api/materiales').then(r => r.json()),
+                    fetch('/api/ot?limit=500').then(r => r.json())
                 ]);
-                
+
+                // Proveedores (campo correcto: razonSocial)
                 const provSelect = document.getElementById('proveedor_id');
                 provSelect.innerHTML = '<option value="">Seleccione proveedor...</option>';
-                proveedores.forEach(p => {
-                    provSelect.innerHTML += `<option value="${p.id}">${p.razon_social}</option>`;
+                const provArr = Array.isArray(proveedores) ? proveedores : [];
+                provArr.forEach(p => {
+                    provSelect.innerHTML += `<option value="${p.id}">${p.razonSocial}</option>`;
                 });
-                
+
+                // Materiales (campos correctos del modelo)
                 const matSelect = document.getElementById('material_id');
-                matSelect.innerHTML = '<option value="">Seleccione inventario...</option>';
-                // Materials will be loaded from a different endpoint when available
-                
+                matSelect.innerHTML = '<option value="">Seleccione material...</option>';
+                const matArr = Array.isArray(materiales) ? materiales : (materiales.materiales || []);
+                matArr.forEach(m => {
+                    const opt = document.createElement('option');
+                    opt.value = m.material_id;
+                    opt.textContent = `${m.codigo} - ${m.descripcion}`;
+                    opt.dataset.descripcion = m.descripcion || '';
+                    opt.dataset.precio = m.precio || '';
+                    matSelect.appendChild(opt);
+                });
+
+                // Almacenes
                 const almSelect = document.getElementById('almacen_id');
                 almSelect.innerHTML = '<option value="">Seleccione almacén...</option>';
-                almacenes.forEach(a => {
+                const almArr = Array.isArray(almacenes) ? almacenes : [];
+                almArr.forEach(a => {
                     almSelect.innerHTML += `<option value="${a.id}">${a.nombre}</option>`;
                 });
+
+                // OTs para el selector de vinculación
+                _otsCache = Array.isArray(otsData.ordenes) ? otsData.ordenes : (Array.isArray(otsData) ? otsData : []);
+                const otSelect = document.getElementById('ot_id');
+                otSelect.innerHTML = '<option value="">Sin OT vinculada...</option>';
+                _otsCache.forEach(ot => {
+                    const opt = document.createElement('option');
+                    opt.value = ot.id;
+                    opt.textContent = `${ot.ot || ('OT-' + ot.id)} — ${ot.equipo_codigo || '-'} | ${ot.ot_status_codigo || '-'}`;
+                    opt.dataset.equipo = ot.equipo_codigo || '-';
+                    opt.dataset.estado = ot.ot_status_codigo || '-';
+                    opt.dataset.tipo_rep = ot.tipo_reparacion_codigo || '-';
+                    opt.dataset.prioridad = ot.prioridad_atencion_codigo || '-';
+                    otSelect.appendChild(opt);
+                });
+
             } catch (error) {
-                console.error('Error:', error);
+                console.error('Error loading catalogs:', error);
             }
         }
+
+        // Auto-llenado al seleccionar una OT
+        function onOTChange(select) {
+            const panel = document.getElementById('ot-info-panel');
+            const opt = select.options[select.selectedIndex];
+            if (!opt || !opt.value) {
+                panel.classList.add('hidden');
+                return;
+            }
+            document.getElementById('ot-equipo').textContent = opt.dataset.equipo || '-';
+            document.getElementById('ot-estado').textContent = opt.dataset.estado || '-';
+            document.getElementById('ot-tipo-rep').textContent = opt.dataset.tipo_rep || '-';
+            document.getElementById('ot-prioridad').textContent = opt.dataset.prioridad || '-';
+            panel.classList.remove('hidden');
+        }
+
 
         async function loadCompras() {
             try {
@@ -524,7 +610,7 @@
         }
 
         function viewPDF(id) {
-            alert('Ver PDF de la OC #' + id);
+            window.open(`/api/logistica/compras/${id}/pdf`, '_blank');
         }
 
         async function deleteCompra(id) {
@@ -544,34 +630,45 @@
 
         document.getElementById('compraForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+
+            const provId  = parseInt(document.getElementById('proveedor_id').value);
+            const almId   = parseInt(document.getElementById('almacen_id').value);
+            const matId   = parseInt(document.getElementById('material_id').value);
+
+            if (!provId)  { showToast('Seleccione un proveedor', 'error'); return; }
+            if (!almId)   { showToast('Seleccione un almacén destino', 'error'); return; }
+            if (!document.getElementById('numero_oc').value)  { showToast('Ingrese el número de OC', 'error'); return; }
+            if (!document.getElementById('fecha_orden').value) { showToast('Ingrese la fecha de orden', 'error'); return; }
+
             const data = {
-                numero_oc: document.getElementById('numero_oc').value,
-                fecha_orden: document.getElementById('fecha_orden').value,
-                fecha_entrega_requerida: document.getElementById('fecha_entrega_requerida').value,
-                proveedor_id: parseInt(document.getElementById('proveedor_id').value),
-                contacto_proveedor: document.getElementById('contacto_proveedor').value || null,
-                material_id: parseInt(document.getElementById('material_id').value),
-                descripcion: document.getElementById('descripcion').value || null,
-                cantidad: parseFloat(document.getElementById('cantidad').value),
-                unidad_medida: document.getElementById('unidad_medida').value,
-                precio_unitario: parseFloat(document.getElementById('precio_unitario').value),
-                subtotal: parseFloat(document.getElementById('subtotal').value),
-                igv_porcentaje: parseFloat(document.getElementById('igv_porcentaje').value),
-                descuento_porcentaje: parseFloat(document.getElementById('descuento_porcentaje').value) || 0,
-                total_final: parseFloat(document.getElementById('total_final').value),
-                forma_pago: document.getElementById('forma_pago').value,
-                plazo_pago: parseInt(document.getElementById('plazo_pago').value) || null,
-                moneda: document.getElementById('moneda').value,
-                almacen_id: parseInt(document.getElementById('almacen_id').value),
-                direccion_entrega: document.getElementById('direccion_entrega').value || null,
-                incoterm: document.getElementById('incoterm').value || null,
-                estado: document.getElementById('estado').value,
-                prioridad: document.getElementById('prioridad').value,
-                tipo_compra: document.getElementById('tipo_compra').value,
-                observaciones: document.getElementById('observaciones').value || null,
-                user_crea: document.getElementById('user_crea').value
+                numero_oc:               document.getElementById('numero_oc').value.trim(),
+                fecha_orden:             document.getElementById('fecha_orden').value,
+                fecha_entrega_requerida: document.getElementById('fecha_entrega_requerida').value || null,
+                proveedor_id:            provId,
+                contacto_proveedor:      document.getElementById('contacto_proveedor').value || null,
+                material_id:             matId || null,
+                descripcion:             document.getElementById('descripcion').value || null,
+                cantidad:                parseFloat(document.getElementById('cantidad').value) || null,
+                unidad_medida:           document.getElementById('unidad_medida').value || null,
+                precio_unitario:         parseFloat(document.getElementById('precio_unitario').value) || null,
+                subtotal:                parseFloat(document.getElementById('subtotal').value) || null,
+                igv_porcentaje:          parseFloat(document.getElementById('igv_porcentaje').value) || 18,
+                descuento_porcentaje:    parseFloat(document.getElementById('descuento_porcentaje').value) || 0,
+                total_final:             parseFloat(document.getElementById('total_final').value) || null,
+                forma_pago:              document.getElementById('forma_pago').value || null,
+                plazo_pago:              parseInt(document.getElementById('plazo_pago').value) || null,
+                moneda:                  document.getElementById('moneda').value || 'USD',
+                almacen_id:              almId,
+                direccion_entrega:       document.getElementById('direccion_entrega').value || null,
+                incoterm:                document.getElementById('incoterm').value || null,
+                estado:                  document.getElementById('estado').value,
+                prioridad:               document.getElementById('prioridad').value,
+                tipo_compra:             document.getElementById('tipo_compra').value || null,
+                observaciones:           document.getElementById('observaciones').value || null,
+                user_crea:               document.getElementById('user_crea').value || 'Admin',
+                ot_id:                   parseInt(document.getElementById('ot_id').value) || null,
             };
-            
+
             try {
                 const url = editingId ? `/api/logistica/compras/${editingId}` : '/api/logistica/compras';
                 const response = await fetch(url, {
@@ -579,16 +676,20 @@
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify(data)
                 });
-                
+
                 if (response.ok) {
-                    showToast(editingId ? 'Compra actualizada' : 'Compra creada', 'success');
+                    showToast(editingId ? 'Compra actualizada exitosamente' : 'Orden de compra creada exitosamente', 'success');
                     cancelForm();
                     loadCompras();
                 } else {
-                    showToast('Error al guardar', 'error');
+                    const err = await response.json().catch(() => ({}));
+                    const msg = err.error || err.message || `Error ${response.status}`;
+                    showToast(msg, 'error');
+                    console.error('Error al guardar OC:', err);
                 }
             } catch (error) {
-                showToast('Error al guardar', 'error');
+                showToast('Error de conexión al servidor', 'error');
+                console.error('Error de red:', error);
             }
         });
     </script>

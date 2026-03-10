@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node -e \":*)",
+      "Bash(npx tsc --noEmit src/seeds/seed-real.ts)",
+      "Bash(curl -s http://localhost:3000/api/catalogos/plantas)",
+      "Bash(curl -s http://localhost:3000/api/catalogos/fabricantes)",
+      "Bash(curl -s http://localhost:3000/api/catalogos/flotas)",
+      "Bash(python3 -c \":*)"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\HP\\.claude\\projects\\c--Users-HP-Downloads-ERP-HPyK-ERP-HPyK\\memory"
+    ]
+  }
+}

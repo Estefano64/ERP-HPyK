@@ -1,15 +1,9 @@
 import { Request, Response } from 'express';
 import FlotaEquipo from '../../models/catalogs/FlotaEquipo';
-import Categoria from '../../models/catalogs/Categoria';
-import Fabricante from '../../models/catalogs/Fabricante';
 
 export const getAllFlotasEquipo = async (req: Request, res: Response) => {
   try {
     const flotas = await FlotaEquipo.findAll({
-      include: [
-        { model: Categoria, as: 'categoria' },
-        { model: Fabricante, as: 'fabricante' }
-      ],
       order: [['codigo', 'ASC']]
     });
     res.json(flotas);
@@ -21,12 +15,7 @@ export const getAllFlotasEquipo = async (req: Request, res: Response) => {
 export const getFlotaEquipoById = async (req: Request, res: Response) => {
   try {
     const { codigo } = req.params;
-    const flota = await FlotaEquipo.findByPk(codigo as string, {
-      include: [
-        { model: Categoria, as: 'categoria' },
-        { model: Fabricante, as: 'fabricante' }
-      ]
-    });
+    const flota = await FlotaEquipo.findByPk(codigo as string);
     
     if (!flota) {
       return res.status(404).json({ error: 'Flota de equipo no encontrada' });

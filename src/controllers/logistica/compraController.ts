@@ -20,15 +20,15 @@ const ensureString = (param: string | string[]): string => {
 export const getAllCompras = async (req: Request, res: Response) => {
   try {
     const compras = await sequelize.query(
-      `SELECT 
+      `SELECT
         c.*,
-        p.razonSocial as proveedor_nombre,
+        p."razonSocial" as proveedor_nombre,
         a.nombre as almacen_nombre,
-        o.numero_ot as ot_numero
+        o.ot as ot_numero
       FROM compras c
       LEFT JOIN proveedores p ON c.proveedor_id = p.id
       LEFT JOIN almacenes a ON c.almacen_id = a.id
-      LEFT JOIN ots o ON c.ot_id = o.id
+      LEFT JOIN orden_trabajo o ON c.ot_id = o.id
       ORDER BY c.fecha_solicitud DESC`,
       {
         type: QueryTypes.SELECT
@@ -68,12 +68,12 @@ export const getCompraById = async (req: Request, res: Response) => {
     
     // Obtener detalles de la compra
     const detalles = await sequelize.query(
-      `SELECT 
+      `SELECT
         cd.*,
-        m.nombre as material_nombre,
-        m.codigo_sap as material_codigo
+        m.descripcion as material_nombre,
+        m.codigo as material_codigo
       FROM compras_detalle cd
-      LEFT JOIN materiales m ON cd.material_id = m.id
+      LEFT JOIN material m ON cd.material_id = m.material_id
       WHERE cd.compra_id = :id`,
       {
         replacements: { id },
@@ -138,20 +138,20 @@ export const createCompraFromOT = async (req: Request, res: Response) => {
     
     // Obtener información de materiales con precios (simulado por ahora)
     const materialesInfo = await sequelize.query(
-      `SELECT m.id, m.nombre, m.precio_ultima_compra, m.stock_actual
-       FROM materiales m
-       WHERE m.id IN (:ids)`,
+      `SELECT m.material_id, m.descripcion, m.precio, m.stock_actual
+       FROM material m
+       WHERE m.material_id IN (:ids)`,
       {
         replacements: { ids: repuestos.map(r => r.material_id) },
         type: QueryTypes.SELECT
       }
     );
-    
+
     // Calcular totales
     let subtotal = 0;
     const detallesCompra = repuestos.map((rep: any) => {
-      const materialInfo: any = materialesInfo.find((m: any) => m.id === rep.material_id);
-      const precio = materialInfo?.precio_ultima_compra || 0;
+      const materialInfo: any = materialesInfo.find((m: any) => m.material_id === rep.material_id);
+      const precio = materialInfo?.precio || 0;
       const itemSubtotal = precio * rep.cantidad;
       subtotal += itemSubtotal;
       
@@ -253,6 +253,53 @@ export const updateCompra = async (req: Request, res: Response) => {
   } catch (error) {
     console.error('Error al actualizar compra:', error);
     res.status(400).json({ error: 'Error al actualizar compra', details: error });
+  }
+};
+
+// Obtener todos los requerimientos pendientes de compra (vista central logística)
+export const getRequerimientosPendientes = async (req: Request, res: Response) => {
+  try {
+    const { estado, cliente_id } = req.query;
+
+    const whereClause = estado
+      ? `WHERE r.estado = '${estado}'`
+      : `WHERE r.estado NOT IN ('COM', 'ANU', 'DEV')`;
+
+    const clienteFilter = cliente_id
+      ? ` AND ot.id_cliente = ${cliente_id}`
+      : '';
+
+    const query = `
+      SELECT
+        r.id, r.ot_id, r.material_id, r.cantidad, r.estado, r.estado_cot,
+        r.precio_unitario, r.moneda, r.fecha_solicitud, r.fecha_requerida,
+        r.observaciones, r.proveedor_id, r.po_id, r.nro_oc,
+        r.descripcion, r.tipo_codigo,
+        ot.ot as numero_ot, ot.prioridad_atencion_codigo,
+        ot.taller_status_codigo, ot.ot_status_codigo,
+        ot.equipo_codigo, ot.tipo_reparacion_codigo,
+        c.razon_social as cliente_nombre,
+        m.descripcion as material_nombre, m.codigo as material_codigo,
+        p."razonSocial" as proveedor_nombre,
+        comp.numero_po
+      FROM ot_repuestos r
+      JOIN orden_trabajo ot ON r.ot_id = ot.id
+      LEFT JOIN cliente c ON ot.id_cliente = c.cliente_id
+      LEFT JOIN material m ON r.material_id = m.material_id
+      LEFT JOIN proveedores p ON r.proveedor_id = p.id
+      LEFT JOIN compras comp ON r.po_id = comp.id
+      ${whereClause}${clienteFilter}
+      ORDER BY
+        CASE ot.prioridad_atencion_codigo
+          WHEN 'E' THEN 1 WHEN '1' THEN 2 WHEN '2' THEN 3 ELSE 4 END,
+        r.fecha_solicitud ASC
+    `;
+
+    const [results] = await sequelize.query(query);
+    res.json(results);
+  } catch (error) {
+    console.error('Error getRequerimientosPendientes:', error);
+    res.status(500).json({ error: 'Error al obtener requerimientos' });
   }
 };
 

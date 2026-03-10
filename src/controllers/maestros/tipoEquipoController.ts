@@ -1,11 +1,9 @@
 import { Request, Response } from 'express';
 import TipoEquipo from '../../models/catalogs/TipoEquipo';
-import Categoria from '../../models/catalogs/Categoria';
 
 export const getAllTiposEquipo = async (req: Request, res: Response) => {
   try {
     const tipos = await TipoEquipo.findAll({
-      include: [{ model: Categoria, as: 'categoria' }],
       order: [['codigo', 'ASC']]
     });
     res.json(tipos);
@@ -17,9 +15,7 @@ export const getAllTiposEquipo = async (req: Request, res: Response) => {
 export const getTipoEquipoById = async (req: Request, res: Response) => {
   try {
     const { codigo } = req.params;
-    const tipo = await TipoEquipo.findByPk(codigo as string, {
-      include: [{ model: Categoria, as: 'categoria' }]
-    });
+    const tipo = await TipoEquipo.findByPk(codigo as string);
     
     if (!tipo) {
       return res.status(404).json({ error: 'Tipo de equipo no encontrado' });

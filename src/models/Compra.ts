@@ -4,7 +4,8 @@ import sequelize from '../config/database';
 interface CompraAttributes {
   id: number;
   numero_po: string;
-  ot_id?: number; // Vinculación con OT
+  numero_req?: string;           // Número de REQ (ej: OPERACIONES, 360025-C)
+  ot_id?: number;                // OT principal (para compat.; usar CompraOT para múltiples)
   proveedor_id: number;
   fecha_solicitud: Date;
   fecha_entrega_esperada?: Date;
@@ -15,6 +16,8 @@ interface CompraAttributes {
   impuesto: number;
   total: number;
   moneda: string;
+  nro_factura?: string;          // Factura del proveedor
+  nro_guia?: string;             // Tracking de courier (DHL, etc.)
   observaciones?: string;
   usuario_solicita: string;
   usuario_aprueba?: string;
@@ -22,11 +25,12 @@ interface CompraAttributes {
   updatedAt?: Date;
 }
 
-interface CompraCreationAttributes extends Optional<CompraAttributes, 'id' | 'ot_id' | 'fecha_entrega_esperada' | 'fecha_entrega_real' | 'observaciones' | 'usuario_aprueba'> {}
+interface CompraCreationAttributes extends Optional<CompraAttributes, 'id' | 'numero_req' | 'ot_id' | 'fecha_entrega_esperada' | 'fecha_entrega_real' | 'nro_factura' | 'nro_guia' | 'observaciones' | 'usuario_aprueba'> {}
 
 class Compra extends Model<CompraAttributes, CompraCreationAttributes> implements CompraAttributes {
   public id!: number;
   public numero_po!: string;
+  public numero_req?: string;
   public ot_id?: number;
   public proveedor_id!: number;
   public fecha_solicitud!: Date;
@@ -38,6 +42,8 @@ class Compra extends Model<CompraAttributes, CompraCreationAttributes> implement
   public impuesto!: number;
   public total!: number;
   public moneda!: string;
+  public nro_factura?: string;
+  public nro_guia?: string;
   public observaciones?: string;
   public usuario_solicita!: string;
   public usuario_aprueba?: string;
@@ -57,6 +63,11 @@ Compra.init(
       allowNull: false,
       unique: true,
       comment: 'Número de Purchase Order'
+    },
+    numero_req: {
+      type: DataTypes.STRING(50),
+      allowNull: true,
+      comment: 'Número de REQ (ej: OPERACIONES, 360025-C)'
     },
     ot_id: {
       type: DataTypes.INTEGER,
@@ -121,6 +132,16 @@ Compra.init(
       allowNull: false,
       defaultValue: 'USD',
       comment: 'Código de moneda (USD, PEN, EUR, etc.)'
+    },
+    nro_factura: {
+      type: DataTypes.STRING(100),
+      allowNull: true,
+      comment: 'Número de factura del proveedor'
+    },
+    nro_guia: {
+      type: DataTypes.STRING(100),
+      allowNull: true,
+      comment: 'Número de tracking courier (DHL, etc.)'
     },
     observaciones: {
       type: DataTypes.TEXT,

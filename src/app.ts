@@ -41,6 +41,11 @@ import CodigoReparacion from './models/CodigoReparacion';
 import Tarea from './models/Tarea';
 import OrdenTrabajo from './models/OrdenTrabajo';
 
+// Importar modelos de Producción
+import Receta from './models/Receta';
+import Perdida from './models/Perdida';
+import TipoComponente from './models/TipoComponente';
+
 // Importar modelos de Logística
 import Compra from './models/Compra';
 import CompraDetalle from './models/CompraDetalle';
@@ -66,6 +71,8 @@ app.use(express.urlencoded({ extended: true }));
 
 // Servir archivos estáticos (vistas HTML)
 app.use(express.static(path.join(__dirname, 'vistas')));
+// También servir bajo /vistas/ para compatibilidad con scripts que usan ese prefijo
+app.use('/vistas', express.static(path.join(__dirname, 'vistas')));
 
 // ============= RUTAS DE VISTAS HTML =============
 // Dashboard
@@ -118,6 +125,10 @@ app.get('/logistica/dashboard-stock.html', (req: Request, res: Response) => {
 
 app.get('/logistica/herramientas.html', (req: Request, res: Response) => {
   res.sendFile(path.join(__dirname, 'vistas', 'logistica', 'herramientas.html'));
+});
+
+app.get('/logistica/requerimientos.html', (req: Request, res: Response) => {
+  res.sendFile(path.join(__dirname, 'vistas', 'logistica', 'requerimientos.html'));
 });
 
 // MANTENIMIENTO
@@ -185,6 +196,14 @@ app.get('/operativos/index.html', (req: Request, res: Response) => {
 
 app.get('/operativos/ordenes-trabajo.html', (req: Request, res: Response) => {
   res.sendFile(path.join(__dirname, 'vistas', 'operativos', 'ordenes-trabajo.html'));
+});
+
+app.get('/operativos/seguimiento.html', (req: Request, res: Response) => {
+  res.sendFile(path.join(__dirname, 'vistas', 'operativos', 'seguimiento.html'));
+});
+
+app.get('/operativos/evaluacion.html', (req: Request, res: Response) => {
+  res.sendFile(path.join(__dirname, 'vistas', 'operativos', 'evaluacion.html'));
 });
 
 // CATÁLOGOS
@@ -339,6 +358,153 @@ const startServer = async () => {
     // NIVEL 2: Catálogos que dependen de otros catálogos
     await SubArea.sync({ force: false });
     
+    // Migración incremental: agregar columnas nuevas y corregir tipos (idempotente)
+
+    // fabricante: ampliar código a VARCHAR(20) si todavía es VARCHAR(10) (CATERPILLAR tenía 11 chars)
+    await sequelize.query(`
+      DO $$
+      BEGIN
+        IF EXISTS (
+          SELECT 1 FROM information_schema.columns
+          WHERE table_name = 'fabricante' AND column_name = 'codigo'
+          AND character_maximum_length <= 10
+        ) THEN
+          ALTER TABLE fabricante ALTER COLUMN codigo TYPE VARCHAR(20);
+        END IF;
+      END $$;
+    `);
+
+    // equipo: ampliar fabricante_codigo a VARCHAR(20)
+    await sequelize.query(`
+      DO $$
+      BEGIN
+        IF EXISTS (
+          SELECT 1 FROM information_schema.columns
+          WHERE table_name = 'equipo' AND column_name = 'fabricante_codigo'
+          AND character_maximum_length <= 10
+        ) THEN
+          ALTER TABLE equipo ALTER COLUMN fabricante_codigo TYPE VARCHAR(20);
+        END IF;
+      END $$;
+    `);
+
+    // catálogos OT: ampliar codigo a VARCHAR(30) para códigos tipo "Presupuesto", "No Ejecutada", "Recursos completos", etc.
+    await sequelize.query(`ALTER TABLE atencion_reparacion ALTER COLUMN codigo TYPE VARCHAR(30);`);
+    await sequelize.query(`ALTER TABLE ot_status ALTER COLUMN codigo TYPE VARCHAR(30);`);
+    await sequelize.query(`ALTER TABLE recursos_status ALTER COLUMN codigo TYPE VARCHAR(30);`);
+    await sequelize.query(`ALTER TABLE taller_status ALTER COLUMN codigo TYPE VARCHAR(30);`);
+    await sequelize.query(`ALTER TABLE tipo_garantia ALTER COLUMN codigo TYPE VARCHAR(30);`);
+
+    // material: nuevos campos de inventario
+    await sequelize.query(`ALTER TABLE material ADD COLUMN IF NOT EXISTS modelo VARCHAR(100);`);
+    await sequelize.query(`ALTER TABLE material ADD COLUMN IF NOT EXISTS caja VARCHAR(50);`);
+
+    // compras: nuevos campos de seguimiento
+    await sequelize.query(`ALTER TABLE compras ADD COLUMN IF NOT EXISTS numero_req VARCHAR(50);`);
+    await sequelize.query(`ALTER TABLE compras ADD COLUMN IF NOT EXISTS nro_factura VARCHAR(100);`);
+    await sequelize.query(`ALTER TABLE compras ADD COLUMN IF NOT EXISTS nro_guia VARCHAR(100);`);
+
+    // ot_repuestos: convertir estado de ENUM a VARCHAR y agregar todas las columnas nuevas
+    await sequelize.query(`
+      DO $$
+      BEGIN
+        -- Convertir estado de ENUM a VARCHAR si todavía es ENUM
+        IF EXISTS (
+          SELECT 1 FROM pg_type t
+          JOIN pg_attribute a ON a.atttypid = t.oid
+          JOIN pg_class c ON c.oid = a.attrelid
+          WHERE c.relname = 'ot_repuestos' AND a.attname = 'estado' AND t.typtype = 'e'
+        ) THEN
+          ALTER TABLE ot_repuestos ALTER COLUMN estado DROP DEFAULT;
+          ALTER TABLE ot_repuestos ALTER COLUMN estado TYPE VARCHAR(10) USING estado::text;
+          DROP TYPE IF EXISTS "enum_ot_repuestos_estado";
+        END IF;
+        ALTER TABLE ot_repuestos ALTER COLUMN estado SET DEFAULT 'REV';
+      END $$;
+    `);
+
+    // ot_repuestos: nuevas columnas de logística (todas opcionales)
+    await sequelize.query(`ALTER TABLE ot_repuestos ADD COLUMN IF NOT EXISTS nro_req VARCHAR(50);`);
+    await sequelize.query(`ALTER TABLE ot_repuestos ADD COLUMN IF NOT EXISTS item_req INTEGER;`);
+    await sequelize.query(`ALTER TABLE ot_repuestos ADD COLUMN IF NOT EXISTS tipo_codigo VARCHAR(10);`);
+    await sequelize.query(`ALTER TABLE ot_repuestos ADD COLUMN IF NOT EXISTS descripcion TEXT;`);
+    await sequelize.query(`ALTER TABLE ot_repuestos ADD COLUMN IF NOT EXISTS texto TEXT;`);
+    await sequelize.query(`ALTER TABLE ot_repuestos ADD COLUMN IF NOT EXISTS fabricante_codigo VARCHAR(20);`);
+    await sequelize.query(`ALTER TABLE ot_repuestos ADD COLUMN IF NOT EXISTS fecha_requerida TIMESTAMPTZ;`);
+    await sequelize.query(`ALTER TABLE ot_repuestos ADD COLUMN IF NOT EXISTS estado_cot VARCHAR(20);`);
+    await sequelize.query(`ALTER TABLE ot_repuestos ADD COLUMN IF NOT EXISTS nro_oc VARCHAR(50);`);
+    await sequelize.query(`ALTER TABLE ot_repuestos ADD COLUMN IF NOT EXISTS item_oc INTEGER;`);
+    await sequelize.query(`ALTER TABLE ot_repuestos ADD COLUMN IF NOT EXISTS proveedor_id INTEGER;`);
+    await sequelize.query(`ALTER TABLE ot_repuestos ADD COLUMN IF NOT EXISTS precio_venta DECIMAL(15,4);`);
+    await sequelize.query(`ALTER TABLE ot_repuestos ADD COLUMN IF NOT EXISTS moneda VARCHAR(10) DEFAULT 'USD';`);
+    await sequelize.query(`ALTER TABLE ot_repuestos ADD COLUMN IF NOT EXISTS t_req DECIMAL(10,2);`);
+    await sequelize.query(`ALTER TABLE ot_repuestos ADD COLUMN IF NOT EXISTS t_oc DECIMAL(10,2);`);
+    await sequelize.query(`ALTER TABLE ot_repuestos ADD COLUMN IF NOT EXISTS t_total DECIMAL(10,2);`);
+    await sequelize.query(`ALTER TABLE ot_repuestos ADD COLUMN IF NOT EXISTS t_almacenaje DECIMAL(10,2);`);
+    await sequelize.query(`ALTER TABLE ot_repuestos ADD COLUMN IF NOT EXISTS t_armado DECIMAL(10,2);`);
+    await sequelize.query(`ALTER TABLE ot_repuestos ADD COLUMN IF NOT EXISTS t_fact DECIMAL(10,2);`);
+    await sequelize.query(`ALTER TABLE ot_repuestos ADD COLUMN IF NOT EXISTS fecha_oc TIMESTAMPTZ;`);
+    await sequelize.query(`ALTER TABLE ot_repuestos ADD COLUMN IF NOT EXISTS fecha_entrega_esperada TIMESTAMPTZ;`);
+    await sequelize.query(`ALTER TABLE ot_repuestos ADD COLUMN IF NOT EXISTS fecha_entrega_real TIMESTAMPTZ;`);
+    await sequelize.query(`ALTER TABLE ot_repuestos ADD COLUMN IF NOT EXISTS fecha_salida_almacen TIMESTAMPTZ;`);
+    await sequelize.query(`ALTER TABLE ot_repuestos ADD COLUMN IF NOT EXISTS fecha_envio_mina TIMESTAMPTZ;`);
+    await sequelize.query(`ALTER TABLE ot_repuestos ADD COLUMN IF NOT EXISTS fecha_facturacion TIMESTAMPTZ;`);
+    await sequelize.query(`ALTER TABLE ot_repuestos ADD COLUMN IF NOT EXISTS nro_guia VARCHAR(100);`);
+    await sequelize.query(`ALTER TABLE ot_repuestos ADD COLUMN IF NOT EXISTS nro_factura_proveedor VARCHAR(100);`);
+    await sequelize.query(`ALTER TABLE ot_repuestos ADD COLUMN IF NOT EXISTS factura_cliente VARCHAR(100);`);
+    await sequelize.query(`ALTER TABLE ot_repuestos ADD COLUMN IF NOT EXISTS gr_mina VARCHAR(100);`);
+    await sequelize.query(`ALTER TABLE ot_repuestos ADD COLUMN IF NOT EXISTS evaluador VARCHAR(100);`);
+    await sequelize.query(`ALTER TABLE ot_repuestos ADD COLUMN IF NOT EXISTS es_adicional BOOLEAN DEFAULT false;`);
+    await sequelize.query(`ALTER TABLE ot_repuestos ADD COLUMN IF NOT EXISTS ubicacion VARCHAR(50);`);
+    // material_id nulo para ítems SER/CAD sin material catalogado
+    await sequelize.query(`ALTER TABLE ot_repuestos ALTER COLUMN material_id DROP NOT NULL;`);
+
+    // orden_trabajo: ampliar columnas FK VARCHAR(10) → VARCHAR(50) para status largos
+    await sequelize.query(`ALTER TABLE orden_trabajo ALTER COLUMN taller_status_codigo TYPE VARCHAR(50);`);
+    await sequelize.query(`ALTER TABLE orden_trabajo ALTER COLUMN ot_status_codigo TYPE VARCHAR(50);`);
+    await sequelize.query(`ALTER TABLE orden_trabajo ALTER COLUMN recursos_status_codigo TYPE VARCHAR(50);`);
+    await sequelize.query(`ALTER TABLE orden_trabajo ALTER COLUMN atencion_reparacion_codigo TYPE VARCHAR(50);`);
+    await sequelize.query(`ALTER TABLE orden_trabajo ALTER COLUMN tipo_reparacion_codigo TYPE VARCHAR(50);`);
+    await sequelize.query(`ALTER TABLE orden_trabajo ALTER COLUMN tipo_garantia_codigo TYPE VARCHAR(30);`);
+    await sequelize.query(`ALTER TABLE orden_trabajo ALTER COLUMN garantia_codigo TYPE VARCHAR(30);`);
+    await sequelize.query(`ALTER TABLE orden_trabajo ALTER COLUMN prioridad_atencion_codigo TYPE VARCHAR(30);`);
+    await sequelize.query(`ALTER TABLE orden_trabajo ALTER COLUMN base_metalica_codigo TYPE VARCHAR(30);`);
+
+    // orden_trabajo: ciclo de vida completo (evaluación → cotización → aprobación → entrega → facturación)
+    await sequelize.query(`ALTER TABLE orden_trabajo ADD COLUMN IF NOT EXISTS fecha_evaluacion TIMESTAMPTZ;`);
+    await sequelize.query(`ALTER TABLE orden_trabajo ADD COLUMN IF NOT EXISTS evaluador VARCHAR(100);`);
+    await sequelize.query(`ALTER TABLE orden_trabajo ADD COLUMN IF NOT EXISTS nro_informe_evaluacion VARCHAR(100);`);
+    await sequelize.query(`ALTER TABLE orden_trabajo ADD COLUMN IF NOT EXISTS fecha_entrega_informe TIMESTAMPTZ;`);
+    await sequelize.query(`ALTER TABLE orden_trabajo ADD COLUMN IF NOT EXISTS dias_evaluacion INTEGER;`);
+    await sequelize.query(`ALTER TABLE orden_trabajo ADD COLUMN IF NOT EXISTS nro_cotizacion VARCHAR(100);`);
+    await sequelize.query(`ALTER TABLE orden_trabajo ADD COLUMN IF NOT EXISTS monto_cotizacion DECIMAL(15,2);`);
+    await sequelize.query(`ALTER TABLE orden_trabajo ADD COLUMN IF NOT EXISTS fecha_cotizacion TIMESTAMPTZ;`);
+    await sequelize.query(`ALTER TABLE orden_trabajo ADD COLUMN IF NOT EXISTS dias_cotizacion INTEGER;`);
+    await sequelize.query(`ALTER TABLE orden_trabajo ADD COLUMN IF NOT EXISTS fecha_aprobacion TIMESTAMPTZ;`);
+    await sequelize.query(`ALTER TABLE orden_trabajo ADD COLUMN IF NOT EXISTS dias_aprobacion INTEGER;`);
+    await sequelize.query(`ALTER TABLE orden_trabajo ADD COLUMN IF NOT EXISTS fecha_req_1 TIMESTAMPTZ;`);
+    await sequelize.query(`ALTER TABLE orden_trabajo ADD COLUMN IF NOT EXISTS fecha_req_2 TIMESTAMPTZ;`);
+    await sequelize.query(`ALTER TABLE orden_trabajo ADD COLUMN IF NOT EXISTS fecha_llegada_repuestos TIMESTAMPTZ;`);
+    await sequelize.query(`ALTER TABLE orden_trabajo ADD COLUMN IF NOT EXISTS dias_proceso INTEGER;`);
+    await sequelize.query(`ALTER TABLE orden_trabajo ADD COLUMN IF NOT EXISTS fecha_entrega TIMESTAMPTZ;`);
+    await sequelize.query(`ALTER TABLE orden_trabajo ADD COLUMN IF NOT EXISTS cumplimiento VARCHAR(20);`);
+    await sequelize.query(`ALTER TABLE orden_trabajo ADD COLUMN IF NOT EXISTS nro_informe_entrega VARCHAR(100);`);
+    await sequelize.query(`ALTER TABLE orden_trabajo ADD COLUMN IF NOT EXISTS guia_entrega_salida VARCHAR(100);`);
+    await sequelize.query(`ALTER TABLE orden_trabajo ADD COLUMN IF NOT EXISTS nro_factura VARCHAR(100);`);
+    await sequelize.query(`ALTER TABLE orden_trabajo ADD COLUMN IF NOT EXISTS fecha_facturacion TIMESTAMPTZ;`);
+    await sequelize.query(`ALTER TABLE orden_trabajo ADD COLUMN IF NOT EXISTS dias_en_taller INTEGER;`);
+    await sequelize.query(`ALTER TABLE orden_trabajo ADD COLUMN IF NOT EXISTS pct_cilindro DECIMAL(5,2) DEFAULT 0;`);
+    await sequelize.query(`ALTER TABLE orden_trabajo ADD COLUMN IF NOT EXISTS pct_vastago DECIMAL(5,2) DEFAULT 0;`);
+    await sequelize.query(`ALTER TABLE orden_trabajo ADD COLUMN IF NOT EXISTS pct_tapa DECIMAL(5,2) DEFAULT 0;`);
+    await sequelize.query(`ALTER TABLE orden_trabajo ADD COLUMN IF NOT EXISTS pct_piston DECIMAL(5,2) DEFAULT 0;`);
+    await sequelize.query(`ALTER TABLE orden_trabajo ADD COLUMN IF NOT EXISTS pct_cuerpo_int_1 DECIMAL(5,2) DEFAULT 0;`);
+    await sequelize.query(`ALTER TABLE orden_trabajo ADD COLUMN IF NOT EXISTS pct_cuerpo_int_2 DECIMAL(5,2) DEFAULT 0;`);
+    await sequelize.query(`ALTER TABLE orden_trabajo ADD COLUMN IF NOT EXISTS pct_otros DECIMAL(5,2) DEFAULT 0;`);
+    await sequelize.query(`ALTER TABLE orden_trabajo ADD COLUMN IF NOT EXISTS reparacion_cil VARCHAR(10);`);
+    await sequelize.query(`ALTER TABLE orden_trabajo ADD COLUMN IF NOT EXISTS reparacion_vas VARCHAR(10);`);
+    await sequelize.query(`ALTER TABLE orden_trabajo ADD COLUMN IF NOT EXISTS reparacion_tapa VARCHAR(10);`);
+    await sequelize.query(`ALTER TABLE orden_trabajo ADD COLUMN IF NOT EXISTS reparacion_piston VARCHAR(10);`);
+
     console.log('   3/4 Creando tablas principales...');
     // NIVEL 3: Tablas principales
     await Material.sync({ force: false });
@@ -352,7 +518,10 @@ const startServer = async () => {
     await Compra.sync({ force: false });
     await OrdenCompra.sync({ force: false });
     await OrdenCompraView.sync({ force: false });
-    
+    await Receta.sync({ force: false });
+    await Perdida.sync({ force: false });
+    await TipoComponente.sync({ force: false });
+
     console.log('   4/4 Creando tablas de relación...');
     // NIVEL 4: Tablas que dependen de tablas principales
     await Tarea.sync({ force: false });
