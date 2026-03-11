@@ -16,6 +16,7 @@ import { Router } from 'express';
 import * as ordenTrabajoController from '../../controllers/operativos/ordenTrabajoController';
 import * as otRepuestoController from '../../controllers/operativos/otRepuestoController';
 import * as otHistorialController from '../../controllers/operativos/otHistorialController';
+import * as planificacionOTController from '../../controllers/operativos/planificacionOTController';
 
 const router = Router();
 
@@ -24,6 +25,8 @@ router.get('/', ordenTrabajoController.getAllOrdenesTrabajo);
 router.get('/estadisticas', ordenTrabajoController.getEstadisticasOrdenesTrabajo);
 // Vista unificada de seguimiento — ANTES de /:id para no ser capturada como ID
 router.get('/produccion-tracking', ordenTrabajoController.getProduccionTracking);
+// Siguiente número de OT disponible (para preview en formulario)
+router.get('/next-number', ordenTrabajoController.getNextOtNumber);
 router.get('/:id', ordenTrabajoController.getOrdenTrabajoById);
 router.post('/', ordenTrabajoController.createOrdenTrabajo);
 router.put('/:id', ordenTrabajoController.updateOrdenTrabajo);
@@ -57,5 +60,18 @@ router.get('/:otId/historial/resumen', otHistorialController.getResumenOperacion
 
 // Crear una entrada manual en el historial
 router.post('/:otId/historial', otHistorialController.createHistorialEntry);
+
+// === PLANIFICACIÓN DE OT ===
+// Obtener operaciones planificadas de una OT
+router.get('/:otId/planificacion', planificacionOTController.getPlanificacionByOT);
+
+// Auto-generar plan desde clasificación STD/NOSTD de la evaluación
+router.post('/:otId/planificacion/generar', planificacionOTController.generatePlanificacion);
+
+// Actualizar una operación planificada
+router.put('/planificacion/:id', planificacionOTController.updateOperacion);
+
+// Eliminar una operación planificada
+router.delete('/planificacion/:id', planificacionOTController.deleteOperacion);
 
 export default router;

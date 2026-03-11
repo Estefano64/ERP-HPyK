@@ -105,37 +105,70 @@ export const createRepuestos = async (req: Request, res: Response) => {
   }
 };
 
-// Actualizar estado de un repuesto
+// Actualizar repuesto (estado, cotización, OC, almacén — cualquier campo)
 export const updateRepuesto = async (req: Request, res: Response) => {
   try {
     const id = ensureString(req.params.id);
-    const { estado, usuario_aprueba, po_id } = req.body;
-    
+    const {
+      estado, usuario_aprueba, po_id,
+      // Cotización
+      proveedor_id, precio_unitario, precio_venta, moneda, estado_cot,
+      fecha_entrega_esperada, fecha_requerida, observaciones,
+      // OC / recepción
+      nro_oc, fecha_oc, nro_guia, nro_factura_proveedor, fecha_entrega_real,
+      // Almacén
+      ubicacion, fecha_salida_almacen, fecha_envio_mina, fecha_facturacion,
+      factura_cliente, gr_mina,
+    } = req.body;
+
     const repuesto = await OTRepuesto.findByPk(parseInt(id));
-    
+
     if (!repuesto) {
       return res.status(404).json({ error: 'Repuesto no encontrado' });
     }
-    
-    const updates: any = { estado };
-    
+
+    const updates: any = {};
+
+    // Estado y aprobación
+    if (estado !== undefined) updates.estado = estado;
     if (estado === 'Aprobado' && usuario_aprueba) {
       updates.usuario_aprueba = usuario_aprueba;
       updates.fecha_aprobacion = new Date();
     }
-    
-    if (po_id) {
-      updates.po_id = po_id;
-      updates.estado = 'En PO';
-    }
-    
+    if (po_id) { updates.po_id = po_id; updates.estado = 'En PO'; }
+
+    // Cotización
+    if (proveedor_id !== undefined) updates.proveedor_id = proveedor_id;
+    if (precio_unitario !== undefined) updates.precio_unitario = precio_unitario;
+    if (precio_venta !== undefined) updates.precio_venta = precio_venta;
+    if (moneda !== undefined) updates.moneda = moneda;
+    if (estado_cot !== undefined) updates.estado_cot = estado_cot;
+    if (fecha_entrega_esperada !== undefined) updates.fecha_entrega_esperada = fecha_entrega_esperada;
+    if (fecha_requerida !== undefined) updates.fecha_requerida = fecha_requerida;
+    if (observaciones !== undefined) updates.observaciones = observaciones;
+
+    // OC y recepción
+    if (nro_oc !== undefined) updates.nro_oc = nro_oc;
+    if (fecha_oc !== undefined) updates.fecha_oc = fecha_oc;
+    if (nro_guia !== undefined) updates.nro_guia = nro_guia;
+    if (nro_factura_proveedor !== undefined) updates.nro_factura_proveedor = nro_factura_proveedor;
+    if (fecha_entrega_real !== undefined) updates.fecha_entrega_real = fecha_entrega_real;
+
+    // Almacén
+    if (ubicacion !== undefined) updates.ubicacion = ubicacion;
+    if (fecha_salida_almacen !== undefined) updates.fecha_salida_almacen = fecha_salida_almacen;
+    if (fecha_envio_mina !== undefined) updates.fecha_envio_mina = fecha_envio_mina;
+    if (fecha_facturacion !== undefined) updates.fecha_facturacion = fecha_facturacion;
+    if (factura_cliente !== undefined) updates.factura_cliente = factura_cliente;
+    if (gr_mina !== undefined) updates.gr_mina = gr_mina;
+
     await repuesto.update(updates);
-    
+
     // Registrar en historial
     await OTHistorial.create({
       ot_id: repuesto.ot_id,
       tipo_operacion: 'Cambio Estado',
-      descripcion: `Repuesto ${id} cambió a estado: ${estado}`,
+      descripcion: `Repuesto ${id} actualizado${estado ? ': estado=' + estado : ''}`,
       usuario: usuario_aprueba || 'Admin',
       fecha: new Date(),
       datos_adicionales: JSON.stringify({ repuesto_id: id, estado_anterior: repuesto.estado, estado_nuevo: estado })

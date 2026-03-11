@@ -56,6 +56,7 @@ import MovimientoInventario from './models/MovimientoInventario';
 import Proveedor from './models/Proveedor';
 import OTHistorial from './models/OTHistorial';
 import OTRepuesto from './models/OTRepuesto';
+import PlanificacionOT from './models/PlanificacionOT';
 import Herramienta from './models/Herramienta';
 
 // Importar rutas centralizadas
@@ -505,6 +506,28 @@ const startServer = async () => {
     await sequelize.query(`ALTER TABLE orden_trabajo ADD COLUMN IF NOT EXISTS reparacion_tapa VARCHAR(10);`);
     await sequelize.query(`ALTER TABLE orden_trabajo ADD COLUMN IF NOT EXISTS reparacion_piston VARCHAR(10);`);
 
+    // Tabla de planificación de operaciones por OT
+    await sequelize.query(`
+      CREATE TABLE IF NOT EXISTS planificacion_ot (
+        id SERIAL PRIMARY KEY,
+        ot_id INTEGER NOT NULL REFERENCES orden_trabajo(id) ON DELETE CASCADE,
+        componente VARCHAR(10) NOT NULL,
+        operacion_codigo VARCHAR(20) NOT NULL,
+        descripcion VARCHAR(200) NOT NULL,
+        tipo_reparacion VARCHAR(10),
+        orden INTEGER NOT NULL DEFAULT 0,
+        horas_estimadas DECIMAL(5,1),
+        fecha_inicio DATE,
+        fecha_fin DATE,
+        tecnico VARCHAR(100),
+        maquina VARCHAR(50),
+        estado VARCHAR(30) DEFAULT 'Pendiente',
+        observaciones TEXT,
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        updated_at TIMESTAMPTZ DEFAULT NOW()
+      )
+    `);
+
     console.log('   3/4 Creando tablas principales...');
     // NIVEL 3: Tablas principales
     await Material.sync({ force: false });
@@ -529,6 +552,7 @@ const startServer = async () => {
     await MovimientoInventario.sync({ force: false });
     await OTHistorial.sync({ force: false });
     await OTRepuesto.sync({ force: false });
+    await PlanificacionOT.sync({ force: false });
     
     console.log('✓ ¡TABLAS CREADAS CON NUEVA ESTRUCTURA!');
 

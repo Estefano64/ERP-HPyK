@@ -1,7 +1,24 @@
 import { Request, Response } from 'express';
 import OrdenTrabajo from '../../models/OrdenTrabajo';
-import { ValidationError, Op } from 'sequelize';
+import { ValidationError, Op, QueryTypes } from 'sequelize';
 import sequelize from '../../config/database';
+
+// Genera el siguiente número de OT: OT-{AÑO}-{SEC:3}
+const generarNumeroOT = async (): Promise<string> => {
+  const year = new Date().getFullYear();
+  const prefix = `OT-${year}-`;
+  const result = await sequelize.query(
+    `SELECT ot FROM orden_trabajo WHERE ot LIKE :prefix ORDER BY ot DESC LIMIT 1`,
+    { replacements: { prefix: `${prefix}%` }, type: QueryTypes.SELECT }
+  ) as any[];
+  let siguiente = 1;
+  if (result.length > 0 && result[0].ot) {
+    const partes = result[0].ot.split('-');
+    const ultimo = parseInt(partes[partes.length - 1]) || 0;
+    siguiente = ultimo + 1;
+  }
+  return `${prefix}${String(siguiente).padStart(3, '0')}`;
+};
 
 // Obtener todas las órdenes de trabajo con paginación y filtros
 export const getAllOrdenesTrabajo = async (req: Request, res: Response) => {
@@ -126,9 +143,15 @@ export const createOrdenTrabajo = async (req: Request, res: Response) => {
     if (!ot_status_codigo) {
       return res.status(400).json({ error: 'El estado de la OT es requerido' });
     }
+    if (!fecha_requerimiento_cliente) {
+      return res.status(400).json({ error: 'La fecha de requerimiento del cliente es requerida' });
+    }
+
+    // Generar número de OT automáticamente si no viene del cliente
+    const numeroOT = (ot && ot.trim()) ? ot.trim() : await generarNumeroOT();
 
     const nuevaOrden = await OrdenTrabajo.create({
-      ot,
+      ot: numeroOT,
       id_cliente,
       estrategia,
       id_cod_rep,
@@ -252,8 +275,13 @@ export const updateOrdenTrabajo = async (req: Request, res: Response) => {
 export const deleteOrdenTrabajo = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    
-    const deleted = await OrdenTrabajo.destroy({ where: { id: parseInt(id as string) } });
+    const otId = parseInt(id as string);
+
+    // Eliminar registros dependientes antes de borrar la OT
+    await sequelize.query(`DELETE FROM ot_repuestos WHERE ot_id = :otId`, { replacements: { otId }, type: QueryTypes.DELETE });
+    await sequelize.query(`DELETE FROM ot_historial WHERE ot_id = :otId`, { replacements: { otId }, type: QueryTypes.DELETE });
+
+    const deleted = await OrdenTrabajo.destroy({ where: { id: otId } });
     
     if (deleted) {
       res.json({ message: 'Orden de trabajo eliminada exitosamente' });
@@ -424,5 +452,15 @@ export const getProduccionTracking = async (req: Request, res: Response) => {
   } catch (error: any) {
     console.error('Error getProduccionTracking:', error);
     res.status(500).json({ error: 'Error al obtener seguimiento de producción', details: error.message });
+  }
+};
+
+// Devuelve el siguiente número de OT disponible (para preview en el formulario)
+export const getNextOtNumber = async (req: Request, res: Response) => {
+  try {
+    const numero = await generarNumeroOT();
+    res.json({ numero_ot: numero });
+  } catch (error: any) {
+    res.status(500).json({ error: 'Error al generar número OT', details: error.message });
   }
 };

@@ -49,7 +49,10 @@ router.get('/ordenes-compra/stats', ordenCompraController.getEstadisticasOrdenes
 router.get('/requerimientos', compraController.getRequerimientosPendientes);
 
 // === ÓRDENES DE COMPRA DESDE OT (Nuevo módulo de integración OT-Repuestos-PO) ===
-// Generar Order de Compra desde repuestos de una OT
+// Generar OC desde múltiples requerimientos (multi-OT)
+router.post('/compras/crear-oc', compraController.createOCFromRequerimientos);
+
+// Generar Order de Compra desde repuestos de una OT (legacy)
 router.post('/compras/from-ot', compraController.createCompraFromOT);
 
 // Obtener todas las compras con información relacionada (incluye ot_id)

@@ -271,15 +271,21 @@ export const getRequerimientosPendientes = async (req: Request, res: Response) =
 
     const query = `
       SELECT
-        r.id, r.ot_id, r.material_id, r.cantidad, r.estado, r.estado_cot,
-        r.precio_unitario, r.moneda, r.fecha_solicitud, r.fecha_requerida,
-        r.observaciones, r.proveedor_id, r.po_id, r.nro_oc,
-        r.descripcion, r.tipo_codigo,
+        r.id, r.ot_id, r.material_id, r.nro_req, r.item_req, r.tipo_codigo,
+        r.cantidad, r.estado, r.estado_cot,
+        r.precio_unitario, r.precio_venta, r.moneda,
+        r.fecha_solicitud, r.fecha_requerida,
+        r.observaciones, r.proveedor_id, r.po_id, r.nro_oc, r.item_oc,
+        r.descripcion, r.fabricante_codigo,
+        r.fecha_oc, r.fecha_entrega_esperada, r.fecha_entrega_real,
+        r.nro_guia, r.nro_factura_proveedor, r.factura_cliente, r.gr_mina,
+        r.ubicacion, r.fecha_salida_almacen, r.fecha_envio_mina, r.fecha_facturacion,
         ot.ot as numero_ot, ot.prioridad_atencion_codigo,
         ot.taller_status_codigo, ot.ot_status_codigo,
         ot.equipo_codigo, ot.tipo_reparacion_codigo,
         c.razon_social as cliente_nombre,
         m.descripcion as material_nombre, m.codigo as material_codigo,
+        m.stock_actual,
         p."razonSocial" as proveedor_nombre,
         comp.numero_po
       FROM ot_repuestos r
@@ -300,6 +306,89 @@ export const getRequerimientosPendientes = async (req: Request, res: Response) =
   } catch (error) {
     console.error('Error getRequerimientosPendientes:', error);
     res.status(500).json({ error: 'Error al obtener requerimientos' });
+  }
+};
+
+// Crear OC desde múltiples requerimientos (puede ser de varias OTs)
+export const createOCFromRequerimientos = async (req: Request, res: Response) => {
+  const transaction = await sequelize.transaction();
+  try {
+    const { repuesto_ids, proveedor_id, almacen_id, fecha_entrega_esperada, moneda = 'USD', usuario } = req.body;
+
+    if (!proveedor_id || !almacen_id || !Array.isArray(repuesto_ids) || repuesto_ids.length === 0) {
+      await transaction.rollback();
+      return res.status(400).json({ error: 'Faltan: proveedor_id, almacen_id, repuesto_ids[]' });
+    }
+
+    // Obtener los repuestos (sin filtrar por ot_id — multi-OT)
+    const repuestos = await OTRepuesto.findAll({ where: { id: repuesto_ids } });
+    if (repuestos.length === 0) {
+      await transaction.rollback();
+      return res.status(400).json({ error: 'No se encontraron los requerimientos indicados' });
+    }
+
+    // Generar número OC en formato D{yy}{NNNN}
+    const yy = String(new Date().getFullYear()).slice(-2);
+    const [lastRow]: any = await sequelize.query(
+      `SELECT numero_po FROM compras WHERE numero_po LIKE 'D${yy}%' ORDER BY numero_po DESC LIMIT 1`
+    );
+    let seq = 1;
+    if (lastRow && lastRow.length > 0) {
+      const lastNum = parseInt((lastRow[0].numero_po || '').slice(3)) || 0;
+      seq = lastNum + 1;
+    }
+    const numero_po = `D${yy}${String(seq).padStart(4, '0')}`;
+
+    // Calcular totales
+    let subtotal = 0;
+    const detalles = repuestos.map((r: any) => {
+      const precio = parseFloat(r.precio_unitario) || 0;
+      const itemSub = precio * r.cantidad;
+      subtotal += itemSub;
+      return { material_id: r.material_id, cantidad: r.cantidad, precio_unitario: precio, subtotal: itemSub, descuento: 0, impuesto: itemSub * 0.18, total: itemSub * 1.18 };
+    });
+    const impuesto = subtotal * 0.18;
+    const total = subtotal + impuesto;
+
+    // Crear Compra (ot_id = null para OC multi-OT)
+    const compra = await Compra.create({
+      numero_po,
+      proveedor_id,
+      almacen_id,
+      fecha_solicitud: new Date(),
+      fecha_entrega_esperada: fecha_entrega_esperada ? new Date(fecha_entrega_esperada) : undefined,
+      estado: 'Pendiente',
+      subtotal, impuesto, total, moneda,
+      usuario_solicita: usuario || 'Logística',
+      observaciones: `OC generada desde ${repuestos.length} requerimiento(s) — ${repuesto_ids.length} item(s)`,
+    }, { transaction });
+
+    // Crear detalles (solo ítems MAC con material_id — SER/CAD no aplican en compras_detalle)
+    const detallesConMaterial = detalles.filter(d => d.material_id != null);
+    await Promise.all(detallesConMaterial.map(d => CompraDetalle.create({ compra_id: compra.id, ...d }, { transaction })));
+
+    // Actualizar cada repuesto: estado='En PO', nro_oc, po_id
+    await Promise.all(repuestos.map((r: any) =>
+      r.update({ estado: 'En PO', nro_oc: numero_po, po_id: compra.id }, { transaction })
+    ));
+
+    // Registrar historial por cada OT única involucrada
+    const otIds = [...new Set(repuestos.map((r: any) => r.ot_id))];
+    await Promise.all(otIds.map(otId =>
+      OTHistorial.create({
+        ot_id: otId, tipo_operacion: 'Generación PO',
+        descripcion: `OC ${numero_po} generada (multi-OT) con ${repuestos.filter((r: any) => r.ot_id === otId).length} ítem(s)`,
+        usuario: usuario || 'Logística', fecha: new Date(),
+        datos_adicionales: JSON.stringify({ po_id: compra.id, numero_po }),
+      }, { transaction })
+    ));
+
+    await transaction.commit();
+    res.status(201).json({ message: `OC ${numero_po} generada con ${repuestos.length} ítem(s)`, compra });
+  } catch (error: any) {
+    await transaction.rollback();
+    console.error('Error createOCFromRequerimientos:', error);
+    res.status(400).json({ error: 'Error al generar OC', details: error.message });
   }
 };
 

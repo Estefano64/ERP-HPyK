@@ -263,9 +263,9 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Número OT</label>
-                            <input type="text" id="ot" 
-                                class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
-                                placeholder="Se genera automáticamente">
+                            <input type="text" id="ot" readonly
+                                class="w-full px-3 py-2 border border-gray-200 rounded bg-gray-50 text-gray-500 cursor-not-allowed"
+                                placeholder="Generando...">
                         </div>
                         
                         <div>
@@ -409,11 +409,6 @@
                                 class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-cyan-500 focus:border-transparent">
                         </div>
                         
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Fecha Requerimiento Cliente</label>
-                            <input type="date" id="fecha_requerimiento_cliente" 
-                                class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-cyan-500 focus:border-transparent">
-                        </div>
                     </div>
                 </div>
 
@@ -554,6 +549,17 @@
                     </div>
                 </div>
 
+                <!-- Fecha Requerimiento Cliente -->
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">
+                            Fecha Requerimiento Cliente *
+                        </label>
+                        <input type="date" id="fecha_requerimiento_cliente" required
+                            class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-cyan-500 focus:border-transparent">
+                    </div>
+                </div>
+
                 <!-- Información de Auditoría -->
                 <div class="bg-gray-50 rounded-lg p-4">
                     <h4 class="text-lg font-semibold text-gray-700 mb-4 flex items-center">
@@ -566,12 +572,11 @@
                             <input type="text" id="usuario_crea" readonly
                                 class="w-full px-3 py-2 border border-gray-300 rounded bg-gray-100 focus:ring-2 focus:ring-cyan-500 focus:border-transparent">
                         </div>
-                        
+
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Fecha Creación</label>
                             <input type="datetime-local" id="fecha_creacion" readonly
                                 class="w-full px-3 py-2 border border-gray-300 rounded bg-gray-100 focus:ring-2 focus:ring-cyan-500 focus:border-transparent">
-                        </div>
                         </div>
                     </div>
                 </div>
@@ -588,8 +593,9 @@
             </form>
         </div>
 
-        <!-- Sección de Detalles de OT con Pestañas (Hidden by default) -->
-        <div id="detailsSection" class="hidden bg-white rounded-lg shadow-lg mb-8">
+        <!-- Modal de Detalles de OT con Pestañas -->
+        <div id="detailsSection" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/60" onclick="closeDetailsIfBackdrop(event)">
+        <div class="bg-white rounded-lg w-[95vw] h-[90vh] flex flex-col overflow-hidden shadow-2xl">
             <!-- Header con Número de OT -->
             <div class="bg-gradient-to-r from-cyan-500 to-cyan-600 text-white p-6 rounded-t-lg">
                 <div class="flex justify-between items-center">
@@ -617,8 +623,11 @@
                 <button onclick="switchTab('documentos')" id="tab-documentos" class="tab-button flex-1 py-4 px-6 text-center whitespace-nowrap">
                     <i class="fas fa-paperclip mr-2"></i> Documentos
                 </button>
-                <button onclick="switchTab('repuestos')" id="tab-repuestos" class="tab-button flex-1 py-4 px-6 text-center whitespace-nowrap">
-                    <i class="fas fa-box-open mr-2"></i> Repuestos
+                <button onclick="switchTab('requerimientos')" id="tab-requerimientos" class="tab-button flex-1 py-4 px-6 text-center whitespace-nowrap">
+                    <i class="fas fa-clipboard-list mr-2"></i> Requerimientos
+                </button>
+                <button onclick="switchTab('planificacion')" id="tab-planificacion" class="tab-button flex-1 py-4 px-6 text-center whitespace-nowrap">
+                    <i class="fas fa-calendar-alt mr-2"></i> Planificación
                 </button>
                 <button onclick="switchTab('historial')" id="tab-historial" class="tab-button flex-1 py-4 px-6 text-center whitespace-nowrap">
                     <i class="fas fa-history mr-2"></i> Historial
@@ -626,7 +635,7 @@
             </div>
 
             <!-- Tab Content Container -->
-            <div class="p-6">
+            <div class="p-6 overflow-y-auto flex-1">
                 <!-- Tab 1: Resumen de la OT -->
                 <div id="content-resumen" class="tab-content active">
                     <h4 class="text-xl font-bold text-gray-800 mb-4">Información General</h4>
@@ -1028,125 +1037,145 @@
                     </div>
                 </div>
 
-                <!-- Tab 5: Solicitud de Repuestos -->
-                <div id="content-repuestos" class="tab-content">
-                    <div class="mb-6">
-                        <h4 class="text-xl font-bold text-gray-800 mb-4">Solicitar Repuestos para esta OT</h4>
-
-                        <!-- Banner Task List (se muestra si el CodRep tiene task list en BD) -->
-                        <div id="task-list-banner" class="hidden bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4 flex items-center justify-between">
-                            <div class="flex items-center">
-                                <i class="fas fa-clipboard-list text-blue-600 mr-2"></i>
-                                <span class="font-medium text-blue-800">Task List disponible</span>
-                                <span id="tl-count-badge" class="ml-2 text-blue-600 text-sm"></span>
+                <!-- Tab 5: Requerimientos de la OT -->
+                <div id="content-requerimientos" class="tab-content">
+                    <!-- Header con acciones -->
+                    <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
+                        <h4 class="text-xl font-bold text-gray-800">Requerimientos de la OT</h4>
+                        <div class="flex gap-2">
+                            <!-- Banner Task List (visible si CodRep tiene task list) -->
+                            <div id="task-list-banner" class="hidden flex items-center gap-2 bg-blue-50 border border-blue-200 rounded-lg px-3 py-2">
+                                <i class="fas fa-clipboard-list text-blue-600"></i>
+                                <span class="text-sm font-medium text-blue-800">Task List</span>
+                                <span id="tl-count-badge" class="text-blue-600 text-sm"></span>
+                                <button onclick="abrirModalTaskList()" class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded text-sm ml-1">
+                                    <i class="fas fa-magic mr-1"></i> Auto-generar
+                                </button>
                             </div>
-                            <button onclick="abrirModalTaskList()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-1.5 rounded text-sm">
-                                <i class="fas fa-magic mr-1"></i> Generar Requerimientos
+                            <button onclick="toggleFormReq()" class="bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded-lg text-sm">
+                                <i class="fas fa-plus mr-1"></i> Agregar ítem
                             </button>
                         </div>
+                    </div>
 
-                        <!-- Form para agregar repuestos -->
-                        <form id="repuestoForm" class="bg-gray-50 p-4 rounded-lg mb-6">
-                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-4">
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Inventario/Repuesto*</label>
-                                    <select id="repuesto-material" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-cyan-500">
-                                        <option value="">Seleccione inventario...</option>
-                                        <!-- Se llenará dinámicamente desde /api/materiales -->
-                                    </select>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Cantidad*</label>
-                                    <input type="number" id="repuesto-cantidad" min="1" required 
-                                        class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-cyan-500">
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Proveedor</label>
-                                    <select id="repuesto-proveedor" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-cyan-500">
-                                        <option value="">Seleccione proveedor...</option>
-                                        <!-- Se llenará dinámicamente desde /api/logistica/proveedores -->
-                                    </select>
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Precio Unit. (USD)</label>
-                                    <input type="number" id="repuesto-precio" min="0" step="0.01" 
-                                        placeholder="0.00"
-                                        class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-cyan-500">
-                                </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Fecha Entrega</label>
-                                    <input type="date" id="repuesto-fecha-entrega" 
-                                        class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-cyan-500">
-                                </div>
+                    <!-- Formulario agregar ítem (oculto por defecto) -->
+                    <div id="formReq" class="hidden bg-gray-50 border border-gray-200 rounded-lg p-4 mb-5">
+                        <h5 class="font-semibold text-gray-700 mb-3 text-sm">Nuevo requerimiento</h5>
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-3">
+                            <div>
+                                <label class="block text-xs font-medium text-gray-600 mb-1">Tipo *</label>
+                                <select id="req-tipo" class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-cyan-500">
+                                    <option value="MAC">MAC — Material</option>
+                                    <option value="SER">SER — Servicio</option>
+                                    <option value="CAD">CAD — Cargo directo</option>
+                                </select>
                             </div>
-                            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                                <div class="md:col-span-3">
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Observaciones</label>
-                                    <textarea id="repuesto-observaciones" rows="2" 
-                                        class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-cyan-500"></textarea>
-                                </div>
-                                <div class="flex items-end">
-                                    <button type="submit" class="w-full bg-cyan-500 hover:bg-cyan-600 text-white px-4 py-2 rounded-lg transition">
-                                        <i class="fas fa-plus mr-2"></i> Agregar
-                                    </button>
-                                </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-xs font-medium text-gray-600 mb-1">Descripción *</label>
+                                <input type="text" id="req-descripcion" placeholder="Nombre del material o servicio"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-cyan-500">
                             </div>
-                        </form>
-
-                        <!-- Lista de repuestos agregados -->
-                        <h5 class="font-semibold text-gray-700 mb-3">Repuestos Solicitados</h5>
-                        
-                        <!-- Resumen de Gastos -->
-                        <div id="resumenGastos" class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4 hidden">
-                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                <div>
-                                    <p class="text-xs text-gray-600">Total Items</p>
-                                    <p class="text-lg font-bold text-blue-700" id="totalItems">0</p>
-                                </div>
-                                <div>
-                                    <p class="text-xs text-gray-600">Subtotal</p>
-                                    <p class="text-lg font-bold text-blue-700" id="subtotalGasto">$0.00</p>
-                                </div>
-                                <div>
-                                    <p class="text-xs text-gray-600">IGV (18%)</p>
-                                    <p class="text-lg font-bold text-blue-700" id="igvGasto">$0.00</p>
-                                </div>
-                                <div>
-                                    <p class="text-xs text-gray-600">Total Estimado</p>
-                                    <p class="text-xl font-bold text-green-700" id="totalGasto">$0.00</p>
-                                </div>
+                            <div>
+                                <label class="block text-xs font-medium text-gray-600 mb-1">Cantidad *</label>
+                                <input type="number" id="req-cantidad" min="1" value="1"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-cyan-500">
                             </div>
                         </div>
-                        
-                        <div class="overflow-x-auto">
-                            <table class="min-w-full bg-white border border-gray-200">
-                                <thead class="bg-gray-100">
-                                    <tr>
-                                        <th class="px-4 py-2 text-left text-xs font-semibold text-gray-700">Inventario</th>
-                                        <th class="px-4 py-2 text-left text-xs font-semibold text-gray-700">Cantidad</th>
-                                        <th class="px-4 py-2 text-left text-xs font-semibold text-gray-700">Proveedor</th>
-                                        <th class="px-4 py-2 text-right text-xs font-semibold text-gray-700">Precio Unit.</th>
-                                        <th class="px-4 py-2 text-right text-xs font-semibold text-gray-700">Subtotal</th>
-                                        <th class="px-4 py-2 text-left text-xs font-semibold text-gray-700">Fecha Entrega</th>
-                                        <th class="px-4 py-2 text-left text-xs font-semibold text-gray-700">Estado</th>
-                                        <th class="px-4 py-2 text-center text-xs font-semibold text-gray-700">Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="repuestosTableBody">
-                                    <tr>
-                                        <td colspan="8" class="px-4 py-6 text-center text-gray-500">
-                                            No hay repuestos solicitados aún
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
+                            <div>
+                                <label class="block text-xs font-medium text-gray-600 mb-1">Fecha requerida</label>
+                                <input type="date" id="req-fecha"
+                                    class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-cyan-500">
+                            </div>
+                            <div class="md:col-span-2">
+                                <label class="block text-xs font-medium text-gray-600 mb-1">Observaciones</label>
+                                <input type="text" id="req-observaciones" placeholder="Opcional..."
+                                    class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-cyan-500">
+                            </div>
                         </div>
-
-                        <!-- Botón para generar PO -->
-                        <div class="mt-6 flex justify-end">
-                            <button onclick="generarOrdenCompra()" class="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg transition font-semibold">
-                                <i class="fas fa-file-invoice-dollar mr-2"></i> Generar Orden de Compra (PO)
+                        <div class="flex gap-2 justify-end">
+                            <button onclick="toggleFormReq()" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded text-sm">Cancelar</button>
+                            <button onclick="guardarItemReq()" class="px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded text-sm">
+                                <i class="fas fa-save mr-1"></i> Guardar
                             </button>
+                        </div>
+                    </div>
+
+                    <!-- Leyenda de estados -->
+                    <div class="flex flex-wrap gap-3 mb-4 text-xs">
+                        <span class="px-2 py-1 bg-gray-100 text-gray-600 rounded-full font-medium">SIN APROBACIÓN</span>
+                        <span class="px-2 py-1 bg-green-100 text-green-700 rounded-full font-medium">APROBADO</span>
+                        <span class="px-2 py-1 bg-red-100 text-red-700 rounded-full font-medium">ANULADO</span>
+                        <span class="mx-1 text-gray-300">|</span>
+                        <span class="px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full font-medium">PDT COTIZACIÓN</span>
+                        <span class="px-2 py-1 bg-orange-100 text-orange-700 rounded-full font-medium">PDT APROBACIÓN</span>
+                        <span class="mx-1 text-gray-300">|</span>
+                        <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded-full font-medium">PDT OC</span>
+                        <span class="px-2 py-1 bg-cyan-100 text-cyan-700 rounded-full font-medium">EN PROCESO</span>
+                        <span class="px-2 py-1 bg-emerald-100 text-emerald-700 rounded-full font-medium">COMPLETO</span>
+                    </div>
+
+                    <!-- Tabla de requerimientos -->
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full bg-white border border-gray-200 text-sm">
+                            <thead class="bg-gray-100">
+                                <tr>
+                                    <th class="px-3 py-2 text-left text-xs font-semibold text-gray-700">NRO REQ</th>
+                                    <th class="px-3 py-2 text-left text-xs font-semibold text-gray-700">TIPO</th>
+                                    <th class="px-3 py-2 text-left text-xs font-semibold text-gray-700">DESCRIPCIÓN</th>
+                                    <th class="px-3 py-2 text-center text-xs font-semibold text-gray-700">CANT.</th>
+                                    <th class="px-3 py-2 text-left text-xs font-semibold text-gray-700">FECHA REQ.</th>
+                                    <th class="px-3 py-2 text-center text-xs font-semibold text-gray-700">ESTADO REQ</th>
+                                    <th class="px-3 py-2 text-center text-xs font-semibold text-gray-700">ESTADO COT</th>
+                                    <th class="px-3 py-2 text-center text-xs font-semibold text-gray-700">ESTADO OC</th>
+                                    <th class="px-3 py-2 text-center text-xs font-semibold text-gray-700">ACCIÓN</th>
+                                </tr>
+                            </thead>
+                            <tbody id="requerimientosTableBody">
+                                <tr>
+                                    <td colspan="9" class="px-4 py-8 text-center text-gray-400">
+                                        <i class="fas fa-inbox text-3xl mb-2 block"></i>
+                                        No hay requerimientos registrados
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Tab 6: Planificación de operaciones -->
+                <div id="content-planificacion" class="tab-content">
+                    <!-- Header -->
+                    <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
+                        <div>
+                            <h4 class="text-xl font-bold text-gray-800">Planificación de Operaciones</h4>
+                            <p class="text-sm text-gray-500 mt-1">Operaciones generadas según la clasificación STD/NoSTD de la evaluación técnica</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="loadPlanificacion()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm">
+                                <i class="fas fa-sync-alt mr-1"></i> Actualizar
+                            </button>
+                            <button onclick="generarPlan()" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium">
+                                <i class="fas fa-magic mr-1"></i> Generar Plan
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Alerta si no hay evaluación -->
+                    <div id="plan-sin-evaluacion" class="hidden bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4 flex items-start gap-3">
+                        <i class="fas fa-exclamation-triangle text-yellow-500 mt-0.5"></i>
+                        <div>
+                            <p class="font-medium text-yellow-800">Sin evaluación técnica</p>
+                            <p class="text-sm text-yellow-700">Esta OT no tiene evaluación técnica completada (STD/NoSTD por componente). Complete primero la evaluación antes de generar el plan.</p>
+                        </div>
+                    </div>
+
+                    <!-- Contenedor de operaciones agrupadas por componente -->
+                    <div id="planificacionContainer">
+                        <div class="text-center text-gray-400 py-10">
+                            <i class="fas fa-calendar-alt text-4xl mb-3 block"></i>
+                            <p>Sin operaciones planificadas</p>
+                            <p class="text-sm mt-1">Haz clic en "Generar Plan" para crear el cronograma según la evaluación</p>
                         </div>
                     </div>
                 </div>
@@ -1185,6 +1214,7 @@
                     </div>
                 </div>
             </div>
+        </div>
         </div>
 
         <!-- Search and Filters -->
@@ -1238,14 +1268,10 @@
                 </div>
                 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Tipo OT</label>
-                    <select id="filterTipo"
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Atención</label>
+                    <select id="filterAtencion"
                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
-                        <option value="">Todos los tipos</option>
-                        <option value="Overhaul">Overhaul</option>
-                        <option value="Preventivo">Preventivo</option>
-                        <option value="Correctivo">Correctivo</option>
-                        <option value="Inspección">Inspección</option>
+                        <option value="">Todas las atenciones</option>
                     </select>
                 </div>
                 
@@ -1380,7 +1406,7 @@
             document.getElementById('filterTipoReparacion').addEventListener('change', applyFilters);
             document.getElementById('filterEstadoTaller').addEventListener('change', applyFilters);
             document.getElementById('filterPrioridad').addEventListener('change', applyFilters);
-            document.getElementById('filterTipo').addEventListener('change', applyFilters);
+            document.getElementById('filterAtencion').addEventListener('change', applyFilters);
             document.getElementById('filterFechaDesde').addEventListener('change', applyFilters);
             document.getElementById('filterFechaHasta').addEventListener('change', applyFilters);
         });
@@ -1411,8 +1437,8 @@
                     fetch('/api/catalogos/clientes').then(r => r.json()),
                     fetch('/api/catalogos/fabricantes').then(r => r.json()),
                     fetch('/api/catalogos/atencion-reparacion').then(r => r.json()),
-                    fetch('/api/catalogos/tipo-reparacion').then(r => r.json()),
-                    fetch('/api/catalogos/tipo-garantia').then(r => r.json()),
+                    fetch('/api/catalogos/tipos-reparacion').then(r => r.json()),
+                    fetch('/api/catalogos/tipos-garantia').then(r => r.json()),
                     fetch('/api/catalogos/prioridades-atencion').then(r => r.json()),
                     fetch('/api/catalogos/ot-status').then(r => r.json()),
                     fetch('/api/catalogos/recursos-status').then(r => r.json()),
@@ -1593,11 +1619,12 @@
         // Load filter options from catalogs
         async function loadFilterOptions() {
             try {
-                const [otStatus, tipoReparacion, tallerStatus, prioridades] = await Promise.all([
+                const [otStatus, tipoReparacion, tallerStatus, prioridades, atencionRep] = await Promise.all([
                     fetch('/api/catalogos/ot-status').then(r => r.json()),
-                    fetch('/api/catalogos/tipo-reparacion').then(r => r.json()),
+                    fetch('/api/catalogos/tipos-reparacion').then(r => r.json()),
                     fetch('/api/catalogos/taller-status').then(r => r.json()),
-                    fetch('/api/catalogos/prioridades-atencion').then(r => r.json())
+                    fetch('/api/catalogos/prioridades-atencion').then(r => r.json()),
+                    fetch('/api/catalogos/atencion-reparacion').then(r => r.json())
                 ]);
 
                 // Cargar opciones de Estado OT
@@ -1630,6 +1657,14 @@
                 const prioridadArray = Array.isArray(prioridades) ? prioridades : [];
                 prioridadArray.forEach(p => {
                     filterPrioridad.innerHTML += `<option value="${p.codigo}">${p.nombre}</option>`;
+                });
+
+                // Cargar opciones de Atención
+                const filterAtencion = document.getElementById('filterAtencion');
+                filterAtencion.innerHTML = '<option value="">Todas las atenciones</option>';
+                const atencionArray = Array.isArray(atencionRep) ? atencionRep : [];
+                atencionArray.forEach(a => {
+                    filterAtencion.innerHTML += `<option value="${a.codigo}">${a.nombre}</option>`;
                 });
 
             } catch (error) {
@@ -1997,7 +2032,7 @@
             document.getElementById('filterTipoReparacion').value = '';
             document.getElementById('filterEstadoTaller').value = '';
             document.getElementById('filterPrioridad').value = '';
-            document.getElementById('filterTipo').value = '';
+            document.getElementById('filterAtencion').value = '';
             document.getElementById('filterFechaDesde').value = '';
             document.getElementById('filterFechaHasta').value = '';
             
@@ -2384,7 +2419,7 @@
             const filterTipoRep = document.getElementById('filterTipoReparacion').value;
             const filterEstadoTaller = document.getElementById('filterEstadoTaller').value;
             const filterPrioridad = document.getElementById('filterPrioridad').value;
-            const filterTipo = document.getElementById('filterTipo').value;
+            const filterAtencion = document.getElementById('filterAtencion').value;
             const filterFechaDesde = document.getElementById('filterFechaDesde').value;
             const filterFechaHasta = document.getElementById('filterFechaHasta').value;
             
@@ -2419,7 +2454,7 @@
                 const matchesPrioridad = !filterPrioridad || orden.prioridad_atencion_codigo === filterPrioridad;
                 
                 // Filtro por tipo OT
-                const matchesTipo = !filterTipo || orden.tipo === filterTipo;
+                const matchesAtencion = !filterAtencion || orden.atencion_reparacion_codigo === filterAtencion;
                 
                 // Filtro por fecha
                 let matchesFecha = true;
@@ -2441,7 +2476,7 @@
                 }
                 
                 const shouldShow = matchesSearch && matchesEstadoOT && matchesTipoRep && 
-                                  matchesEstadoTaller && matchesPrioridad && matchesTipo && matchesFecha;
+                                  matchesEstadoTaller && matchesPrioridad && matchesAtencion && matchesFecha;
                 
                 row.style.display = shouldShow ? '' : 'none';
                 
@@ -2484,7 +2519,7 @@
             document.getElementById('filterTipoReparacion').value = '';
             document.getElementById('filterEstadoTaller').value = '';
             document.getElementById('filterPrioridad').value = '';
-            document.getElementById('filterTipo').value = '';
+            document.getElementById('filterAtencion').value = '';
             document.getElementById('filterFechaDesde').value = '';
             document.getElementById('filterFechaHasta').value = '';
             applyFilters();
@@ -2504,7 +2539,7 @@
                 const filterTipoRep = document.getElementById('filterTipoReparacion').value;
                 const filterEstadoTaller = document.getElementById('filterEstadoTaller').value;
                 const filterPrioridad = document.getElementById('filterPrioridad').value;
-                const filterTipo = document.getElementById('filterTipo').value;
+                const filterAtencion = document.getElementById('filterAtencion').value;
                 const filterFechaDesde = document.getElementById('filterFechaDesde').value;
                 const filterFechaHasta = document.getElementById('filterFechaHasta').value;
                 
@@ -2521,7 +2556,7 @@
                     const matchesTipoRep = !filterTipoRep || orden.tipo_reparacion_codigo === filterTipoRep;
                     const matchesEstadoTaller = !filterEstadoTaller || orden.taller_status_codigo === filterEstadoTaller;
                     const matchesPrioridad = !filterPrioridad || orden.prioridad_atencion_codigo === filterPrioridad;
-                    const matchesTipo = !filterTipo || orden.tipo === filterTipo;
+                    const matchesAtencion = !filterAtencion || orden.atencion_reparacion_codigo === filterAtencion;
                     
                     // Filtro por fecha
                     let matchesFecha = true;
@@ -2543,7 +2578,7 @@
                     }
                     
                     return matchesSearch && matchesEstadoOT && matchesTipoRep && 
-                           matchesEstadoTaller && matchesPrioridad && matchesTipo && matchesFecha;
+                           matchesEstadoTaller && matchesPrioridad && matchesAtencion && matchesFecha;
                 });
 
                 if (ordenesFiltradas.length === 0) {
@@ -2633,7 +2668,7 @@
                 // Crear workbook con ExcelJS
                 const fecha = new Date().toLocaleDateString('es-PE');
                 const hayFiltros = searchTerm || filterEstadoOT || filterTipoRep || 
-                                  filterEstadoTaller || filterPrioridad || filterTipo || 
+                                  filterEstadoTaller || filterPrioridad || filterAtencion || 
                                   filterFechaDesde || filterFechaHasta;
                 
                 const workbook = new ExcelJS.Workbook();
@@ -2723,7 +2758,7 @@
         }
 
         // Form functions
-        function showCreateForm() {
+        async function showCreateForm() {
             editingId = null;
             document.getElementById('formSection').classList.remove('hidden');
             document.getElementById('formTitle').textContent = 'Nueva Orden de Trabajo';
@@ -2731,6 +2766,16 @@
             document.getElementById('usuario_crea').value = 'Admin';
             document.getElementById('fecha_creacion').value = new Date().toISOString().slice(0, 16);
             document.getElementById('detailsSection').classList.add('hidden');
+            // Pre-cargar siguiente número de OT
+            const otInput = document.getElementById('ot');
+            otInput.value = 'Generando...';
+            try {
+                const r = await fetch('/api/ot/next-number');
+                const data = await r.json();
+                otInput.value = data.numero_ot || '';
+            } catch(e) {
+                otInput.value = '';
+            }
         }
 
         function cancelForm() {
@@ -2741,13 +2786,14 @@
         function editOrden(id) {
             const orden = ordenes.find(o => o.id === id);
             if (!orden) return;
-            
+
             editingId = id;
             document.getElementById('formSection').classList.remove('hidden');
             document.getElementById('formTitle').textContent = 'Editar Orden de Trabajo';
-            
+
             // Llenar todos los campos del formulario
             document.getElementById('ot').value = orden.ot || '';
+            // En edición mostrar el número pero no permitir cambiarlo
             document.getElementById('id_cliente').value = orden.id_cliente || '';
             document.getElementById('estrategia').checked = orden.estrategia || false;
             document.getElementById('id_cod_rep').value = orden.id_cod_rep || '';
@@ -2942,13 +2988,10 @@
             document.getElementById('detail-fecha-fin').textContent = orden.fecha_requerimiento_cliente ? new Date(orden.fecha_requerimiento_cliente).toLocaleDateString('es-ES') : '-';
             document.getElementById('detail-prioridad').textContent = orden.prioridad_atencion_codigo || '-';
 
-            // Cargar catálogos para repuestos
-            loadMaterialesRepuestos();
-            loadProveedoresRepuestos();
-
             // Cargar datos relacionados
             loadTareas();
-            loadRepuestosSolicitados();
+            loadRequerimientos();
+            loadPlanificacion();
             loadHistorial();
 
             // Mostrar la sección
@@ -2958,66 +3001,173 @@
             // Activar el primer tab por defecto
             switchTab('resumen');
 
-            // Scroll hacia la sección de detalles
-            document.getElementById('detailsSection').scrollIntoView({ behavior: 'smooth' });
+            // Prevent page scroll — modal is fixed overlay
+            document.body.style.overflow = 'hidden';
         }
 
-        // Cerrar sección de detalles
+        // Cerrar modal de detalles
         function closeDetails() {
             document.getElementById('detailsSection').classList.add('hidden');
+            document.body.style.overflow = '';
             currentOTId = null;
             currentOTData = null;
             repuestosSolicitados = [];
             _taskListData = [];
         }
 
-        // Cargar inventario para el select de repuestos
-        async function loadMaterialesRepuestos() {
-            try {
-                const materiales = await fetch('/api/materiales').then(r => r.json());
-                const materialesArr = Array.isArray(materiales) ? materiales : (materiales.materiales || []);
-                const select = document.getElementById('repuesto-material');
-                select.innerHTML = '<option value="">Seleccione material...</option>';
-                materialesArr.forEach(m => {
-                    select.innerHTML += `<option value="${m.material_id}" data-nombre="${m.descripcion}">${m.codigo} - ${m.descripcion}</option>`;
-                });
-            } catch (error) {
-                console.error('Error loading inventario:', error);
+        // Cerrar al hacer clic en el backdrop (overlay oscuro)
+        function closeDetailsIfBackdrop(event) {
+            if (event.target === document.getElementById('detailsSection')) {
+                closeDetails();
             }
         }
 
-        // Cargar proveedores para el select de repuestos
-        async function loadProveedoresRepuestos() {
-            try {
-                const proveedores = await fetch('/api/logistica/proveedores').then(r => r.json());
-                const select = document.getElementById('repuesto-proveedor');
-                select.innerHTML = '<option value="">Seleccione proveedor...</option>';
-                proveedores.forEach(p => {
-                    select.innerHTML += `<option value="${p.id}">${p.razonSocial}</option>`;
-                });
-            } catch (error) {
-                console.error('Error loading proveedores:', error);
+        // ── Requerimientos ────────────────────────────────────────────────────────
+
+        function toggleFormReq() {
+            const form = document.getElementById('formReq');
+            form.classList.toggle('hidden');
+            if (!form.classList.contains('hidden')) {
+                document.getElementById('req-descripcion').focus();
             }
         }
 
-        // Cargar repuestos ya solicitados para esta OT
-        async function loadRepuestosSolicitados() {
+        async function guardarItemReq() {
+            const tipo = document.getElementById('req-tipo').value;
+            const descripcion = document.getElementById('req-descripcion').value.trim();
+            const cantidad = parseInt(document.getElementById('req-cantidad').value) || 0;
+            const fecha = document.getElementById('req-fecha').value;
+            const obs = document.getElementById('req-observaciones').value.trim();
+
+            if (!descripcion || cantidad < 1) {
+                showToast('Descripción y cantidad son obligatorios', 'error');
+                return;
+            }
+
+            try {
+                const res = await fetch(`/api/ot/${currentOTId}/repuestos`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        repuestos: [{
+                            tipo_codigo: tipo,
+                            descripcion: descripcion,
+                            cantidad: cantidad,
+                            fecha_solicitud: fecha || undefined,
+                            observaciones: obs || undefined,
+                        }],
+                        usuario: 'Admin'
+                    })
+                });
+                const result = await res.json();
+                if (!res.ok) throw new Error(result.error || 'Error al guardar');
+                showToast('Ítem agregado', 'success');
+                // Limpiar y cerrar form
+                document.getElementById('req-descripcion').value = '';
+                document.getElementById('req-cantidad').value = '1';
+                document.getElementById('req-fecha').value = '';
+                document.getElementById('req-observaciones').value = '';
+                document.getElementById('formReq').classList.add('hidden');
+                await loadRequerimientos();
+            } catch (e) {
+                showToast('Error: ' + e.message, 'error');
+            }
+        }
+
+        // Cargar requerimientos de la OT
+        async function loadRequerimientos() {
             if (!currentOTId) return;
-
             try {
-                const repuestos = await fetch(`/api/ot/${currentOTId}/repuestos`).then(r => r.json());
-
-                // Guardar en el array temporal
-                repuestosSolicitados = repuestos;
-
-                // Renderizar tabla
-                renderRepuestosTable();
+                const items = await fetch(`/api/ot/${currentOTId}/repuestos`).then(r => r.json());
+                repuestosSolicitados = items;
+                renderRequerimientosTable(items);
             } catch (error) {
-                console.error('Error loading repuestos:', error);
+                console.error('Error loading requerimientos:', error);
             }
-
-            // Verificar si hay task list disponible para este CodRep
             checkTaskListDisponible();
+        }
+
+        function estadoPill(valor, tipo) {
+            if (!valor) return '<span class="px-2 py-0.5 text-xs rounded-full bg-gray-100 text-gray-500">—</span>';
+            const maps = {
+                req: {
+                    'Pendiente':       'bg-gray-100 text-gray-700',
+                    'SIN APROBACIÓN':  'bg-gray-100 text-gray-700',
+                    'APROBADO':        'bg-green-100 text-green-800',
+                    'Aprobado':        'bg-green-100 text-green-800',
+                    'ANULADO':         'bg-red-100 text-red-700',
+                },
+                cot: {
+                    'PENDIENTE COTIZACIÓN':  'bg-yellow-100 text-yellow-800',
+                    'PDT_COT':               'bg-yellow-100 text-yellow-800',
+                    'PENDIENTE APROBACIÓN':  'bg-orange-100 text-orange-800',
+                    'PDT_APR':               'bg-orange-100 text-orange-800',
+                    'APROBADO':              'bg-green-100 text-green-800',
+                    'APR':                   'bg-green-100 text-green-800',
+                    'DESAPROBADO':           'bg-red-100 text-red-700',
+                    'DES':                   'bg-red-100 text-red-700',
+                    'ANULADO':               'bg-red-100 text-red-700',
+                    'ANU':                   'bg-red-100 text-red-700',
+                },
+                oc: {
+                    'PENDIENTE OC':  'bg-blue-100 text-blue-800',
+                    'PROCESO':       'bg-cyan-100 text-cyan-800',
+                    'PRO':           'bg-cyan-100 text-cyan-800',
+                    'INCOMPLETO':    'bg-orange-100 text-orange-800',
+                    'INC':           'bg-orange-100 text-orange-800',
+                    'COMPLETO':      'bg-green-100 text-green-800',
+                    'COM':           'bg-green-100 text-green-800',
+                    'ANULADO':       'bg-red-100 text-red-700',
+                    'ANU':           'bg-red-100 text-red-700',
+                    'DEVOLUCIÓN':    'bg-purple-100 text-purple-800',
+                    'DEV':           'bg-purple-100 text-purple-800',
+                },
+            };
+            const cls = (maps[tipo] || {})[valor] || 'bg-gray-100 text-gray-600';
+            return `<span class="px-2 py-0.5 text-xs rounded-full font-medium ${cls}">${valor}</span>`;
+        }
+
+        function renderRequerimientosTable(items) {
+            const tbody = document.getElementById('requerimientosTableBody');
+            if (!items || items.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="9" class="px-4 py-8 text-center text-gray-400">
+                    <i class="fas fa-inbox text-3xl mb-2 block"></i>No hay requerimientos registrados</td></tr>`;
+                return;
+            }
+            const tipoBadge = { MAC: 'bg-blue-100 text-blue-800', SER: 'bg-purple-100 text-purple-800', CAD: 'bg-orange-100 text-orange-800' };
+            tbody.innerHTML = items.map(r => {
+                const nroReq = r.nro_req || ('REQ-' + r.id);
+                const tipo = r.tipo_codigo || 'MAC';
+                const tipoCls = tipoBadge[tipo] || 'bg-gray-100 text-gray-700';
+                const desc = r.descripcion || r.material_nombre || r.texto || '—';
+                const fechaReq = r.fecha_solicitud ? new Date(r.fecha_solicitud).toLocaleDateString('es-ES') : '—';
+                const esPendiente = !r.estado || r.estado === 'Pendiente' || r.estado === 'SIN APROBACIÓN';
+                return `<tr class="border-t border-gray-100 hover:bg-gray-50">
+                    <td class="px-3 py-2 text-xs font-mono text-gray-500">${nroReq}</td>
+                    <td class="px-3 py-2"><span class="px-2 py-0.5 text-xs rounded font-semibold ${tipoCls}">${tipo}</span></td>
+                    <td class="px-3 py-2 text-sm max-w-xs">${desc}</td>
+                    <td class="px-3 py-2 text-center text-sm font-medium">${r.cantidad}</td>
+                    <td class="px-3 py-2 text-xs text-gray-500">${fechaReq}</td>
+                    <td class="px-3 py-2 text-center">${estadoPill(r.estado, 'req')}</td>
+                    <td class="px-3 py-2 text-center">${estadoPill(r.estado_cot, 'cot')}</td>
+                    <td class="px-3 py-2 text-center">${estadoPill(r.nro_oc ? (r.estado || 'PROCESO') : null, 'oc')}</td>
+                    <td class="px-3 py-2 text-center">
+                        ${esPendiente ? `<button onclick="eliminarRequerimiento(${r.id})" class="text-red-500 hover:text-red-700 text-xs" title="Eliminar"><i class="fas fa-trash"></i></button>` : ''}
+                    </td>
+                </tr>`;
+            }).join('');
+        }
+
+        async function eliminarRequerimiento(id) {
+            if (!confirm('¿Eliminar este requerimiento?')) return;
+            try {
+                const res = await fetch(`/api/ot/repuestos/${id}`, { method: 'DELETE' });
+                if (!res.ok) { const e = await res.json(); throw new Error(e.error); }
+                showToast('Requerimiento eliminado', 'success');
+                await loadRequerimientos();
+            } catch (e) {
+                showToast('Error: ' + e.message, 'error');
+            }
         }
 
         // ── Task List functions ────────────────────────────────────────────────
@@ -3080,7 +3230,7 @@
                 const result = await res.json();
                 if (!res.ok) throw new Error(result.error || 'Error al generar');
                 showToast(result.message, 'success');
-                await loadRepuestosSolicitados();
+                await loadRequerimientos();
             } catch (e) {
                 showToast('Error: ' + e.message, 'error');
             }
@@ -3134,343 +3284,174 @@
             }
             }
 
-        // Manejar formulario de repuestos
-        document.getElementById('repuestoForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const materialSelect = document.getElementById('repuesto-material');
-            const materialId = materialSelect.value;
-            const materialNombre = materialSelect.options[materialSelect.selectedIndex].dataset.nombre;
-            const cantidad = document.getElementById('repuesto-cantidad').value;
-            const proveedorSelect = document.getElementById('repuesto-proveedor');
-            const proveedorId = proveedorSelect.value;
-            const proveedorNombre = proveedorSelect.options[proveedorSelect.selectedIndex].text;
-            const precioUnitario = document.getElementById('repuesto-precio').value;
-            const fechaEntrega = document.getElementById('repuesto-fecha-entrega').value;
-            const observaciones = document.getElementById('repuesto-observaciones').value;
-            
-            if (!materialId || !cantidad) {
-                showToast('Complete los campos requeridos', 'error');
-                return;
-            }
-            
-            try {
-                // Preparar datos del repuesto
-                const repuestoData = {
-                    material_id: materialId,
-                    cantidad: parseInt(cantidad),
-                    proveedor_id: proveedorId || null,
-                    precio_unitario: precioUnitario ? parseFloat(precioUnitario) : null,
-                    fecha_entrega_esperada: fechaEntrega || null,
-                    observaciones: observaciones,
-                    usuario_solicita: 'Admin' // TODO: Obtener del usuario logueado
-                };
-                
-                // Guardar en el backend
-                const response = await fetch(`/api/ot/${currentOTId}/repuestos`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        repuestos: [repuestoData],
-                        usuario: 'Admin' // TODO: Obtener del usuario logueado
-                    })
-                });
-                
-                if (response.ok) {
-                    const result = await response.json();
-                    showToast('Repuesto agregado exitosamente', 'success');
-                    
-                    // Recargar la lista de repuestos desde el backend
-                    await loadRepuestosSolicitados();
-                    
-                    // Limpiar formulario
-                    document.getElementById('repuestoForm').reset();
-                } else {
-                    const error = await response.json();
-                    showToast(`Error al agregar repuesto: ${error.message || 'Error desconocido'}`, 'error');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                showToast('Error al agregar el repuesto', 'error');
-            }
-        });
+        // ── Planificación ─────────────────────────────────────────────────────────
 
-        // Renderizar tabla de repuestos
-        function renderRepuestosTable() {
-            const tbody = document.getElementById('repuestosTableBody');
-            
-            if (repuestosSolicitados.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="8" class="px-4 py-6 text-center text-gray-500">
-                            No hay repuestos solicitados aún
-                        </td>
-                    </tr>
-                `;
-                document.getElementById('resumenGastos').classList.add('hidden');
+        const COMP_COLORS = {
+            CIL:    { bg: 'bg-blue-50',   border: 'border-blue-300',   text: 'text-blue-800',   badge: 'bg-blue-100 text-blue-800'   },
+            VAS:    { bg: 'bg-orange-50',  border: 'border-orange-300', text: 'text-orange-800', badge: 'bg-orange-100 text-orange-800' },
+            TAPA:   { bg: 'bg-green-50',   border: 'border-green-300',  text: 'text-green-800',  badge: 'bg-green-100 text-green-800'  },
+            PISTON: { bg: 'bg-yellow-50',  border: 'border-yellow-300', text: 'text-yellow-800', badge: 'bg-yellow-100 text-yellow-800' },
+        };
+        const ESTADO_OP_COLORS = {
+            'Pendiente':   'bg-gray-100 text-gray-700',
+            'En Proceso':  'bg-blue-100 text-blue-800',
+            'Completado':  'bg-green-100 text-green-800',
+            'Cancelado':   'bg-red-100 text-red-700',
+        };
+
+        async function loadPlanificacion() {
+            if (!currentOTId) return;
+            try {
+                const ops = await fetch(`/api/ot/${currentOTId}/planificacion`).then(r => r.json());
+                renderPlanificacion(ops);
+            } catch (e) {
+                console.error('Error loading planificación:', e);
+            }
+        }
+
+        async function generarPlan() {
+            if (!currentOTId) return;
+            if (!confirm('¿Generar el plan de operaciones? Se reemplazará el plan anterior si existe.')) return;
+            try {
+                const res = await fetch(`/api/ot/${currentOTId}/planificacion/generar`, { method: 'POST' });
+                const result = await res.json();
+                if (!res.ok) {
+                    showToast(result.error || 'Error al generar plan', 'error');
+                    if (result.error && result.error.includes('evaluación')) {
+                        document.getElementById('plan-sin-evaluacion').classList.remove('hidden');
+                    }
+                    return;
+                }
+                document.getElementById('plan-sin-evaluacion').classList.add('hidden');
+                showToast(result.message, 'success');
+                await loadPlanificacion();
+            } catch (e) {
+                showToast('Error: ' + e.message, 'error');
+            }
+        }
+
+        function renderPlanificacion(ops) {
+            const container = document.getElementById('planificacionContainer');
+            if (!ops || ops.length === 0) {
+                container.innerHTML = `<div class="text-center text-gray-400 py-10">
+                    <i class="fas fa-calendar-alt text-4xl mb-3 block"></i>
+                    <p>Sin operaciones planificadas</p>
+                    <p class="text-sm mt-1">Haz clic en "Generar Plan" para crear el cronograma según la evaluación</p>
+                </div>`;
                 return;
             }
-            
-            let subtotal = 0;
-            let totalItems = 0;
-            
-            tbody.innerHTML = '';
-            repuestosSolicitados.forEach(rep => {
-                const precio = parseFloat(rep.precio_unitario) || 0;
-                const itemSubtotal = precio * rep.cantidad;
-                subtotal += itemSubtotal;
-                totalItems++;
-                
-                const fechaEntrega = rep.fecha_entrega_esperada ? 
-                    new Date(rep.fecha_entrega_esperada).toLocaleDateString('es-ES') : '-';
-                
-                const row = `
-                    <tr class="border-t border-gray-200 hover:bg-gray-50">
-                        <td class="px-4 py-3 text-sm">${rep.material_nombre || '-'}</td>
-                        <td class="px-4 py-3 text-sm text-center">${rep.cantidad}</td>
-                        <td class="px-4 py-3 text-sm">${rep.proveedor_nombre || '-'}</td>
-                        <td class="px-4 py-3 text-sm text-right font-mono">${precio > 0 ? '$' + precio.toFixed(2) : '-'}</td>
-                        <td class="px-4 py-3 text-sm text-right font-mono font-semibold">${itemSubtotal > 0 ? '$' + itemSubtotal.toFixed(2) : '-'}</td>
-                        <td class="px-4 py-3 text-sm">${fechaEntrega}</td>
-                        <td class="px-4 py-3">
-                            <span class="px-2 py-1 text-xs font-semibold rounded-full ${
-                                rep.estado === 'Pendiente' ? 'bg-yellow-100 text-yellow-800' :
-                                rep.estado === 'Aprobado' ? 'bg-green-100 text-green-800' :
-                                rep.estado === 'En PO' ? 'bg-blue-100 text-blue-800' :
-                                rep.estado === 'Recibido' ? 'bg-purple-100 text-purple-800' :
-                                'bg-gray-100 text-gray-800'
-                            }">${rep.estado}</span>
-                        </td>
-                        <td class="px-4 py-3 text-center">
-                            <button onclick="eliminarRepuesto(${rep.id})" class="text-red-600 hover:text-red-800" 
-                                ${rep.estado !== 'Pendiente' ? 'disabled' : ''}>
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </td>
-                    </tr>
-                `;
-                tbody.innerHTML += row;
+
+            // Agrupar por componente
+            const grupos = {};
+            ops.forEach(op => {
+                if (!grupos[op.componente]) grupos[op.componente] = [];
+                grupos[op.componente].push(op);
             });
-            
-            // Actualizar resumen de gastos
-            const igv = subtotal * 0.18;
-            const total = subtotal + igv;
-            
-            document.getElementById('totalItems').textContent = totalItems;
-            document.getElementById('subtotalGasto').textContent = '$' + subtotal.toFixed(2);
-            document.getElementById('igvGasto').textContent = '$' + igv.toFixed(2);
-            document.getElementById('totalGasto').textContent = '$' + total.toFixed(2);
-            document.getElementById('resumenGastos').classList.remove('hidden');
+
+            const compOrder = ['CIL', 'VAS', 'TAPA', 'PISTON'];
+            container.innerHTML = compOrder
+                .filter(c => grupos[c])
+                .map(comp => {
+                    const cls = COMP_COLORS[comp] || COMP_COLORS.CIL;
+                    const lista = grupos[comp];
+                    const tipo = lista[0]?.tipo_reparacion || '';
+                    const rows = lista.map(op => {
+                        const estadoCls = ESTADO_OP_COLORS[op.estado] || 'bg-gray-100 text-gray-600';
+                        return `<tr class="border-t border-gray-100 hover:bg-white" id="op-row-${op.id}">
+                            <td class="px-3 py-2 text-xs font-mono font-semibold text-gray-600">${op.operacion_codigo}</td>
+                            <td class="px-3 py-2 text-sm">${op.descripcion}</td>
+                            <td class="px-3 py-2 text-center">
+                                <input type="number" min="0.5" step="0.5" value="${op.horas_estimadas || ''}"
+                                    placeholder="—" class="w-16 px-1 py-0.5 border border-gray-200 rounded text-xs text-center"
+                                    onchange="patchOperacion(${op.id}, 'horas_estimadas', this.value)">
+                            </td>
+                            <td class="px-3 py-2 text-center">
+                                <input type="date" value="${op.fecha_inicio || ''}"
+                                    class="px-1 py-0.5 border border-gray-200 rounded text-xs"
+                                    onchange="patchOperacion(${op.id}, 'fecha_inicio', this.value)">
+                            </td>
+                            <td class="px-3 py-2 text-center">
+                                <input type="date" value="${op.fecha_fin || ''}"
+                                    class="px-1 py-0.5 border border-gray-200 rounded text-xs"
+                                    onchange="patchOperacion(${op.id}, 'fecha_fin', this.value)">
+                            </td>
+                            <td class="px-3 py-2">
+                                <input type="text" value="${op.tecnico || ''}" placeholder="Técnico"
+                                    class="w-full px-1 py-0.5 border border-gray-200 rounded text-xs"
+                                    onchange="patchOperacion(${op.id}, 'tecnico', this.value)">
+                            </td>
+                            <td class="px-3 py-2">
+                                <input type="text" value="${op.maquina || ''}" placeholder="Máquina"
+                                    class="w-full px-1 py-0.5 border border-gray-200 rounded text-xs"
+                                    onchange="patchOperacion(${op.id}, 'maquina', this.value)">
+                            </td>
+                            <td class="px-3 py-2 text-center">
+                                <select onchange="patchOperacion(${op.id}, 'estado', this.value)"
+                                    class="px-1 py-0.5 border border-gray-200 rounded text-xs">
+                                    <option ${op.estado==='Pendiente'?'selected':''}>Pendiente</option>
+                                    <option ${op.estado==='En Proceso'?'selected':''}>En Proceso</option>
+                                    <option ${op.estado==='Completado'?'selected':''}>Completado</option>
+                                    <option ${op.estado==='Cancelado'?'selected':''}>Cancelado</option>
+                                </select>
+                            </td>
+                            <td class="px-3 py-2 text-center">
+                                <button onclick="eliminarOperacion(${op.id})" class="text-red-400 hover:text-red-600 text-xs" title="Eliminar">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>`;
+                    }).join('');
+
+                    return `<div class="mb-5 border ${cls.border} rounded-lg overflow-hidden">
+                        <div class="${cls.bg} px-4 py-2 flex items-center gap-3">
+                            <span class="font-bold ${cls.text} text-sm">${comp === 'VAS' ? 'VÁSTAGO' : comp}</span>
+                            <span class="px-2 py-0.5 text-xs rounded-full font-medium ${cls.badge}">${tipo}</span>
+                            <span class="text-xs text-gray-500 ml-auto">${lista.length} operación${lista.length!==1?'es':''}</span>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full text-sm bg-gray-50">
+                                <thead class="bg-white">
+                                    <tr class="text-xs font-semibold text-gray-600">
+                                        <th class="px-3 py-2 text-left">Código</th>
+                                        <th class="px-3 py-2 text-left">Descripción</th>
+                                        <th class="px-3 py-2 text-center">H. Est.</th>
+                                        <th class="px-3 py-2 text-center">Fecha Inicio</th>
+                                        <th class="px-3 py-2 text-center">Fecha Fin</th>
+                                        <th class="px-3 py-2 text-left">Técnico</th>
+                                        <th class="px-3 py-2 text-left">Máquina</th>
+                                        <th class="px-3 py-2 text-center">Estado</th>
+                                        <th class="px-3 py-2 text-center"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>${rows}</tbody>
+                            </table>
+                        </div>
+                    </div>`;
+                }).join('');
         }
 
-        // Eliminar repuesto de la lista
-        async function eliminarRepuesto(repuestoId) {
-            if (!confirm('¿Eliminar este repuesto de la lista?')) return;
-            
+        async function patchOperacion(id, campo, valor) {
             try {
-                // Verificar que el repuesto esté en estado Pendiente
-                const repuesto = repuestosSolicitados.find(r => r.id === repuestoId);
-                
-                if (!repuesto) {
-                    showToast('Repuesto no encontrado', 'error');
-                    return;
-                }
-                
-                if (repuesto.estado !== 'Pendiente') {
-                    showToast('Solo se pueden eliminar repuestos en estado Pendiente', 'error');
-                    return;
-                }
-                
-                // Eliminar del backend
-                const response = await fetch(`/api/ot/repuestos/${repuestoId}`, {
-                    method: 'DELETE'
-                });
-                
-                if (response.ok) {
-                    showToast('Repuesto eliminado exitosamente', 'success');
-                    
-                    // Recargar la lista de repuestos
-                    await loadRepuestosSolicitados();
-                } else {
-                    const error = await response.json();
-                    showToast(`Error al eliminar: ${error.message || 'Error desconocido'}`, 'error');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                showToast('Error al eliminar el repuesto', 'error');
-            }
-        }
-
-        // Generar Orden de Compra
-        async function generarOrdenCompra() {
-            if (repuestosSolicitados.length === 0) {
-                showToast('Agregue al menos un repuesto para generar la PO', 'error');
-                return;
-            }
-            
-            // Obtener IDs de repuestos que están en estado Pendiente
-            const repuestosPendientes = repuestosSolicitados.filter(r => r.estado === 'Pendiente');
-            
-            if (repuestosPendientes.length === 0) {
-                showToast('No hay repuestos pendientes para incluir en la PO', 'error');
-                return;
-            }
-            
-            if (!confirm(`¿Generar Orden de Compra con ${repuestosPendientes.length} repuestos?`)) return;
-            
-            // Abrir modal para seleccionar proveedor y almacén
-            await abrirModalPO(repuestosPendientes);
-        }
-
-        // Abrir modal de configuración PO
-        async function abrirModalPO(repuestosPendientes) {
-            // Almacenar repuestos pendientes para usar en confirmarGenerarPO
-            window.repuestosPendientesParaPO = repuestosPendientes;
-            
-            // Mostrar modal primero
-            document.getElementById('modalGenerarPO').classList.remove('hidden');
-            
-            // Cargar proveedores
-            try {
-                const response = await fetch('/api/logistica/proveedores');
-                if (!response.ok) {
-                    throw new Error('Error al cargar proveedores');
-                }
-                const proveedores = await response.json();
-                console.log('Proveedores cargados:', proveedores);
-                
-                const selectProveedor = document.getElementById('po-proveedor');
-                selectProveedor.innerHTML = '<option value="">Seleccione proveedor...</option>';
-                
-                if (Array.isArray(proveedores) && proveedores.length > 0) {
-                    proveedores.forEach(p => {
-                        selectProveedor.innerHTML += `<option value="${p.id}">${p.razonSocial}</option>`;
-                    });
-                    
-                    // Intentar pre-seleccionar proveedor si los repuestos tienen uno asignado
-                    const proveedorPreSelected = repuestosPendientes.find(r => r.proveedor_id);
-                    if (proveedorPreSelected) {
-                        selectProveedor.value = proveedorPreSelected.proveedor_id;
-                    }
-                } else {
-                    selectProveedor.innerHTML += '<option value="" disabled>No hay proveedores disponibles</option>';
-                }
-            } catch (error) {
-                console.error('Error cargando proveedores:', error);
-                showToast('Error al cargar proveedores', 'error');
-                const selectProveedor = document.getElementById('po-proveedor');
-                selectProveedor.innerHTML = '<option value="">Error al cargar proveedores</option>';
-            }
-            
-            // Cargar almacenes
-            try {
-                const response = await fetch('/api/logistica/almacenes');
-                if (!response.ok) {
-                    throw new Error('Error al cargar almacenes');
-                }
-                const almacenes = await response.json();
-                console.log('Almacenes cargados:', almacenes);
-                
-                const selectAlmacen = document.getElementById('po-almacen');
-                selectAlmacen.innerHTML = '<option value="">Seleccione almacén...</option>';
-                
-                if (Array.isArray(almacenes) && almacenes.length > 0) {
-                    almacenes.forEach(a => {
-                        selectAlmacen.innerHTML += `<option value="${a.id}">${a.nombre}</option>`;
-                    });
-                    
-                    // Seleccionar primer almacén por defecto si existe
-                    if (almacenes.length > 0) {
-                        selectAlmacen.value = almacenes[0].id;
-                    }
-                } else {
-                    selectAlmacen.innerHTML += '<option value="" disabled>No hay almacenes disponibles</option>';
-                }
-            } catch (error) {
-                console.error('Error cargando almacenes:', error);
-                showToast('Error al cargar almacenes', 'error');
-                const selectAlmacen = document.getElementById('po-almacen');
-                selectAlmacen.innerHTML = '<option value="">Error al cargar almacenes</option>';
-            }
-            
-            // Establecer fecha de entrega predeterminada (+7 días)
-            const fechaEntrega = new Date();
-            fechaEntrega.setDate(fechaEntrega.getDate() + 7);
-            document.getElementById('po-fecha-entrega').value = fechaEntrega.toISOString().split('T')[0];
-        }
-
-        // Cerrar modal PO
-        function cerrarModalPO() {
-            document.getElementById('modalGenerarPO').classList.add('hidden');
-            window.repuestosPendientesParaPO = null;
-        }
-
-        // Confirmar generación de PO
-        async function confirmarGenerarPO() {
-            const proveedorId = document.getElementById('po-proveedor').value;
-            const almacenId = document.getElementById('po-almacen').value;
-            const fechaEntrega = document.getElementById('po-fecha-entrega').value;
-            const moneda = document.getElementById('po-moneda').value;
-            
-            if (!proveedorId) {
-                showToast('Debe seleccionar un proveedor', 'error');
-                return;
-            }
-            
-            if (!almacenId) {
-                showToast('Debe seleccionar un almacén', 'error');
-                return;
-            }
-            
-            const repuestosPendientes = window.repuestosPendientesParaPO;
-            if (!repuestosPendientes || repuestosPendientes.length === 0) {
-                showToast('No hay repuestos pendientes', 'error');
-                cerrarModalPO();
-                return;
-            }
-            
-            try {
-                // Datos para la creación de la PO
-                const poData = {
-                    ot_id: currentOTId,
-                    proveedor_id: parseInt(proveedorId),
-                    almacen_id: parseInt(almacenId),
-                    repuestos_ids: repuestosPendientes.map(r => r.id),
-                    fecha_entrega_esperada: fechaEntrega ? new Date(fechaEntrega).toISOString() : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-                    moneda: moneda,
-                    usuario: 'Admin' // TODO: Obtener del usuario logueado
-                };
-                
-                // Llamar al endpoint para crear la PO desde la OT
-                const response = await fetch('/api/logistica/compras/from-ot', {
-                    method: 'POST',
+                const res = await fetch(`/api/ot/planificacion/${id}`, {
+                    method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(poData)
+                    body: JSON.stringify({ [campo]: valor || null })
                 });
-                
-                if (response.ok) {
-                    const result = await response.json();
-                    showToast(`Orden de Compra ${result.compra.numero_po} generada exitosamente`, 'success');
-                    
-                    // Cerrar modal
-                    cerrarModalPO();
-                    
-                    // Recargar los repuestos (ahora tendrán estado "En PO")
-                    await loadRepuestosSolicitados();
-                    
-                    // Recargar el historial para ver la nueva entrada
-                    await loadHistorial();
-                    
-                    // Cambiar al tab de historial
-                    switchTab('historial');
-                } else {
-                    const error = await response.json();
-                    showToast(`Error al generar PO: ${error.error || 'Error desconocido'}`, 'error');
-                }
-                
-            } catch (error) {
-                console.error('Error:', error);
-                showToast('Error al generar la Orden de Compra', 'error');
+                if (!res.ok) { const e = await res.json(); throw new Error(e.error); }
+            } catch (e) {
+                showToast('Error al guardar: ' + e.message, 'error');
+            }
+        }
+
+        async function eliminarOperacion(id) {
+            if (!confirm('¿Eliminar esta operación del plan?')) return;
+            try {
+                const res = await fetch(`/api/ot/planificacion/${id}`, { method: 'DELETE' });
+                if (!res.ok) { const e = await res.json(); throw new Error(e.error); }
+                showToast('Operación eliminada', 'success');
+                await loadPlanificacion();
+            } catch (e) {
+                showToast('Error: ' + e.message, 'error');
             }
         }
 

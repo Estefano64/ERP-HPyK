@@ -15,7 +15,9 @@
       "Bash(node:*)",
       "Bash(npx tsc:*)",
       "Bash(grep:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(npm run:*)",
+      "Bash(PGPASSWORD=admin123 psql:*)"
     ]
   }
 }

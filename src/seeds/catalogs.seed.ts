@@ -398,10 +398,36 @@ async function seedDatabase() {
     ], { updateOnDuplicate: ['razon_social', 'nombre_comercial', 'activo'] });
     console.log('✓ 16 clientes\n');
 
+    // Limpiar catálogos OT antes de reinsertar para eliminar entradas obsoletas
+    // Paso 1: nullificar en orden_trabajo cualquier codigo que ya no existirá
+    console.log('Limpiando referencias obsoletas en orden_trabajo...');
+    await sequelize.query(`UPDATE orden_trabajo SET garantia_codigo = NULL WHERE garantia_codigo IS NOT NULL AND garantia_codigo NOT IN ('Si','No')`);
+    await sequelize.query(`UPDATE orden_trabajo SET atencion_reparacion_codigo = NULL WHERE atencion_reparacion_codigo IS NOT NULL AND atencion_reparacion_codigo NOT IN ('Contrato','Presupuesto','Emergencia')`);
+    await sequelize.query(`UPDATE orden_trabajo SET tipo_reparacion_codigo = NULL WHERE tipo_reparacion_codigo IS NOT NULL AND tipo_reparacion_codigo NOT IN ('General','Parcial','Eval & Lim','Vestido')`);
+    await sequelize.query(`UPDATE orden_trabajo SET tipo_garantia_codigo = NULL WHERE tipo_garantia_codigo IS NOT NULL AND tipo_garantia_codigo NOT IN ('Cliente','Por definir','HPK','Comercial')`);
+    await sequelize.query(`UPDATE orden_trabajo SET prioridad_atencion_codigo = NULL WHERE prioridad_atencion_codigo IS NOT NULL AND prioridad_atencion_codigo NOT IN ('1','2','3','E')`);
+    await sequelize.query(`UPDATE orden_trabajo SET base_metalica_codigo = NULL WHERE base_metalica_codigo IS NOT NULL AND base_metalica_codigo NOT IN ('Si','No')`);
+    await sequelize.query(`UPDATE orden_trabajo SET ot_status_codigo = NULL WHERE ot_status_codigo IS NOT NULL AND ot_status_codigo NOT IN ('Abierta','Cerrada','No Ejecutada')`);
+    await sequelize.query(`UPDATE orden_trabajo SET recursos_status_codigo = NULL WHERE recursos_status_codigo IS NOT NULL AND recursos_status_codigo NOT IN ('En revision procesos','Recursos solicitados','En cotización','En aprobación','En espera de recursos','Recursos completos')`);
+    await sequelize.query(`UPDATE orden_trabajo SET taller_status_codigo = NULL WHERE taller_status_codigo IS NOT NULL AND taller_status_codigo NOT IN ('Pdt Evaluación','Programado Evaluación','Pdt proceso','Programado Proceso','Terminado','Entregado','Cobranza')`);
+
+    // Paso 2: borrar entradas viejas de los catálogos
+    console.log('Eliminando entradas obsoletas de catálogos OT...');
+    await sequelize.query(`DELETE FROM garantia WHERE codigo NOT IN ('Si','No')`);
+    await sequelize.query(`DELETE FROM atencion_reparacion WHERE codigo NOT IN ('Contrato','Presupuesto','Emergencia')`);
+    await sequelize.query(`DELETE FROM tipo_reparacion WHERE codigo NOT IN ('General','Parcial','Eval & Lim','Vestido')`);
+    await sequelize.query(`DELETE FROM tipo_garantia WHERE codigo NOT IN ('Cliente','Por definir','HPK','Comercial')`);
+    await sequelize.query(`DELETE FROM prioridad_atencion WHERE codigo NOT IN ('1','2','3','E')`);
+    await sequelize.query(`DELETE FROM base_metalica WHERE codigo NOT IN ('Si','No')`);
+    await sequelize.query(`DELETE FROM ot_status WHERE codigo NOT IN ('Abierta','Cerrada','No Ejecutada')`);
+    await sequelize.query(`DELETE FROM recursos_status WHERE codigo NOT IN ('En revision procesos','Recursos solicitados','En cotización','En aprobación','En espera de recursos','Recursos completos')`);
+    await sequelize.query(`DELETE FROM taller_status WHERE codigo NOT IN ('Pdt Evaluación','Programado Evaluación','Pdt proceso','Programado Proceso','Terminado','Entregado','Cobranza')`);
+    console.log('✓ Catálogos OT limpiados\n');
+
     console.log('Sembrando Garantías...');
     await Garantia.bulkCreate([
-      { codigo: 'Si', nombre: 'Con Garantía', activo: true },
-      { codigo: 'No', nombre: 'Sin Garantía', activo: true },
+      { codigo: 'Si', nombre: 'Si', activo: true },
+      { codigo: 'No', nombre: 'No', activo: true },
     ], { updateOnDuplicate: ['nombre', 'activo'] });
     console.log('✓ 2 garantías\n');
 
@@ -415,10 +441,10 @@ async function seedDatabase() {
 
     console.log('Sembrando Tipos de Reparación...');
     await TipoReparacion.bulkCreate([
-      { codigo: 'General',    nombre: 'General — Reparación a 0 horas',              activo: true },
-      { codigo: 'Parcial',    nombre: 'Parcial — Reparación para llegar al PCR',      activo: true },
-      { codigo: 'Eval & Lim', nombre: 'Eval & Lim — Evaluación sin trabajo',         activo: true },
-      { codigo: 'Vestido',    nombre: 'Vestido — Ensamble de componente por partes', activo: true },
+      { codigo: 'General',    nombre: 'General',    activo: true },
+      { codigo: 'Parcial',    nombre: 'Parcial',    activo: true },
+      { codigo: 'Eval & Lim', nombre: 'Eval & Lim', activo: true },
+      { codigo: 'Vestido',    nombre: 'Vestido',    activo: true },
     ], { updateOnDuplicate: ['nombre', 'activo'] });
     console.log('✓ 4 tipos de reparación\n');
 
@@ -442,8 +468,8 @@ async function seedDatabase() {
 
     console.log('Sembrando Base Metálica...');
     await BaseMetalica.bulkCreate([
-      { codigo: 'Si', nombre: 'Con Base Metálica', activo: true },
-      { codigo: 'No', nombre: 'Sin Base Metálica', activo: true },
+      { codigo: 'Si', nombre: 'Si', activo: true },
+      { codigo: 'No', nombre: 'No', activo: true },
     ], { updateOnDuplicate: ['nombre', 'activo'] });
     console.log('✓ 2 opciones de base metálica\n');
 
@@ -457,7 +483,7 @@ async function seedDatabase() {
 
     console.log('Sembrando Status de Recursos...');
     await RecursosStatus.bulkCreate([
-      { codigo: 'En revision procesos',  nombre: 'En revisión procesos',  activo: true },
+      { codigo: 'En revision procesos',  nombre: 'En revision procesos',  activo: true },
       { codigo: 'Recursos solicitados',  nombre: 'Recursos solicitados',  activo: true },
       { codigo: 'En cotización',         nombre: 'En cotización',         activo: true },
       { codigo: 'En aprobación',         nombre: 'En aprobación',         activo: true },
@@ -470,7 +496,7 @@ async function seedDatabase() {
     await TallerStatus.bulkCreate([
       { codigo: 'Pdt Evaluación',        nombre: 'Pdt Evaluación',        activo: true },
       { codigo: 'Programado Evaluación', nombre: 'Programado Evaluación', activo: true },
-      { codigo: 'Pdt proceso',           nombre: 'Pdt Proceso',           activo: true },
+      { codigo: 'Pdt proceso',           nombre: 'Pdt proceso',           activo: true },
       { codigo: 'Programado Proceso',    nombre: 'Programado Proceso',    activo: true },
       { codigo: 'Terminado',             nombre: 'Terminado',             activo: true },
       { codigo: 'Entregado',             nombre: 'Entregado',             activo: true },

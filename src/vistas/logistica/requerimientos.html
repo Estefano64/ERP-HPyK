@@ -3,438 +3,906 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Requerimientos de Compra - HP&K ERP</title>
+    <title>Gestión de Requerimientos — HP&K ERP</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="/vistas/shared/navigation.js"></script>
     <style>
-        .badge-estado {
-            display: inline-block;
-            padding: 2px 10px;
-            border-radius: 12px;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-        .badge-pendiente   { background:#fef3c7; color:#92400e; }
-        .badge-aprobado    { background:#d1fae5; color:#065f46; }
-        .badge-en-po       { background:#dbeafe; color:#1e40af; }
-        .badge-completado  { background:#f3f4f6; color:#374151; }
-        .badge-anulado     { background:#fee2e2; color:#991b1b; }
-        .badge-prioridad-e { background:#dc2626; color:#fff; }
-        .badge-prioridad-1 { background:#ea580c; color:#fff; }
-        .badge-prioridad-2 { background:#d97706; color:#fff; }
-        .badge-prioridad-3 { background:#65a30d; color:#fff; }
-        .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:1000; align-items:center; justify-content:center; }
-        .modal-overlay.open { display:flex; }
-        tr:hover td { background:#f8fafc; }
+        .row-selected { background: #eff6ff !important; }
+        .row-selected td { background: #eff6ff !important; }
+        tr:hover td { background: #f8fafc; }
+        .row-selected:hover td { background: #dbeafe !important; }
+        .pill { display:inline-block; padding:2px 8px; border-radius:999px; font-size:0.7rem; font-weight:600; white-space:nowrap; }
+        .pill-gray   { background:#f3f4f6; color:#374151; }
+        .pill-yellow { background:#fef3c7; color:#92400e; }
+        .pill-green  { background:#d1fae5; color:#065f46; }
+        .pill-blue   { background:#dbeafe; color:#1e40af; }
+        .pill-red    { background:#fee2e2; color:#991b1b; }
+        .pill-orange { background:#ffedd5; color:#9a3412; }
+        .pill-cyan   { background:#cffafe; color:#155e75; }
+        .pill-indigo { background:#e0e7ff; color:#3730a3; }
+        .pill-purple { background:#f3e8ff; color:#6b21a8; }
+        .pill-prio-e { background:#dc2626; color:#fff; }
+        .pill-prio-1 { background:#ea580c; color:#fff; }
+        .pill-prio-2 { background:#d97706; color:#fff; }
+        .pill-prio-3 { background:#65a30d; color:#fff; }
+        th.sec-req   { background:#1e3a5f; }
+        th.sec-cot   { background:#1e4d8c; }
+        th.sec-oc    { background:#312e81; }
+        th.sec-alm   { background:#7c2d12; }
+        th.sub-req   { background:#334155; }
+        th.sub-cot   { background:#1d4ed8; }
+        th.sub-oc    { background:#4338ca; }
+        th.sub-alm   { background:#9a3412; }
+        td.td-cot    { background:#f0f7ff; }
+        td.td-oc     { background:#f5f3ff; }
+        td.td-alm    { background:#fff7ed; }
+        .edit-cell { cursor:pointer; border-bottom:1px dashed #93c5fd; min-width:60px; display:inline-block; }
+        .edit-cell:hover { background:#dbeafe; border-radius:3px; }
     </style>
 </head>
-<body class="bg-gray-50">
-    <div id="navigation-container"></div>
+<body class="bg-gray-100">
+<div id="navigation-container"></div>
 
-    <!-- Header -->
-    <div class="bg-gradient-to-r from-orange-600 to-orange-800 text-white shadow-lg">
-        <div class="container mx-auto px-4 py-5">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-4">
-                    <i class="fas fa-list-check text-4xl"></i>
+<!-- Header -->
+<div class="bg-gradient-to-r from-orange-600 to-orange-800 text-white shadow-lg">
+    <div class="container mx-auto px-4 py-4">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <i class="fas fa-list-check text-3xl opacity-80"></i>
+                <div>
+                    <h1 class="text-2xl font-bold">GESTIÓN DE REQUERIMIENTOS</h1>
+                    <p class="text-orange-200 text-xs">Solicitudes de compra · Cotización · Órdenes de Compra · Almacén</p>
+                </div>
+            </div>
+            <a href="/logistica/index.html" class="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg text-sm transition">
+                <i class="fas fa-arrow-left mr-2"></i>Logística
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="container mx-auto px-4 py-5">
+
+    <!-- Summary cards -->
+    <div class="grid grid-cols-2 md:grid-cols-6 gap-3 mb-5">
+        <div class="bg-white rounded-lg shadow p-3 flex items-center gap-3">
+            <div class="bg-yellow-100 rounded-full p-2"><i class="fas fa-clock text-yellow-600"></i></div>
+            <div><p class="text-xs text-gray-500">Pendientes</p><p id="cnt-pending" class="text-xl font-bold text-yellow-600">—</p></div>
+        </div>
+        <div class="bg-white rounded-lg shadow p-3 flex items-center gap-3">
+            <div class="bg-green-100 rounded-full p-2"><i class="fas fa-check-circle text-green-600"></i></div>
+            <div><p class="text-xs text-gray-500">Aprobados</p><p id="cnt-aprobado" class="text-xl font-bold text-green-600">—</p></div>
+        </div>
+        <div class="bg-white rounded-lg shadow p-3 flex items-center gap-3">
+            <div class="bg-blue-100 rounded-full p-2"><i class="fas fa-handshake text-blue-600"></i></div>
+            <div><p class="text-xs text-gray-500">En Cotización</p><p id="cnt-cot" class="text-xl font-bold text-blue-600">—</p></div>
+        </div>
+        <div class="bg-white rounded-lg shadow p-3 flex items-center gap-3">
+            <div class="bg-indigo-100 rounded-full p-2"><i class="fas fa-file-invoice text-indigo-600"></i></div>
+            <div><p class="text-xs text-gray-500">En OC</p><p id="cnt-oc" class="text-xl font-bold text-indigo-600">—</p></div>
+        </div>
+        <div class="bg-white rounded-lg shadow p-3 flex items-center gap-3">
+            <div class="bg-red-100 rounded-full p-2"><i class="fas fa-exclamation-triangle text-red-600"></i></div>
+            <div><p class="text-xs text-gray-500">Sin stock</p><p id="cnt-sinstock" class="text-xl font-bold text-red-600">—</p></div>
+        </div>
+        <div class="bg-white rounded-lg shadow p-3 flex items-center gap-3">
+            <div class="bg-gray-100 rounded-full p-2"><i class="fas fa-boxes text-gray-600"></i></div>
+            <div><p class="text-xs text-gray-500">Con stock</p><p id="cnt-constock" class="text-xl font-bold text-gray-700">—</p></div>
+        </div>
+    </div>
+
+    <!-- Main layout: left table + right cart -->
+    <div class="flex gap-5 items-start">
+
+        <!-- ═══ LEFT PANEL ═══════════════════════════════════════════════════ -->
+        <div class="flex-1 min-w-0">
+
+            <!-- Filtros -->
+            <div class="bg-white rounded-lg shadow p-3 mb-4">
+                <div class="flex flex-wrap gap-2 items-end">
                     <div>
-                        <h1 class="text-2xl md:text-3xl font-bold">REQUERIMIENTOS DE COMPRA</h1>
-                        <p class="text-orange-200 text-sm">Solicitudes de materiales de todas las Órdenes de Trabajo</p>
+                        <label class="block text-xs text-gray-500 mb-1">Estado REQ</label>
+                        <select id="f-estado" onchange="loadData()" class="border rounded px-2 py-1.5 text-sm">
+                            <option value="">Todos activos</option>
+                            <option value="Pendiente">Pendiente aprobación</option>
+                            <option value="Aprobado">Aprobado</option>
+                            <option value="En PO">En OC</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-500 mb-1">Prioridad</label>
+                        <select id="f-prio" onchange="renderTabla()" class="border rounded px-2 py-1.5 text-sm">
+                            <option value="">Todas</option>
+                            <option value="E">Emergencia</option>
+                            <option value="1">Alta (1)</option>
+                            <option value="2">Media (2)</option>
+                            <option value="3">Normal (3)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-500 mb-1">Tipo</label>
+                        <select id="f-tipo" onchange="renderTabla()" class="border rounded px-2 py-1.5 text-sm">
+                            <option value="">Todos</option>
+                            <option value="MAC">MAC — Material</option>
+                            <option value="SER">SER — Servicio</option>
+                            <option value="CAD">CAD — Cargo directo</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs text-gray-500 mb-1">Buscar</label>
+                        <input id="f-buscar" oninput="renderTabla()" type="text" placeholder="OT, material, cliente…"
+                            class="border rounded px-2 py-1.5 text-sm w-44">
+                    </div>
+                    <button onclick="loadData()" class="bg-orange-500 hover:bg-orange-600 text-white px-3 py-1.5 rounded text-sm">
+                        <i class="fas fa-sync mr-1"></i>Actualizar
+                    </button>
+                </div>
+                <!-- Quick-select -->
+                <div class="flex flex-wrap gap-2 mt-3 pt-3 border-t border-gray-100">
+                    <span class="text-xs text-gray-500 self-center">Selección rápida:</span>
+                    <button onclick="selectBySinStock()" class="text-xs bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 px-3 py-1 rounded-full">
+                        <i class="fas fa-exclamation-triangle mr-1"></i>Sin stock
+                    </button>
+                    <div id="fab-chips" class="flex flex-wrap gap-1"></div>
+                    <button onclick="clearSelection()" class="ml-auto text-xs text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times mr-1"></i>Limpiar selección
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tabla pipeline -->
+            <div class="bg-white rounded-lg shadow overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-xs border-collapse" style="min-width:1400px">
+                        <thead>
+                            <!-- Section headers -->
+                            <tr class="text-white text-center text-xs font-bold">
+                                <th rowspan="2" class="px-2 py-2 bg-gray-700 w-8 border border-gray-600">
+                                    <input type="checkbox" id="chk-all" onchange="toggleAll(this.checked)" class="rounded">
+                                </th>
+                                <th colspan="8" class="px-3 py-2 sec-req border border-slate-600 tracking-widest">
+                                    <i class="fas fa-clipboard-list mr-1"></i>REQUERIMIENTOS
+                                </th>
+                                <th colspan="5" class="px-3 py-2 sec-cot border border-blue-800 tracking-widest">
+                                    <i class="fas fa-handshake mr-1"></i>COTIZACIÓN
+                                </th>
+                                <th colspan="5" class="px-3 py-2 sec-oc border border-indigo-800 tracking-widest">
+                                    <i class="fas fa-file-invoice mr-1"></i>ORDEN DE COMPRA
+                                </th>
+                                <th colspan="4" class="px-3 py-2 sec-alm border border-orange-900 tracking-widest">
+                                    <i class="fas fa-warehouse mr-1"></i>ALMACÉN
+                                </th>
+                                <th rowspan="2" class="px-2 py-2 bg-gray-700 border border-gray-600">Acc.</th>
+                            </tr>
+                            <!-- Column sub-headers -->
+                            <tr class="text-white text-center" style="font-size:0.65rem">
+                                <!-- REQ (8) -->
+                                <th class="px-2 py-1.5 sub-req border border-slate-500">Prior.</th>
+                                <th class="px-2 py-1.5 sub-req border border-slate-500">OT</th>
+                                <th class="px-2 py-1.5 sub-req border border-slate-500">Cliente / Equipo</th>
+                                <th class="px-2 py-1.5 sub-req border border-slate-500">Material / Descripción</th>
+                                <th class="px-2 py-1.5 sub-req border border-slate-500">Tipo</th>
+                                <th class="px-2 py-1.5 sub-req border border-slate-500">Cant.</th>
+                                <th class="px-2 py-1.5 sub-req border border-slate-500">Stock</th>
+                                <th class="px-2 py-1.5 sub-req border border-slate-500">Estado REQ</th>
+                                <!-- COT (5) -->
+                                <th class="px-2 py-1.5 sub-cot border border-blue-700">Proveedor</th>
+                                <th class="px-2 py-1.5 sub-cot border border-blue-700">Precio Unit.</th>
+                                <th class="px-2 py-1.5 sub-cot border border-blue-700">Mon.</th>
+                                <th class="px-2 py-1.5 sub-cot border border-blue-700">F. Est. Llegada</th>
+                                <th class="px-2 py-1.5 sub-cot border border-blue-700">Estado COT</th>
+                                <!-- OC (5) -->
+                                <th class="px-2 py-1.5 sub-oc border border-indigo-700">Nro OC</th>
+                                <th class="px-2 py-1.5 sub-oc border border-indigo-700">F. OC</th>
+                                <th class="px-2 py-1.5 sub-oc border border-indigo-700">Nro Guía</th>
+                                <th class="px-2 py-1.5 sub-oc border border-indigo-700">Factura Prov.</th>
+                                <th class="px-2 py-1.5 sub-oc border border-indigo-700">F. Recepción</th>
+                                <!-- ALM (4) -->
+                                <th class="px-2 py-1.5 sub-alm border border-orange-800">Ubicación</th>
+                                <th class="px-2 py-1.5 sub-alm border border-orange-800">F. Salida Alm.</th>
+                                <th class="px-2 py-1.5 sub-alm border border-orange-800">F. Envío Mina</th>
+                                <th class="px-2 py-1.5 sub-alm border border-orange-800">Factura Cliente</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabla-body">
+                            <tr><td colspan="24" class="text-center py-10 text-gray-400">Cargando…</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div id="tabla-footer" class="px-4 py-2 bg-gray-50 text-xs text-gray-500 border-t flex justify-between">
+                    <span></span><span id="footer-selected" class="text-blue-600 font-medium"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ RIGHT PANEL ══════════════════════════════════════════════════ -->
+        <div class="w-72 flex-shrink-0 flex flex-col gap-4 sticky top-4">
+
+            <!-- Cart / Nueva OC -->
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                <div class="bg-orange-600 text-white px-4 py-3 flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span class="font-semibold text-sm">Nueva Orden de Compra</span>
+                    </div>
+                    <span id="cart-badge" class="bg-white text-orange-600 text-xs font-bold px-2 py-0.5 rounded-full">0</span>
+                </div>
+
+                <div class="p-3 space-y-2">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-600 mb-1">Proveedor *</label>
+                        <select id="oc-proveedor" class="w-full border rounded px-2 py-1.5 text-xs">
+                            <option value="">Cargando…</option>
+                        </select>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 mb-1">Moneda</label>
+                            <select id="oc-moneda" class="w-full border rounded px-2 py-1.5 text-xs">
+                                <option value="USD">USD</option>
+                                <option value="PEN">PEN</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 mb-1">Almacén *</label>
+                            <select id="oc-almacen" class="w-full border rounded px-2 py-1.5 text-xs">
+                                <option value="">Cargando…</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-600 mb-1">F. Est. Llegada</label>
+                        <input id="oc-fecha" type="date" class="w-full border rounded px-2 py-1.5 text-xs">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-600 mb-1">Observaciones</label>
+                        <input id="oc-obs" type="text" placeholder="Opcional…" class="w-full border rounded px-2 py-1.5 text-xs">
                     </div>
                 </div>
-                <a href="/logistica/index.html" class="bg-orange-700 hover:bg-orange-800 px-5 py-2 rounded-lg transition flex items-center text-sm">
-                    <i class="fas fa-arrow-left mr-2"></i>Logística
-                </a>
+
+                <div class="border-t border-gray-100 px-3 py-2 bg-gray-50">
+                    <p class="text-xs font-semibold text-gray-600 flex justify-between">
+                        <span>Ítems seleccionados</span>
+                        <span id="cart-ot-count" class="text-gray-400"></span>
+                    </p>
+                </div>
+
+                <div id="cart-items" class="px-3 py-2 max-h-48 overflow-y-auto space-y-1">
+                    <p class="text-xs text-gray-400 text-center py-3">Marca ítems en la tabla</p>
+                </div>
+
+                <div class="px-3 pb-3 pt-1 flex gap-2">
+                    <button onclick="clearSelection()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-1.5 rounded text-xs">
+                        <i class="fas fa-times mr-1"></i>Limpiar
+                    </button>
+                    <button onclick="crearOC()" class="flex-2 bg-orange-600 hover:bg-orange-700 text-white py-1.5 px-3 rounded text-xs font-semibold">
+                        <i class="fas fa-file-invoice mr-1"></i>Crear OC
+                    </button>
+                </div>
+            </div>
+
+            <!-- OCs recientes -->
+            <div class="bg-white rounded-lg shadow overflow-hidden">
+                <div class="bg-gray-700 text-white px-4 py-2 text-xs font-semibold">
+                    <i class="fas fa-history mr-2"></i>OCs Recientes
+                </div>
+                <div id="ocs-recientes" class="divide-y divide-gray-100 max-h-52 overflow-y-auto">
+                    <div class="text-xs text-gray-400 text-center py-4">Cargando…</div>
+                </div>
             </div>
         </div>
     </div>
+</div>
 
-    <div class="container mx-auto px-4 py-6">
-
-        <!-- Tarjetas resumen -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-            <div class="bg-white rounded-lg shadow p-4 flex items-center space-x-3">
-                <div class="bg-yellow-100 rounded-full p-3"><i class="fas fa-clock text-yellow-600 text-xl"></i></div>
-                <div>
-                    <p class="text-xs text-gray-500">Pendientes</p>
-                    <p id="count-pendiente" class="text-2xl font-bold text-yellow-600">—</p>
-                </div>
+<!-- Modal Cotización -->
+<div id="modal-cot" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/60">
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg mx-4 overflow-hidden">
+        <div class="bg-blue-700 text-white px-5 py-3 flex items-center justify-between">
+            <div>
+                <h3 class="font-semibold">Registrar Cotización</h3>
+                <p id="cot-item-desc" class="text-blue-200 text-xs"></p>
             </div>
-            <div class="bg-white rounded-lg shadow p-4 flex items-center space-x-3">
-                <div class="bg-blue-100 rounded-full p-3"><i class="fas fa-file-invoice text-blue-600 text-xl"></i></div>
-                <div>
-                    <p class="text-xs text-gray-500">En PO</p>
-                    <p id="count-enpo" class="text-2xl font-bold text-blue-600">—</p>
-                </div>
-            </div>
-            <div class="bg-white rounded-lg shadow p-4 flex items-center space-x-3">
-                <div class="bg-green-100 rounded-full p-3"><i class="fas fa-check-circle text-green-600 text-xl"></i></div>
-                <div>
-                    <p class="text-xs text-gray-500">Aprobados</p>
-                    <p id="count-aprobado" class="text-2xl font-bold text-green-600">—</p>
-                </div>
-            </div>
-            <div class="bg-white rounded-lg shadow p-4 flex items-center space-x-3">
-                <div class="bg-gray-100 rounded-full p-3"><i class="fas fa-layer-group text-gray-600 text-xl"></i></div>
-                <div>
-                    <p class="text-xs text-gray-500">Total activos</p>
-                    <p id="count-total" class="text-2xl font-bold text-gray-700">—</p>
-                </div>
-            </div>
+            <button onclick="cerrarModalCot()" class="text-white/70 hover:text-white text-xl leading-none">&times;</button>
         </div>
-
-        <!-- Filtros -->
-        <div class="bg-white rounded-lg shadow p-4 mb-4">
-            <div class="flex flex-wrap gap-3 items-end">
+        <div class="p-5 space-y-3">
+            <input type="hidden" id="cot-item-id">
+            <div class="grid grid-cols-2 gap-3">
                 <div>
-                    <label class="block text-xs text-gray-500 mb-1">Estado</label>
-                    <select id="filtro-estado" onchange="loadRequerimientos()" class="border rounded px-3 py-1.5 text-sm">
-                        <option value="">Todos (activos)</option>
-                        <option value="Pendiente">Pendiente</option>
-                        <option value="Aprobado">Aprobado</option>
-                        <option value="En PO">En PO</option>
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Proveedor</label>
+                    <select id="cot-proveedor" class="w-full border rounded px-2 py-1.5 text-sm">
+                        <option value="">— Seleccionar —</option>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-xs text-gray-500 mb-1">Prioridad</label>
-                    <select id="filtro-prioridad" onchange="applyLocalFilters()" class="border rounded px-3 py-1.5 text-sm">
-                        <option value="">Todas</option>
-                        <option value="E">Emergencia</option>
-                        <option value="1">Alta (1)</option>
-                        <option value="2">Media (2)</option>
-                        <option value="3">Normal (3)</option>
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Estado Cotización</label>
+                    <select id="cot-estado" class="w-full border rounded px-2 py-1.5 text-sm">
+                        <option value="">— Estado —</option>
+                        <option value="PDT_COT">Pendiente Cotización</option>
+                        <option value="PDT_APR">Pendiente Aprobación</option>
+                        <option value="APR">Aprobado</option>
+                        <option value="DES">Desaprobado</option>
+                        <option value="ANU">Anulado</option>
                     </select>
                 </div>
-                <div>
-                    <label class="block text-xs text-gray-500 mb-1">Buscar</label>
-                    <input id="filtro-buscar" oninput="applyLocalFilters()" type="text" placeholder="OT, material, cliente…" class="border rounded px-3 py-1.5 text-sm w-52">
+            </div>
+            <div class="grid grid-cols-3 gap-3">
+                <div class="col-span-2">
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Precio Unitario</label>
+                    <input id="cot-precio" type="number" step="0.01" min="0" placeholder="0.00"
+                        class="w-full border rounded px-2 py-1.5 text-sm">
                 </div>
-                <button onclick="loadRequerimientos()" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-1.5 rounded text-sm">
-                    <i class="fas fa-sync mr-1"></i>Actualizar
-                </button>
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Moneda</label>
+                    <select id="cot-moneda" class="w-full border rounded px-2 py-1.5 text-sm">
+                        <option value="USD">USD</option>
+                        <option value="PEN">PEN</option>
+                    </select>
+                </div>
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-gray-600 mb-1">F. Estimada Llegada</label>
+                <input id="cot-fecha-est" type="date" class="w-full border rounded px-2 py-1.5 text-sm">
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-gray-600 mb-1">Observaciones</label>
+                <input id="cot-obs" type="text" placeholder="Opcional…" class="w-full border rounded px-2 py-1.5 text-sm">
             </div>
         </div>
-
-        <!-- Tabla -->
-        <div class="bg-white rounded-lg shadow overflow-hidden">
-            <div class="overflow-x-auto">
-                <table class="w-full text-sm">
-                    <thead class="bg-gray-700 text-white">
-                        <tr>
-                            <th class="px-3 py-3 text-left">Prior.</th>
-                            <th class="px-3 py-3 text-left">OT #</th>
-                            <th class="px-3 py-3 text-left">Cliente</th>
-                            <th class="px-3 py-3 text-left">Equipo</th>
-                            <th class="px-3 py-3 text-left">Material</th>
-                            <th class="px-3 py-3 text-center">Cant.</th>
-                            <th class="px-3 py-3 text-left">Estado</th>
-                            <th class="px-3 py-3 text-left">PO #</th>
-                            <th class="px-3 py-3 text-left">Fecha</th>
-                            <th class="px-3 py-3 text-center">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabla-body">
-                        <tr><td colspan="10" class="text-center py-8 text-gray-400">Cargando…</td></tr>
-                    </tbody>
-                </table>
-            </div>
-            <div id="tabla-footer" class="px-4 py-2 bg-gray-50 text-xs text-gray-500 border-t"></div>
+        <div class="px-5 pb-5 flex justify-end gap-3">
+            <button onclick="cerrarModalCot()" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded text-sm">Cancelar</button>
+            <button onclick="guardarCotizacion()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded text-sm font-semibold">
+                <i class="fas fa-save mr-1"></i>Guardar Cotización
+            </button>
         </div>
     </div>
+</div>
 
-    <!-- Modal Generar OC -->
-    <div id="modal-oc" class="modal-overlay">
-        <div class="bg-white rounded-xl shadow-xl w-full max-w-lg mx-4 p-6">
-            <div class="flex items-center justify-between mb-4">
-                <h2 class="text-xl font-bold text-gray-800"><i class="fas fa-file-invoice mr-2 text-orange-500"></i>Generar Orden de Compra</h2>
-                <button onclick="cerrarModalOC()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+<!-- Modal OC / Recepción -->
+<div id="modal-oc" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/60">
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-lg mx-4 overflow-hidden">
+        <div class="bg-indigo-700 text-white px-5 py-3 flex items-center justify-between">
+            <div>
+                <h3 class="font-semibold">Datos OC / Recepción</h3>
+                <p id="oc-item-desc" class="text-indigo-200 text-xs"></p>
             </div>
-            <div id="modal-oc-info" class="bg-orange-50 rounded-lg p-3 mb-4 text-sm text-gray-700"></div>
-            <div class="space-y-4">
+            <button onclick="cerrarModalOC()" class="text-white/70 hover:text-white text-xl leading-none">&times;</button>
+        </div>
+        <div class="p-5 space-y-3">
+            <input type="hidden" id="oc-item-id">
+            <div class="grid grid-cols-2 gap-3">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Proveedor *</label>
-                    <select id="oc-proveedor" class="w-full border rounded-lg px-3 py-2 text-sm">
-                        <option value="">Cargando proveedores…</option>
-                    </select>
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Nro Guía (DHL/courier)</label>
+                    <input id="oc-nro-guia" type="text" placeholder="ej. 1234567890"
+                        class="w-full border rounded px-2 py-1.5 text-sm">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Almacén destino *</label>
-                    <select id="oc-almacen" class="w-full border rounded-lg px-3 py-2 text-sm">
-                        <option value="">Cargando almacenes…</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Fecha entrega esperada</label>
-                    <input id="oc-fecha" type="date" class="w-full border rounded-lg px-3 py-2 text-sm">
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Factura Proveedor</label>
+                    <input id="oc-nro-factura" type="text" placeholder="ej. F001-12345"
+                        class="w-full border rounded px-2 py-1.5 text-sm">
                 </div>
             </div>
-            <div class="flex justify-end gap-3 mt-6">
-                <button onclick="cerrarModalOC()" class="px-4 py-2 text-sm bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">Cancelar</button>
-                <button onclick="confirmarGenerarOC()" class="px-5 py-2 text-sm bg-orange-500 text-white rounded-lg hover:bg-orange-600 font-medium">
-                    <i class="fas fa-check mr-2"></i>Generar OC
-                </button>
+            <div>
+                <label class="block text-xs font-medium text-gray-600 mb-1">F. Recepción Real</label>
+                <input id="oc-fecha-recep" type="date" class="w-full border rounded px-2 py-1.5 text-sm">
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Ubicación en Almacén</label>
+                    <input id="oc-ubicacion" type="text" placeholder="ej. B6"
+                        class="w-full border rounded px-2 py-1.5 text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1">F. Envío a Mina</label>
+                    <input id="oc-fecha-mina" type="date" class="w-full border rounded px-2 py-1.5 text-sm">
+                </div>
             </div>
         </div>
+        <div class="px-5 pb-5 flex justify-end gap-3">
+            <button onclick="cerrarModalOC()" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded text-sm">Cancelar</button>
+            <button onclick="guardarDatosOC()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded text-sm font-semibold">
+                <i class="fas fa-save mr-1"></i>Guardar
+            </button>
+        </div>
     </div>
+</div>
 
-    <script>
-    let allData = [];
-    let modalRepuestoId = null;
-    let modalOtId = null;
+<!-- Toast -->
+<div id="toast-container" class="fixed bottom-6 right-6 z-50 space-y-2"></div>
 
-    // ─── Helpers ───────────────────────────────────────────────────────────────
+<script>
+// ── State ───────────────────────────────────────────────────────────────────
+let allData   = [];
+let carrito   = new Map();
+let proveedores = [];
+let almacenes   = [];
 
-    function badgeEstado(estado) {
-        const map = {
-            'Pendiente': 'badge-pendiente',
-            'Aprobado':  'badge-aprobado',
-            'En PO':     'badge-en-po',
-            'COM':       'badge-completado',
-            'ANU':       'badge-anulado',
-        };
-        const cls = map[estado] || 'badge-completado';
-        return `<span class="badge-estado ${cls}">${estado || '—'}</span>`;
-    }
+// ── Init ────────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+    const d = new Date(); d.setDate(d.getDate() + 15);
+    document.getElementById('oc-fecha').value = d.toISOString().split('T')[0];
+    loadData();
+    loadProveedores();
+    loadAlmacenes();
+    loadOCsRecientes();
+});
 
-    function badgePrioridad(p) {
-        const map = {
-            'E': ['badge-prioridad-e', 'EMERG'],
-            '1': ['badge-prioridad-1', 'Alta'],
-            '2': ['badge-prioridad-2', 'Media'],
-            '3': ['badge-prioridad-3', 'Normal'],
-        };
-        const [cls, label] = map[p] || ['badge-completado', p || '—'];
-        return `<span class="badge-estado ${cls}">${label}</span>`;
-    }
-
-    function fmtDate(d) {
-        if (!d) return '—';
-        return new Date(d).toLocaleDateString('es-PE', { day:'2-digit', month:'2-digit', year:'2-digit' });
-    }
-
-    // ─── Carga de datos ────────────────────────────────────────────────────────
-
-    async function loadRequerimientos() {
-        const estado = document.getElementById('filtro-estado').value;
-        const url = estado
-            ? `/api/logistica/requerimientos?estado=${encodeURIComponent(estado)}`
-            : '/api/logistica/requerimientos';
-
+// ── Data loading ─────────────────────────────────────────────────────────────
+async function loadData() {
+    const estado = document.getElementById('f-estado').value;
+    const url = estado
+        ? `/api/logistica/requerimientos?estado=${encodeURIComponent(estado)}`
+        : '/api/logistica/requerimientos';
+    setTableLoading();
+    try {
+        const res = await fetch(url);
+        allData = await res.json();
+        updateCounts();
+        buildFabChips();
+        renderTabla();
+    } catch {
         document.getElementById('tabla-body').innerHTML =
-            '<tr><td colspan="10" class="text-center py-8 text-gray-400"><i class="fas fa-spinner fa-spin mr-2"></i>Cargando…</td></tr>';
+            '<tr><td colspan="24" class="text-center py-10 text-red-400">Error al cargar datos</td></tr>';
+    }
+}
 
-        try {
-            const res = await fetch(url);
-            allData = await res.json();
-            applyLocalFilters();
-            updateCounts();
-        } catch (e) {
-            document.getElementById('tabla-body').innerHTML =
-                '<tr><td colspan="10" class="text-center py-8 text-red-400">Error al cargar datos</td></tr>';
+async function loadProveedores() {
+    try {
+        const res = await fetch('/api/logistica/proveedores');
+        proveedores = await res.json();
+        const opts = '<option value="">— Seleccionar —</option>' +
+            proveedores.map(p => `<option value="${p.id}">${p.razonSocial}</option>`).join('');
+        document.getElementById('oc-proveedor').innerHTML = opts;
+        document.getElementById('cot-proveedor').innerHTML = opts;
+    } catch { /* ignore */ }
+}
+
+async function loadAlmacenes() {
+    try {
+        const res = await fetch('/api/logistica/almacenes');
+        almacenes = await res.json();
+        const sel = document.getElementById('oc-almacen');
+        sel.innerHTML = '<option value="">— Almacén —</option>' +
+            almacenes.map(a => `<option value="${a.id}">${a.nombre}</option>`).join('');
+        if (almacenes.length > 0) sel.value = almacenes[0].id;
+    } catch { /* ignore */ }
+}
+
+async function loadOCsRecientes() {
+    try {
+        const res = await fetch('/api/logistica/compras-extended');
+        const data = await res.json();
+        const ocs = Array.isArray(data) ? data.slice(0, 8) : [];
+        const el = document.getElementById('ocs-recientes');
+        if (!ocs.length) { el.innerHTML = '<div class="text-xs text-gray-400 text-center py-4">Sin OCs recientes</div>'; return; }
+        el.innerHTML = ocs.map(oc => `
+            <div class="px-4 py-2 hover:bg-gray-50 cursor-pointer" onclick="verOC(${oc.id})">
+                <div class="flex justify-between items-center">
+                    <span class="text-xs font-mono font-semibold text-gray-800">${oc.numero_po}</span>
+                    <span class="text-xs ${oc.estado === 'Recibido' ? 'text-green-600' : 'text-indigo-600'}">${oc.estado || '—'}</span>
+                </div>
+                <div class="text-xs text-gray-500">${oc.proveedor_nombre || '—'} · ${fmtDate(oc.fecha_solicitud)}</div>
+            </div>
+        `).join('');
+    } catch { /* ignore */ }
+}
+
+// ── Counts & chips ────────────────────────────────────────────────────────────
+function updateCounts() {
+    const active = allData.filter(r => !['COM','ANU','DEV'].includes(r.estado));
+    document.getElementById('cnt-pending').textContent  = active.filter(r => !r.estado || r.estado === 'Pendiente').length;
+    document.getElementById('cnt-aprobado').textContent = active.filter(r => r.estado === 'Aprobado').length;
+    document.getElementById('cnt-cot').textContent      = active.filter(r => r.estado_cot && !['','APR','ANU'].includes(r.estado_cot)).length;
+    document.getElementById('cnt-oc').textContent       = active.filter(r => r.nro_oc).length;
+    const macItems = active.filter(r => r.material_id != null);
+    document.getElementById('cnt-sinstock').textContent  = macItems.filter(r => !(r.stock_actual > 0)).length;
+    document.getElementById('cnt-constock').textContent  = macItems.filter(r => r.stock_actual > 0).length;
+}
+
+function buildFabChips() {
+    const fabs = [...new Set(allData.map(r => r.fabricante_codigo).filter(Boolean))].sort();
+    const el = document.getElementById('fab-chips');
+    el.innerHTML = fabs.map(f =>
+        `<button onclick="selectByFab('${f}')" class="text-xs bg-gray-100 hover:bg-orange-100 hover:text-orange-700 border border-gray-200 px-2 py-0.5 rounded-full">${f}</button>`
+    ).join('');
+}
+
+// ── Table render ──────────────────────────────────────────────────────────────
+function renderTabla() {
+    const prio   = document.getElementById('f-prio').value;
+    const tipo   = document.getElementById('f-tipo').value;
+    const buscar = document.getElementById('f-buscar').value.toLowerCase();
+
+    let data = allData;
+    if (prio)   data = data.filter(r => r.prioridad_atencion_codigo === prio);
+    if (tipo)   data = data.filter(r => (r.tipo_codigo || 'MAC') === tipo);
+    if (buscar) data = data.filter(r =>
+        (r.numero_ot      || '').toLowerCase().includes(buscar) ||
+        (r.material_nombre|| '').toLowerCase().includes(buscar) ||
+        (r.material_codigo|| '').toLowerCase().includes(buscar) ||
+        (r.cliente_nombre || '').toLowerCase().includes(buscar) ||
+        (r.equipo_codigo  || '').toLowerCase().includes(buscar) ||
+        (r.descripcion    || '').toLowerCase().includes(buscar) ||
+        (r.nro_oc         || '').toLowerCase().includes(buscar)
+    );
+
+    const tbody = document.getElementById('tabla-body');
+    if (!data.length) {
+        tbody.innerHTML = '<tr><td colspan="24" class="text-center py-10 text-gray-400">Sin registros</td></tr>';
+        document.getElementById('tabla-footer').querySelector('span').textContent = '0 registros';
+        return;
+    }
+
+    const tipoBadge = { MAC: 'pill-blue', SER: 'pill-cyan', CAD: 'pill-orange' };
+    const estReqMap = {
+        'Pendiente': 'pill-yellow', 'SIN APROBACIÓN': 'pill-yellow',
+        'Aprobado':  'pill-green',  'APROBADO':       'pill-green',
+        'En PO':     'pill-indigo',
+        'COM':       'pill-gray',   'ANU': 'pill-red',
+        'REV':       'pill-yellow', 'APR': 'pill-green', 'PRO': 'pill-indigo',
+    };
+    const estCotMap = {
+        'PDT_COT':  'pill-yellow', 'PDT_APR': 'pill-orange',
+        'APR':      'pill-green',  'DES':     'pill-red', 'ANU': 'pill-gray',
+    };
+    const prioCls   = { E:'pill-prio-e', '1':'pill-prio-1', '2':'pill-prio-2', '3':'pill-prio-3' };
+    const prioLabel = { E:'EMERG', '1':'Alta', '2':'Media', '3':'Normal' };
+
+    tbody.innerHTML = data.map(r => {
+        const checked = carrito.has(r.id);
+        const rowCls  = checked ? 'row-selected' : '';
+        const stock   = r.stock_actual != null ? parseFloat(r.stock_actual) : null;
+        const isMac   = r.material_id != null;
+
+        const stockPill = !isMac ? '<span class="text-gray-300">—</span>'
+            : stock > 0
+                ? `<span class="pill pill-green" title="Stock disponible">${stock}</span>`
+                : `<span class="pill pill-red">Sin stock</span>`;
+
+        const desc = r.material_nombre
+            ? `<div class="font-medium text-gray-800">${r.material_nombre}</div><div class="text-gray-400 font-mono">${r.material_codigo || ''}</div>`
+            : `<div class="text-gray-500 italic">${r.descripcion || '—'}</div>`;
+
+        const estadoReq = r.estado || 'Pendiente';
+        const canApprove = ['Pendiente','REV','SIN APROBACIÓN'].includes(estadoReq) || !estadoReq;
+        const isInOC     = !!(r.nro_oc);
+        const canSelect  = !isInOC && estadoReq !== 'COM';
+
+        // COT cells
+        const precio = r.precio_unitario != null ? `${parseFloat(r.precio_unitario).toFixed(2)} ${r.moneda || ''}` : '—';
+        const cotEstado = r.estado_cot ? `<span class="pill ${estCotMap[r.estado_cot] || 'pill-gray'}">${r.estado_cot}</span>` : '—';
+
+        return `<tr class="border-b ${rowCls}" id="tr-${r.id}">
+            <td class="px-2 py-1.5 text-center">
+                <input type="checkbox" ${checked ? 'checked' : ''} onchange="toggleItem(${r.id}, this.checked)"
+                    class="rounded" ${!canSelect ? 'disabled' : ''}>
+            </td>
+            <!-- REQ section -->
+            <td class="px-2 py-1.5 text-center">
+                <span class="pill ${prioCls[r.prioridad_atencion_codigo] || 'pill-gray'}">${prioLabel[r.prioridad_atencion_codigo] || (r.prioridad_atencion_codigo || '—')}</span>
+            </td>
+            <td class="px-2 py-1.5 font-mono font-semibold text-gray-700 whitespace-nowrap">${r.numero_ot || r.ot_id}</td>
+            <td class="px-2 py-1.5">
+                <div class="text-gray-700">${r.cliente_nombre || '—'}</div>
+                <div class="text-gray-400 font-mono text-xs">${r.equipo_codigo || ''}</div>
+            </td>
+            <td class="px-2 py-1.5">${desc}</td>
+            <td class="px-2 py-1.5 text-center"><span class="pill ${tipoBadge[r.tipo_codigo] || 'pill-gray'}">${r.tipo_codigo || 'MAC'}</span></td>
+            <td class="px-2 py-1.5 text-center font-semibold">${r.cantidad}</td>
+            <td class="px-2 py-1.5 text-center">${stockPill}</td>
+            <td class="px-2 py-1.5"><span class="pill ${estReqMap[estadoReq] || 'pill-gray'}">${estadoReq}</span></td>
+            <!-- COT section -->
+            <td class="px-2 py-1.5 td-cot text-gray-700">${r.proveedor_nombre || '<span class="text-gray-300">—</span>'}</td>
+            <td class="px-2 py-1.5 td-cot text-right font-mono">${precio}</td>
+            <td class="px-2 py-1.5 td-cot text-center text-gray-600">${r.moneda || '—'}</td>
+            <td class="px-2 py-1.5 td-cot text-center text-gray-600">${fmtDate(r.fecha_entrega_esperada)}</td>
+            <td class="px-2 py-1.5 td-cot text-center">${cotEstado}</td>
+            <!-- OC section -->
+            <td class="px-2 py-1.5 td-oc text-center font-mono font-semibold text-indigo-700">${r.nro_oc || '<span class="text-gray-300">—</span>'}</td>
+            <td class="px-2 py-1.5 td-oc text-center text-gray-600">${fmtDate(r.fecha_oc)}</td>
+            <td class="px-2 py-1.5 td-oc text-center font-mono text-gray-700">${r.nro_guia || '<span class="text-gray-300">—</span>'}</td>
+            <td class="px-2 py-1.5 td-oc text-center font-mono text-gray-700">${r.nro_factura_proveedor || '<span class="text-gray-300">—</span>'}</td>
+            <td class="px-2 py-1.5 td-oc text-center text-gray-600">${fmtDate(r.fecha_entrega_real)}</td>
+            <!-- ALM section -->
+            <td class="px-2 py-1.5 td-alm text-center text-gray-700">${r.ubicacion || '<span class="text-gray-300">—</span>'}</td>
+            <td class="px-2 py-1.5 td-alm text-center text-gray-600">${fmtDate(r.fecha_salida_almacen)}</td>
+            <td class="px-2 py-1.5 td-alm text-center text-gray-600">${fmtDate(r.fecha_envio_mina)}</td>
+            <td class="px-2 py-1.5 td-alm text-center font-mono text-gray-700">${r.factura_cliente || '<span class="text-gray-300">—</span>'}</td>
+            <!-- Acciones -->
+            <td class="px-2 py-1.5 text-center whitespace-nowrap">
+                ${canApprove ? `<button onclick="aprobarItem(${r.id})" title="Aprobar" class="text-green-600 hover:text-green-800 mr-1"><i class="fas fa-check-circle"></i></button>` : ''}
+                ${canApprove ? `<button onclick="rechazarItem(${r.id})" title="Rechazar" class="text-red-400 hover:text-red-600 mr-1"><i class="fas fa-ban"></i></button>` : ''}
+                <button onclick="abrirModalCot(${r.id})" title="Cotización" class="text-blue-500 hover:text-blue-700 mr-1"><i class="fas fa-tag"></i></button>
+                ${isInOC ? `<button onclick="abrirModalOC(${r.id})" title="Datos OC" class="text-indigo-500 hover:text-indigo-700 mr-1"><i class="fas fa-truck"></i></button>` : ''}
+                <button onclick="verOT(${r.ot_id})" title="Ver OT" class="text-gray-400 hover:text-gray-600"><i class="fas fa-external-link-alt"></i></button>
+            </td>
+        </tr>`;
+    }).join('');
+
+    document.getElementById('tabla-footer').innerHTML =
+        `<span>${data.length} registro(s)</span><span id="footer-selected" class="text-blue-600 font-medium"></span>`;
+    updateFooterSelected();
+}
+
+// ── Cart / Selection ──────────────────────────────────────────────────────────
+function toggleItem(id, checked) {
+    const row = allData.find(r => r.id === id);
+    if (!row) return;
+    if (checked) carrito.set(id, row);
+    else         carrito.delete(id);
+    const tr = document.getElementById(`tr-${id}`);
+    if (tr) { checked ? tr.classList.add('row-selected') : tr.classList.remove('row-selected'); }
+    renderCart();
+    updateFooterSelected();
+}
+
+function toggleAll(checked) {
+    document.querySelectorAll('#tabla-body tr[id^="tr-"]').forEach(tr => {
+        const id = parseInt(tr.id.replace('tr-', ''));
+        const row = allData.find(r => r.id === id);
+        if (!row) return;
+        const chk = tr.querySelector('input[type=checkbox]');
+        if (chk && !chk.disabled) {
+            chk.checked = checked;
+            if (checked) { carrito.set(id, row); tr.classList.add('row-selected'); }
+            else          { carrito.delete(id);   tr.classList.remove('row-selected'); }
         }
-    }
+    });
+    renderCart();
+    updateFooterSelected();
+}
 
-    function applyLocalFilters() {
-        const prioridad = document.getElementById('filtro-prioridad').value;
-        const buscar = document.getElementById('filtro-buscar').value.toLowerCase();
-
-        let data = allData;
-
-        if (prioridad) {
-            data = data.filter(r => r.prioridad_atencion_codigo === prioridad);
+function selectBySinStock() {
+    allData.forEach(r => {
+        if (r.material_id && !(r.stock_actual > 0) && !r.nro_oc && r.estado !== 'COM') {
+            carrito.set(r.id, r);
         }
+    });
+    renderTabla();
+    renderCart();
+}
 
-        if (buscar) {
-            data = data.filter(r =>
-                (r.numero_ot || '').toLowerCase().includes(buscar) ||
-                (r.material_nombre || '').toLowerCase().includes(buscar) ||
-                (r.material_codigo || '').toLowerCase().includes(buscar) ||
-                (r.cliente_nombre || '').toLowerCase().includes(buscar) ||
-                (r.equipo_codigo || '').toLowerCase().includes(buscar) ||
-                (r.descripcion || '').toLowerCase().includes(buscar)
-            );
+function selectByFab(fab) {
+    allData.forEach(r => {
+        if (r.fabricante_codigo === fab && !r.nro_oc && r.estado !== 'COM') {
+            carrito.set(r.id, r);
         }
+    });
+    renderTabla();
+    renderCart();
+}
 
-        renderTabla(data);
+function clearSelection() {
+    carrito.clear();
+    document.querySelectorAll('#tabla-body input[type=checkbox]').forEach(c => c.checked = false);
+    document.querySelectorAll('#tabla-body tr').forEach(tr => tr.classList.remove('row-selected'));
+    document.getElementById('chk-all').checked = false;
+    renderCart();
+    updateFooterSelected();
+}
+
+function renderCart() {
+    const items = [...carrito.values()];
+    document.getElementById('cart-badge').textContent = items.length;
+    const otIds = [...new Set(items.map(r => r.ot_id))];
+    document.getElementById('cart-ot-count').textContent = items.length > 0 ? `${items.length} ítem(s) · ${otIds.length} OT(s)` : '';
+
+    const el = document.getElementById('cart-items');
+    if (!items.length) {
+        el.innerHTML = '<p class="text-xs text-gray-400 text-center py-3">Marca ítems en la tabla</p>';
+        return;
     }
+    el.innerHTML = items.map(r => {
+        const desc = r.material_nombre || r.descripcion || '—';
+        return `<div class="flex items-start justify-between gap-1 py-1 border-b border-gray-50 last:border-0">
+            <div class="flex-1 min-w-0">
+                <p class="text-xs font-medium text-gray-800 truncate">${desc}</p>
+                <p class="text-xs text-gray-400">${r.numero_ot || r.ot_id} · x${r.cantidad}</p>
+            </div>
+            <button onclick="toggleItem(${r.id}, false)" class="text-gray-300 hover:text-red-500 flex-shrink-0 ml-1">
+                <i class="fas fa-times text-xs"></i>
+            </button>
+        </div>`;
+    }).join('');
+}
 
-    function updateCounts() {
-        // Always fetch fresh counts from all active reqs (ignoring local filters)
-        const pending  = allData.filter(r => r.estado === 'Pendiente').length;
-        const enpo     = allData.filter(r => r.estado === 'En PO').length;
-        const aprobado = allData.filter(r => r.estado === 'Aprobado').length;
-        document.getElementById('count-pendiente').textContent = pending;
-        document.getElementById('count-enpo').textContent = enpo;
-        document.getElementById('count-aprobado').textContent = aprobado;
-        document.getElementById('count-total').textContent = allData.length;
-    }
+function updateFooterSelected() {
+    const el = document.getElementById('footer-selected');
+    if (el) el.textContent = carrito.size > 0 ? `${carrito.size} seleccionado(s)` : '';
+}
 
-    function renderTabla(data) {
-        const tbody = document.getElementById('tabla-body');
-        const footer = document.getElementById('tabla-footer');
+// ── Actions ───────────────────────────────────────────────────────────────────
+async function aprobarItem(id) {
+    if (!confirm('¿Aprobar este requerimiento?')) return;
+    try {
+        const res = await fetch(`/api/ot/repuestos/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ estado: 'Aprobado', usuario_aprueba: 'Logística' })
+        });
+        if (!res.ok) throw new Error(await res.text());
+        showToast('Requerimiento aprobado', 'success');
+        await loadData();
+    } catch (e) { showToast('Error: ' + e.message, 'error'); }
+}
 
-        if (!data.length) {
-            tbody.innerHTML = '<tr><td colspan="10" class="text-center py-10 text-gray-400">Sin registros</td></tr>';
-            footer.textContent = '';
-            return;
-        }
+async function rechazarItem(id) {
+    const motivo = prompt('Motivo del rechazo (opcional):');
+    if (motivo === null) return;
+    try {
+        const res = await fetch(`/api/ot/repuestos/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ estado: 'ANU', observaciones: motivo || undefined })
+        });
+        if (!res.ok) throw new Error(await res.text());
+        showToast('Requerimiento rechazado', 'success');
+        await loadData();
+    } catch (e) { showToast('Error: ' + e.message, 'error'); }
+}
 
-        const rows = data.map(r => {
-            const matLabel = r.material_nombre
-                ? `<span class="font-medium">${r.material_nombre}</span><br><span class="text-gray-400 text-xs">${r.material_codigo || ''}</span>`
-                : (r.descripcion ? `<span class="italic text-gray-500">${r.descripcion}</span>` : '—');
+async function crearOC() {
+    const items = [...carrito.values()];
+    if (!items.length) { showToast('Selecciona al menos un ítem', 'error'); return; }
 
-            const accionesPendiente = r.estado === 'Pendiente'
-                ? `<button onclick="aprobarRepuesto(${r.id})" title="Aprobar" class="bg-green-500 hover:bg-green-600 text-white px-2 py-1 rounded text-xs mr-1"><i class="fas fa-check"></i> Aprobar</button>
-                   <button onclick="abrirModalOC(${r.id}, ${r.ot_id}, '${(r.material_nombre || r.descripcion || '').replace(/'/g,"\\'")}', ${r.cantidad})" title="Generar OC" class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs mr-1"><i class="fas fa-file-invoice"></i> OC</button>`
-                : '';
+    const proveedor_id = document.getElementById('oc-proveedor').value;
+    const almacen_id   = document.getElementById('oc-almacen').value;
+    const moneda       = document.getElementById('oc-moneda').value;
+    const fecha        = document.getElementById('oc-fecha').value;
+    const obs          = document.getElementById('oc-obs').value;
 
-            const accionesAprobado = r.estado === 'Aprobado'
-                ? `<button onclick="abrirModalOC(${r.id}, ${r.ot_id}, '${(r.material_nombre || r.descripcion || '').replace(/'/g,"\\'")}', ${r.cantidad})" title="Generar OC" class="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded text-xs mr-1"><i class="fas fa-file-invoice"></i> OC</button>`
-                : '';
+    if (!proveedor_id) { showToast('Selecciona un proveedor', 'error'); return; }
+    if (!almacen_id)   { showToast('Selecciona un almacén', 'error'); return; }
 
-            return `<tr class="border-b">
-                <td class="px-3 py-2">${badgePrioridad(r.prioridad_atencion_codigo)}</td>
-                <td class="px-3 py-2 font-mono text-xs font-semibold">${r.numero_ot || r.ot_id}</td>
-                <td class="px-3 py-2 text-xs">${r.cliente_nombre || '—'}</td>
-                <td class="px-3 py-2 text-xs font-mono">${r.equipo_codigo || '—'}</td>
-                <td class="px-3 py-2 text-xs">${matLabel}</td>
-                <td class="px-3 py-2 text-center font-semibold">${r.cantidad}</td>
-                <td class="px-3 py-2">${badgeEstado(r.estado)}</td>
-                <td class="px-3 py-2 text-xs font-mono">${r.numero_po || '—'}</td>
-                <td class="px-3 py-2 text-xs">${fmtDate(r.fecha_solicitud)}</td>
-                <td class="px-3 py-2 text-center whitespace-nowrap">
-                    ${accionesPendiente}${accionesAprobado}
-                    <button onclick="verOT(${r.ot_id})" title="Ver OT" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-2 py-1 rounded text-xs"><i class="fas fa-external-link-alt"></i></button>
-                </td>
-            </tr>`;
-        }).join('');
+    const otIds = [...new Set(items.map(r => r.ot_id))];
+    if (!confirm(`¿Crear OC con ${items.length} ítem(s) de ${otIds.length} OT(s)?`)) return;
 
-        tbody.innerHTML = rows;
-        footer.textContent = `${data.length} registro(s)`;
-    }
+    try {
+        const res = await fetch('/api/logistica/compras/crear-oc', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                repuesto_ids: items.map(r => r.id),
+                proveedor_id: parseInt(proveedor_id),
+                almacen_id:   parseInt(almacen_id),
+                moneda,
+                fecha_entrega_esperada: fecha || undefined,
+                observaciones: obs || undefined,
+                usuario: 'Logística',
+            })
+        });
+        const result = await res.json();
+        if (!res.ok) throw new Error(result.error || 'Error desconocido');
+        showToast(`OC ${result.compra?.numero_po} creada con ${items.length} ítem(s)`, 'success');
+        clearSelection();
+        await loadData();
+        await loadOCsRecientes();
+    } catch (e) { showToast('Error al crear OC: ' + e.message, 'error'); }
+}
 
-    // ─── Acciones ──────────────────────────────────────────────────────────────
+// ── Modal Cotización ──────────────────────────────────────────────────────────
+function abrirModalCot(id) {
+    const r = allData.find(x => x.id === id);
+    if (!r) return;
+    document.getElementById('cot-item-id').value = id;
+    document.getElementById('cot-item-desc').textContent = (r.material_nombre || r.descripcion || '—') + ' · OT: ' + (r.numero_ot || r.ot_id);
+    document.getElementById('cot-proveedor').value   = r.proveedor_id || '';
+    document.getElementById('cot-precio').value      = r.precio_unitario || '';
+    document.getElementById('cot-moneda').value      = r.moneda || 'USD';
+    document.getElementById('cot-estado').value      = r.estado_cot || '';
+    document.getElementById('cot-fecha-est').value   = r.fecha_entrega_esperada ? r.fecha_entrega_esperada.split('T')[0] : '';
+    document.getElementById('cot-obs').value         = r.observaciones || '';
+    document.getElementById('modal-cot').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
 
-    async function aprobarRepuesto(id) {
-        if (!confirm('¿Aprobar este requerimiento?')) return;
-        try {
-            const res = await fetch(`/api/ot/repuestos/${id}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ estado: 'Aprobado', usuario_aprueba: 'Logística' })
-            });
-            if (!res.ok) throw new Error(await res.text());
-            await loadRequerimientos();
-            showToast('Requerimiento aprobado', 'success');
-        } catch (e) {
-            showToast('Error al aprobar: ' + e.message, 'error');
-        }
-    }
+function cerrarModalCot() {
+    document.getElementById('modal-cot').classList.add('hidden');
+    document.body.style.overflow = '';
+}
 
-    function verOT(otId) {
-        window.open(`/operativos/ordenes-trabajo.html?ot_id=${otId}`, '_blank');
-    }
+async function guardarCotizacion() {
+    const id         = document.getElementById('cot-item-id').value;
+    const proveedor  = document.getElementById('cot-proveedor').value;
+    const precio     = document.getElementById('cot-precio').value;
+    const moneda     = document.getElementById('cot-moneda').value;
+    const estado_cot = document.getElementById('cot-estado').value;
+    const fecha_est  = document.getElementById('cot-fecha-est').value;
+    const obs        = document.getElementById('cot-obs').value;
 
-    // ─── Modal OC ──────────────────────────────────────────────────────────────
+    const payload = {};
+    if (proveedor)  payload.proveedor_id = parseInt(proveedor);
+    if (precio)     payload.precio_unitario = parseFloat(precio);
+    if (moneda)     payload.moneda = moneda;
+    if (estado_cot) payload.estado_cot = estado_cot;
+    if (fecha_est)  payload.fecha_entrega_esperada = fecha_est;
+    if (obs)        payload.observaciones = obs;
+    // Si se aprueba cotización, actualizar estado REQ
+    if (estado_cot === 'APR') payload.estado = 'Aprobado';
 
-    async function abrirModalOC(repuestoId, otId, materialNombre, cantidad) {
-        modalRepuestoId = repuestoId;
-        modalOtId = otId;
+    try {
+        const res = await fetch(`/api/ot/repuestos/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        if (!res.ok) throw new Error(await res.text());
+        showToast('Cotización guardada', 'success');
+        cerrarModalCot();
+        await loadData();
+    } catch (e) { showToast('Error: ' + e.message, 'error'); }
+}
 
-        document.getElementById('modal-oc-info').innerHTML =
-            `<strong>OT:</strong> ${otId} &nbsp;|&nbsp; <strong>Material:</strong> ${materialNombre} &nbsp;|&nbsp; <strong>Cantidad:</strong> ${cantidad}`;
+// ── Modal OC / Recepción ──────────────────────────────────────────────────────
+function abrirModalOC(id) {
+    const r = allData.find(x => x.id === id);
+    if (!r) return;
+    document.getElementById('oc-item-id').value = id;
+    document.getElementById('oc-item-desc').textContent = (r.material_nombre || r.descripcion || '—') + ' · OC: ' + (r.nro_oc || '—');
+    document.getElementById('oc-nro-guia').value    = r.nro_guia || '';
+    document.getElementById('oc-nro-factura').value = r.nro_factura_proveedor || '';
+    document.getElementById('oc-fecha-recep').value = r.fecha_entrega_real ? r.fecha_entrega_real.split('T')[0] : '';
+    document.getElementById('oc-ubicacion').value   = r.ubicacion || '';
+    document.getElementById('oc-fecha-mina').value  = r.fecha_envio_mina ? r.fecha_envio_mina.split('T')[0] : '';
+    document.getElementById('modal-oc').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
 
-        // Fecha por defecto: 15 días
-        const fecha = new Date();
-        fecha.setDate(fecha.getDate() + 15);
-        document.getElementById('oc-fecha').value = fecha.toISOString().split('T')[0];
+function cerrarModalOC() {
+    document.getElementById('modal-oc').classList.add('hidden');
+    document.body.style.overflow = '';
+}
 
-        document.getElementById('modal-oc').classList.add('open');
+async function guardarDatosOC() {
+    const id = document.getElementById('oc-item-id').value;
+    const payload = {};
+    const nroGuia   = document.getElementById('oc-nro-guia').value;
+    const nroFact   = document.getElementById('oc-nro-factura').value;
+    const fechaRecep = document.getElementById('oc-fecha-recep').value;
+    const ubicacion  = document.getElementById('oc-ubicacion').value;
+    const fechaMina  = document.getElementById('oc-fecha-mina').value;
 
-        // Cargar proveedores y almacenes en paralelo
-        await Promise.all([cargarProveedores(), cargarAlmacenes()]);
-    }
+    if (nroGuia)    payload.nro_guia = nroGuia;
+    if (nroFact)    payload.nro_factura_proveedor = nroFact;
+    if (fechaRecep) payload.fecha_entrega_real = fechaRecep;
+    if (ubicacion)  payload.ubicacion = ubicacion;
+    if (fechaMina)  payload.fecha_envio_mina = fechaMina;
 
-    function cerrarModalOC() {
-        document.getElementById('modal-oc').classList.remove('open');
-        modalRepuestoId = null;
-        modalOtId = null;
-    }
+    try {
+        const res = await fetch(`/api/ot/repuestos/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+        if (!res.ok) throw new Error(await res.text());
+        showToast('Datos OC actualizados', 'success');
+        cerrarModalOC();
+        await loadData();
+    } catch (e) { showToast('Error: ' + e.message, 'error'); }
+}
 
-    async function cargarProveedores() {
-        try {
-            const res = await fetch('/api/logistica/proveedores');
-            const data = await res.json();
-            const sel = document.getElementById('oc-proveedor');
-            sel.innerHTML = '<option value="">— Seleccionar proveedor —</option>' +
-                data.map(p => `<option value="${p.id}">${p.razonSocial}</option>`).join('');
-        } catch { /* ignore */ }
-    }
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function verOT(otId)  { window.open(`/operativos/ordenes-trabajo.html?ot_id=${otId}`, '_blank'); }
+function verOC(id)    { window.open(`/logistica/compras.html?id=${id}`, '_blank'); }
 
-    async function cargarAlmacenes() {
-        try {
-            const res = await fetch('/api/logistica/almacenes');
-            const data = await res.json();
-            const sel = document.getElementById('oc-almacen');
-            sel.innerHTML = '<option value="">— Seleccionar almacén —</option>' +
-                data.map(a => `<option value="${a.id}">${a.nombre}</option>`).join('');
-        } catch { /* ignore */ }
-    }
+function setTableLoading() {
+    document.getElementById('tabla-body').innerHTML =
+        '<tr><td colspan="24" class="text-center py-10 text-gray-400"><i class="fas fa-spinner fa-spin mr-2"></i>Cargando…</td></tr>';
+}
 
-    async function confirmarGenerarOC() {
-        const proveedor_id = document.getElementById('oc-proveedor').value;
-        const almacen_id = document.getElementById('oc-almacen').value;
-        const fecha_entrega_esperada = document.getElementById('oc-fecha').value;
+function fmtDate(d) {
+    if (!d) return '—';
+    return new Date(d).toLocaleDateString('es-PE', { day:'2-digit', month:'2-digit', year:'2-digit' });
+}
 
-        if (!proveedor_id || !almacen_id) {
-            showToast('Seleccione proveedor y almacén', 'error');
-            return;
-        }
-
-        try {
-            const res = await fetch('/api/logistica/compras/from-ot', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    ot_id: modalOtId,
-                    proveedor_id: parseInt(proveedor_id),
-                    almacen_id: parseInt(almacen_id),
-                    repuestos_ids: [modalRepuestoId],
-                    fecha_entrega_esperada,
-                    usuario: 'Logística'
-                })
-            });
-
-            if (!res.ok) {
-                const err = await res.json();
-                throw new Error(err.error || 'Error desconocido');
-            }
-
-            const result = await res.json();
-            cerrarModalOC();
-            await loadRequerimientos();
-            showToast(`OC generada: ${result.compra?.numero_po || ''}`, 'success');
-        } catch (e) {
-            showToast('Error al generar OC: ' + e.message, 'error');
-        }
-    }
-
-    // ─── Toast ─────────────────────────────────────────────────────────────────
-
-    function showToast(msg, type = 'info') {
-        const el = document.createElement('div');
-        const colors = { success: 'bg-green-600', error: 'bg-red-600', info: 'bg-blue-600' };
-        el.className = `fixed bottom-6 right-6 ${colors[type] || colors.info} text-white px-5 py-3 rounded-lg shadow-lg text-sm z-50 transition-opacity`;
-        el.textContent = msg;
-        document.body.appendChild(el);
-        setTimeout(() => { el.style.opacity = '0'; setTimeout(() => el.remove(), 400); }, 3000);
-    }
-
-    // ─── Init ──────────────────────────────────────────────────────────────────
-
-    document.addEventListener('DOMContentLoaded', loadRequerimientos);
-    </script>
+function showToast(msg, type = 'info') {
+    const colors = { success: 'bg-green-600', error: 'bg-red-600', info: 'bg-blue-600' };
+    const el = document.createElement('div');
+    el.className = `${colors[type] || colors.info} text-white px-5 py-3 rounded-lg shadow-lg text-sm`;
+    el.textContent = msg;
+    document.getElementById('toast-container').appendChild(el);
+    setTimeout(() => { el.style.opacity = '0'; setTimeout(() => el.remove(), 400); }, 3500);
+}
+</script>
 </body>
 </html>
