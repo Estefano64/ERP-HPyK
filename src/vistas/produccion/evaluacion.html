@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hoja de Evaluación - Producción - HP&K ERP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="/vistas/shared/navigation.js"></script>
+</head>
+<body class="bg-gray-50">
+    <!-- Navegación principal -->
+    <div id="navigation-container"></div>
+
+    <!-- Encabezado -->
+    <div class="bg-gradient-to-r from-purple-600 to-purple-800 text-white shadow-lg">
+        <div class="container mx-auto px-6 py-5">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-4">
+                    <i class="fas fa-microscope text-3xl"></i>
+                    <div>
+                        <h1 class="text-2xl font-bold">Hoja de Evaluación de Cilindro</h1>
+                        <p class="text-purple-200 text-sm">Formato digital basado en la hoja física de evaluación</p>
+                    </div>
+                </div>
+                <a href="/produccion/index.html" class="bg-purple-700 hover:bg-purple-900 px-5 py-2 rounded-lg transition flex items-center text-sm">
+                    <i class="fas fa-arrow-left mr-2"></i> Volver a Producción
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenido principal -->
+    <div class="container mx-auto px-4 py-8 max-w-6xl">
+        <!-- Toast -->
+        <div id="toast" class="hidden fixed top-4 right-4 z-50 px-5 py-3 rounded-lg shadow-lg text-white text-sm font-medium"></div>
+
+        <form id="form-evaluacion" class="space-y-8">
+            <!-- DATOS GENERALES -->
+            <div class="bg-white rounded-lg shadow-md">
+                <div class="bg-gray-100 px-6 py-3 rounded-t-lg border-b flex items-center space-x-3">
+                    <span class="bg-purple-600 text-white font-bold rounded-full w-7 h-7 flex items-center justify-center text-sm">1</span>
+                    <h2 class="text-lg font-bold text-gray-800">Datos Generales de la OT</h2>
+                </div>
+                <div class="p-6 grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-1">Fecha Apertura</label>
+                        <input type="date" class="w-full border rounded-lg px-3 py-2" name="fecha_apertura">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-1">Fecha Prog. Entrega</label>
+                        <input type="date" class="w-full border rounded-lg px-3 py-2" name="fecha_prog_entrega">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-1">Guía Cliente</label>
+                        <input type="text" class="w-full border rounded-lg px-3 py-2" name="guia_cliente">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-1">Presión de Trabajo</label>
+                        <input type="text" class="w-full border rounded-lg px-3 py-2" name="presion_trabajo" placeholder="bar / psi">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-1">Cliente</label>
+                        <input type="text" class="w-full border rounded-lg px-3 py-2" name="cliente">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-1">OT</label>
+                        <input type="text" class="w-full border rounded-lg px-3 py-2" name="ot">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-1">Marca</label>
+                        <input type="text" class="w-full border rounded-lg px-3 py-2" name="marca">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-1">Modelo</label>
+                        <input type="text" class="w-full border rounded-lg px-3 py-2" name="modelo">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-1">Aplicación</label>
+                        <input type="text" class="w-full border rounded-lg px-3 py-2" name="aplicacion">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-1">Tipo</label>
+                        <input type="text" class="w-full border rounded-lg px-3 py-2" name="tipo">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-1">Nº Parte</label>
+                        <input type="text" class="w-full border rounded-lg px-3 py-2" name="numero_parte">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-1">Sist. Medición</label>
+                        <input type="text" class="w-full border rounded-lg px-3 py-2" name="sistema_medicion">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-1">Fecha de Evaluación</label>
+                        <input type="date" class="w-full border rounded-lg px-3 py-2" name="fecha_evaluacion">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-1">Evaluado por</label>
+                        <input type="text" class="w-full border rounded-lg px-3 py-2" name="evaluado_por">
+                    </div>
+                </div>
+            </div>
+
+            <!-- CILINDRO (BOTELLA) -->
+            <div class="bg-white rounded-lg shadow-md">
+                <div class="bg-blue-600 text-white px-6 py-3 rounded-t-lg flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <span class="bg-white text-blue-700 font-bold rounded-full w-7 h-7 flex items-center justify-center text-sm">2</span>
+                        <h2 class="text-lg font-bold">Cilindro (Botella)</h2>
+                    </div>
+                    <div class="text-xs text-blue-100">REF. CILINDRO / Medidas</div>
+                </div>
+                <div class="p-6 space-y-4 text-sm">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div>
+                            <label class="block font-semibold text-gray-700 mb-1">Ref. Cilindro</label>
+                            <input type="text" class="w-full border rounded-lg px-3 py-2" name="ref_cilindro">
+                        </div>
+                        <div class="md:col-span-3">
+                            <label class="block font-semibold text-gray-700 mb-2">Mediciones (mm)</label>
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full text-xs border border-gray-200 rounded">
+                                    <thead class="bg-gray-100">
+                                        <tr>
+                                            <th class="px-2 py-1 border">Parámetro</th>
+                                            <th class="px-2 py-1 border">A1</th>
+                                            <th class="px-2 py-1 border">A2</th>
+                                            <th class="px-2 py-1 border">A3</th>
+                                            <th class="px-2 py-1 border">A4</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td class="px-2 py-1 border text-gray-700">Diámetro Interior</td>
+                                            <td class="px-1 border"><input name="cil_dint_a1" class="w-full px-1 py-0.5 border rounded text-xs"></td>
+                                            <td class="px-1 border"><input name="cil_dint_a2" class="w-full px-1 py-0.5 border rounded text-xs"></td>
+                                            <td class="px-1 border"><input name="cil_dint_a3" class="w-full px-1 py-0.5 border rounded text-xs"></td>
+                                            <td class="px-1 border"><input name="cil_dint_a4" class="w-full px-1 py-0.5 border rounded text-xs"></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-2 py-1 border text-gray-700">Diámetro de Salida</td>
+                                            <td class="px-1 border"><input name="cil_dsal_a1" class="w-full px-1 py-0.5 border rounded text-xs"></td>
+                                            <td class="px-1 border"><input name="cil_dsal_a2" class="w-full px-1 py-0.5 border rounded text-xs"></td>
+                                            <td class="px-1 border"><input name="cil_dsal_a3" class="w-full px-1 py-0.5 border rounded text-xs"></td>
+                                            <td class="px-1 border"><input name="cil_dsal_a4" class="w-full px-1 py-0.5 border rounded text-xs"></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-2 py-1 border text-gray-700">Diámetro Exterior</td>
+                                            <td class="px-1 border"><input name="cil_dext_a1" class="w-full px-1 py-0.5 border rounded text-xs"></td>
+                                            <td class="px-1 border"><input name="cil_dext_a2" class="w-full px-1 py-0.5 border rounded text-xs"></td>
+                                            <td class="px-1 border"><input name="cil_dext_a3" class="w-full px-1 py-0.5 border rounded text-xs"></td>
+                                            <td class="px-1 border"><input name="cil_dext_a4" class="w-full px-1 py-0.5 border rounded text-xs"></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-2 py-1 border text-gray-700">Longitud Bruñido</td>
+                                            <td class="px-1 border"><input name="cil_lbru_a1" class="w-full px-1 py-0.5 border rounded text-xs"></td>
+                                            <td class="px-1 border"><input name="cil_lbru_a2" class="w-full px-1 py-0.5 border rounded text-xs"></td>
+                                            <td class="px-1 border"><input name="cil_lbru_a3" class="w-full px-1 py-0.5 border rounded text-xs"></td>
+                                            <td class="px-1 border"><input name="cil_lbru_a4" class="w-full px-1 py-0.5 border rounded text-xs"></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-2 py-1 border text-gray-700">Longitud Total</td>
+                                            <td class="px-1 border"><input name="cil_ltot_a1" class="w-full px-1 py-0.5 border rounded text-xs"></td>
+                                            <td class="px-1 border"><input name="cil_ltot_a2" class="w-full px-1 py-0.5 border rounded text-xs"></td>
+                                            <td class="px-1 border"><input name="cil_ltot_a3" class="w-full px-1 py-0.5 border rounded text-xs"></td>
+                                            <td class="px-1 border"><input name="cil_ltot_a4" class="w-full px-1 py-0.5 border rounded text-xs"></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-2 py-1 border text-gray-700">Diámetro Ojo</td>
+                                            <td class="px-1 border"><input name="cil_dojo_a1" class="w-full px-1 py-0.5 border rounded text-xs"></td>
+                                            <td class="px-1 border"><input name="cil_dojo_a2" class="w-full px-1 py-0.5 border rounded text-xs"></td>
+                                            <td class="px-1 border"><input name="cil_dojo_a3" class="w-full px-1 py-0.5 border rounded text-xs"></td>
+                                            <td class="px-1 border"><input name="cil_dojo_a4" class="w-full px-1 py-0.5 border rounded text-xs"></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-2 py-1 border text-gray-700">Diám. Int. Cojinete</td>
+                                            <td class="px-1 border"><input name="cil_dcoj_a1" class="w-full px-1 py-0.5 border rounded text-xs"></td>
+                                            <td class="px-1 border"><input name="cil_dcoj_a2" class="w-full px-1 py-0.5 border rounded text-xs"></td>
+                                            <td class="px-1 border"><input name="cil_dcoj_a3" class="w-full px-1 py-0.5 border rounded text-xs"></td>
+                                            <td class="px-1 border"><input name="cil_dcoj_a4" class="w-full px-1 py-0.5 border rounded text-xs"></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block font-semibold text-gray-700 mb-1">Ancho de Ojo</label>
+                            <input type="text" class="w-full border rounded-lg px-3 py-2" name="cil_ancho_ojo">
+                        </div>
+                        <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-3">
+                            <div>
+                                <p class="font-semibold text-gray-700 text-xs mb-1">Tomas</p>
+                                <div class="flex items-center space-x-3 text-xs">
+                                    <label class="flex items-center space-x-1"><input type="radio" name="cil_tomas" value="Buena" class="text-green-600"><span>Buena</span></label>
+                                    <label class="flex items-center space-x-1"><input type="radio" name="cil_tomas" value="Mala" class="text-red-600"><span>Mala</span></label>
+                                </div>
+                            </div>
+                            <div>
+                                <p class="font-semibold text-gray-700 text-xs mb-1">Est. de roscas</p>
+                                <div class="flex items-center space-x-3 text-xs">
+                                    <label class="flex items-center space-x-1"><input type="radio" name="cil_roscas" value="Buena" class="text-green-600"><span>Buena</span></label>
+                                    <label class="flex items-center space-x-1"><input type="radio" name="cil_roscas" value="Mala" class="text-red-600"><span>Mala</span></label>
+                                </div>
+                            </div>
+                            <div>
+                                <p class="font-semibold text-gray-700 text-xs mb-1">Seal Lip</p>
+                                <div class="flex items-center space-x-3 text-xs">
+                                    <label class="flex items-center space-x-1"><input type="radio" name="cil_seallip" value="Buena" class="text-green-600"><span>Buena</span></label>
+                                    <label class="flex items-center space-x-1"><input type="radio" name="cil_seallip" value="Mala" class="text-red-600"><span>Mala</span></label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                        <div class="md:col-span-2">
+                            <label class="block font-semibold text-gray-700 mb-1">Referencia</label>
+                            <input type="text" class="w-full border rounded-lg px-3 py-2" name="cil_referencia">
+                        </div>
+                        <div>
+                            <p class="font-semibold text-gray-700 mb-1 text-sm">¿Pasa a NDT?</p>
+                            <div class="flex items-center space-x-4 text-xs">
+                                <label class="flex items-center space-x-1"><input type="radio" name="cil_ndt" value="SI" class="text-blue-600"><span>Sí</span></label>
+                                <label class="flex items-center space-x-1"><input type="radio" name="cil_ndt" value="NO" class="text-blue-600"><span>No</span></label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-1">Resultado evaluación del cilindro</label>
+                        <textarea name="cil_resultado" rows="2" class="w-full border rounded-lg px-3 py-2 text-sm" placeholder="Conclusiones de la evaluación del cilindro..."></textarea>
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-1">Recomendaciones (Cilindro)</label>
+                        <textarea name="cil_recomendaciones" rows="2" class="w-full border rounded-lg px-3 py-2 text-sm" placeholder="Recomendaciones técnicas para el cilindro..."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VÁSTAGO -->
+            <div class="bg-white rounded-lg shadow-md">
+                <div class="bg-orange-500 text-white px-6 py-3 rounded-t-lg flex items-center space-x-3">
+                    <span class="bg-white text-orange-600 font-bold rounded-full w-7 h-7 flex items-center justify-center text-sm">3</span>
+                    <h2 class="text-lg font-bold">Vástago</h2>
+                </div>
+                <div class="p-6 space-y-4 text-sm">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div>
+                            <label class="block font-semibold text-gray-700 mb-1">Ref. Vástago</label>
+                            <input type="text" class="w-full border rounded-lg px-3 py-2" name="ref_vastago">
+                        </div>
+                        <div class="md:col-span-3">
+                            <label class="block font-semibold text-gray-700 mb-2">Mediciones (X / Y)</label>
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full text-xs border border-gray-200 rounded">
+                                    <thead class="bg-gray-100">
+                                        <tr>
+                                            <th class="px-2 py-1 border">Parámetro</th>
+                                            <th class="px-2 py-1 border">X</th>
+                                            <th class="px-2 py-1 border">Y</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td class="px-2 py-1 border text-gray-700">Diámetro Espiga</td>
+                                            <td class="px-1 border"><input name="vas_desp_x" class="w-full px-1 py-0.5 border rounded text-xs"></td>
+                                            <td class="px-1 border"><input name="vas_desp_y" class="w-full px-1 py-0.5 border rounded text-xs"></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-2 py-1 border text-gray-700">Diámetro Vástago</td>
+                                            <td class="px-1 border"><input name="vas_dvas_x" class="w-full px-1 py-0.5 border rounded text-xs"></td>
+                                            <td class="px-1 border"><input name="vas_dvas_y" class="w-full px-1 py-0.5 border rounded text-xs"></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-2 py-1 border text-gray-700">Longitud Cromo</td>
+                                            <td class="px-1 border"><input name="vas_lcro_x" class="w-full px-1 py-0.5 border rounded text-xs"></td>
+                                            <td class="px-1 border"><input name="vas_lcro_y" class="w-full px-1 py-0.5 border rounded text-xs"></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-2 py-1 border text-gray-700">Longitud Total</td>
+                                            <td class="px-1 border"><input name="vas_ltot_x" class="w-full px-1 py-0.5 border rounded text-xs"></td>
+                                            <td class="px-1 border"><input name="vas_ltot_y" class="w-full px-1 py-0.5 border rounded text-xs"></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-2 py-1 border text-gray-700">Longitud de Espiga</td>
+                                            <td class="px-1 border"><input name="vas_lesp_x" class="w-full px-1 py-0.5 border rounded text-xs"></td>
+                                            <td class="px-1 border"><input name="vas_lesp_y" class="w-full px-1 py-0.5 border rounded text-xs"></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-2 py-1 border text-gray-700">Diám. Ext. Ojo</td>
+                                            <td class="px-1 border"><input name="vas_dextojo_x" class="w-full px-1 py-0.5 border rounded text-xs"></td>
+                                            <td class="px-1 border"><input name="vas_dextojo_y" class="w-full px-1 py-0.5 border rounded text-xs"></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-2 py-1 border text-gray-700">Diám. Int. Ojo</td>
+                                            <td class="px-1 border"><input name="vas_dintojo_x" class="w-full px-1 py-0.5 border rounded text-xs"></td>
+                                            <td class="px-1 border"><input name="vas_dintojo_y" class="w-full px-1 py-0.5 border rounded text-xs"></td>
+                                        </tr>
+                                        <tr>
+                                            <td class="px-2 py-1 border text-gray-700">Diám. Int. Cojinete</td>
+                                            <td class="px-1 border"><input name="vas_dcoj_x" class="w-full px-1 py-0.5 border rounded text-xs"></td>
+                                            <td class="px-1 border"><input name="vas_dcoj_y" class="w-full px-1 py-0.5 border rounded text-xs"></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                        <div>
+                            <label class="block font-semibold text-gray-700 mb-1">Ancho de Ojo</label>
+                            <input type="text" class="w-full border rounded-lg px-3 py-2" name="vas_ancho_ojo">
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-gray-700 mb-1">Seal Lip</label>
+                            <div class="flex items-center space-x-4 text-xs">
+                                <label class="flex items-center space-x-1"><input type="radio" name="vas_seallip" value="Buena" class="text-green-600"><span>Buena</span></label>
+                                <label class="flex items-center space-x-1"><input type="radio" name="vas_seallip" value="Mala" class="text-red-600"><span>Mala</span></label>
+                            </div>
+                        </div>
+                        <div class="md:col-span-2">
+                            <label class="block font-semibold text-gray-700 mb-1">Dureza / Flexión / Espesor Cromo</label>
+                            <input type="text" class="w-full border rounded-lg px-3 py-2" name="vas_dureza_info" placeholder="Observaciones de dureza, flexión y espesor de cromo">
+                        </div>
+                    </div>
+
+                    <div class="flex flex-wrap items-center gap-6">
+                        <div>
+                            <p class="font-semibold text-gray-700 mb-1 text-sm">¿Pasa a NDT?</p>
+                            <div class="flex items-center space-x-4 text-xs">
+                                <label class="flex items-center space-x-1"><input type="radio" name="vas_ndt" value="SI" class="text-blue-600"><span>Sí</span></label>
+                                <label class="flex items-center space-x-1"><input type="radio" name="vas_ndt" value="NO" class="text-blue-600"><span>No</span></label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-1">Resultado evaluación del vástago</label>
+                        <textarea name="vas_resultado" rows="2" class="w-full border rounded-lg px-3 py-2 text-sm" placeholder="Conclusiones de la evaluación del vástago..."></textarea>
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-1">Recomendaciones (Vástago)</label>
+                        <textarea name="vas_recomendaciones" rows="2" class="w-full border rounded-lg px-3 py-2 text-sm" placeholder="Recomendaciones técnicas para el vástago..."></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAPA Y PISTÓN -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Tapa -->
+                <div class="bg-white rounded-lg shadow-md">
+                    <div class="bg-teal-600 text-white px-6 py-3 rounded-t-lg flex items-center space-x-3">
+                        <span class="bg-white text-teal-700 font-bold rounded-full w-7 h-7 flex items-center justify-center text-sm">4</span>
+                        <h2 class="text-lg font-bold">Tapa</h2>
+                    </div>
+                    <div class="p-6 space-y-4 text-sm">
+                        <div>
+                            <label class="block font-semibold text-gray-700 mb-1">Ref. Tapa</label>
+                            <input type="text" class="w-full border rounded-lg px-3 py-2" name="ref_tapa">
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block font-semibold text-gray-700 mb-1">Diámetro Exterior</label>
+                                <input type="text" class="w-full border rounded-lg px-3 py-2" name="tapa_dext">
+                            </div>
+                            <div>
+                                <label class="block font-semibold text-gray-700 mb-1">Diámetro Interior</label>
+                                <input type="text" class="w-full border rounded-lg px-3 py-2" name="tapa_dint">
+                            </div>
+                            <div>
+                                <label class="block font-semibold text-gray-700 mb-1">Diámetro Sellado</label>
+                                <input type="text" class="w-full border rounded-lg px-3 py-2" name="tapa_dsellado">
+                            </div>
+                            <div>
+                                <label class="block font-semibold text-gray-700 mb-1">Longitud Total</label>
+                                <input type="text" class="w-full border rounded-lg px-3 py-2" name="tapa_ltot">
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between mt-2">
+                            <p class="font-semibold text-gray-700 mb-1 text-sm">¿Pasa a NDT?</p>
+                            <div class="flex items-center space-x-4 text-xs">
+                                <label class="flex items-center space-x-1"><input type="radio" name="tapa_ndt" value="SI" class="text-blue-600"><span>Sí</span></label>
+                                <label class="flex items-center space-x-1"><input type="radio" name="tapa_ndt" value="NO" class="text-blue-600"><span>No</span></label>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-gray-700 mb-1">Resultado evaluación de la tapa</label>
+                            <textarea name="tapa_resultado" rows="2" class="w-full border rounded-lg px-3 py-2 text-sm" placeholder="Conclusiones de la evaluación de la tapa..."></textarea>
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-gray-700 mb-1">Recomendaciones (Tapa)</label>
+                            <textarea name="tapa_recomendaciones" rows="2" class="w-full border rounded-lg px-3 py-2 text-sm" placeholder="Recomendaciones técnicas para la tapa..."></textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pistón -->
+                <div class="bg-white rounded-lg shadow-md">
+                    <div class="bg-yellow-500 text-white px-6 py-3 rounded-t-lg flex items-center space-x-3">
+                        <span class="bg-white text-yellow-700 font-bold rounded-full w-7 h-7 flex items-center justify-center text-sm">5</span>
+                        <h2 class="text-lg font-bold">Pistón</h2>
+                    </div>
+                    <div class="p-6 space-y-4 text-sm">
+                        <div>
+                            <label class="block font-semibold text-gray-700 mb-1">Ref. Pistón</label>
+                            <input type="text" class="w-full border rounded-lg px-3 py-2" name="ref_piston">
+                        </div>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block font-semibold text-gray-700 mb-1">Diámetro Exterior</label>
+                                <input type="text" class="w-full border rounded-lg px-3 py-2" name="piston_dext">
+                            </div>
+                            <div>
+                                <label class="block font-semibold text-gray-700 mb-1">Diámetro Interior</label>
+                                <input type="text" class="w-full border rounded-lg px-3 py-2" name="piston_dint">
+                            </div>
+                            <div>
+                                <label class="block font-semibold text-gray-700 mb-1">Longitud Total</label>
+                                <input type="text" class="w-full border rounded-lg px-3 py-2" name="piston_ltot">
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between mt-2">
+                            <p class="font-semibold text-gray-700 mb-1 text-sm">¿Pasa a NDT?</p>
+                            <div class="flex items-center space-x-4 text-xs">
+                                <label class="flex items-center space-x-1"><input type="radio" name="piston_ndt" value="SI" class="text-blue-600"><span>Sí</span></label>
+                                <label class="flex items-center space-x-1"><input type="radio" name="piston_ndt" value="NO" class="text-blue-600"><span>No</span></label>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-gray-700 mb-1">Resultado evaluación del pistón</label>
+                            <textarea name="piston_resultado" rows="2" class="w-full border rounded-lg px-3 py-2 text-sm" placeholder="Conclusiones de la evaluación del pistón..."></textarea>
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-gray-700 mb-1">Recomendaciones (Pistón)</label>
+                            <textarea name="piston_recomendaciones" rows="2" class="w-full border rounded-lg px-3 py-2 text-sm" placeholder="Recomendaciones técnicas para el pistón..."></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BOTONES -->
+            <div class="flex justify-end space-x-4 pt-2 pb-8">
+                <a href="/produccion/index.html" class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition font-medium text-sm flex items-center">
+                    <i class="fas fa-times mr-2"></i> Cancelar
+                </a>
+                <button type="submit" class="px-8 py-3 bg-purple-700 hover:bg-purple-800 text-white rounded-lg transition font-semibold text-sm flex items-center">
+                    <i class="fas fa-save mr-2"></i> Guardar Hoja de Evaluación
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        function mostrarToast(mensaje, tipo = 'success') {
+            const t = document.getElementById('toast');
+            t.textContent = mensaje;
+            t.className = `fixed top-4 right-4 z-50 px-5 py-3 rounded-lg shadow-lg text-white text-sm font-medium ${
+                tipo === 'error' ? 'bg-red-600' : 'bg-green-600'
+            }`;
+            t.classList.remove('hidden');
+            setTimeout(() => t.classList.add('hidden'), 3000);
+        }
+
+        document.getElementById('form-evaluacion').addEventListener('submit', function (e) {
+            e.preventDefault();
+            // Por ahora solo mostramos un mensaje. Integración con backend se puede agregar luego.
+            mostrarToast('Hoja de evaluación registrada (solo demostración, sin guardar en BD).');
+        });
+    </script>
+</body>
+</html>
