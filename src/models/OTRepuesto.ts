@@ -16,7 +16,8 @@ interface OTRepuestoAttributes {
   cantidad: number;
   descripcion?: string;       // Descripción editable por logística
   texto?: string;             // Texto del task list
-  fabricante_codigo?: string; // Agrupado del material
+  fabricante_codigo?: string; // Modelo/marca del ítem (ej: KOMATSU, CAT)
+  unidad_medida?: string;    // U.M. (UNIDAD, KG, LT, etc.)
   fecha_solicitud: Date;      // Fecha de registro automática
   fecha_requerida?: Date;     // Fecha límite requerida (criticidad)
   estado: string;             // REV | COT | APR | PRO | COM | INC | ANU | DEV
@@ -68,7 +69,7 @@ interface OTRepuestoCreationAttributes extends Optional<OTRepuestoAttributes,
   'fecha_oc' | 'fecha_entrega_esperada' | 'fecha_entrega_real' | 'fecha_salida_almacen' |
   'fecha_envio_mina' | 'fecha_facturacion' | 'nro_guia' | 'nro_factura_proveedor' |
   'factura_cliente' | 'gr_mina' | 'evaluador' | 'es_adicional' | 'ubicacion' |
-  'observaciones' | 'usuario_aprueba' | 'fecha_aprobacion'
+  'observaciones' | 'usuario_aprueba' | 'fecha_aprobacion' | 'unidad_medida'
 > {}
 
 class OTRepuesto extends Model<OTRepuestoAttributes, OTRepuestoCreationAttributes> implements OTRepuestoAttributes {
@@ -82,6 +83,7 @@ class OTRepuesto extends Model<OTRepuestoAttributes, OTRepuestoCreationAttribute
   public descripcion?: string;
   public texto?: string;
   public fabricante_codigo?: string;
+  public unidad_medida?: string;
   public fecha_solicitud!: Date;
   public fecha_requerida?: Date;
   public estado!: string;
@@ -157,7 +159,10 @@ OTRepuesto.init(
       comment: 'Texto del task list'
     },
     fabricante_codigo: {
-      type: DataTypes.STRING(20), allowNull: true
+      type: DataTypes.STRING(50), allowNull: true
+    },
+    unidad_medida: {
+      type: DataTypes.STRING(20), allowNull: true, defaultValue: 'UNIDAD'
     },
     fecha_solicitud: {
       type: DataTypes.DATE, allowNull: false, defaultValue: DataTypes.NOW,
@@ -168,8 +173,8 @@ OTRepuesto.init(
       comment: 'Fecha límite requerida (criticidad)'
     },
     estado: {
-      type: DataTypes.STRING(10), allowNull: false, defaultValue: 'REV',
-      comment: 'REV | COT | APR | PRO | COM | INC | ANU | DEV'
+      type: DataTypes.STRING(30), allowNull: false, defaultValue: 'REV',
+      comment: 'REV | COT | APR | PRO | COM | INC | ANU | DEV | PDT APROBACION'
     },
     estado_cot: {
       type: DataTypes.STRING(20), allowNull: true,

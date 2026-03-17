@@ -18,6 +18,9 @@ const sequelize = new Sequelize(
       acquire: 60000,
       idle: 10000,
     },
+    dialectOptions: {
+      ssl: false,
+    },
   }
 );
 

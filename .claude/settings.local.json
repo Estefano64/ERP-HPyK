@@ -17,7 +17,9 @@
       "Bash(grep:*)",
       "Bash(curl:*)",
       "Bash(npm run:*)",
-      "Bash(PGPASSWORD=admin123 psql:*)"
+      "Bash(PGPASSWORD=admin123 psql:*)",
+      "Bash(netstat -ano | findstr \":3000\" | findstr \"LISTENING\")",
+      "Bash(powershell -Command \"Stop-Process -Name node -Force -ErrorAction SilentlyContinue; Write-Host 'done'\" 2>&1)"
     ]
   }
 }
