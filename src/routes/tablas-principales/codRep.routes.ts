@@ -14,7 +14,9 @@ const router = Router();
 
 // CRUD completo de códigos de reparación
 router.get('/', codigoReparacionController.getAllCodigosReparacion);
-// Task List de un CodRep (ANTES de /:id para evitar ambigüedad de Express)
+// Búsqueda por NP — ANTES de /:id para evitar ambigüedad
+router.get('/search', codigoReparacionController.searchByNP);
+// Task List de un CodRep — ANTES de /:id
 router.get('/:id/task-list', tareaController.getTaskListByCodRep);
 router.get('/:id', codigoReparacionController.getCodigoReparacionById);
 router.post('/', codigoReparacionController.createCodigoReparacion);

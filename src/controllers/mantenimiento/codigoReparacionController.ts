@@ -1,5 +1,22 @@
 import { Request, Response } from 'express';
+import { Op } from 'sequelize';
 import CodigoReparacion from '../../models/CodigoReparacion';
+
+// Buscar CodRep por NP (número de parte del cilindro) — para autocomplete en formulario OT
+export const searchByNP = async (req: Request, res: Response) => {
+  try {
+    const np = (req.query.np as string || '').trim();
+    if (!np) return res.json([]);
+    const results = await CodigoReparacion.findAll({
+      where: { np: { [Op.iLike]: `%${np}%` } },
+      order: [['np', 'ASC'], ['codigo', 'ASC']],
+      limit: 20,
+    });
+    res.json(results);
+  } catch (error) {
+    res.status(500).json({ error: 'Error al buscar por NP', details: error });
+  }
+};
 
 export const getAllCodigosReparacion = async (req: Request, res: Response) => {
   try {

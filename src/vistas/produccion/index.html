@@ -228,8 +228,8 @@
                         <h1 class="text-3xl font-bold text-white flex items-center">
                             <i class="fas fa-clipboard-list mr-3"></i>Requerimientos de Producción
                         </h1>
-                        <button onclick="mostrarFormNuevoReqProduccion()" class="bg-white text-orange-600 px-4 py-2 rounded-lg hover:bg-orange-50 transition">
-                            <i class="fas fa-plus mr-2"></i>Nuevo Requerimiento
+                        <button onclick="renderReqProduccion()" class="bg-white text-orange-600 px-4 py-2 rounded-lg hover:bg-orange-50 transition" title="Actualizar lista">
+                            <i class="fas fa-sync-alt mr-2"></i>Actualizar
                         </button>
                     </div>
                 </div>
@@ -249,8 +249,8 @@
                         <p id="stat-req-aprobados" class="text-3xl font-bold text-green-600">0</p>
                     </div>
                     <div class="bg-white rounded-lg shadow-lg p-6">
-                        <p class="text-gray-500 text-sm">Enviados a Logística</p>
-                        <p id="stat-req-enviados" class="text-3xl font-bold text-blue-600">0</p>
+                        <p class="text-gray-500 text-sm">Anulados</p>
+                        <p id="stat-req-enviados" class="text-3xl font-bold text-red-500">0</p>
                     </div>
                 </div>
 
@@ -259,13 +259,14 @@
                     <table class="w-full">
                         <thead class="bg-orange-600 text-white">
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium uppercase">Req #</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium uppercase">OT</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium uppercase">Técnico</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium uppercase">Fecha</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium uppercase">Items</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium uppercase">Estado</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium uppercase">Acciones</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium uppercase">Req #</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium uppercase">OT</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium uppercase">Cliente</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium uppercase">Solicitante</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium uppercase">Fecha</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium uppercase">Ítems</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium uppercase">Estado</th>
+                                <th class="px-4 py-3 text-left text-xs font-medium uppercase">Acciones</th>
                             </tr>
                         </thead>
                         <tbody id="tabla-req-produccion" class="divide-y divide-gray-200">
@@ -365,6 +366,23 @@
                 </div>
             </div>
 
+        </div>
+    </div>
+
+    <!-- Modal Detalle OT (desde producción) -->
+    <div id="modal-detalle-ot-prod" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div class="bg-gradient-to-r from-blue-700 to-blue-900 px-6 py-4 flex items-center justify-between rounded-t-lg">
+                <h3 class="text-xl font-bold text-white flex items-center">
+                    <i class="fas fa-file-alt mr-2"></i>Detalle de Orden de Trabajo
+                </h3>
+                <button onclick="cerrarModalDetalleOTProd()" class="text-white hover:text-gray-200">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+            </div>
+            <div id="modal-ot-prod-body" class="p-6">
+                <!-- llenado dinámicamente -->
+            </div>
         </div>
     </div>
 
@@ -607,163 +625,275 @@
 
         // ========== REQUERIMIENTOS PRODUCCIÓN ==========
 
-        function renderReqProduccion() {
+        let _reqProdData = []; // cache de requerimientos cargados
+
+        async function renderReqProduccion() {
             const tbody = document.getElementById('tabla-req-produccion');
             if (!tbody) return;
+            tbody.innerHTML = '<tr><td colspan="7" class="px-6 py-8 text-center text-gray-400"><i class="fas fa-spinner fa-spin mr-2"></i>Cargando requerimientos...</td></tr>';
 
-            if (requerimientosProduccion.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" class="px-6 py-8 text-center text-gray-500">No hay requerimientos</td></tr>';
+            try {
+                const res = await fetch('/api/logistica/requerimientos');
+                const items = await res.json();
+                _reqProdData = items;
+            } catch (e) {
+                tbody.innerHTML = '<tr><td colspan="7" class="px-6 py-8 text-center text-red-500">Error al cargar requerimientos</td></tr>';
                 return;
             }
 
-            tbody.innerHTML = requerimientosProduccion.map(req => `
-                <tr class="hover:bg-gray-50">
-                    <td class="px-6 py-4 text-sm font-medium">${req.numero}</td>
-                    <td class="px-6 py-4 text-sm">${req.ot}</td>
-                    <td class="px-6 py-4 text-sm">${req.tecnico}</td>
-                    <td class="px-6 py-4 text-sm">${req.fecha}</td>
-                    <td class="px-6 py-4 text-sm">${req.items.length} items</td>
-                    <td class="px-6 py-4">
-                        <span class="px-2 py-1 rounded-full text-xs font-semibold ${
-                            req.estado === 'Pendiente' ? 'bg-orange-100 text-orange-800' :
-                            req.estado === 'Aprobado' ? 'bg-green-100 text-green-800' :
-                            'bg-blue-100 text-blue-800'
-                        }">${req.estado}</span>
+            // Agrupar por nro_req
+            const grupos = {};
+            for (const item of _reqProdData) {
+                const key = item.nro_req || `SIN-REQ-${item.ot_id}`;
+                if (!grupos[key]) grupos[key] = [];
+                grupos[key].push(item);
+            }
+
+            const keys = Object.keys(grupos);
+            if (keys.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="px-6 py-8 text-center text-gray-500">No hay requerimientos registrados</td></tr>';
+                updateReqProdStats({});
+                return;
+            }
+
+            let html = '';
+            for (const nroReq of keys) {
+                const grupo = grupos[nroReq];
+                const first = grupo[0];
+                const estadoGrupo = first.estado || 'PDT APROBACION';
+                const fechaSol = first.fecha_solicitud ? first.fecha_solicitud.split('T')[0] : '-';
+                const solicitante = first.usuario_solicita || '-';
+                const otNum = first.numero_ot || first.ot_id;
+                const cliente = first.cliente_nombre || first.razonSocial || '';
+                const rowId = `req-prod-${nroReq.replace(/[^a-zA-Z0-9]/g, '-')}`;
+
+                const estadoClass = estadoGrupo === 'PDT APROBACION'
+                    ? 'bg-orange-100 text-orange-800'
+                    : estadoGrupo === 'APROBADO'
+                        ? 'bg-green-100 text-green-800'
+                        : estadoGrupo === 'ANULADO'
+                            ? 'bg-red-100 text-red-800'
+                            : 'bg-gray-100 text-gray-700';
+
+                html += `
+                <tr class="hover:bg-gray-50 cursor-pointer" onclick="toggleReqProdBody('${rowId}')">
+                    <td class="px-4 py-3 text-sm font-semibold text-blue-700">
+                        <i id="chevron-${rowId}" class="fas fa-chevron-right mr-1 text-xs transition-transform"></i>
+                        ${nroReq}
                     </td>
-                    <td class="px-6 py-4">
-                        ${req.estado === 'Pendiente' ? `
-                            <button onclick="aprobarReqProd(${req.id})" class="text-green-600 hover:text-green-800 mx-1" title="Aprobar">
-                                <i class="fas fa-check"></i>
+                    <td class="px-4 py-3 text-sm" onclick="event.stopPropagation()">
+                        <button onclick="verDetalleOT(${first.ot_id})" class="text-blue-600 hover:text-blue-800 font-medium hover:underline">
+                            OT-${otNum}
+                        </button>
+                    </td>
+                    <td class="px-4 py-3 text-sm text-gray-600">${cliente}</td>
+                    <td class="px-4 py-3 text-sm">${solicitante}</td>
+                    <td class="px-4 py-3 text-sm">${fechaSol}</td>
+                    <td class="px-4 py-3 text-sm">${grupo.length} ítem(s)</td>
+                    <td class="px-4 py-3">
+                        <span class="px-2 py-1 rounded-full text-xs font-semibold ${estadoClass}">${estadoGrupo}</span>
+                    </td>
+                    <td class="px-4 py-3 text-sm" onclick="event.stopPropagation()">
+                        ${estadoGrupo === 'PDT APROBACION' ? `
+                            <button onclick="aprobarReqProd('${nroReq}')" class="text-green-600 hover:text-green-800 mx-1" title="Aprobar">
+                                <i class="fas fa-check-circle"></i>
                             </button>
-                        ` : ''}
-                        ${req.estado === 'Aprobado' ? `
-                            <button onclick="enviarALogistica(${req.id})" class="text-blue-600 hover:text-blue-800 mx-1" title="Enviar a Logística">
-                                <i class="fas fa-paper-plane"></i>
+                            <button onclick="anularReqProd('${nroReq}')" class="text-red-500 hover:text-red-700 mx-1" title="Anular">
+                                <i class="fas fa-times-circle"></i>
                             </button>
+                            <button onclick="eliminarReqProd('${nroReq}')" class="text-gray-400 hover:text-red-700 mx-1" title="Eliminar requerimiento">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        ` : estadoGrupo === 'APROBADO' ? `
+                            <span class="text-xs text-green-600"><i class="fas fa-check mr-1"></i>En Logística</span>
                         ` : ''}
                     </td>
                 </tr>
-            `).join('');
-
-            updateReqProdStats();
+                <tr id="${rowId}" class="hidden bg-gray-50">
+                    <td colspan="8" class="px-6 pb-3 pt-0">
+                        <table class="w-full text-xs border rounded overflow-hidden">
+                            <thead class="bg-gray-200 text-gray-600">
+                                <tr>
+                                    <th class="px-3 py-1 text-left">Ítem</th>
+                                    <th class="px-3 py-1 text-left">Tipo</th>
+                                    <th class="px-3 py-1 text-left">Descripción</th>
+                                    <th class="px-3 py-1 text-left">Cant</th>
+                                    <th class="px-3 py-1 text-left">U.M.</th>
+                                    <th class="px-3 py-1 text-left">Nro.Parte</th>
+                                    <th class="px-3 py-1 text-left">F.Requerida</th>
+                                    <th class="px-3 py-1 text-left">Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${grupo.map((it, idx) => `
+                                    <tr class="border-t border-gray-200">
+                                        <td class="px-3 py-1">${it.item_req || idx + 1}</td>
+                                        <td class="px-3 py-1">
+                                            <span class="px-1 rounded text-xs ${it.tipo_codigo === 'SER' ? 'bg-purple-100 text-purple-700' : it.tipo_codigo === 'CAD' ? 'bg-yellow-100 text-yellow-700' : 'bg-blue-100 text-blue-700'}">${it.tipo_codigo || 'MAC'}</span>
+                                        </td>
+                                        <td class="px-3 py-1">${it.descripcion || it.material_nombre || '-'}</td>
+                                        <td class="px-3 py-1">${it.cantidad}</td>
+                                        <td class="px-3 py-1">${it.unidad_medida || 'UNIDAD'}</td>
+                                        <td class="px-3 py-1 text-gray-500">${it.texto || '-'}</td>
+                                        <td class="px-3 py-1 text-gray-500">${it.fecha_requerida ? it.fecha_requerida.split('T')[0] : '-'}</td>
+                                        <td class="px-3 py-1">
+                                            <span class="px-1 rounded text-xs ${it.estado === 'APROBADO' ? 'bg-green-100 text-green-700' : it.estado === 'ANULADO' ? 'bg-red-100 text-red-700' : 'bg-orange-100 text-orange-700'}">${it.estado}</span>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>`;
+            }
+            tbody.innerHTML = html;
+            updateReqProdStats(grupos);
         }
 
-        function updateReqProdStats() {
-            const total = requerimientosProduccion.length;
-            const pendientes = requerimientosProduccion.filter(r => r.estado === 'Pendiente').length;
-            const aprobados = requerimientosProduccion.filter(r => r.estado === 'Aprobado').length;
-            const enviados = requerimientosProduccion.filter(r => r.estado === 'Enviado a Logística').length;
+        function toggleReqProdBody(rowId) {
+            const row = document.getElementById(rowId);
+            const chevron = document.getElementById(`chevron-${rowId}`);
+            if (!row) return;
+            const isHidden = row.classList.contains('hidden');
+            row.classList.toggle('hidden', !isHidden);
+            if (chevron) chevron.style.transform = isHidden ? 'rotate(90deg)' : '';
+        }
+
+        function updateReqProdStats(grupos) {
+            const allItems = _reqProdData;
+            const nroReqs = Object.keys(grupos);
+            const total = nroReqs.length;
+            const pendientes = nroReqs.filter(k => grupos[k][0]?.estado === 'PDT APROBACION').length;
+            const aprobados = nroReqs.filter(k => grupos[k][0]?.estado === 'APROBADO').length;
+            const anulados = nroReqs.filter(k => grupos[k][0]?.estado === 'ANULADO').length;
 
             document.getElementById('stat-req-total').textContent = total;
             document.getElementById('stat-req-pendientes').textContent = pendientes;
             document.getElementById('stat-req-aprobados').textContent = aprobados;
-            document.getElementById('stat-req-enviados').textContent = enviados;
+            document.getElementById('stat-req-enviados').textContent = anulados;
         }
 
-        function mostrarFormNuevoReqProduccion() {
-            reqProdEditingId = null;
-            document.getElementById('form-req-produccion').reset();
-            document.getElementById('items-req-prod-container').innerHTML = '';
-            agregarItemReqProd();
-            document.getElementById('modal-req-produccion').classList.remove('hidden');
-        }
+        async function aprobarReqProd(nroReq) {
+            const grupo = _reqProdData.filter(r => r.nro_req === nroReq);
+            if (!grupo.length) return;
+            if (!confirm(`¿Aprobar requerimiento ${nroReq} (${grupo.length} ítem(s))?\nLos ítems quedarán visibles en Logística.`)) return;
 
-        function cerrarModalReqProduccion() {
-            document.getElementById('modal-req-produccion').classList.add('hidden');
-        }
-
-        function agregarItemReqProd() {
-            const container = document.getElementById('items-req-prod-container');
-            const itemId = Date.now();
-            
-            container.insertAdjacentHTML('beforeend', `
-                <div id="item-req-prod-${itemId}" class="grid grid-cols-12 gap-2 items-center">
-                    <div class="col-span-7">
-                        <input type="text" placeholder="Material/Repuesto" class="w-full px-2 py-1 border rounded text-sm" data-field="producto">
-                    </div>
-                    <div class="col-span-2">
-                        <input type="number" placeholder="Cant" class="w-full px-2 py-1 border rounded text-sm" data-field="cantidad" min="1" value="1">
-                    </div>
-                    <div class="col-span-2">
-                        <select class="w-full px-2 py-1 border rounded text-sm" data-field="unidad">
-                            <option>UND</option>
-                            <option>KG</option>
-                            <option>LT</option>
-                        </select>
-                    </div>
-                    <div class="col-span-1 text-center">
-                        <button type="button" onclick="eliminarItemReqProd(${itemId})" class="text-red-600 hover:text-red-800">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-                </div>
-            `);
-        }
-
-        function eliminarItemReqProd(itemId) {
-            const item = document.getElementById(`item-req-prod-${itemId}`);
-            if (item) item.remove();
-        }
-
-        function submitReqProduccion(e) {
-            e.preventDefault();
-            
-            const itemsContainer = document.getElementById('items-req-prod-container');
-            const itemRows = itemsContainer.querySelectorAll('[id^="item-req-prod-"]');
-            const items = [];
-            
-            itemRows.forEach(row => {
-                const producto = row.querySelector('[data-field="producto"]').value;
-                const cantidad = parseInt(row.querySelector('[data-field="cantidad"]').value);
-                const unidad = row.querySelector('[data-field="unidad"]').value;
-                
-                if (producto && cantidad) {
-                    items.push({ producto, cantidad, unidad });
-                }
-            });
-            
-            if (items.length === 0) {
-                showToast('Debe agregar al menos un item', 'error');
-                return;
+            try {
+                await Promise.all(grupo.map(item =>
+                    fetch(`/api/ot/repuestos/${item.id}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ estado: 'APROBADO', usuario_aprueba: 'Producción' })
+                    })
+                ));
+                showToast(`Requerimiento ${nroReq} aprobado — visible en Logística`, 'success');
+                renderReqProduccion();
+            } catch (e) {
+                showToast('Error al aprobar requerimiento', 'error');
             }
-
-            const data = {
-                id: requerimientosProduccion.length + 1,
-                numero: `REQ-PROD-${String(requerimientosProduccion.length + 1).padStart(3, '0')}`,
-                ot: document.getElementById('req-prod-ot').value,
-                tecnico: document.getElementById('req-prod-tecnico').value,
-                fecha: new Date().toISOString().split('T')[0],
-                estado: 'Pendiente',
-                items: items
-            };
-
-            requerimientosProduccion.push(data);
-            showToast('Requerimiento creado correctamente', 'success');
-            cerrarModalReqProduccion();
-            renderReqProduccion();
         }
 
-        function aprobarReqProd(id) {
-            const req = requerimientosProduccion.find(r => r.id === id);
-            if (!req) return;
+        async function anularReqProd(nroReq) {
+            const grupo = _reqProdData.filter(r => r.nro_req === nroReq);
+            if (!grupo.length) return;
+            if (!confirm(`¿Anular requerimiento ${nroReq}? Esta acción no se puede deshacer.`)) return;
 
-            if (!confirm(`¿Aprobar requerimiento ${req.numero}?`)) return;
-
-            req.estado = 'Aprobado';
-            renderReqProduccion();
-            showToast('Requerimiento aprobado', 'success');
+            try {
+                await Promise.all(grupo.map(item =>
+                    fetch(`/api/ot/repuestos/${item.id}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ estado: 'ANULADO' })
+                    })
+                ));
+                showToast(`Requerimiento ${nroReq} anulado`, 'success');
+                renderReqProduccion();
+            } catch (e) {
+                showToast('Error al anular requerimiento', 'error');
+            }
         }
 
-        function enviarALogistica(id) {
-            const req = requerimientosProduccion.find(r => r.id === id);
-            if (!req) return;
+        async function eliminarReqProd(nroReq) {
+            const grupo = _reqProdData.filter(r => r.nro_req === nroReq);
+            if (!grupo.length) return;
+            if (!confirm(`¿Eliminar requerimiento ${nroReq} (${grupo.length} ítem(s))?\nSolo se pueden eliminar requerimientos en estado PDT APROBACION.`)) return;
 
-            if (!confirm(`¿Enviar ${req.numero} a Logística?`)) return;
-
-            req.estado = 'Enviado a Logística';
-            renderReqProduccion();
-            showToast('Requerimiento enviado a Logística - Visible en módulo de Recursos Solicitados', 'success');
+            try {
+                const results = await Promise.all(grupo.map(item =>
+                    fetch(`/api/ot/repuestos/${item.id}`, { method: 'DELETE' })
+                ));
+                const errores = results.filter(r => !r.ok).length;
+                if (errores > 0) {
+                    showToast(`${errores} ítem(s) no pudieron eliminarse (estado no permite eliminación)`, 'error');
+                } else {
+                    showToast(`Requerimiento ${nroReq} eliminado`, 'success');
+                }
+                renderReqProduccion();
+            } catch (e) {
+                showToast('Error al eliminar requerimiento', 'error');
+            }
         }
+
+        async function verDetalleOT(otId) {
+            const modal = document.getElementById('modal-detalle-ot-prod');
+            const body = document.getElementById('modal-ot-prod-body');
+            modal.classList.remove('hidden');
+            body.innerHTML = '<p class="text-center text-gray-400 py-8"><i class="fas fa-spinner fa-spin mr-2"></i>Cargando...</p>';
+
+            try {
+                const res = await fetch(`/api/ot/${otId}`);
+                const ot = await res.json();
+
+                const fmtDate = d => d ? d.split('T')[0] : '-';
+                const badge = (txt, cls) => `<span class="px-2 py-0.5 rounded text-xs font-semibold ${cls}">${txt || '-'}</span>`;
+
+                body.innerHTML = `
+                    <div class="grid grid-cols-2 gap-4 text-sm mb-4">
+                        <div><span class="text-gray-500">OT #</span><p class="font-bold text-lg">${ot.ot || ot.id}</p></div>
+                        <div><span class="text-gray-500">Estado</span><p>${badge(ot.ot_status_codigo, 'bg-blue-100 text-blue-800')}</p></div>
+                        <div><span class="text-gray-500">Equipo</span><p class="font-medium">${ot.equipo_codigo || '-'}</p></div>
+                        <div><span class="text-gray-500">N/S</span><p>${ot.numero_serie || '-'}</p></div>
+                        <div><span class="text-gray-500">Tipo Reparación</span><p>${ot.tipo_reparacion_codigo || '-'}</p></div>
+                        <div><span class="text-gray-500">Atención</span><p>${ot.atencion_reparacion_codigo || '-'}</p></div>
+                        <div><span class="text-gray-500">Taller Status</span><p>${badge(ot.taller_status_codigo, 'bg-orange-100 text-orange-800')}</p></div>
+                        <div><span class="text-gray-500">Prioridad</span><p>${badge(ot.prioridad_atencion_codigo, 'bg-red-100 text-red-800')}</p></div>
+                        <div><span class="text-gray-500">F. Recepción</span><p>${fmtDate(ot.fecha_recepcion)}</p></div>
+                        <div><span class="text-gray-500">F. Compromiso</span><p>${fmtDate(ot.fecha_compromiso)}</p></div>
+                        <div><span class="text-gray-500">Evaluador</span><p>${ot.evaluador || '-'}</p></div>
+                        <div><span class="text-gray-500">F. Evaluación</span><p>${fmtDate(ot.fecha_evaluacion)}</p></div>
+                        <div class="col-span-2"><span class="text-gray-500">Comentarios</span><p class="text-gray-700">${ot.comentarios || '-'}</p></div>
+                    </div>
+                    ${ot.reparacion_cil || ot.reparacion_vas || ot.reparacion_tapa || ot.reparacion_piston ? `
+                    <div class="border-t pt-3 mt-2">
+                        <p class="text-xs font-semibold text-gray-500 mb-2 uppercase">Clasificación por Componente</p>
+                        <div class="grid grid-cols-4 gap-2 text-xs text-center">
+                            <div class="bg-blue-50 rounded p-2"><p class="font-bold">Cilindro</p><p>${ot.reparacion_cil || '-'}</p></div>
+                            <div class="bg-orange-50 rounded p-2"><p class="font-bold">Vástago</p><p>${ot.reparacion_vas || '-'}</p></div>
+                            <div class="bg-green-50 rounded p-2"><p class="font-bold">Tapa</p><p>${ot.reparacion_tapa || '-'}</p></div>
+                            <div class="bg-yellow-50 rounded p-2"><p class="font-bold">Pistón</p><p>${ot.reparacion_piston || '-'}</p></div>
+                        </div>
+                    </div>` : ''}
+                    <div class="mt-4 text-right">
+                        <a href="/operativos/ordenes-trabajo.html" class="text-blue-600 text-sm hover:underline">
+                            <i class="fas fa-external-link-alt mr-1"></i>Ir a módulo OTs
+                        </a>
+                    </div>
+                `;
+            } catch (e) {
+                body.innerHTML = '<p class="text-center text-red-500 py-8">Error al cargar los datos de la OT</p>';
+            }
+        }
+
+        function cerrarModalDetalleOTProd() {
+            document.getElementById('modal-detalle-ot-prod').classList.add('hidden');
+        }
+
+        // Funciones legacy (modal ya no se usa pero se mantiene para evitar errores JS si hay refs en HTML)
+        function mostrarFormNuevoReqProduccion() {}
+        function cerrarModalReqProduccion() { document.getElementById('modal-req-produccion')?.classList.add('hidden'); }
+        function agregarItemReqProd() {}
+        function eliminarItemReqProd(id) {}
+        function submitReqProduccion(e) { e.preventDefault(); }
 
         // ========== PROGRAMACIÓN OTs ==========
 

@@ -232,10 +232,9 @@ OrdenTrabajo.init(
       comment: 'Jala de Cod Rep automáticamente - Posición',
     },
     equipo_codigo: {
-      type: DataTypes.STRING(50),
+      type: DataTypes.STRING(100),
       allowNull: true,
-      references: { model: 'equipo', key: 'codigo' },
-      comment: 'Manual - Código del equipo',
+      comment: 'Texto libre — descripción del equipo (ej: CAT 793F)',
     },
     ns: {
       type: DataTypes.STRING(100),

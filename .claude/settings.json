@@ -6,7 +6,8 @@
       "Bash(curl -s http://localhost:3000/api/catalogos/plantas)",
       "Bash(curl -s http://localhost:3000/api/catalogos/fabricantes)",
       "Bash(curl -s http://localhost:3000/api/catalogos/flotas)",
-      "Bash(python3 -c \":*)"
+      "Bash(python3 -c \":*)",
+      "Bash(docker ps -a --filter name=my-postgres --format \"{{.Status}}\")"
     ],
     "additionalDirectories": [
       "c:\\Users\\HP\\.claude\\projects\\c--Users-HP-Downloads-ERP-HPyK-ERP-HPyK\\memory"

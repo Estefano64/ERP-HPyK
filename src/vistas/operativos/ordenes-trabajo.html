@@ -8,6 +8,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
     <script src="/vistas/shared/navigation.js"></script>
     <style>
         .dropdown-menu { display: none; }
@@ -288,16 +290,16 @@
                                 <option value="">Seleccione código...</option>
                             </select>
                         </div>
-                        
+
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
-                            <input type="text" id="tipo" 
+                            <input type="text" id="tipo"
                                 class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-cyan-500 focus:border-transparent">
                         </div>
-                        
+
                         <div>
                             <label class="block text-sm font-medium text-gary-700 mb-1">Número de Parte (NP)</label>
-                            <input type="text" id="np" 
+                            <input type="text" id="np"
                                 class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-cyan-500 focus:border-transparent">
                         </div>
                     </div>
@@ -346,10 +348,8 @@
                         
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Equipo</label>
-                            <select id="equipo_codigo" onchange="onEquipoChange(this)"
+                            <input type="text" id="equipo_codigo" placeholder="Ej: CAT 793F, KOMATSU 960E…"
                                 class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-cyan-500 focus:border-transparent">
-                                <option value="">Seleccione equipo...</option>
-                            </select>
                         </div>
 
                         <div>
@@ -552,10 +552,8 @@
                 <!-- Fecha Requerimiento Cliente -->
                 <div class="bg-gray-50 rounded-lg p-4">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">
-                            Fecha Requerimiento Cliente *
-                        </label>
-                        <input type="date" id="fecha_requerimiento_cliente" required
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Fecha Requerimiento Cliente</label>
+                        <input type="date" id="fecha_requerimiento_cliente"
                             class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-cyan-500 focus:border-transparent">
                     </div>
                 </div>
@@ -1040,10 +1038,10 @@
                 <!-- Tab 5: Requerimientos de la OT -->
                 <div id="content-requerimientos" class="tab-content">
                     <!-- Header con acciones -->
-                    <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
+                    <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
                         <h4 class="text-xl font-bold text-gray-800">Requerimientos de la OT</h4>
                         <div class="flex gap-2">
-                            <!-- Banner Task List (visible si CodRep tiene task list) -->
+                            <!-- Banner Task List -->
                             <div id="task-list-banner" class="hidden flex items-center gap-2 bg-blue-50 border border-blue-200 rounded-lg px-3 py-2">
                                 <i class="fas fa-clipboard-list text-blue-600"></i>
                                 <span class="text-sm font-medium text-blue-800">Task List</span>
@@ -1052,94 +1050,93 @@
                                     <i class="fas fa-magic mr-1"></i> Auto-generar
                                 </button>
                             </div>
-                            <button onclick="toggleFormReq()" class="bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded-lg text-sm">
-                                <i class="fas fa-plus mr-1"></i> Agregar ítem
+                            <button onclick="nuevoRequerimiento()" class="bg-cyan-600 hover:bg-cyan-700 text-white px-4 py-2 rounded-lg text-sm font-medium">
+                                <i class="fas fa-plus mr-1"></i> Nuevo Requerimiento
                             </button>
                         </div>
                     </div>
 
-                    <!-- Formulario agregar ítem (oculto por defecto) -->
-                    <div id="formReq" class="hidden bg-gray-50 border border-gray-200 rounded-lg p-4 mb-5">
-                        <h5 class="font-semibold text-gray-700 mb-3 text-sm">Nuevo requerimiento</h5>
-                        <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-3">
+                    <!-- Formulario nuevo requerimiento (oculto por defecto) -->
+                    <div id="formReq" class="hidden bg-cyan-50 border border-cyan-200 rounded-lg p-4 mb-5">
+                        <!-- Cabecera -->
+                        <div class="flex items-center justify-between mb-4">
                             <div>
-                                <label class="block text-xs font-medium text-gray-600 mb-1">Tipo *</label>
-                                <select id="req-tipo" class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-cyan-500">
-                                    <option value="MAC">MAC — Material</option>
-                                    <option value="SER">SER — Servicio</option>
-                                    <option value="CAD">CAD — Cargo directo</option>
-                                </select>
+                                <h5 class="font-semibold text-cyan-800 text-sm">Nuevo Requerimiento</h5>
+                                <p class="text-xs text-cyan-600 mt-0.5">Nro: <span id="req-nro-preview" class="font-mono font-bold">—</span>
+                                · Estado: <span class="px-2 py-0.5 bg-orange-100 text-orange-700 rounded-full text-xs font-medium">PDT APROBACION</span></p>
                             </div>
-                            <div class="md:col-span-2">
-                                <label class="block text-xs font-medium text-gray-600 mb-1">Descripción *</label>
-                                <input type="text" id="req-descripcion" placeholder="Nombre del material o servicio"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-cyan-500">
+                            <button onclick="cerrarFormReq()" class="text-gray-400 hover:text-gray-600 text-lg leading-none">&times;</button>
+                        </div>
+
+                        <!-- Campos de cabecera del requerimiento -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mb-4 bg-white rounded border border-cyan-100 p-3">
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 mb-1">Solicitante *</label>
+                                <input type="text" id="req-solicitante" placeholder="Nombre del solicitante"
+                                    class="w-full border border-gray-300 rounded px-2 py-1.5 text-sm focus:ring-1 focus:ring-cyan-400">
                             </div>
                             <div>
-                                <label class="block text-xs font-medium text-gray-600 mb-1">Cantidad *</label>
-                                <input type="number" id="req-cantidad" min="1" value="1"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-cyan-500">
+                                <label class="block text-xs font-semibold text-gray-600 mb-1">C.Costo</label>
+                                <input type="text" id="req-ccosto" placeholder="Centro de costo"
+                                    class="w-full border border-gray-300 rounded px-2 py-1.5 text-sm focus:ring-1 focus:ring-cyan-400">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-600 mb-1">Observaciones</label>
+                                <input type="text" id="req-observaciones-cab" placeholder="Observaciones generales"
+                                    class="w-full border border-gray-300 rounded px-2 py-1.5 text-sm focus:ring-1 focus:ring-cyan-400">
+                            </div>
+                            <!-- Checkboxes cromado -->
+                            <div class="md:col-span-2 lg:col-span-3 flex flex-wrap gap-6 pt-1">
+                                <label class="flex items-center gap-2 text-xs font-medium text-gray-700 cursor-pointer">
+                                    <input type="checkbox" id="req-cromado-vastago" class="w-4 h-4 rounded accent-cyan-600">
+                                    Cromado de vástago
+                                </label>
+                                <label class="flex items-center gap-2 text-xs font-medium text-gray-700 cursor-pointer">
+                                    <input type="checkbox" id="req-cromado-cuerpos" class="w-4 h-4 rounded accent-cyan-600">
+                                    Cromado de cuerpos intermedios
+                                </label>
                             </div>
                         </div>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
-                            <div>
-                                <label class="block text-xs font-medium text-gray-600 mb-1">Fecha requerida</label>
-                                <input type="date" id="req-fecha"
-                                    class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-cyan-500">
-                            </div>
-                            <div class="md:col-span-2">
-                                <label class="block text-xs font-medium text-gray-600 mb-1">Observaciones</label>
-                                <input type="text" id="req-observaciones" placeholder="Opcional..."
-                                    class="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:ring-2 focus:ring-cyan-500">
-                            </div>
+
+                        <!-- Tabla de ítems -->
+                        <div class="overflow-x-auto mb-3">
+                            <table class="w-full text-xs border-collapse" id="req-items-table">
+                                <thead>
+                                    <tr class="bg-cyan-100 text-cyan-800">
+                                        <th class="px-2 py-1.5 text-left font-semibold w-16">Tipo</th>
+                                        <th class="px-2 py-1.5 text-left font-semibold">Descripción *</th>
+                                        <th class="px-2 py-1.5 text-left font-semibold w-24">Modelo/Marca</th>
+                                        <th class="px-2 py-1.5 text-left font-semibold w-28">Nro. Parte/Cod</th>
+                                        <th class="px-2 py-1.5 text-center font-semibold w-14">Cant. *</th>
+                                        <th class="px-2 py-1.5 text-center font-semibold w-16">U.M.</th>
+                                        <th class="px-2 py-1.5 text-left font-semibold w-28">F. requerida</th>
+                                        <th class="px-2 py-1.5 text-left font-semibold">Observaciones</th>
+                                        <th class="w-6"></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="req-items-body"></tbody>
+                            </table>
                         </div>
-                        <div class="flex gap-2 justify-end">
-                            <button onclick="toggleFormReq()" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded text-sm">Cancelar</button>
-                            <button onclick="guardarItemReq()" class="px-4 py-2 bg-cyan-600 hover:bg-cyan-700 text-white rounded text-sm">
-                                <i class="fas fa-save mr-1"></i> Guardar
+
+                        <div class="flex items-center justify-between">
+                            <button onclick="agregarFilaItem()" class="text-cyan-700 hover:text-cyan-900 text-xs font-medium">
+                                <i class="fas fa-plus mr-1"></i> Agregar otro ítem
                             </button>
+                            <div class="flex gap-2">
+                                <button onclick="cerrarFormReq()" class="px-4 py-1.5 bg-gray-200 hover:bg-gray-300 rounded text-sm">Cancelar</button>
+                                <button onclick="guardarRequerimiento()" class="px-4 py-1.5 bg-cyan-600 hover:bg-cyan-700 text-white rounded text-sm font-medium">
+                                    <i class="fas fa-save mr-1"></i> Guardar Requerimiento
+                                </button>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Leyenda de estados -->
-                    <div class="flex flex-wrap gap-3 mb-4 text-xs">
-                        <span class="px-2 py-1 bg-gray-100 text-gray-600 rounded-full font-medium">SIN APROBACIÓN</span>
-                        <span class="px-2 py-1 bg-green-100 text-green-700 rounded-full font-medium">APROBADO</span>
-                        <span class="px-2 py-1 bg-red-100 text-red-700 rounded-full font-medium">ANULADO</span>
-                        <span class="mx-1 text-gray-300">|</span>
-                        <span class="px-2 py-1 bg-yellow-100 text-yellow-700 rounded-full font-medium">PDT COTIZACIÓN</span>
-                        <span class="px-2 py-1 bg-orange-100 text-orange-700 rounded-full font-medium">PDT APROBACIÓN</span>
-                        <span class="mx-1 text-gray-300">|</span>
-                        <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded-full font-medium">PDT OC</span>
-                        <span class="px-2 py-1 bg-cyan-100 text-cyan-700 rounded-full font-medium">EN PROCESO</span>
-                        <span class="px-2 py-1 bg-emerald-100 text-emerald-700 rounded-full font-medium">COMPLETO</span>
-                    </div>
-
-                    <!-- Tabla de requerimientos -->
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full bg-white border border-gray-200 text-sm">
-                            <thead class="bg-gray-100">
-                                <tr>
-                                    <th class="px-3 py-2 text-left text-xs font-semibold text-gray-700">NRO REQ</th>
-                                    <th class="px-3 py-2 text-left text-xs font-semibold text-gray-700">TIPO</th>
-                                    <th class="px-3 py-2 text-left text-xs font-semibold text-gray-700">DESCRIPCIÓN</th>
-                                    <th class="px-3 py-2 text-center text-xs font-semibold text-gray-700">CANT.</th>
-                                    <th class="px-3 py-2 text-left text-xs font-semibold text-gray-700">FECHA REQ.</th>
-                                    <th class="px-3 py-2 text-center text-xs font-semibold text-gray-700">ESTADO REQ</th>
-                                    <th class="px-3 py-2 text-center text-xs font-semibold text-gray-700">ESTADO COT</th>
-                                    <th class="px-3 py-2 text-center text-xs font-semibold text-gray-700">ESTADO OC</th>
-                                    <th class="px-3 py-2 text-center text-xs font-semibold text-gray-700">ACCIÓN</th>
-                                </tr>
-                            </thead>
-                            <tbody id="requerimientosTableBody">
-                                <tr>
-                                    <td colspan="9" class="px-4 py-8 text-center text-gray-400">
-                                        <i class="fas fa-inbox text-3xl mb-2 block"></i>
-                                        No hay requerimientos registrados
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <!-- Lista de requerimientos agrupados -->
+                    <div id="requerimientosList" class="space-y-4">
+                        <div class="text-center py-10 text-gray-400">
+                            <i class="fas fa-inbox text-3xl mb-2 block"></i>
+                            No hay requerimientos registrados
+                        </div>
                     </div>
                 </div>
 
@@ -1427,13 +1424,44 @@
         let _equiposCache = [];
         let _codRepCache = [];
         let _fabricantesCache = [];
+        let _clientesCache = [];
+        let _materialesList = [];
+        let _materialesLoaded = false;
+
+        async function loadMaterialesList() {
+            if (_materialesLoaded) return;
+            try {
+                const res = await fetch('/api/logistica/autocomplete-descripcion?tipo=MAC');
+                _materialesList = await res.json(); // [{ label, value, np }]
+                const dlMat = document.getElementById('dl-materiales');
+                if (dlMat) {
+                    dlMat.innerHTML = _materialesList
+                        .map(m => {
+                            const v = (m.value || '').replace(/"/g, '&quot;');
+                            const lbl = (m.np || '').replace(/"/g, '&quot;');
+                            return `<option value="${v}">${lbl}</option>`;
+                        })
+                        .join('');
+                }
+                // Cargar servicios también
+                const resSer = await fetch('/api/logistica/autocomplete-descripcion?tipo=SER');
+                const servicios = await resSer.json();
+                const dlSer = document.getElementById('dl-servicios');
+                if (dlSer) {
+                    dlSer.innerHTML = servicios
+                        .map(s => `<option value="${(s.value || '').replace(/"/g, '&quot;')}"></option>`)
+                        .join('');
+                }
+                _materialesLoaded = true;
+            } catch(e) { /* ignore */ }
+        }
 
         // Load catalogs
         async function loadCatalogos() {
             try {
                 const [clientes, fabricantes, atencionReparacion,
                        tipoReparacion, tipoGarantia, prioridades, otStatus, recursosStatus, tallerStatus,
-                       componentesMaestros, garantias, basesMetalicas, equipos] = await Promise.all([
+                       componentesMaestros, garantias, basesMetalicas] = await Promise.all([
                     fetch('/api/catalogos/clientes').then(r => r.json()),
                     fetch('/api/catalogos/fabricantes').then(r => r.json()),
                     fetch('/api/catalogos/atencion-reparacion').then(r => r.json()),
@@ -1445,14 +1473,14 @@
                     fetch('/api/catalogos/taller-status').then(r => r.json()),
                     fetch('/api/cod-rep').then(r => r.json()),
                     fetch('/api/catalogos/garantias').then(r => r.json()),
-                    fetch('/api/catalogos/bases-metalicas').then(r => r.json()),
-                    fetch('/api/equipos').then(r => r.json())
+                    fetch('/api/catalogos/bases-metalicas').then(r => r.json())
                 ]);
                 
                 // Cargar clientes
                 const clienteSelect = document.getElementById('id_cliente');
                 clienteSelect.innerHTML = '<option value="">Seleccione cliente...</option>';
                 const clientesArray = Array.isArray(clientes) ? clientes : [];
+                _clientesCache = clientesArray;
                 clientesArray.forEach(c => {
                     clienteSelect.innerHTML += `<option value="${c.cliente_id}">${c.razon_social}</option>`;
                 });
@@ -1559,23 +1587,17 @@
                     codRepSelectFinal.appendChild(opt);
                 });
 
-                // Cargar equipos en el select
-                _equiposCache = Array.isArray(equipos) ? equipos : [];
-                const equipoSelect = document.getElementById('equipo_codigo');
-                equipoSelect.innerHTML = '<option value="">Seleccione equipo...</option>';
-                _equiposCache.forEach(eq => {
-                    const opt = document.createElement('option');
-                    opt.value = eq.codigo;
-                    opt.textContent = `${eq.codigo} - ${eq.descripcion}`;
-                    opt.dataset.ns = eq.numero_serie || '';
-                    opt.dataset.fabricante_codigo = eq.fabricante_codigo || '';
-                    equipoSelect.appendChild(opt);
-                });
+                // equipo_codigo es ahora un campo de texto libre (no select)
 
             } catch (error) {
                 console.error('Error loading catalogs:', error);
                 showToast('Error al cargar catálogos', 'error');
             }
+        }
+
+        function toggleFechaContrato(checked) {
+            // no-op — checkbox eliminado, campo siempre editable
+            void checked;
         }
 
         // Auto-llenado al seleccionar Código de Reparación
@@ -1738,6 +1760,8 @@
             document.getElementById('usuario_crea').value = 'Admin';
             document.getElementById('fecha_creacion').value = new Date().toISOString().slice(0, 16);
             editingId = null;
+            document.getElementById('fecha_requerimiento_cliente').value = '';
+            fechaReqInput.classList.add('bg-gray-100', 'text-gray-400', 'cursor-not-allowed');
         }
 
         // Load orders
@@ -3024,23 +3048,184 @@
 
         // ── Requerimientos ────────────────────────────────────────────────────────
 
-        function toggleFormReq() {
+        // Mostrar formulario para nuevo requerimiento y calcular nro_req preview
+        async function nuevoRequerimiento() {
+            if (!currentOTId) return;
             const form = document.getElementById('formReq');
-            form.classList.toggle('hidden');
-            if (!form.classList.contains('hidden')) {
-                document.getElementById('req-descripcion').focus();
+
+            // Calcular siguiente nro_req
+            const existing = repuestosSolicitados || [];
+            const nrosPrev = existing.map(r => r.nro_req).filter(Boolean);
+            const maxSeq = nrosPrev.reduce((max, n) => {
+                const parts = (n || '').split('-REQ-');
+                const seq = parts.length > 1 ? parseInt(parts[1]) || 0 : 0;
+                return Math.max(max, seq);
+            }, 0);
+            const nextSeq = String(maxSeq + 1).padStart(3, '0');
+            const otNumero = currentOTData?.ot || currentOTId;
+            document.getElementById('req-nro-preview').textContent = `${otNumero}-REQ-${nextSeq}`;
+
+            // ── Auto-llenado desde datos de la OT ─────────────────────────
+            // Solicitante → usuario que creó la OT
+            const solInput = document.getElementById('req-solicitante');
+            if (!solInput.value) {
+                solInput.value = currentOTData?.usuario_crea || '';
             }
+
+            // Cromado → limpiar checkboxes (estado inicial limpio)
+            document.getElementById('req-cromado-vastago').checked = false;
+            document.getElementById('req-cromado-cuerpos').checked = false;
+
+            // Precargar materiales para autocomplete (lazy, una sola vez)
+            loadMaterialesList();
+
+            // Limpiar tabla e insertar fila inicial
+            document.getElementById('req-items-body').innerHTML = '';
+            agregarFilaItem();
+            form.classList.remove('hidden');
+            form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
 
-        async function guardarItemReq() {
-            const tipo = document.getElementById('req-tipo').value;
-            const descripcion = document.getElementById('req-descripcion').value.trim();
-            const cantidad = parseInt(document.getElementById('req-cantidad').value) || 0;
-            const fecha = document.getElementById('req-fecha').value;
-            const obs = document.getElementById('req-observaciones').value.trim();
+        // Agregar fila editable a la tabla de ítems
+        function agregarFilaItem() {
+            const tbody = document.getElementById('req-items-body');
+            const tr = document.createElement('tr');
+            tr.className = 'border-t border-cyan-100';
 
-            if (!descripcion || cantidad < 1) {
-                showToast('Descripción y cantidad son obligatorios', 'error');
+            // Auto-llenar Modelo/Marca desde fabricante de la OT
+            const fabOT = _fabricantesCache.find(f => f.fabricante_id == currentOTData?.id_fabricante);
+            const defaultMarca = fabOT ? (fabOT.nombre || fabOT.codigo || '') : '';
+            tr.innerHTML = `
+                <td class="px-1 py-1">
+                    <select class="w-full border border-gray-300 rounded px-1 py-1 text-xs" data-field="tipo">
+                        <option value="MAC">MAC</option>
+                        <option value="SER">SER</option>
+                        <option value="CAD">CAD</option>
+                    </select>
+                </td>
+                <td class="px-1 py-1">
+                    <input type="text" placeholder="Descripción *" data-field="descripcion"
+                        list="dl-materiales"
+                        class="w-full border border-gray-300 rounded px-2 py-1 text-xs" />
+                </td>
+                <td class="px-1 py-1">
+                    <input type="text" placeholder="Ej: KOMATSU" data-field="modelo_marca"
+                        value="${defaultMarca}"
+                        class="w-full border border-gray-300 rounded px-2 py-1 text-xs" />
+                </td>
+                <td class="px-1 py-1">
+                    <input type="text" placeholder="Ej: XA4155" data-field="nro_parte"
+                        class="w-full border border-gray-300 rounded px-2 py-1 text-xs" />
+                </td>
+                <td class="px-1 py-1">
+                    <input type="number" value="1" min="1" data-field="cantidad"
+                        class="w-full border border-gray-300 rounded px-2 py-1 text-xs text-center" />
+                </td>
+                <td class="px-1 py-1">
+                    <select class="w-full border border-gray-300 rounded px-1 py-1 text-xs" data-field="unidad_medida">
+                        <option value="UNIDAD">UNIDAD</option>
+                        <option value="KG">KG</option>
+                        <option value="MT">MT</option>
+                        <option value="LT">LT</option>
+                        <option value="GL">GL</option>
+                        <option value="JUEGO">JUEGO</option>
+                        <option value="CAJA">CAJA</option>
+                    </select>
+                </td>
+                <td class="px-1 py-1">
+                    <input type="date" data-field="fecha_requerida"
+                        class="w-full border border-gray-300 rounded px-2 py-1 text-xs" />
+                </td>
+                <td class="px-1 py-1">
+                    <input type="text" placeholder="Obs." data-field="observaciones"
+                        class="w-full border border-gray-300 rounded px-2 py-1 text-xs" />
+                </td>
+                <td class="px-1 py-1 text-center">
+                    <button onclick="this.closest('tr').remove()" class="text-red-400 hover:text-red-600 text-xs" title="Quitar fila">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </td>`;
+            tbody.appendChild(tr);
+
+            // Cambiar datalist según tipo: MAC → materiales, SER → servicios, CAD → sin opciones
+            const tipoSel  = tr.querySelector('[data-field="tipo"]');
+            const descInput = tr.querySelector('[data-field="descripcion"]');
+            tipoSel.addEventListener('change', function() {
+                if (this.value === 'SER') {
+                    descInput.setAttribute('list', 'dl-servicios');
+                } else if (this.value === 'MAC') {
+                    descInput.setAttribute('list', 'dl-materiales');
+                } else {
+                    descInput.removeAttribute('list'); // CAD: sin sugerencias
+                }
+            });
+
+            // Auto-llenar Nro.Parte al seleccionar un material del datalist
+            descInput.addEventListener('change', function() {
+                const val = this.value.trim();
+                if (!val) return;
+                const mat = _materialesList.find(m => (m.value || '') === val);
+                if (mat && mat.np) {
+                    const nroInput = tr.querySelector('[data-field="nro_parte"]');
+                    if (nroInput && !nroInput.value) {
+                        nroInput.value = mat.np;
+                    }
+                }
+            });
+        }
+
+        // Cerrar formulario y limpiar
+        function cerrarFormReq() {
+            document.getElementById('formReq').classList.add('hidden');
+            document.getElementById('req-items-body').innerHTML = '';
+            document.getElementById('req-nro-preview').textContent = '—';
+            document.getElementById('req-solicitante').value = '';
+            document.getElementById('req-ccosto').value = '';
+            document.getElementById('req-observaciones-cab').value = '';
+            document.getElementById('req-cromado-vastago').checked = false;
+            document.getElementById('req-cromado-cuerpos').checked = false;
+        }
+
+        // Guardar todos los ítems del requerimiento como una sola llamada POST
+        async function guardarRequerimiento() {
+            const solicitante = document.getElementById('req-solicitante').value.trim();
+            if (!solicitante) {
+                showToast('El campo Solicitante es obligatorio', 'error');
+                document.getElementById('req-solicitante').focus();
+                return;
+            }
+
+            const tbody = document.getElementById('req-items-body');
+            const filas = Array.from(tbody.rows);
+            if (filas.length === 0) {
+                showToast('Agrega al menos un ítem', 'error');
+                return;
+            }
+
+            const cromadoVastago  = document.getElementById('req-cromado-vastago').checked;
+            const cromadoCuerpos  = document.getElementById('req-cromado-cuerpos').checked;
+            const observacionesCab = document.getElementById('req-observaciones-cab').value.trim();
+            const ccosto          = document.getElementById('req-ccosto').value.trim();
+
+            const repuestos = filas.map(tr => ({
+                tipo_codigo:      tr.querySelector('[data-field="tipo"]').value,
+                descripcion:      tr.querySelector('[data-field="descripcion"]').value.trim(),
+                modelo_marca:     tr.querySelector('[data-field="modelo_marca"]').value.trim() || undefined,
+                fabricante_codigo: tr.querySelector('[data-field="modelo_marca"]').value.trim() || undefined,
+                nro_parte:        tr.querySelector('[data-field="nro_parte"]').value.trim() || undefined,
+                cantidad:         parseInt(tr.querySelector('[data-field="cantidad"]').value) || 1,
+                unidad_medida:    tr.querySelector('[data-field="unidad_medida"]').value,
+                fecha_requerida:  tr.querySelector('[data-field="fecha_requerida"]').value || undefined,
+                observaciones:    tr.querySelector('[data-field="observaciones"]').value.trim() || undefined,
+                // cromado: se guarda en texto del ítem SER si aplica
+                texto: cromadoVastago || cromadoCuerpos
+                    ? [cromadoVastago ? 'SVC Cromado Vástago' : '', cromadoCuerpos ? 'SVC Cromado Cuerpos Intermedios' : ''].filter(Boolean).join(' / ')
+                    : undefined,
+            }));
+
+            const invalidos = repuestos.filter(r => !r.descripcion || r.cantidad < 1);
+            if (invalidos.length) {
+                showToast('Todos los ítems deben tener descripción y cantidad', 'error');
                 return;
             }
 
@@ -3048,26 +3233,12 @@
                 const res = await fetch(`/api/ot/${currentOTId}/repuestos`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        repuestos: [{
-                            tipo_codigo: tipo,
-                            descripcion: descripcion,
-                            cantidad: cantidad,
-                            fecha_solicitud: fecha || undefined,
-                            observaciones: obs || undefined,
-                        }],
-                        usuario: 'Admin'
-                    })
+                    body: JSON.stringify({ repuestos, usuario: solicitante })
                 });
                 const result = await res.json();
                 if (!res.ok) throw new Error(result.error || 'Error al guardar');
-                showToast('Ítem agregado', 'success');
-                // Limpiar y cerrar form
-                document.getElementById('req-descripcion').value = '';
-                document.getElementById('req-cantidad').value = '1';
-                document.getElementById('req-fecha').value = '';
-                document.getElementById('req-observaciones').value = '';
-                document.getElementById('formReq').classList.add('hidden');
+                showToast(`Requerimiento guardado (${repuestos.length} ítem${repuestos.length !== 1 ? 's' : ''})`, 'success');
+                cerrarFormReq();
                 await loadRequerimientos();
             } catch (e) {
                 showToast('Error: ' + e.message, 'error');
@@ -3080,7 +3251,7 @@
             try {
                 const items = await fetch(`/api/ot/${currentOTId}/repuestos`).then(r => r.json());
                 repuestosSolicitados = items;
-                renderRequerimientosTable(items);
+                renderRequerimientosGrouped(items);
             } catch (error) {
                 console.error('Error loading requerimientos:', error);
             }
@@ -3127,35 +3298,343 @@
             return `<span class="px-2 py-0.5 text-xs rounded-full font-medium ${cls}">${valor}</span>`;
         }
 
-        function renderRequerimientosTable(items) {
-            const tbody = document.getElementById('requerimientosTableBody');
+        // Agrupar ítems por nro_req y renderizar como tarjetas desplegables
+        function renderRequerimientosGrouped(items) {
+            const container = document.getElementById('requerimientosList');
             if (!items || items.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="9" class="px-4 py-8 text-center text-gray-400">
-                    <i class="fas fa-inbox text-3xl mb-2 block"></i>No hay requerimientos registrados</td></tr>`;
+                container.innerHTML = `<div class="text-center py-10 text-gray-400">
+                    <i class="fas fa-inbox text-3xl mb-2 block"></i>No hay requerimientos registrados</div>`;
                 return;
             }
+            // Agrupar por nro_req (si es null, agrupar por id como fallback)
+            const groups = {};
+            items.forEach(r => {
+                const key = r.nro_req || ('ITEM-' + r.id);
+                if (!groups[key]) groups[key] = [];
+                groups[key].push(r);
+            });
+
             const tipoBadge = { MAC: 'bg-blue-100 text-blue-800', SER: 'bg-purple-100 text-purple-800', CAD: 'bg-orange-100 text-orange-800' };
-            tbody.innerHTML = items.map(r => {
-                const nroReq = r.nro_req || ('REQ-' + r.id);
-                const tipo = r.tipo_codigo || 'MAC';
-                const tipoCls = tipoBadge[tipo] || 'bg-gray-100 text-gray-700';
-                const desc = r.descripcion || r.material_nombre || r.texto || '—';
-                const fechaReq = r.fecha_solicitud ? new Date(r.fecha_solicitud).toLocaleDateString('es-ES') : '—';
-                const esPendiente = !r.estado || r.estado === 'Pendiente' || r.estado === 'SIN APROBACIÓN';
-                return `<tr class="border-t border-gray-100 hover:bg-gray-50">
-                    <td class="px-3 py-2 text-xs font-mono text-gray-500">${nroReq}</td>
-                    <td class="px-3 py-2"><span class="px-2 py-0.5 text-xs rounded font-semibold ${tipoCls}">${tipo}</span></td>
-                    <td class="px-3 py-2 text-sm max-w-xs">${desc}</td>
-                    <td class="px-3 py-2 text-center text-sm font-medium">${r.cantidad}</td>
-                    <td class="px-3 py-2 text-xs text-gray-500">${fechaReq}</td>
-                    <td class="px-3 py-2 text-center">${estadoPill(r.estado, 'req')}</td>
-                    <td class="px-3 py-2 text-center">${estadoPill(r.estado_cot, 'cot')}</td>
-                    <td class="px-3 py-2 text-center">${estadoPill(r.nro_oc ? (r.estado || 'PROCESO') : null, 'oc')}</td>
-                    <td class="px-3 py-2 text-center">
-                        ${esPendiente ? `<button onclick="eliminarRequerimiento(${r.id})" class="text-red-500 hover:text-red-700 text-xs" title="Eliminar"><i class="fas fa-trash"></i></button>` : ''}
-                    </td>
-                </tr>`;
+            const estadoReqPill = estado => {
+                const map = {
+                    'PDT APROBACION': 'bg-orange-100 text-orange-700',
+                    'Pendiente':      'bg-gray-100 text-gray-600',
+                    'APROBADO':       'bg-green-100 text-green-800',
+                    'Aprobado':       'bg-green-100 text-green-800',
+                    'ANULADO':        'bg-red-100 text-red-700',
+                    'En PO':          'bg-blue-100 text-blue-800',
+                };
+                const label = estado || 'PDT APROBACION';
+                const cls = map[label] || 'bg-gray-100 text-gray-600';
+                return `<span class="px-2 py-0.5 text-xs rounded-full font-medium ${cls}">${label}</span>`;
+            };
+
+            container.innerHTML = Object.entries(groups).map(([nroReq, filas], idx) => {
+                const primera = filas[0];
+                const fechaSol = primera.fecha_solicitud
+                    ? new Date(primera.fecha_solicitud).toLocaleDateString('es-ES') : '—';
+                const estadoReq = primera.estado || 'PDT APROBACION';
+                const todosEliminables = filas.every(r => !r.estado || r.estado === 'Pendiente' || r.estado === 'PDT APROBACION');
+                const bodyId = `req-body-${idx}`;
+
+                const filasHtml = filas.map(r => {
+                    const tipo = r.tipo_codigo || 'MAC';
+                    const tipoCls = tipoBadge[tipo] || 'bg-gray-100 text-gray-700';
+                    const desc = r.descripcion || r.material_nombre || '—';
+                    const fechaReq = r.fecha_requerida ? new Date(r.fecha_requerida).toLocaleDateString('es-ES') : '—';
+                    const fechaReqVal = r.fecha_requerida ? new Date(r.fecha_requerida).toISOString().split('T')[0] : '';
+                    return `<tr class="border-t border-gray-100 hover:bg-gray-50 text-xs">
+                        <td class="px-3 py-1.5 text-center"><span class="px-1.5 py-0.5 rounded font-semibold ${tipoCls}">${tipo}</span></td>
+                        <td class="px-3 py-1.5" title="${desc}">${desc}</td>
+                        <td class="px-3 py-1.5 text-gray-500">${r.fabricante_codigo || '—'}</td>
+                        <td class="px-2 py-1">
+                            <input type="text" value="${r.texto || ''}" placeholder="—"
+                                onblur="guardarCampoRepuesto(${r.id}, 'texto', this.value)"
+                                class="w-full border border-gray-200 rounded px-1.5 py-0.5 text-xs font-mono focus:ring-1 focus:ring-cyan-400 bg-white">
+                        </td>
+                        <td class="px-3 py-1.5 text-center font-medium">${r.cantidad}</td>
+                        <td class="px-3 py-1.5 text-center text-gray-500">${r.unidad_medida || 'UNIDAD'}</td>
+                        <td class="px-2 py-1">
+                            <input type="date" value="${fechaReqVal}"
+                                onchange="guardarCampoRepuesto(${r.id}, 'fecha_requerida', this.value)"
+                                class="w-full border border-gray-200 rounded px-1.5 py-0.5 text-xs focus:ring-1 focus:ring-cyan-400 bg-white">
+                        </td>
+                        <td class="px-2 py-1">
+                            <input type="text" value="${r.observaciones || ''}" placeholder="—"
+                                onblur="guardarCampoRepuesto(${r.id}, 'observaciones', this.value)"
+                                class="w-full border border-gray-200 rounded px-1.5 py-0.5 text-xs focus:ring-1 focus:ring-cyan-400 bg-white">
+                        </td>
+                        <td class="px-3 py-1.5 text-center">
+                            ${todosEliminables ? `<button onclick="eliminarRequerimiento(${r.id})" class="text-red-400 hover:text-red-600" title="Eliminar ítem"><i class="fas fa-trash text-xs"></i></button>` : ''}
+                        </td>
+                    </tr>`;
+                }).join('');
+
+                return `<div class="border border-gray-200 rounded-lg overflow-hidden">
+                    <!-- Cabecera clicable -->
+                    <div class="flex items-center justify-between px-4 py-2.5 bg-gray-50 border-b border-gray-200">
+                        <button type="button" onclick="toggleReqBody('${bodyId}', this)"
+                            class="flex items-center gap-3 flex-1 text-left hover:opacity-80 transition">
+                            <i class="fas fa-chevron-right text-gray-400 text-xs transition-transform duration-200" data-chevron></i>
+                            <span class="font-mono text-sm font-bold text-gray-700">${nroReq}</span>
+                            <span class="text-xs text-gray-400">${filas.length} ítem${filas.length !== 1 ? 's' : ''} · ${fechaSol}</span>
+                        </button>
+                        <div class="flex items-center gap-3">
+                            ${estadoReqPill(estadoReq)}
+                            <button onclick="imprimirRequerimiento('${nroReq}')"
+                                class="text-gray-400 hover:text-red-600 transition" title="Descargar PDF">
+                                <i class="fas fa-file-pdf"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Cuerpo desplegable (oculto por defecto) -->
+                    <div id="${bodyId}" class="hidden">
+                        <table class="w-full">
+                            <thead>
+                                <tr class="text-xs text-gray-500 bg-gray-50/50 border-t border-gray-200">
+                                    <th class="px-3 py-1 text-center w-16">Tipo</th>
+                                    <th class="px-3 py-1 text-left">Descripción</th>
+                                    <th class="px-3 py-1 text-left w-24">Marca</th>
+                                    <th class="px-3 py-1 text-left w-24">Nro. Parte</th>
+                                    <th class="px-3 py-1 text-center w-14">Cant.</th>
+                                    <th class="px-3 py-1 text-center w-14">U.M.</th>
+                                    <th class="px-3 py-1 text-left w-24">F. requerida</th>
+                                    <th class="px-3 py-1 text-left">Observaciones</th>
+                                    <th class="w-8"></th>
+                                </tr>
+                            </thead>
+                            <tbody>${filasHtml}</tbody>
+                        </table>
+                    </div>
+                </div>`;
             }).join('');
+        }
+
+        function toggleReqBody(bodyId, btn) {
+            const body = document.getElementById(bodyId);
+            const chevron = btn.querySelector('[data-chevron]');
+            const hidden = body.classList.toggle('hidden');
+            if (chevron) chevron.style.transform = hidden ? '' : 'rotate(90deg)';
+        }
+
+        function imprimirRequerimiento(nroReq) {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+
+            const ot      = currentOTData;
+            const items   = (repuestosSolicitados || []).filter(r => r.nro_req === nroReq);
+            const primera = items[0] || {};
+
+            // Extraer secuencia del nro_req (ej: "42-REQ-001" → 1)
+            const seqRaw  = (nroReq || '').split('-REQ-').pop() || '1';
+            const seq     = parseInt(seqRaw) || 1;
+            const otNumero = ot.ot || ot.id || '';
+            const reqDisplay = `${otNumero} - ${seq}`;
+
+            // Detectar cromado desde texto de ítems SER
+            const textos = items.map(r => (r.texto || r.descripcion || '').toUpperCase());
+            const cromadoVastago = textos.some(t => t.includes('CROM') && (t.includes('VAS') || t.includes('VAST')));
+            const cromadoCuerpos = textos.some(t => t.includes('CROM') && (t.includes('CUE') || t.includes('INT') || t.includes('CUER')));
+
+            // Resolver nombres desde caches de catálogos
+            const clienteObj  = _clientesCache.find(c => c.cliente_id == ot.id_cliente);
+            const fabricanteObj = _fabricantesCache.find(f => f.fabricante_id == ot.id_fabricante);
+
+            const cliente    = ot.cliente_nombre || clienteObj?.razon_social || '';
+            const equipo     = ot.equipo_codigo || ot.descripcion || '';
+            const fabricante = fabricanteObj?.nombre || fabricanteObj?.codigo || ot.fabricante_nombre || '';
+            const flota      = ot.cod_rep_flota || '';
+            const solicitante = primera.usuario_solicita || ot.usuario_crea || 'PRODUCCION';
+            const fechaSol  = primera.fecha_solicitud
+                ? new Date(primera.fecha_solicitud).toLocaleDateString('es-PE')
+                : new Date().toLocaleDateString('es-PE');
+
+            const W = 210, ml = 10, mr = 200;
+
+            // ── BORDE EXTERIOR ───────────────────────────────────────────────
+            doc.setDrawColor(0);
+            doc.setLineWidth(0.5);
+            doc.rect(ml, 10, mr - ml, 277);
+
+            // ── HEADER: Logo/empresa (izquierda) + Nº requerimiento (derecha) ─
+            doc.setFontSize(16);
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(0, 0, 128);
+            doc.text('HP&K', ml + 4, 18);
+
+            doc.setFontSize(7);
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(0);
+            doc.text('HP&K INVERSIONES S.R.L.', ml + 4, 23);
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(6.5);
+            doc.text('RUC: 20532384088', ml + 4, 27);
+            doc.text('MZA. D LOTE. 8 URB. VILLA DEL MAR MOQUEGUA - ILO - ILO', ml + 4, 31);
+            doc.text('Telf. 51-054-617431', ml + 4, 35);
+            doc.text('ventas@hpkinv.com  |  www.hpkinv.com', ml + 4, 39);
+
+            // Caja derecha: Requerimiento Nº / C.Costo / OT
+            doc.setDrawColor(0);
+            doc.setLineWidth(0.3);
+            doc.rect(130, 12, 68, 28);
+            doc.line(130, 20, 198, 20);
+            doc.line(130, 28, 198, 28);
+
+            doc.setFontSize(7);
+            doc.setFont('helvetica', 'bold');
+            doc.text('REQUERIMIENTO Nº:', 132, 18);
+            doc.setFont('helvetica', 'normal');
+            doc.text(reqDisplay, 165, 18);
+
+            doc.setFont('helvetica', 'bold');
+            doc.text('C.Costo:', 132, 26);
+
+            doc.setFont('helvetica', 'bold');
+            doc.text('OT:', 132, 36);
+            doc.setFont('helvetica', 'normal');
+            doc.text(String(otNumero), 145, 36);
+
+            // ── CHECKBOXES CROMADO ───────────────────────────────────────────
+            let cy = 46;
+            doc.setFontSize(7);
+            doc.setFont('helvetica', 'bold');
+            doc.text('CROMADO DE VASTAGO:', ml + 4, cy);
+            doc.rect(ml + 52, cy - 4, 4, 4); // SI
+            doc.rect(ml + 62, cy - 4, 4, 4); // NO
+            doc.setFont('helvetica', 'normal');
+            doc.text('SI', ml + 53, cy); if (cromadoVastago) doc.text('✓', ml + 53, cy);
+            doc.text('NO', ml + 63, cy); if (!cromadoVastago) doc.text('✓', ml + 63, cy);
+
+            cy += 5;
+            doc.setFont('helvetica', 'bold');
+            doc.text('CROMADO DE CUERPOS INTERMEDIOS:', ml + 4, cy);
+            doc.rect(ml + 75, cy - 4, 4, 4);
+            doc.rect(ml + 85, cy - 4, 4, 4);
+            doc.setFont('helvetica', 'normal');
+            doc.text('SI', ml + 76, cy); if (cromadoCuerpos) doc.text('✓', ml + 76, cy);
+            doc.text('NO', ml + 86, cy); if (!cromadoCuerpos) doc.text('✓', ml + 86, cy);
+
+            // ── BANNER PRINCIPAL ─────────────────────────────────────────────
+            cy += 6;
+            doc.setFillColor(30, 58, 95);
+            doc.rect(ml, cy, mr - ml, 7, 'F');
+            doc.setFontSize(10);
+            doc.setFont('helvetica', 'bold');
+            doc.setTextColor(255);
+            doc.text('REQUERIMIENTO DE COMPRA/SERVICIO', W / 2, cy + 5, { align: 'center' });
+            doc.setTextColor(0);
+
+            // ── SUB-HEADER 4 COLUMNAS ────────────────────────────────────────
+            cy += 9;
+            const colW = (mr - ml) / 4;
+            [cliente, equipo, fabricante, flota].forEach((txt, i) => {
+                doc.setFillColor(50, 80, 120);
+                doc.rect(ml + i * colW, cy, colW, 7, 'F');
+                doc.setFontSize(8);
+                doc.setFont('helvetica', 'bold');
+                doc.setTextColor(255);
+                doc.text(txt || '—', ml + i * colW + colW / 2, cy + 5, { align: 'center' });
+            });
+            doc.setTextColor(0);
+
+            // ── CAMPOS INFO ──────────────────────────────────────────────────
+            cy += 11;
+            doc.setFontSize(8);
+            doc.setFont('helvetica', 'bold');
+            doc.text('Solicitante:', ml + 4, cy);
+            doc.setFont('helvetica', 'normal');
+            doc.text(solicitante.toUpperCase(), ml + 28, cy);
+
+            doc.setFont('helvetica', 'bold');
+            doc.text('Fecha:', ml + 100, cy);
+            doc.setFont('helvetica', 'normal');
+            doc.text(fechaSol, ml + 115, cy);
+
+            cy += 5;
+            doc.setFont('helvetica', 'bold');
+            doc.text('Area:', ml + 4, cy);
+            doc.setFont('helvetica', 'normal');
+            doc.text('PRODUCCION', ml + 28, cy);
+
+            cy += 5;
+            doc.setFont('helvetica', 'bold');
+            doc.text('Observaciones:', ml + 4, cy);
+
+            // ── TABLA DE ÍTEMS ───────────────────────────────────────────────
+            cy += 5;
+            const TOTAL_ROWS = 37;
+            const tableRows = [];
+            for (let i = 1; i <= TOTAL_ROWS; i++) {
+                const item = items.find(r => r.item_req === i) || items[i - 1];
+                if (item) {
+                    tableRows.push([
+                        i,
+                        item.cantidad || '',
+                        item.fabricante_codigo || item.modelo_marca || fabricante || '',
+                        (item.descripcion || item.texto || '').toUpperCase(),
+                        item.unidad_medida || 'UNIDAD',
+                        item.np || item.nro_parte || item.material_codigo || '',
+                        item.nro_oc || '',
+                    ]);
+                } else {
+                    tableRows.push([i, '', '', '', '', '', '']);
+                }
+            }
+
+            doc.autoTable({
+                startY: cy,
+                head: [['ITEM', 'CANT', 'MODELO/MARCA', 'DESCRIPCION', 'U. M.', 'Nro. PARTE/COD', 'Nº OC*']],
+                body: tableRows,
+                theme: 'grid',
+                styles: { fontSize: 7, cellPadding: 1.2, textColor: [0, 0, 0], lineColor: [0, 0, 0], lineWidth: 0.2 },
+                headStyles: { fillColor: [30, 58, 95], textColor: [255, 255, 255], fontStyle: 'bold', halign: 'center' },
+                columnStyles: {
+                    0: { cellWidth: 10, halign: 'center' },
+                    1: { cellWidth: 12, halign: 'center' },
+                    2: { cellWidth: 28 },
+                    3: { cellWidth: 60 },
+                    4: { cellWidth: 16, halign: 'center' },
+                    5: { cellWidth: 30 },
+                    6: { cellWidth: 20 },
+                },
+                margin: { left: ml, right: W - mr },
+                tableWidth: mr - ml,
+            });
+
+            // ── FOOTER: firmas ───────────────────────────────────────────────
+            const footerY = 267;
+            doc.setLineWidth(0.3);
+            doc.line(ml + 15, footerY, ml + 65, footerY);
+            doc.line(mr - 65, footerY, mr - 15, footerY);
+            doc.setFontSize(7);
+            doc.setFont('helvetica', 'bold');
+            doc.text('SOLICITANTE', ml + 40, footerY + 5, { align: 'center' });
+            doc.text('V°B° JEFE DE OPERACIONES', mr - 40, footerY + 5, { align: 'center' });
+
+            doc.setFont('helvetica', 'normal');
+            doc.setFontSize(6);
+            doc.text('HPK-L-F-04  Version:01  Fecha 01-03-19', ml + 4, 283);
+
+            // ── GUARDAR ──────────────────────────────────────────────────────
+            doc.save(`REQUERIMIENTO OT ${otNumero} - ${seq}.pdf`);
+        }
+
+        // Guardar un campo individual de un repuesto (edición inline)
+        async function guardarCampoRepuesto(id, campo, valor) {
+            try {
+                const body = { [campo]: valor || null };
+                const res = await fetch(`/api/ot/repuestos/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                if (!res.ok) {
+                    const e = await res.json();
+                    showToast('Error al guardar: ' + (e.error || ''), 'error');
+                }
+            } catch (e) {
+                showToast('Error al guardar campo', 'error');
+            }
         }
 
         async function eliminarRequerimiento(id) {
@@ -4566,6 +5045,14 @@
             </div>
         </div>
     </div>
+
+<!-- Datalists para autocomplete de descripción en requerimientos -->
+<datalist id="dl-materiales">
+    <!-- Se llena dinámicamente desde /api/materiales -->
+</datalist>
+<datalist id="dl-servicios">
+    <!-- Se llena dinámicamente desde /api/logistica/autocomplete-descripcion?tipo=SER -->
+</datalist>
 
 </body>
 </html>

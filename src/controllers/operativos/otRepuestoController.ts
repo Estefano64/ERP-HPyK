@@ -63,30 +63,48 @@ export const createRepuestos = async (req: Request, res: Response) => {
     const transaction = await sequelize.transaction();
     
     try {
-      // Crear los repuestos
+      // Generar nro_req si no viene (auto-incremental por OT)
+      let nro_req = repuestos[0]?.nro_req;
+      if (!nro_req) {
+        const [lastRow]: any = await sequelize.query(
+          `SELECT nro_req FROM ot_repuestos WHERE ot_id = :otId AND nro_req IS NOT NULL ORDER BY nro_req DESC LIMIT 1`,
+          { replacements: { otId }, type: QueryTypes.SELECT }
+        );
+        const lastSeq = lastRow ? parseInt((lastRow.nro_req || '').split('-').pop() || '0') : 0;
+        nro_req = `${otId}-REQ-${String(lastSeq + 1).padStart(3, '0')}`;
+      }
+
+      // Crear los ítems del requerimiento
       const repuestosCreados = await Promise.all(
-        repuestos.map((rep: any) => 
+        repuestos.map((rep: any, idx: number) =>
           OTRepuesto.create({
-            ot_id: parseInt(otId),
-            material_id: rep.material_id,
-            cantidad: rep.cantidad,
-            proveedor_id: rep.proveedor_id || null,
-            observaciones: rep.observaciones || null,
-            estado: 'Pendiente',
-            usuario_solicita: usuario || 'Admin',
-            fecha_solicitud: new Date()
+            ot_id:             parseInt(otId),
+            nro_req,
+            item_req:          idx + 1,
+            material_id:       rep.material_id       || undefined,
+            tipo_codigo:       rep.tipo_codigo       || 'MAC',
+            descripcion:       rep.descripcion       || undefined,
+            fabricante_codigo: rep.fabricante_codigo || rep.modelo_marca || undefined,
+            texto:             rep.nro_parte         || rep.texto        || undefined,
+            cantidad:          rep.cantidad,
+            unidad_medida:     rep.unidad_medida     || 'UNIDAD',
+            fecha_requerida:   rep.fecha_requerida   || undefined,
+            observaciones:     rep.observaciones     || undefined,
+            estado:            'PDT APROBACION',
+            usuario_solicita:  usuario || 'Admin',
+            fecha_solicitud:   new Date()
           }, { transaction })
         )
       );
-      
+
       // Registrar en el historial
       await OTHistorial.create({
         ot_id: parseInt(otId),
         tipo_operacion: 'Solicitud Repuestos',
-        descripcion: `Solicitud de ${repuestos.length} repuesto(s)`,
+        descripcion: `Requerimiento ${nro_req}: ${repuestos.length} ítem(s)`,
         usuario: usuario || 'Admin',
         fecha: new Date(),
-        datos_adicionales: JSON.stringify({ cantidad_items: repuestos.length })
+        datos_adicionales: JSON.stringify({ nro_req, cantidad_items: repuestos.length })
       }, { transaction });
       
       await transaction.commit();
@@ -111,6 +129,8 @@ export const updateRepuesto = async (req: Request, res: Response) => {
     const id = ensureString(req.params.id);
     const {
       estado, usuario_aprueba, po_id,
+      // Descripción / parte
+      descripcion, texto,
       // Cotización
       proveedor_id, precio_unitario, precio_venta, moneda, estado_cot,
       fecha_entrega_esperada, fecha_requerida, observaciones,
@@ -136,6 +156,10 @@ export const updateRepuesto = async (req: Request, res: Response) => {
       updates.fecha_aprobacion = new Date();
     }
     if (po_id) { updates.po_id = po_id; updates.estado = 'En PO'; }
+
+    // Descripción / parte
+    if (descripcion !== undefined) updates.descripcion = descripcion;
+    if (texto !== undefined) updates.texto = texto;
 
     // Cotización
     if (proveedor_id !== undefined) updates.proveedor_id = proveedor_id;
@@ -228,30 +252,63 @@ export const createRepuestosFromTaskList = async (req: Request, res: Response) =
       existentes.map((r: any) => r.material_id).filter((id: any) => id != null)
     );
 
-    // 5. Crear repuestos
+    // 5. Generar un único nro_req para todos los ítems del task list
+    const [lastReqRow]: any = await sequelize.query(
+      `SELECT nro_req FROM ot_repuestos WHERE ot_id = :otId AND nro_req IS NOT NULL ORDER BY nro_req DESC LIMIT 1`,
+      { replacements: { otId }, type: QueryTypes.SELECT }
+    );
+    const lastSeq = lastReqRow ? parseInt((lastReqRow.nro_req || '').split('-REQ-').pop() || '0') : 0;
+    const nro_req = `${otId}-REQ-${String(lastSeq + 1).padStart(3, '0')}`;
+
+    // 6. Crear todos los ítems bajo el mismo nro_req
     const creados: any[] = [];
+    let item_req = 1;
     for (const tarea of tareas) {
       let material_id: number | null = null;
+      let precio_unitario: number | undefined = tarea.precio || undefined;
+      let fabricante_codigo: string | undefined;
+      let unidad_medida: string = 'UNIDAD';
 
+      // Buscar material: primero por codigo, luego por NP del ítem (col N del Excel)
+      let mat: any = null;
       if (tarea.material_codigo) {
-        const mat = await Material.findOne({ where: { codigo: tarea.material_codigo } });
+        mat = await Material.findOne({ where: { codigo: tarea.material_codigo } });
         material_id = mat ? mat.material_id : null;
-        if (material_id !== null && materialesExistentes.has(material_id)) {
-          continue; // ya existe este material — omitir
-        }
+      }
+      if (material_id === null && tarea.np) {
+        mat = await Material.findOne({ where: { np: tarea.np } });
+        if (mat) material_id = mat.material_id;
+      }
+
+      if (mat) {
+        if (!precio_unitario && mat.precio)            precio_unitario  = mat.precio;
+        if (mat.fabricante_codigo)                     fabricante_codigo = mat.fabricante_codigo;
+        if (mat.unidad_medida_codigo)                  unidad_medida    = mat.unidad_medida_codigo;
+      }
+
+      if (material_id !== null && materialesExistentes.has(material_id)) {
+        continue; // ya existe este material — omitir
       }
 
       const repuesto = await OTRepuesto.create({
         ot_id: otId,
-        material_id: material_id ?? undefined,  // undefined = omitido por Sequelize si es null
-        descripcion: tarea.descripcion || tarea.ref_descripcion || '',
-        tipo_codigo: tarea.tipo_codigo,
-        cantidad: tarea.requerimiento,
-        texto: tarea.texto || undefined,
-        precio_unitario: tarea.precio || undefined,
-        estado: 'Pendiente',
-        usuario_solicita: usuario || 'Admin',
-        fecha_solicitud: new Date()
+        nro_req,
+        item_req: item_req++,
+        material_id:       material_id ?? undefined,
+        descripcion:       tarea.tipo_codigo === 'SER'
+                             ? (tarea.texto || tarea.ref_descripcion || tarea.descripcion || '')
+                             : (tarea.ref_descripcion || tarea.np || tarea.descripcion || ''),
+        tipo_codigo:       tarea.tipo_codigo,
+        fabricante_codigo,                        // marca del material
+        texto:             tarea.tipo_codigo === 'SER'
+                             ? undefined                                               // SER: descripción ya tiene el texto
+                             : (tarea.np || mat?.np || mat?.codigo || undefined),      // MAC: NP tarea → NP material → código material
+        cantidad:          tarea.requerimiento,
+        unidad_medida,
+        precio_unitario,
+        estado:            'PDT APROBACION',
+        usuario_solicita:  ot.usuario_crea || usuario || 'Admin',
+        fecha_solicitud:   new Date()
       }, { transaction });
 
       creados.push(repuesto);
@@ -290,9 +347,10 @@ export const deleteRepuesto = async (req: Request, res: Response) => {
       return res.status(404).json({ error: 'Repuesto no encontrado' });
     }
     
-    if (repuesto.estado !== 'Pendiente') {
-      return res.status(400).json({ 
-        error: 'Solo se pueden eliminar repuestos en estado Pendiente' 
+    const estadosEliminables = ['Pendiente', 'PDT APROBACION'];
+    if (!estadosEliminables.includes(repuesto.estado)) {
+      return res.status(400).json({
+        error: 'Solo se pueden eliminar repuestos en estado Pendiente o PDT APROBACION'
       });
     }
     

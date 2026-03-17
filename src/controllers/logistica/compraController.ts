@@ -263,7 +263,7 @@ export const getRequerimientosPendientes = async (req: Request, res: Response) =
 
     const whereClause = estado
       ? `WHERE r.estado = '${estado}'`
-      : `WHERE r.estado NOT IN ('COM', 'ANU', 'DEV')`;
+      : `WHERE r.estado NOT IN ('COM', 'ANU', 'DEV', 'ANULADO')`;
 
     const clienteFilter = cliente_id
       ? ` AND ot.id_cliente = ${cliente_id}`
@@ -276,7 +276,7 @@ export const getRequerimientosPendientes = async (req: Request, res: Response) =
         r.precio_unitario, r.precio_venta, r.moneda,
         r.fecha_solicitud, r.fecha_requerida,
         r.observaciones, r.proveedor_id, r.po_id, r.nro_oc, r.item_oc,
-        r.descripcion, r.fabricante_codigo,
+        r.descripcion, r.fabricante_codigo, r.texto, r.unidad_medida, r.usuario_solicita,
         r.fecha_oc, r.fecha_entrega_esperada, r.fecha_entrega_real,
         r.nro_guia, r.nro_factura_proveedor, r.factura_cliente, r.gr_mina,
         r.ubicacion, r.fecha_salida_almacen, r.fecha_envio_mina, r.fecha_facturacion,

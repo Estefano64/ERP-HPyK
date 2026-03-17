@@ -13,20 +13,22 @@ const xlsx = require('xlsx');
 // ================================================================
 // SEED REAL — Datos reales de los Excel de HP&K
 // Fuentes:
-//   - data/logistica/INVENTARIO 2026.xlsx  → 382 materiales
+//   - data/1 Log - material.xlsx           → 834 materiales (catálogo oficial)
 //   - data/5. Cod Rep.xlsx                 → 118 códigos de reparación
+//   - data/4. Log prod - Task list...xlsx  → 1486 tareas
 // ================================================================
 
 // ── Rutas a los archivos Excel ──────────────────────────────────
 const ROOT            = path.resolve(__dirname, '../../data');
-const INVENTARIO_PATH = path.join(ROOT, 'logistica/INVENTARIO 2026.xlsx');
+const MATERIAL_PATH   = path.join(ROOT, '1 Log - material.xlsx');
 const COD_REP_PATH    = path.join(ROOT, '5. Cod Rep.xlsx');
 const TASK_LIST_PATH  = path.join(ROOT, '4. Log prod - Task list materiales.xlsx');
 
 // ── Mapa fabricante Excel → codigo catalogo ─────────────────────
 const FABRICANTE_MAP: Record<string, string> = {
+  // Códigos largos (INVENTARIO anterior)
   'KOM':                 'KOMATSU',
-  'KOM ':                'KOMATSU',   // trailing space variant
+  'KOM ':                'KOMATSU',
   'KOMATSU':             'KOMATSU',
   'CAT':                 'CAT',
   'CAT.':                'CAT',
@@ -42,6 +44,22 @@ const FABRICANTE_MAP: Record<string, string> = {
   'PARKER':              'PARKER',
   'IKO':                 'IKO',
   'EPIROC':              'EPIROC',
+  // Códigos 3 chars del nuevo catálogo 1 Log - material.xlsx
+  'ALT':  'ALT',
+  'MAC':  'MACHEN',
+  'BOH':  'ALT',      // BOHLER → ALT (alternativo)
+  'LIN':  'LINCOLN',
+  'MIL':  'MILLER',
+  'PAR':  'PARKER',
+  'BOC':  'BOSCH',
+  'MAK':  'MAKITA',
+  'MET':  'METABO',
+  'SNP':  'SNAPON',
+  'COL':  'COLUMBIA',
+  'SAR':  'SARO',
+  'NIL':  'NILES',
+  'ZAY':  'ZAYER',
+  'UNI':  'UNION',
 };
 
 // ── Mapa flota Excel → codigo catalogo (≤10 chars) ─────────────
@@ -138,43 +156,55 @@ function clasificarMaterial(desc: string): Clasificacion {
   return { categoria: 'REP', clasificacion: 'SUMI' };
 }
 
-// ── Leer materiales del INVENTARIO 2026.xlsx ─────────────────────
-// Columnas (0-indexed desde row 0 header):
-// [0]=N°, [6]=CODIGO, [7]=DESCRIPCIÓN, [8]=STOCK INICIAL,
-// [9]=MARCA, [12]=UBICACIÓN, [13]=CAJA, [14]=PC UNT (precio)
+// ── Leer materiales del 1 Log - material.xlsx ────────────────────
+// 2 filas de encabezado, datos desde fila índice 2
+// [0]=Usuario, [1]=Material(vacío), [2]=Descripción, [3]=Planta,
+// [4]=Area, [5]=Categoría, [6]=Clasificación, [7]=Pto.Rep,
+// [8]=Stock Máx, [9]=Und Med, [10]=Plazo, [11]=Precio,
+// [12]=Moneda, [13]=Fabricante, [14]=NP
 
 interface MaterialRow {
   codigo: string;
   descripcion: string;
-  stock: number;
-  marca: string | null;
-  ubicacion: string | null;
-  caja: string | null;
+  np: string | null;
+  fabricante: string | null;
   precio: number | null;
+  moneda: string | null;
+  unidad: string | null;
 }
 
-function leerInventario(): MaterialRow[] {
-  const wb = xlsx.readFile(INVENTARIO_PATH);
+function leerMaterial(): MaterialRow[] {
+  const wb = xlsx.readFile(MATERIAL_PATH);
   const ws = wb.Sheets[wb.SheetNames[0]];
   const data: any[][] = xlsx.utils.sheet_to_json(ws, { header: 1 });
 
   const rows: MaterialRow[] = [];
-  for (let i = 3; i < data.length; i++) {  // datos desde fila 3
-    const row = data[i];
-    if (!row || !row[6] || !row[7]) continue;
+  const usedCodigos = new Set<string>();
 
-    const codigo = String(row[6]).trim().substring(0, 50);
-    const descripcion = String(row[7]).trim();
-    if (!codigo || !descripcion) continue;
+  for (let i = 2; i < data.length; i++) {  // datos desde fila 2 (skip 2 headers)
+    const row = data[i];
+    if (!row || !row[2]) continue;
+
+    const descripcion = String(row[2]).trim();
+    if (!descripcion) continue;
+
+    const npRaw = row[14] ? String(row[14]).trim() : '';
+
+    // Generar codigo único: usar NP si existe, sino indice
+    let codigo = (npRaw || `MAT-${i}`).substring(0, 50);
+    if (usedCodigos.has(codigo)) {
+      codigo = `${codigo.substring(0, 44)}-${i}`.substring(0, 50);
+    }
+    usedCodigos.add(codigo);
 
     rows.push({
       codigo,
       descripcion,
-      stock: Number(row[8]) || 0,
-      marca: row[9] ? String(row[9]).trim() : null,
-      ubicacion: row[12] ? String(row[12]).trim() : null,
-      caja: row[13] ? String(row[13]).trim().substring(0, 50) : null,
-      precio: row[14] ? Number(row[14]) : null,
+      np:        npRaw || null,
+      fabricante: row[13] ? String(row[13]).trim() : null,
+      precio:    row[11] ? Number(row[11]) || null : null,
+      moneda:    row[12] ? String(row[12]).trim() : null,
+      unidad:    row[9]  ? String(row[9]).trim()  : null,
     });
   }
   return rows;
@@ -440,38 +470,40 @@ async function seedReal() {
     await seedAlmacenes();
 
     // ────────────────────────────────────────────────────────────
-    // 4. MATERIALES — INVENTARIO 2026.xlsx
+    // 4. MATERIALES — 1 Log - material.xlsx (catálogo oficial)
     // ────────────────────────────────────────────────────────────
-    console.log('\n4. Importando materiales del inventario...');
-    const inventarioRows = leerInventario();
-    console.log(`   Filas leídas del Excel: ${inventarioRows.length}`);
+    console.log('\n4. Importando materiales del catálogo oficial...');
+    const materialRows = leerMaterial();
+    console.log(`   Filas leídas del Excel: ${materialRows.length}`);
 
-    const materialesData = inventarioRows.map(row => {
+    const materialesData = materialRows.map(row => {
       const { categoria, clasificacion } = clasificarMaterial(row.descripcion);
 
       // Mapear fabricante
       let fabricante_codigo: string | null = null;
-      if (row.marca) {
-        fabricante_codigo = FABRICANTE_MAP[row.marca.trim()] || null;
+      if (row.fabricante) {
+        fabricante_codigo = FABRICANTE_MAP[row.fabricante.trim()] || null;
       }
 
+      // Normalizar moneda
+      const monedaRaw = (row.moneda || '').toUpperCase();
+      const moneda_codigo = monedaRaw === 'USD' ? 'USD' : monedaRaw === 'SOL' ? 'PEN' : (row.precio ? 'USD' : undefined);
+
       return {
-        codigo:              row.codigo,
-        descripcion:         row.descripcion,
-        descripcion_compuesta: row.descripcion,  // igual por ahora
-        planta_codigo:       'AQPTA01',
-        area_codigo:         'LG',
-        categoria_codigo:    categoria,
+        codigo:               row.codigo,
+        descripcion:          row.descripcion,
+        descripcion_compuesta: row.descripcion,
+        planta_codigo:        'AQPTA01',
+        area_codigo:          'LG',
+        categoria_codigo:     categoria,
         clasificacion_codigo: clasificacion,
         unidad_medida_codigo: 'und',
-        precio:              row.precio || undefined,
-        moneda_codigo:       row.precio ? 'USD' : undefined,
-        fabricante_codigo:   fabricante_codigo || undefined,
-        np:                  row.codigo,         // el código del Excel es el NP
-        stock_actual:        row.stock || 0,
-        ubicacion:           row.ubicacion || undefined,
-        caja:                row.caja || undefined,
-        activo:              true,
+        precio:               row.precio || undefined,
+        moneda_codigo:        moneda_codigo as string | undefined,
+        fabricante_codigo:    fabricante_codigo || undefined,
+        np:                   row.np || row.codigo,
+        stock_actual:         0,
+        activo:               true,
       };
     });
 
@@ -484,13 +516,12 @@ async function seedReal() {
       const result = await Material.bulkCreate(batch, {
         updateOnDuplicate: [
           'descripcion', 'descripcion_compuesta', 'precio', 'moneda_codigo',
-          'fabricante_codigo', 'stock_actual', 'ubicacion', 'caja',
-          'categoria_codigo', 'clasificacion_codigo',
+          'fabricante_codigo', 'np', 'categoria_codigo', 'clasificacion_codigo',
         ],
       });
       matCreados += result.length;
     }
-    console.log(`   ✓ ${matCreados} materiales insertados/actualizados`);
+    console.log(`   ✓ ${matCreados} materiales del catálogo oficial insertados/actualizados`);
 
     // ────────────────────────────────────────────────────────────
     // 5. CÓDIGOS DE REPARACIÓN — 5. Cod Rep.xlsx

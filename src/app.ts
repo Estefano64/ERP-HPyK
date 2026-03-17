@@ -430,7 +430,7 @@ const startServer = async () => {
     await sequelize.query(`ALTER TABLE ot_repuestos ADD COLUMN IF NOT EXISTS tipo_codigo VARCHAR(10);`);
     await sequelize.query(`ALTER TABLE ot_repuestos ADD COLUMN IF NOT EXISTS descripcion TEXT;`);
     await sequelize.query(`ALTER TABLE ot_repuestos ADD COLUMN IF NOT EXISTS texto TEXT;`);
-    await sequelize.query(`ALTER TABLE ot_repuestos ADD COLUMN IF NOT EXISTS fabricante_codigo VARCHAR(20);`);
+    await sequelize.query(`ALTER TABLE ot_repuestos ADD COLUMN IF NOT EXISTS fabricante_codigo VARCHAR(50);`);
     await sequelize.query(`ALTER TABLE ot_repuestos ADD COLUMN IF NOT EXISTS fecha_requerida TIMESTAMPTZ;`);
     await sequelize.query(`ALTER TABLE ot_repuestos ADD COLUMN IF NOT EXISTS estado_cot VARCHAR(20);`);
     await sequelize.query(`ALTER TABLE ot_repuestos ADD COLUMN IF NOT EXISTS nro_oc VARCHAR(50);`);
@@ -459,6 +459,13 @@ const startServer = async () => {
     await sequelize.query(`ALTER TABLE ot_repuestos ADD COLUMN IF NOT EXISTS ubicacion VARCHAR(50);`);
     // material_id nulo para ítems SER/CAD sin material catalogado
     await sequelize.query(`ALTER TABLE ot_repuestos ALTER COLUMN material_id DROP NOT NULL;`);
+    await sequelize.query(`ALTER TABLE ot_repuestos ADD COLUMN IF NOT EXISTS unidad_medida VARCHAR(20) DEFAULT 'UNIDAD';`);
+    // Ampliar estado a VARCHAR(30) para soportar 'PDT APROBACION' (14 chars)
+    await sequelize.query(`ALTER TABLE ot_repuestos ALTER COLUMN estado TYPE VARCHAR(30);`);
+
+    // equipo_codigo es ahora texto libre — eliminar FK a tabla equipo
+    await sequelize.query(`ALTER TABLE orden_trabajo DROP CONSTRAINT IF EXISTS orden_trabajo_equipo_codigo_fkey;`);
+    await sequelize.query(`ALTER TABLE orden_trabajo ALTER COLUMN equipo_codigo TYPE VARCHAR(100);`);
 
     // orden_trabajo: ampliar columnas FK VARCHAR(10) → VARCHAR(50) para status largos
     await sequelize.query(`ALTER TABLE orden_trabajo ALTER COLUMN taller_status_codigo TYPE VARCHAR(50);`);
