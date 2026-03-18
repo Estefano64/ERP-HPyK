@@ -1,0 +1,1454 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hoja de Evaluación Técnica de Cilindros Hidráulicos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="/shared/navigation.js" defer></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div id="nav-container"></div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div class="flex items-center justify-between mb-4">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-800">Hoja de Evaluación Técnica de Cilindros Hidráulicos</h1>
+                <p class="text-sm text-gray-500">Formulario técnico para evaluación y recomendaciones según tipo de cilindro.</p>
+            </div>
+            <a href="/produccion/index.html" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                <i class="fas fa-arrow-left mr-2"></i> Volver a Producción
+            </a>
+        </div>
+
+        <!-- Encabezado general -->
+        <form class="space-y-6">
+            <div class="bg-white rounded-lg shadow p-4 mb-4">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 mb-1">Nº de OT</label>
+                        <input type="text" name="ot_numero" class="w-full border rounded-lg px-3 py-2 text-sm" />
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 mb-1">Tipo de equipo</label>
+                        <input type="text" name="tipo_equipo" class="w-full border rounded-lg px-3 py-2 text-sm" />
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 mb-1">Fecha</label>
+                        <input type="date" name="fecha" class="w-full border rounded-lg px-3 py-2 text-sm" />
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-gray-700 mb-1">Técnico responsable</label>
+                        <input type="text" name="tecnico" class="w-full border rounded-lg px-3 py-2 text-sm" />
+                    </div>
+                </div>
+                <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+                    <div class="md:col-span-2">
+                        <label class="block text-xs font-semibold text-gray-700 mb-1">Tipo de cilindro</label>
+                        <select id="tipo-cilindro" name="tipo_cilindro" class="w-full border rounded-lg px-3 py-2 text-sm bg-white">
+                            <option value="convencional">CILINDRO HIDRÁULICO CONVENCIONAL</option>
+                            <option value="trunnion">CILINDRO HIDRÁULICO CON TRUNNION</option>
+                            <option value="acumulador">ACUMULADOR HIDRÁULICO</option>
+                            <option value="telescopico">CILINDRO TELESCÓPICO</option>
+                        </select>
+                    </div>
+                    <div class="text-xs text-gray-500">
+                        La hoja mostrará las mediciones, resultado de evaluación y recomendaciones según el tipo seleccionado.
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECCIÓN 1: CILINDRO HIDRÁULICO CONVENCIONAL -->
+            <section id="seccion-convencional" data-tipo="convencional" class="bg-white rounded-lg shadow overflow-hidden">
+                <header class="bg-blue-700 text-white px-4 py-2 flex items-center justify-between">
+                    <div class="flex items-center space-x-2">
+                        <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-white text-blue-700 text-xs font-bold">1</span>
+                        <h2 class="text-sm md:text-base font-semibold tracking-wide">SECCIÓN 1: CILINDRO HIDRÁULICO CONVENCIONAL</h2>
+                    </div>
+                </header>
+                <div class="p-4 grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                    <!-- MEDICIONES -->
+                    <div>
+                        <h3 class="font-bold text-gray-800 mb-2 border-b pb-1">MEDICIONES</h3>
+
+                        <!-- Mediciones - Cilindro -->
+                        <div class="mb-4">
+                            <h4 class="font-semibold text-gray-700 mb-2">CILINDRO</h4>
+                            <div class="space-y-1">
+                                <div class="flex items-center justify-between gap-2">
+                                    <span class="text-xs">1. Diámetro interior (3 puntos de medidas)</span>
+                                    <div class="grid grid-cols-3 gap-1 w-32">
+                                        <input class="border rounded px-1 py-0.5 text-xs" placeholder="P1" />
+                                        <input class="border rounded px-1 py-0.5 text-xs" placeholder="P2" />
+                                        <input class="border rounded px-1 py-0.5 text-xs" placeholder="P3" />
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between gap-2">
+                                    <span class="text-xs">2. Diámetro de salida</span>
+                                    <input class="border rounded px-1 py-0.5 text-xs w-32" />
+                                </div>
+                                <div class="flex items-center justify-between gap-2">
+                                    <span class="text-xs">3. Diámetro Exterior</span>
+                                    <input class="border rounded px-1 py-0.5 text-xs w-32" />
+                                </div>
+                                <div class="flex items-center justify-between gap-2">
+                                    <span class="text-xs">4. Longitud Bruñido</span>
+                                    <input class="border rounded px-1 py-0.5 text-xs w-32" />
+                                </div>
+                                <div class="flex items-center justify-between gap-2">
+                                    <span class="text-xs">5. Longitud Total</span>
+                                    <input class="border rounded px-1 py-0.5 text-xs w-32" />
+                                </div>
+                                <div class="flex items-center justify-between gap-2">
+                                    <span class="text-xs">6. Diámetro Ojo</span>
+                                    <input class="border rounded px-1 py-0.5 text-xs w-32" />
+                                </div>
+                                <div class="flex items-center justify-between gap-2">
+                                    <span class="text-xs">7. Diámetro Int. Cojinete / Rótula</span>
+                                    <div class="flex gap-1 w-32">
+                                        <input class="border rounded px-1 py-0.5 text-xs w-1/2" placeholder="X" />
+                                        <input class="border rounded px-1 py-0.5 text-xs w-1/2" placeholder="Y" />
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between gap-2">
+                                    <span class="text-xs">8. Ancho de Ojo</span>
+                                    <input class="border rounded px-1 py-0.5 text-xs w-32" />
+                                </div>
+                                <div>
+                                    <span class="text-xs block mb-1">9. Tomas</span>
+                                    <div class="flex flex-wrap gap-2 text-xs">
+                                        <label class="inline-flex items-center gap-1"><input type="radio" name="cil_tomas_conv" value="Buena" class="text-blue-600" /><span>Buena</span></label>
+                                        <label class="inline-flex items-center gap-1"><input type="radio" name="cil_tomas_conv" value="Mala" class="text-blue-600" /><span>Mala</span></label>
+                                        <label class="inline-flex items-center gap-1"><input type="radio" name="cil_tomas_conv" value="NA" class="text-blue-600" /><span>N/A</span></label>
+                                    </div>
+                                </div>
+                                <div>
+                                    <span class="text-xs block mb-1">10. Est. de roscas</span>
+                                    <div class="flex flex-wrap gap-2 text-xs">
+                                        <label class="inline-flex items-center gap-1"><input type="radio" name="cil_roscas_conv" value="Buena" class="text-blue-600" /><span>Buena</span></label>
+                                        <label class="inline-flex items-center gap-1"><input type="radio" name="cil_roscas_conv" value="Mala" class="text-blue-600" /><span>Mala</span></label>
+                                        <label class="inline-flex items-center gap-1"><input type="radio" name="cil_roscas_conv" value="NA" class="text-blue-600" /><span>N/A</span></label>
+                                    </div>
+                                </div>
+                                <div>
+                                    <span class="text-xs block mb-1">11. Pasa a NDT</span>
+                                    <div class="flex flex-wrap gap-2 text-xs">
+                                        <label class="inline-flex items-center gap-1"><input type="radio" name="cil_ndt_conv" value="Si" class="text-blue-600" /><span>Sí</span></label>
+                                        <label class="inline-flex items-center gap-1"><input type="radio" name="cil_ndt_conv" value="No" class="text-blue-600" /><span>No</span></label>
+                                        <label class="inline-flex items-center gap-1"><input type="radio" name="cil_ndt_conv" value="NA" class="text-blue-600" /><span>N/A</span></label>
+                                    </div>
+                                </div>
+                                <div class="p-2 rounded bg-yellow-100 border border-yellow-300 space-y-1 text-xs">
+                                    <p>12. Alojamiento de bocinas STOP: Buena / Mala / N/A</p>
+                                    <p class="font-semibold">¿Tiene cáncamo cóncavo?</p>
+                                    <div class="flex flex-wrap gap-2">
+                                        <label class="inline-flex items-center gap-1"><input type="radio" name="cil_cancamo_concavo" value="Si" class="text-blue-600" /><span>Sí</span></label>
+                                        <label class="inline-flex items-center gap-1"><input type="radio" name="cil_cancamo_concavo" value="No" class="text-blue-600" /><span>No</span></label>
+                                    </div>
+                                    <p class="text-[11px]">Si es SÍ → eliminar ítems 6, 7, 8. Colocar:</p>
+                                    <p class="text-[11px]">Estado de cáncamo: Bueno / Malo / N/A</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Mediciones - Vástago -->
+                        <div class="mb-4">
+                            <h4 class="font-semibold text-gray-700 mb-2">VÁSTAGO</h4>
+                            <div class="space-y-1 text-xs">
+                                <div class="flex items-center justify-between gap-2">
+                                    <span>1. Diámetro Espiga</span>
+                                    <input class="border rounded px-1 py-0.5 text-xs w-32" />
+                                </div>
+                                <div class="flex items-center justify-between gap-2">
+                                    <span>2. Diámetro Vástago (3 puntos de medidas)</span>
+                                    <div class="grid grid-cols-3 gap-1 w-32">
+                                        <input class="border rounded px-1 py-0.5 text-xs" placeholder="P1" />
+                                        <input class="border rounded px-1 py-0.5 text-xs" placeholder="P2" />
+                                        <input class="border rounded px-1 py-0.5 text-xs" placeholder="P3" />
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between gap-2">
+                                    <span>3. Longitud Cromo</span>
+                                    <input class="border rounded px-1 py-0.5 text-xs w-32" />
+                                </div>
+                                <div class="flex items-center justify-between gap-2">
+                                    <span>4. Longitud Total</span>
+                                    <input class="border rounded px-1 py-0.5 text-xs w-32" />
+                                </div>
+                                <div class="flex items-center justify-between gap-2">
+                                    <span>5. Longitud de Espiga</span>
+                                    <input class="border rounded px-1 py-0.5 text-xs w-32" />
+                                </div>
+                                <div class="flex items-center justify-between gap-2">
+                                    <span>6. Diámetro Ext. Ojo</span>
+                                    <input class="border rounded px-1 py-0.5 text-xs w-32" />
+                                </div>
+                                <div class="flex items-center justify-between gap-2">
+                                    <span>7. Diámetro Int. Ojo</span>
+                                    <input class="border rounded px-1 py-0.5 text-xs w-32" />
+                                </div>
+                                <div class="flex items-center justify-between gap-2">
+                                    <span>8. Diámetro Int. Cojinete / Rótula</span>
+                                    <div class="flex gap-1 w-32">
+                                        <input class="border rounded px-1 py-0.5 text-xs w-1/2" placeholder="X" />
+                                        <input class="border rounded px-1 py-0.5 text-xs w-1/2" placeholder="Y" />
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between gap-2">
+                                    <span>9. Ancho de Ojo</span>
+                                    <input class="border rounded px-1 py-0.5 text-xs w-32" />
+                                </div>
+                                <div class="flex items-center justify-between gap-2">
+                                    <span>10. Flexión</span>
+                                    <input class="border rounded px-1 py-0.5 text-xs w-32" />
+                                </div>
+                                <div class="flex items-center justify-between gap-2">
+                                    <span>11. Esp. Cromo</span>
+                                    <input class="border rounded px-1 py-0.5 text-xs w-32" />
+                                </div>
+                                <div>
+                                    <span class="block mb-1">12. Pasa a NDT</span>
+                                    <div class="flex flex-wrap gap-2">
+                                        <label class="inline-flex items-center gap-1"><input type="radio" name="vas_ndt_conv" value="Si" class="text-blue-600" /><span>Sí</span></label>
+                                        <label class="inline-flex items-center gap-1"><input type="radio" name="vas_ndt_conv" value="No" class="text-blue-600" /><span>No</span></label>
+                                        <label class="inline-flex items-center gap-1"><input type="radio" name="vas_ndt_conv" value="NA" class="text-blue-600" /><span>N/A</span></label>
+                                    </div>
+                                </div>
+                                <div class="p-2 rounded bg-yellow-100 border border-yellow-300 space-y-1 mt-1">
+                                    <p>13. Sensor: Sí / No</p>
+                                    <p class="font-semibold text-[11px]">¿Tiene cáncamo cóncavo?</p>
+                                    <p class="text-[11px]">Si es SÍ → eliminar ítems 6, 7, 8, 9. Colocar: Estado de cáncamo: Bueno / Malo / N/A</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Mediciones - Tapa -->
+                        <div class="mb-4">
+                            <h4 class="font-semibold text-gray-700 mb-2">TAPA</h4>
+                            <div class="space-y-1 text-xs">
+                                <div class="flex items-center justify-between gap-2">
+                                    <span>1. Diámetro Exterior</span>
+                                    <input class="border rounded px-1 py-0.5 text-xs w-32" />
+                                </div>
+                                <div class="flex items-center justify-between gap-2">
+                                    <span>2. Diámetro Interior</span>
+                                    <input class="border rounded px-1 py-0.5 text-xs w-32" />
+                                </div>
+                                <div class="flex items-center justify-between gap-2">
+                                    <span>3. Diámetro Sellado</span>
+                                    <input class="border rounded px-1 py-0.5 text-xs w-32" />
+                                </div>
+                                <div class="flex items-center justify-between gap-2">
+                                    <span>4. Longitud Total</span>
+                                    <input class="border rounded px-1 py-0.5 text-xs w-32" />
+                                </div>
+                                <div class="flex items-center justify-between gap-2">
+                                    <span>5. Exterior roscado</span>
+                                    <select class="border rounded px-1 py-0.5 text-xs w-32">
+                                        <option value="">-</option>
+                                        <option>Sí</option>
+                                        <option>No</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <span class="block mb-1">6. Pasa a NDT</span>
+                                    <div class="flex flex-wrap gap-2">
+                                        <label class="inline-flex items-center gap-1"><input type="radio" name="tapa_ndt_conv" value="Si" class="text-blue-600" /><span>Sí</span></label>
+                                        <label class="inline-flex items-center gap-1"><input type="radio" name="tapa_ndt_conv" value="No" class="text-blue-600" /><span>No</span></label>
+                                        <label class="inline-flex items-center gap-1"><input type="radio" name="tapa_ndt_conv" value="NA" class="text-blue-600" /><span>N/A</span></label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Mediciones - Émbolo -->
+                        <div>
+                            <h4 class="font-semibold text-gray-700 mb-2">ÉMBOLO</h4>
+                            <div class="space-y-1 text-xs">
+                                <div class="flex items-center justify-between gap-2">
+                                    <span>1. Diámetro Exterior</span>
+                                    <input class="border rounded px-1 py-0.5 text-xs w-32" />
+                                </div>
+                                <div class="flex items-center justify-between gap-2">
+                                    <span>2. Diámetro Interior</span>
+                                    <input class="border rounded px-1 py-0.5 text-xs w-32" />
+                                </div>
+                                <div class="flex items-center justify-between gap-2">
+                                    <span>3. Longitud Total</span>
+                                    <input class="border rounded px-1 py-0.5 text-xs w-32" />
+                                </div>
+                                <div class="flex items-center justify-between gap-2">
+                                    <span>4. Interior Roscado</span>
+                                    <select class="border rounded px-1 py-0.5 text-xs w-32">
+                                        <option value="">-</option>
+                                        <option>Sí</option>
+                                        <option>No</option>
+                                        <option>N/A</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <span class="block mb-1">5. Pasa a NDT</span>
+                                    <div class="flex flex-wrap gap-2">
+                                        <label class="inline-flex items-center gap-1"><input type="radio" name="emb_ndt_conv" value="Si" class="text-blue-600" /><span>Sí</span></label>
+                                        <label class="inline-flex items-center gap-1"><input type="radio" name="emb_ndt_conv" value="No" class="text-blue-600" /><span>No</span></label>
+                                        <label class="inline-flex items-center gap-1"><input type="radio" name="emb_ndt_conv" value="NA" class="text-blue-600" /><span>N/A</span></label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- RESULTADO DE EVALUACIÓN -->
+                    <div>
+                        <h3 class="font-bold text-gray-800 mb-2 border-b pb-1">RESULTADO DE EVALUACIÓN (CHECK LIST)</h3>
+
+                        <!-- Cilindro interior -->
+                        <div class="mb-3">
+                            <h4 class="font-semibold text-gray-700 mb-1 text-xs">CILINDRO INTERIOR</h4>
+                            <div class="space-y-1 text-xs">
+                                <div class="flex items-center justify-between gap-2">
+                                    <span>1. Presenta rayaduras axiales en interior de cilindro</span>
+                                    <select class="border rounded px-1 py-0.5 text-xs w-28">
+                                        <option value="">-</option>
+                                        <option>LEVE</option>
+                                        <option>REGULAR</option>
+                                        <option>GRAVE</option>
+                                    </select>
+                                </div>
+                                <div class="flex items-center justify-between gap-2">
+                                    <span>2. Presenta rayaduras radiales en interior de cilindro</span>
+                                    <select class="border rounded px-1 py-0.5 text-xs w-28">
+                                        <option value="">-</option>
+                                        <option>LEVE</option>
+                                        <option>REGULAR</option>
+                                        <option>GRAVE</option>
+                                    </select>
+                                </div>
+                                <label class="flex items-center gap-2">
+                                    <input type="checkbox" class="text-blue-600" />
+                                    <span>3. Diámetro interior presenta deformación</span>
+                                </label>
+                                <div class="flex items-center gap-2">
+                                    <label class="flex items-center gap-2 flex-1">
+                                        <input type="checkbox" class="text-blue-600" />
+                                        <span>4. Medida interna fuera de tolerancia por</span>
+                                    </label>
+                                    <input class="border rounded px-1 py-0.5 text-xs w-20" placeholder="mm" />
+                                </div>
+                                <label class="flex items-center gap-2">
+                                    <input type="checkbox" class="text-blue-600" />
+                                    <span>5. Diámetro interior muestra desgaste</span>
+                                </label>
+                                <label class="flex items-center gap-2">
+                                    <input type="checkbox" class="text-blue-600" />
+                                    <span>6. Diámetro de sellado muestra desgaste</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Cilindro exterior -->
+                        <div class="mb-3">
+                            <h4 class="font-semibold text-gray-700 mb-1 text-xs">CILINDRO EXTERIOR</h4>
+                            <div class="space-y-1 text-xs">
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600" /><span>1. Presenta golpes en el exterior del cilindro</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600" /><span>2. Presenta desgaste en exterior del cilindro</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600" /><span>3. Presenta deformación en exterior de cilindro</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600" /><span>4. Presenta depósitos de soldadura ajenos al diseño original</span></label>
+                                <p class="text-[11px] text-yellow-800 bg-yellow-100 rounded px-2 py-1 mt-1">Nota: Preguntar si lleva cojinete o rótula.</p>
+                            </div>
+                            <div class="mt-2">
+                                <label class="block text-[11px] font-semibold text-gray-700 mb-1">Comentarios - Cilindro exterior</label>
+                                <textarea class="w-full border rounded px-2 py-1 text-[11px]" rows="2" placeholder="Observaciones adicionales del cilindro exterior..."></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Cojinete -->
+                        <div class="mb-3">
+                            <h4 class="font-semibold text-gray-700 mb-1 text-xs">COJINETE (para cilindro y vástago)</h4>
+                            <div class="space-y-1 text-xs">
+                                <div class="flex items-center gap-2">
+                                    <span>1. Presenta en exterior de cojinete:</span>
+                                </div>
+                                <div class="flex flex-wrap gap-2 ml-4">
+                                    <label class="inline-flex items-center gap-1"><input type="checkbox" class="text-blue-600" /><span>CORROSIÓN</span></label>
+                                    <label class="inline-flex items-center gap-1"><input type="checkbox" class="text-blue-600" /><span>PICADURAS</span></label>
+                                    <label class="inline-flex items-center gap-1"><input type="checkbox" class="text-blue-600" /><span>DESGASTE</span></label>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span>2. Cojinete llegó:</span>
+                                    <div class="flex flex-wrap gap-2">
+                                        <label class="inline-flex items-center gap-1"><input type="checkbox" class="text-blue-600" /><span>FISURADO</span></label>
+                                        <label class="inline-flex items-center gap-1"><input type="checkbox" class="text-blue-600" /><span>FRACTURADO</span></label>
+                                    </div>
+                                </div>
+                                <div class="p-2 bg-yellow-100 border border-yellow-300 rounded">
+                                    <label class="flex items-center gap-2 text-xs"><input type="checkbox" class="text-blue-600" /><span>3. Llegó sin cojinete (si se marca este, omitir todos los demás).</span></label>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <label class="flex items-center gap-2 flex-1">
+                                        <input type="checkbox" class="text-blue-600" />
+                                        <span>4. Cojinete presenta forma ovoide</span>
+                                    </label>
+                                    <span class="text-[11px]">X:</span><input class="border rounded px-1 py-0.5 text-[11px] w-12" />
+                                    <span class="text-[11px]">Y:</span><input class="border rounded px-1 py-0.5 text-[11px] w-12" />
+                                </div>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600" /><span>5. Llegó sin sellos limpiadores</span></label>
+                            </div>
+                            <div class="mt-2">
+                                <label class="block text-[11px] font-semibold text-gray-700 mb-1">Comentarios - Cojinete</label>
+                                <textarea class="w-full border rounded px-2 py-1 text-[11px]" rows="2" placeholder="Observaciones adicionales del cojinete..."></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Rótula -->
+                        <div class="mb-3">
+                            <h4 class="font-semibold text-gray-700 mb-1 text-xs">RÓTULA (para cilindro y vástago)</h4>
+                            <div class="space-y-1 text-xs">
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600" /><span>1. Presenta corrosión en interior de rótula</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600" /><span>2. Presenta picaduras en interior de rótula</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600" /><span>3. Presenta desgaste en interior de rótula</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600" /><span>4. Rótula llegó fracturada</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600" /><span>5. Rótula llegó fisurada</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600" /><span>6. Llegó sin rótula</span></label>
+                            </div>
+                            <div class="mt-2">
+                                <label class="block text-[11px] font-semibold text-gray-700 mb-1">Comentarios - Rótula</label>
+                                <textarea class="w-full border rounded px-2 py-1 text-[11px]" rows="2" placeholder="Observaciones adicionales de la rótula..."></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Cáncamo -->
+                        <div class="mb-3">
+                            <h4 class="font-semibold text-gray-700 mb-1 text-xs">CÁNCAMO</h4>
+                            <div class="space-y-1 text-xs">
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600" /><span>1. Presenta desgaste en alojamiento</span></label>
+                                <div class="flex items-center gap-2">
+                                    <label class="flex items-center gap-2 flex-1"><input type="checkbox" class="text-blue-600" /><span>2. Presenta forma ovoide</span></label>
+                                    <span class="text-[11px]">X:</span><input class="border rounded px-1 py-0.5 text-[11px] w-12" />
+                                    <span class="text-[11px]">Y:</span><input class="border rounded px-1 py-0.5 text-[11px] w-12" />
+                                </div>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600" /><span>3. Presenta corrosión en alojamiento</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600" /><span>4. Presenta fisura en alojamiento</span></label>
+                            </div>
+                            <div class="mt-2">
+                                <label class="block text-[11px] font-semibold text-gray-700 mb-1">Comentarios - Cáncamo</label>
+                                <textarea class="w-full border rounded px-2 py-1 text-[11px]" rows="2" placeholder="Observaciones adicionales del cáncamo..."></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Vástago (barra) -->
+                        <div>
+                            <h4 class="font-semibold text-gray-700 mb-1 text-xs">VÁSTAGO (barra)</h4>
+                            <div class="space-y-1 text-xs">
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600" /><span>1. Presenta desgaste en superficie cromada</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600" /><span>2. Presenta picaduras en superficie cromada</span></label>
+                                <div class="flex items-center gap-2">
+                                    <label class="flex items-center gap-2 flex-1"><input type="checkbox" class="text-blue-600" /><span>3. Barra presenta flexión de</span></label>
+                                    <input class="border rounded px-1 py-0.5 text-[11px] w-16" placeholder="mm" />
+                                </div>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600" /><span>4. Presenta flexión de espiga</span></label>
+                                <div class="flex items-center gap-2">
+                                    <label class="flex items-center gap-2 flex-1"><input type="checkbox" class="text-blue-600" /><span>5. Presenta poco espesor de cromo</span></label>
+                                    <input class="border rounded px-1 py-0.5 text-[11px] w-16" placeholder="mm" />
+                                </div>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600" /><span>6. Presenta desprendimiento de capa de cromo</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600" /><span>7. Presenta excesiva capa de cromo</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600" /><span>8. Presenta daño en superficie roscada de espiga</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600" /><span>9. Presenta fisura en espiga</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600" /><span>10. Presenta fisura en junta</span></label>
+                                <div class="p-2 bg-yellow-100 border border-yellow-300 rounded">
+                                    <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600" /><span>11. Llegó sin cáncamo</span></label>
+                                    <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600" /><span>12. Llegó con cáncamo desprendido</span></label>
+                                    <p class="text-[11px] mt-1">Nota: Si es cáncamo cóncavo, omitir ítems 1, 2, 3, 4.</p>
+                                </div>
+                            </div>
+                            <div class="mt-2">
+                                <label class="block text-[11px] font-semibold text-gray-700 mb-1">Comentarios - Vástago (barra)</label>
+                                <textarea class="w-full border rounded px-2 py-1 text-[11px]" rows="2" placeholder="Observaciones adicionales del vástago..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- RECOMENDACIONES -->
+                    <div>
+                        <h3 class="font-bold text-gray-800 mb-2 border-b pb-1">RECOMENDACIONES</h3>
+
+                        <!-- Cilindro estándar -->
+                        <div class="mb-3">
+                            <h4 class="font-semibold text-gray-700 mb-1 text-xs">CILINDRO ESTÁNDAR</h4>
+                            <div class="space-y-1 text-xs">
+                                <div class="flex items-center gap-2">
+                                    <label class="flex items-center gap-2 flex-1"><input type="checkbox" class="text-blue-600" /><span>1. Realizar bruñido de cilindro</span></label>
+                                    <select class="border rounded px-1 py-0.5 text-[11px] w-24">
+                                        <option value="">-</option>
+                                        <option>MÍNIMO</option>
+                                        <option>REGULAR</option>
+                                    </select>
+                                </div>
+                                <p class="text-[11px] text-gray-500 ml-4">(En informes solo colocar "Realizar bruñido de cilindro")</p>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600" /><span>2. Recuperar diámetro de alojamiento con soldadura</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600" /><span>3. Barrenado de alojamiento a medida nominal</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600" /><span>4. Rectificado de caras laterales de cáncamo</span></label>
+                                <div class="flex items-center gap-2">
+                                    <span class="flex-1">5. Realizar cambio / instalación de:</span>
+                                    <div class="flex flex-wrap gap-2">
+                                        <label class="inline-flex items-center gap-1"><input type="checkbox" class="text-blue-600" /><span>COJINETE</span></label>
+                                        <label class="inline-flex items-center gap-1"><input type="checkbox" class="text-blue-600" /><span>RÓTULA</span></label>
+                                    </div>
+                                </div>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600" /><span>6. Realizar cambio / instalación de seguros Seager (si coloca rótula)</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600" /><span>7. Realizar cambio / instalación de sellos limpiadores (si coloca cojinete)</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600" /><span>8. Realizar pulido de cara de brida</span></label>
+                            </div>
+                        </div>
+
+                        <!-- Cilindro no estándar -->
+                        <div class="mb-3">
+                            <h4 class="font-semibold text-gray-700 mb-1 text-xs">CILINDRO NO ESTÁNDAR</h4>
+                            <div class="space-y-1 text-xs">
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600" /><span>9. Reconstrucción de alojamiento</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600" /><span>10. Realizar cambio de tubo</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600" /><span>11. Realizar fabricación de cáncamo</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600" /><span>12. Realizar rectificado de agujeros roscados</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600" /><span>13. Recuperar cilindro a over30</span></label>
+                                <div class="flex items-center gap-2">
+                                    <label class="flex items-center gap-2 flex-1"><input type="checkbox" class="text-blue-600" /><span>14. Fabricar soportes roscados</span></label>
+                                    <input class="border rounded px-1 py-0.5 text-[11px] w-16" placeholder="cant." />
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Vástago estándar -->
+                        <div class="mb-3">
+                            <h4 class="font-semibold text-gray-700 mb-1 text-xs">VÁSTAGO ESTÁNDAR</h4>
+                            <div class="space-y-1 text-xs">
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600" /><span>1. Realizar rectificado y cromado de vástago</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600" /><span>2. Recuperar diámetro de alojamiento con soldadura</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600" /><span>3. Barrenado de alojamiento a medida nominal</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600" /><span>4. Rectificado de caras laterales de cáncamo</span></label>
+                                <div class="flex items-center gap-2">
+                                    <span class="flex-1">5. Realizar cambio / instalación de:</span>
+                                    <div class="flex flex-wrap gap-2">
+                                        <label class="inline-flex items-center gap-1"><input type="checkbox" class="text-blue-600" /><span>COJINETE</span></label>
+                                        <label class="inline-flex items-center gap-1"><input type="checkbox" class="text-blue-600" /><span>RÓTULA</span></label>
+                                    </div>
+                                </div>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600" /><span>6. Realizar cambio / instalación de seguros Seager</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600" /><span>7. Realizar cambio / instalación de sellos limpiadores</span></label>
+                            </div>
+                        </div>
+
+                        <!-- Vástago no estándar -->
+                        <div class="mb-3">
+                            <h4 class="font-semibold text-gray-700 mb-1 text-xs">VÁSTAGO NO ESTÁNDAR</h4>
+                            <div class="space-y-1 text-xs">
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600" /><span>8. Realizar fabricación de barra de vástago</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600" /><span>9. Realizar fabricación de cáncamo</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600" /><span>10. Realizar rectificado de superficie roscada de espiga</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600" /><span>11. Reconstrucción de alojamiento</span></label>
+                            </div>
+                        </div>
+
+                        <!-- Tapa estándar -->
+                        <div class="mb-3">
+                            <h4 class="font-semibold text-gray-700 mb-1 text-xs">TAPA ESTÁNDAR</h4>
+                            <div class="space-y-1 text-xs">
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600" /><span>1. Pulido de alojamientos de tapa</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600" /><span>2. Realizar cambio / instalación de sellos</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600" /><span>3. Realizar cambio / instalación de rod bushing</span></label>
+                                <div class="flex items-center gap-2">
+                                    <label class="flex items-center gap-2 flex-1"><input type="checkbox" class="text-blue-600" /><span>4. Realizar cambio de pernos</span></label>
+                                    <input class="border rounded px-1 py-0.5 text-[11px] w-16" placeholder="cant." />
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <label class="flex items-center gap-2 flex-1"><input type="checkbox" class="text-blue-600" /><span>5. Realizar cambio de arandelas</span></label>
+                                    <input class="border rounded px-1 py-0.5 text-[11px] w-16" placeholder="cant." />
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tapa no estándar -->
+                        <div class="mb-3">
+                            <h4 class="font-semibold text-gray-700 mb-1 text-xs">TAPA NO ESTÁNDAR</h4>
+                            <div class="space-y-1 text-xs">
+                                <div class="flex items-center gap-2">
+                                    <label class="flex items-center gap-2 flex-1"><input type="checkbox" class="text-blue-600" /><span>1. Rectificado de alojamiento de</span></label>
+                                    <select class="border rounded px-1 py-0.5 text-[11px] w-32">
+                                        <option value="">-</option>
+                                        <option>SELLO LIMPIADOR</option>
+                                        <option>SELLO PRINCIPAL</option>
+                                        <option>SELLO DE AMORTIGUACIÓN</option>
+                                        <option>ANILLO DE DESGASTE</option>
+                                        <option>ORING Y BACK UP</option>
+                                        <option>DIÁMETRO DE SELLADO</option>
+                                    </select>
+                                </div>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600" /><span>2. Realizar fabricación de tapa</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600" /><span>3. Realizar cambio de tapa (nuevo)</span></label>
+                            </div>
+                        </div>
+
+                        <!-- Émbolo estándar -->
+                        <div class="mb-3">
+                            <h4 class="font-semibold text-gray-700 mb-1 text-xs">ÉMBOLO ESTÁNDAR</h4>
+                            <div class="space-y-1 text-xs">
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600" /><span>1. Pulido de alojamientos de émbolo</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600" /><span>2. Realizar cambio / instalación de sellos</span></label>
+                            </div>
+                        </div>
+
+                        <!-- Émbolo no estándar -->
+                        <div>
+                            <h4 class="font-semibold text-gray-700 mb-1 text-xs">ÉMBOLO NO ESTÁNDAR</h4>
+                            <div class="space-y-1 text-xs">
+                                <div class="flex items-center gap-2">
+                                    <label class="flex items-center gap-2 flex-1"><input type="checkbox" class="text-blue-600" /><span>1. Rectificado de alojamiento de</span></label>
+                                    <select class="border rounded px-1 py-0.5 text-[11px] w-32">
+                                        <option value="">-</option>
+                                        <option>CONJUNTO DE SELLO</option>
+                                        <option>ANILLO DE DESGASTE</option>
+                                    </select>
+                                </div>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600" /><span>2. Realizar fabricación de émbolo</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600" /><span>3. Realizar cambio de émbolo (nuevo)</span></label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECCIÓN 2: CILINDRO HIDRÁULICO CON TRUNNION -->
+            <section id="seccion-trunnion" data-tipo="trunnion" class="bg-white rounded-lg shadow overflow-hidden hidden">
+                <header class="bg-emerald-700 text-white px-4 py-2 flex items-center space-x-2">
+                    <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-white text-emerald-700 text-xs font-bold">2</span>
+                    <h2 class="text-sm md:text-base font-semibold tracking-wide">SECCIÓN 2: CILINDRO HIDRÁULICO CON TRUNNION</h2>
+                </header>
+                <div class="p-4 grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                    <!-- MEDICIONES -->
+                    <div>
+                        <h3 class="font-bold text-gray-800 mb-2 border-b pb-1">MEDICIONES</h3>
+
+                        <!-- Cilindro con trunnion -->
+                        <div class="mb-4">
+                            <h4 class="font-semibold text-gray-700 mb-2">CILINDRO</h4>
+                            <div class="space-y-1 text-xs">
+                                <div class="flex items-center justify-between gap-2">
+                                    <span>1. Diámetro interior (3 puntos de medidas)</span>
+                                    <div class="grid grid-cols-3 gap-1 w-32">
+                                        <input class="border rounded px-1 py-0.5 text-xs" placeholder="P1" />
+                                        <input class="border rounded px-1 py-0.5 text-xs" placeholder="P2" />
+                                        <input class="border rounded px-1 py-0.5 text-xs" placeholder="P3" />
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between gap-2">
+                                    <span>2. Diámetro de salida</span>
+                                    <input class="border rounded px-1 py-0.5 text-xs w-32" />
+                                </div>
+                                <div class="flex items-center justify-between gap-2">
+                                    <span>3. Diámetro Exterior</span>
+                                    <input class="border rounded px-1 py-0.5 text-xs w-32" />
+                                </div>
+                                <div class="flex items-center justify-between gap-2">
+                                    <span>4. Longitud Bruñido</span>
+                                    <input class="border rounded px-1 py-0.5 text-xs w-32" />
+                                </div>
+                                <div class="flex items-center justify-between gap-2">
+                                    <span>5. Longitud Total</span>
+                                    <input class="border rounded px-1 py-0.5 text-xs w-32" />
+                                </div>
+                                <div class="flex items-center justify-between gap-2">
+                                    <span>6. Diámetro exterior de pivotantes</span>
+                                    <input class="border rounded px-1 py-0.5 text-xs w-32" />
+                                </div>
+                                <div class="flex items-center justify-between gap-2">
+                                    <span>7. Diámetro exterior de bocinas</span>
+                                    <input class="border rounded px-1 py-0.5 text-xs w-32" />
+                                </div>
+                                <div class="flex items-center justify-between gap-2">
+                                    <span>8. Longitud de pivotantes</span>
+                                    <input class="border rounded px-1 py-0.5 text-xs w-32" />
+                                </div>
+                                <div>
+                                    <span class="text-xs block mb-1">9. Tomas</span>
+                                    <div class="flex flex-wrap gap-2 text-xs">
+                                        <label class="inline-flex items-center gap-1"><input type="radio" name="cil_trun_tomas" value="Buena" class="text-emerald-600" /><span>Buena</span></label>
+                                        <label class="inline-flex items-center gap-1"><input type="radio" name="cil_trun_tomas" value="Mala" class="text-emerald-600" /><span>Mala</span></label>
+                                        <label class="inline-flex items-center gap-1"><input type="radio" name="cil_trun_tomas" value="NA" class="text-emerald-600" /><span>N/A</span></label>
+                                    </div>
+                                </div>
+                                <div>
+                                    <span class="text-xs block mb-1">10. Est. de roscas</span>
+                                    <div class="flex flex-wrap gap-2 text-xs">
+                                        <label class="inline-flex items-center gap-1"><input type="radio" name="cil_trun_roscas" value="Buena" class="text-emerald-600" /><span>Buena</span></label>
+                                        <label class="inline-flex items-center gap-1"><input type="radio" name="cil_trun_roscas" value="Mala" class="text-emerald-600" /><span>Mala</span></label>
+                                        <label class="inline-flex items-center gap-1"><input type="radio" name="cil_trun_roscas" value="NA" class="text-emerald-600" /><span>N/A</span></label>
+                                    </div>
+                                </div>
+                                <div>
+                                    <span class="text-xs block mb-1">11. Pasa a NDT</span>
+                                    <div class="flex flex-wrap gap-2 text-xs">
+                                        <label class="inline-flex items-center gap-1"><input type="radio" name="cil_trun_ndt" value="Si" class="text-emerald-600" /><span>Sí</span></label>
+                                        <label class="inline-flex items-center gap-1"><input type="radio" name="cil_trun_ndt" value="No" class="text-emerald-600" /><span>No</span></label>
+                                        <label class="inline-flex items-center gap-1"><input type="radio" name="cil_trun_ndt" value="NA" class="text-emerald-600" /><span>N/A</span></label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Vástago (sin sensor ni rótula) -->
+                        <div class="mb-4">
+                            <h4 class="font-semibold text-gray-700 mb-2">VÁSTAGO</h4>
+                            <div class="space-y-1 text-xs">
+                                <div class="flex items-center justify-between gap-2">
+                                    <span>1. Diámetro Espiga</span>
+                                    <input class="border rounded px-1 py-0.5 text-xs w-32" />
+                                </div>
+                                <div class="flex items-center justify-between gap-2">
+                                    <span>2. Diámetro Vástago (3 puntos de medidas)</span>
+                                    <div class="grid grid-cols-3 gap-1 w-32">
+                                        <input class="border rounded px-1 py-0.5 text-xs" placeholder="P1" />
+                                        <input class="border rounded px-1 py-0.5 text-xs" placeholder="P2" />
+                                        <input class="border rounded px-1 py-0.5 text-xs" placeholder="P3" />
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between gap-2">
+                                    <span>3. Longitud Cromo</span>
+                                    <input class="border rounded px-1 py-0.5 text-xs w-32" />
+                                </div>
+                                <div class="flex items-center justify-between gap-2">
+                                    <span>4. Longitud Total</span>
+                                    <input class="border rounded px-1 py-0.5 text-xs w-32" />
+                                </div>
+                                <div class="flex items-center justify-between gap-2">
+                                    <span>5. Longitud de Espiga</span>
+                                    <input class="border rounded px-1 py-0.5 text-xs w-32" />
+                                </div>
+                                <div class="flex items-center justify-between gap-2">
+                                    <span>6. Diámetro Ext. Ojo</span>
+                                    <input class="border rounded px-1 py-0.5 text-xs w-32" />
+                                </div>
+                                <div class="flex items-center justify-between gap-2">
+                                    <span>7. Diámetro Int. Ojo</span>
+                                    <input class="border rounded px-1 py-0.5 text-xs w-32" />
+                                </div>
+                                <div class="flex items-center justify-between gap-2">
+                                    <span>8. Diámetro Int. Cojinete</span>
+                                    <div class="flex gap-1 w-32">
+                                        <input class="border rounded px-1 py-0.5 text-xs w-1/2" placeholder="X" />
+                                        <input class="border rounded px-1 py-0.5 text-xs w-1/2" placeholder="Y" />
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between gap-2">
+                                    <span>9. Ancho de Ojo</span>
+                                    <input class="border rounded px-1 py-0.5 text-xs w-32" />
+                                </div>
+                                <div class="flex items-center justify-between gap-2">
+                                    <span>10. Flexión</span>
+                                    <input class="border rounded px-1 py-0.5 text-xs w-32" />
+                                </div>
+                                <div class="flex items-center justify-between gap-2">
+                                    <span>11. Esp. Cromo</span>
+                                    <input class="border rounded px-1 py-0.5 text-xs w-32" />
+                                </div>
+                                <div>
+                                    <span class="block mb-1">12. Pasa a NDT</span>
+                                    <div class="flex flex-wrap gap-2">
+                                        <label class="inline-flex items-center gap-1"><input type="radio" name="vas_trun_ndt" value="Si" class="text-emerald-600" /><span>Sí</span></label>
+                                        <label class="inline-flex items-center gap-1"><input type="radio" name="vas_trun_ndt" value="No" class="text-emerald-600" /><span>No</span></label>
+                                        <label class="inline-flex items-center gap-1"><input type="radio" name="vas_trun_ndt" value="NA" class="text-emerald-600" /><span>N/A</span></label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tapa -->
+                        <div class="mb-4">
+                            <h4 class="font-semibold text-gray-700 mb-2">TAPA</h4>
+                            <div class="space-y-1 text-xs">
+                                <div class="flex items-center justify-between gap-2">
+                                    <span>1. Diámetro Exterior</span>
+                                    <input class="border rounded px-1 py-0.5 text-xs w-32" />
+                                </div>
+                                <div class="flex items-center justify-between gap-2">
+                                    <span>2. Diámetro Interior</span>
+                                    <input class="border rounded px-1 py-0.5 text-xs w-32" />
+                                </div>
+                                <div class="flex items-center justify-between gap-2">
+                                    <span>3. Diámetro Sellado</span>
+                                    <input class="border rounded px-1 py-0.5 text-xs w-32" />
+                                </div>
+                                <div class="flex items-center justify-between gap-2">
+                                    <span>4. Longitud Total</span>
+                                    <input class="border rounded px-1 py-0.5 text-xs w-32" />
+                                </div>
+                                <div class="flex items-center justify-between gap-2">
+                                    <span>5. Exterior roscado</span>
+                                    <select class="border rounded px-1 py-0.5 text-xs w-32">
+                                        <option value="">-</option>
+                                        <option>Sí</option>
+                                        <option>No</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <span class="block mb-1">6. Pasa a NDT</span>
+                                    <div class="flex flex-wrap gap-2">
+                                        <label class="inline-flex items-center gap-1"><input type="radio" name="tapa_trun_ndt" value="Si" class="text-emerald-600" /><span>Sí</span></label>
+                                        <label class="inline-flex items-center gap-1"><input type="radio" name="tapa_trun_ndt" value="No" class="text-emerald-600" /><span>No</span></label>
+                                        <label class="inline-flex items-center gap-1"><input type="radio" name="tapa_trun_ndt" value="NA" class="text-emerald-600" /><span>N/A</span></label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Émbolo -->
+                        <div>
+                            <h4 class="font-semibold text-gray-700 mb-2">ÉMBOLO</h4>
+                            <div class="space-y-1 text-xs">
+                                <div class="flex items-center justify-between gap-2">
+                                    <span>1. Diámetro Exterior</span>
+                                    <input class="border rounded px-1 py-0.5 text-xs w-32" />
+                                </div>
+                                <div class="flex items-center justify-between gap-2">
+                                    <span>2. Diámetro Interior</span>
+                                    <input class="border rounded px-1 py-0.5 text-xs w-32" />
+                                </div>
+                                <div class="flex items-center justify-between gap-2">
+                                    <span>3. Longitud Total</span>
+                                    <input class="border rounded px-1 py-0.5 text-xs w-32" />
+                                </div>
+                                <div class="flex items-center justify-between gap-2">
+                                    <span>4. Interior Roscado</span>
+                                    <select class="border rounded px-1 py-0.5 text-xs w-32">
+                                        <option value="">-</option>
+                                        <option>Sí</option>
+                                        <option>No</option>
+                                        <option>N/A</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <span class="block mb-1">5. Pasa a NDT</span>
+                                    <div class="flex flex-wrap gap-2">
+                                        <label class="inline-flex items-center gap-1"><input type="radio" name="emb_trun_ndt" value="Si" class="text-emerald-600" /><span>Sí</span></label>
+                                        <label class="inline-flex items-center gap-1"><input type="radio" name="emb_trun_ndt" value="No" class="text-emerald-600" /><span>No</span></label>
+                                        <label class="inline-flex items-center gap-1"><input type="radio" name="emb_trun_ndt" value="NA" class="text-emerald-600" /><span>N/A</span></label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- RESULTADO DE EVALUACIÓN TRUNNION -->
+                    <div>
+                        <h3 class="font-bold text-gray-800 mb-2 border-b pb-1">RESULTADO DE EVALUACIÓN (CHECK LIST)</h3>
+
+                        <!-- Cilindro interior / exterior: mismos que sección 1 -->
+                        <p class="text-[11px] text-gray-600 mb-1">Usar mismos criterios de CILINDRO INTERIOR y EXTERIOR que en Sección 1.</p>
+
+                        <!-- Trunnion -->
+                        <div class="mb-3">
+                            <h4 class="font-semibold text-gray-700 mb-1 text-xs">TRUNNION</h4>
+                            <div class="space-y-1 text-xs">
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-emerald-600" /><span>1. Presenta desgaste en pivotantes</span></label>
+                                <div class="flex items-center gap-2">
+                                    <label class="flex items-center gap-2 flex-1"><input type="checkbox" class="text-emerald-600" /><span>2. Presenta pivotante deformado</span></label>
+                                    <span class="text-[11px]">X:</span><input class="border rounded px-1 py-0.5 text-[11px] w-12" />
+                                    <span class="text-[11px]">Y:</span><input class="border rounded px-1 py-0.5 text-[11px] w-12" />
+                                </div>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-emerald-600" /><span>3. Presenta corrosión en pivotantes</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-emerald-600" /><span>4. Presenta fisura en pivotantes</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-emerald-600" /><span>5. Trunnion llegó fracturado</span></label>
+                            </div>
+                        </div>
+
+                        <!-- Rótula / Cáncamo / Vástago barra reutilizar mismo esquema texto que Sección 1 -->
+                        <p class="text-[11px] text-gray-600">Para rótula, cáncamo y vástago (barra) usar mismos ítems de Sección 1, adaptados cuando corresponda.</p>
+                    </div>
+
+                    <!-- RECOMENDACIONES TRUNNION -->
+                    <div>
+                        <h3 class="font-bold text-gray-800 mb-2 border-b pb-1">RECOMENDACIONES</h3>
+
+                        <!-- Cilindro estándar: mismos que Sección 1 + extras trunnion -->
+                        <div class="mb-3">
+                            <h4 class="font-semibold text-gray-700 mb-1 text-xs">CILINDRO ESTÁNDAR (TRUNNION)</h4>
+                            <div class="space-y-1 text-xs">
+                                <p class="text-[11px] text-gray-600">Usar mismas recomendaciones de CILINDRO ESTÁNDAR de Sección 1.</p>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-emerald-600" /><span>2. Recuperar diámetro exterior de pivotantes con soldadura</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-emerald-600" /><span>3. Barrenado de pivotantes a medida nominal</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-emerald-600" /><span>5. Realizar cambio / instalación de cojinetes</span></label>
+                            </div>
+                        </div>
+
+                        <!-- Cilindro no estándar: modificación -->
+                        <div class="mb-3">
+                            <h4 class="font-semibold text-gray-700 mb-1 text-xs">CILINDRO NO ESTÁNDAR (TRUNNION)</h4>
+                            <div class="space-y-1 text-xs">
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-emerald-600" /><span>9. Reconstrucción de pivotantes</span></label>
+                                <p class="text-[11px] text-gray-600">(En lugar de "Reconstrucción de alojamiento" de la Sección 1).</p>
+                            </div>
+                        </div>
+
+                        <p class="text-[11px] text-gray-600">Para vástago, tapa y émbolo, usar mismas recomendaciones estándar y no estándar de Sección 1, aplicables a trunnion.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECCIÓN 3: ACUMULADOR HIDRÁULICO -->
+            <section id="seccion-acumulador" data-tipo="acumulador" class="bg-white rounded-lg shadow overflow-hidden hidden">
+                <header class="bg-indigo-700 text-white px-4 py-2 flex items-center space-x-2">
+                    <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-white text-indigo-700 text-xs font-bold">3</span>
+                    <h2 class="text-sm md:text-base font-semibold tracking-wide">SECCIÓN 3: ACUMULADOR HIDRÁULICO</h2>
+                </header>
+                <div class="p-4 space-y-4 text-sm">
+                    <!-- Sub-sección A: con bladder -->
+                    <div class="border border-indigo-200 rounded-lg">
+                        <div class="bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-800">SUB-SECCIÓN A: ACUMULADOR CON BLADDER</div>
+                        <div class="p-3 grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <!-- Mediciones -->
+                            <div>
+                                <h3 class="font-bold text-gray-800 mb-2 border-b pb-1">MEDICIONES</h3>
+                                <div class="space-y-1 text-xs">
+                                    <div class="flex items-center justify-between gap-2"><span>1. Diámetro de salida 1</span><input class="border rounded px-1 py-0.5 text-xs w-28" /></div>
+                                    <div class="flex items-center justify-between gap-2"><span>2. Diámetro de salida 2</span><input class="border rounded px-1 py-0.5 text-xs w-28" /></div>
+                                    <div class="flex items-center justify-between gap-2"><span>3. Diámetro Exterior</span><input class="border rounded px-1 py-0.5 text-xs w-28" /></div>
+                                    <div class="flex items-center justify-between gap-2"><span>4. Volumen</span><input class="border rounded px-1 py-0.5 text-xs w-28" /></div>
+                                    <div class="flex items-center justify-between gap-2"><span>5. Longitud Total</span><input class="border rounded px-1 py-0.5 text-xs w-28" /></div>
+                                    <div>
+                                        <span class="block mb-1">6. Válvula de muelle</span>
+                                        <div class="flex flex-wrap gap-2">
+                                            <label class="inline-flex items-center gap-1"><input type="radio" name="acc_bladder_valvula" value="Buena" class="text-indigo-600" /><span>Buena</span></label>
+                                            <label class="inline-flex items-center gap-1"><input type="radio" name="acc_bladder_valvula" value="Mala" class="text-indigo-600" /><span>Mala</span></label>
+                                            <label class="inline-flex items-center gap-1"><input type="radio" name="acc_bladder_valvula" value="NA" class="text-indigo-600" /><span>N/A</span></label>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <span class="block mb-1">7. Pasa a NDT</span>
+                                        <div class="flex flex-wrap gap-2">
+                                            <label class="inline-flex items-center gap-1"><input type="radio" name="acc_bladder_ndt" value="Si" class="text-indigo-600" /><span>Sí</span></label>
+                                            <label class="inline-flex items-center gap-1"><input type="radio" name="acc_bladder_ndt" value="No" class="text-indigo-600" /><span>No</span></label>
+                                            <label class="inline-flex items-center gap-1"><input type="radio" name="acc_bladder_ndt" value="NA" class="text-indigo-600" /><span>N/A</span></label>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Resultado -->
+                            <div>
+                                <h3 class="font-bold text-gray-800 mb-2 border-b pb-1">RESULTADO DE EVALUACIÓN</h3>
+                                <div class="space-y-1 text-xs">
+                                    <label class="flex items-center gap-2"><input type="checkbox" class="text-indigo-600" /><span>1. Diámetros de ingreso presentan corrosión</span></label>
+                                    <label class="flex items-center gap-2"><input type="checkbox" class="text-indigo-600" /><span>2. Bladder llegó roto</span></label>
+                                    <label class="flex items-center gap-2"><input type="checkbox" class="text-indigo-600" /><span>3. Interior de cilindro presenta contaminación</span></label>
+                                    <label class="flex items-center gap-2"><input type="checkbox" class="text-indigo-600" /><span>4. Llegó con aceite contaminado</span></label>
+                                    <label class="flex items-center gap-2"><input type="checkbox" class="text-indigo-600" /><span>5. Conjunto de válvula llegó dañado</span></label>
+                                    <label class="flex items-center gap-2"><input type="checkbox" class="text-indigo-600" /><span>6. Llegó sin conjunto de válvula</span></label>
+                                    <label class="flex items-center gap-2"><input type="checkbox" class="text-indigo-600" /><span>7. Exterior presenta golpes</span></label>
+                                </div>
+                            </div>
+
+                            <!-- Recomendaciones -->
+                            <div>
+                                <h3 class="font-bold text-gray-800 mb-2 border-b pb-1">RECOMENDACIONES</h3>
+                                <h4 class="font-semibold text-gray-700 mb-1 text-xs">ESTÁNDAR</h4>
+                                <div class="space-y-1 text-xs mb-2">
+                                    <label class="flex items-center gap-2"><input type="checkbox" class="text-indigo-600" /><span>1. Realizar limpieza de cilindro</span></label>
+                                    <label class="flex items-center gap-2"><input type="checkbox" class="text-indigo-600" /><span>2. Realizar cambio de bladder</span></label>
+                                    <label class="flex items-center gap-2"><input type="checkbox" class="text-indigo-600" /><span>3. Realizar cambio de válvula</span></label>
+                                </div>
+                                <h4 class="font-semibold text-gray-700 mb-1 text-xs">NO ESTÁNDAR</h4>
+                                <div class="space-y-1 text-xs">
+                                    <label class="flex items-center gap-2"><input type="checkbox" class="text-indigo-600" /><span>4. Realizar cambio de conjunto de válvula</span></label>
+                                    <label class="flex items-center gap-2"><input type="checkbox" class="text-indigo-600" /><span>5. Realizar cambio de cilindro de acumulador</span></label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sub-sección B: sin bladder -->
+                    <div class="border border-indigo-200 rounded-lg">
+                        <div class="bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-800">SUB-SECCIÓN B: ACUMULADOR SIN BLADDER</div>
+                        <div class="p-3 grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <!-- Mediciones -->
+                            <div>
+                                <h3 class="font-bold text-gray-800 mb-2 border-b pb-1">MEDICIONES</h3>
+                                <div class="space-y-1 text-xs">
+                                    <div class="flex items-center justify-between gap-2">
+                                        <span>1. Diámetro Interior (3 puntos de medidas)</span>
+                                        <div class="grid grid-cols-3 gap-1 w-28">
+                                            <input class="border rounded px-1 py-0.5 text-xs" placeholder="P1" />
+                                            <input class="border rounded px-1 py-0.5 text-xs" placeholder="P2" />
+                                            <input class="border rounded px-1 py-0.5 text-xs" placeholder="P3" />
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center justify-between gap-2"><span>2. Diámetro de salida</span><input class="border rounded px-1 py-0.5 text-xs w-28" /></div>
+                                    <div class="flex items-center justify-between gap-2"><span>3. Diámetro Exterior</span><input class="border rounded px-1 py-0.5 text-xs w-28" /></div>
+                                    <div class="flex items-center justify-between gap-2"><span>4. Longitud Bruñido</span><input class="border rounded px-1 py-0.5 text-xs w-28" /></div>
+                                    <div class="flex items-center justify-between gap-2"><span>5. Longitud Total</span><input class="border rounded px-1 py-0.5 text-xs w-28" /></div>
+                                    <div>
+                                        <span class="block mb-1">6. Tomas</span>
+                                        <div class="flex flex-wrap gap-2">
+                                            <label class="inline-flex items-center gap-1"><input type="radio" name="acc_sin_tomas" value="Buena" class="text-indigo-600" /><span>Buena</span></label>
+                                            <label class="inline-flex items-center gap-1"><input type="radio" name="acc_sin_tomas" value="Mala" class="text-indigo-600" /><span>Mala</span></label>
+                                            <label class="inline-flex items-center gap-1"><input type="radio" name="acc_sin_tomas" value="NA" class="text-indigo-600" /><span>N/A</span></label>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <span class="block mb-1">7. Est. de roscas</span>
+                                        <div class="flex flex-wrap gap-2">
+                                            <label class="inline-flex items-center gap-1"><input type="radio" name="acc_sin_roscas" value="Buena" class="text-indigo-600" /><span>Buena</span></label>
+                                            <label class="inline-flex items-center gap-1"><input type="radio" name="acc_sin_roscas" value="Mala" class="text-indigo-600" /><span>Mala</span></label>
+                                            <label class="inline-flex items-center gap-1"><input type="radio" name="acc_sin_roscas" value="NA" class="text-indigo-600" /><span>N/A</span></label>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <span class="block mb-1">8. Pasa a NDT</span>
+                                        <div class="flex flex-wrap gap-2">
+                                            <label class="inline-flex items-center gap-1"><input type="radio" name="acc_sin_ndt" value="Si" class="text-indigo-600" /><span>Sí</span></label>
+                                            <label class="inline-flex items-center gap-1"><input type="radio" name="acc_sin_ndt" value="No" class="text-indigo-600" /><span>No</span></label>
+                                            <label class="inline-flex items-center gap-1"><input type="radio" name="acc_sin_ndt" value="NA" class="text-indigo-600" /><span>N/A</span></label>
+                                        </div>
+                                    </div>
+                                    <div class="p-2 bg-yellow-100 border border-yellow-300 rounded text-[11px] mt-1">
+                                        Nota: Preguntar 1 o 2 tapas, duplicar espacios según corresponda.
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Resultado cilindro -->
+                            <div>
+                                <h3 class="font-bold text-gray-800 mb-2 border-b pb-1">RESULTADO DE EVALUACIÓN - CILINDRO</h3>
+                                <div class="space-y-1 text-xs">
+                                    <div class="flex items-center justify-between gap-2">
+                                        <span>1. Presenta rayaduras axiales</span>
+                                        <select class="border rounded px-1 py-0.5 text-[11px] w-24">
+                                            <option value="">-</option>
+                                            <option>LEVE</option>
+                                            <option>REGULAR</option>
+                                            <option>GRAVE</option>
+                                        </select>
+                                    </div>
+                                    <div class="flex items-center justify-between gap-2">
+                                        <span>2. Presenta rayaduras radiales</span>
+                                        <select class="border rounded px-1 py-0.5 text-[11px] w-24">
+                                            <option value="">-</option>
+                                            <option>LEVE</option>
+                                            <option>REGULAR</option>
+                                            <option>GRAVE</option>
+                                        </select>
+                                    </div>
+                                    <label class="flex items-center gap-2"><input type="checkbox" class="text-indigo-600" /><span>3. Diámetro interior presenta deformación</span></label>
+                                    <div class="flex items-center gap-2">
+                                        <label class="flex items-center gap-2 flex-1"><input type="checkbox" class="text-indigo-600" /><span>4. Medida interna fuera de tolerancia por</span></label>
+                                        <input class="border rounded px-1 py-0.5 text-[11px] w-20" />
+                                    </div>
+                                    <label class="flex items-center gap-2"><input type="checkbox" class="text-indigo-600" /><span>5. Diámetro interior muestra desgaste</span></label>
+                                    <label class="flex items-center gap-2"><input type="checkbox" class="text-indigo-600" /><span>6. Diámetro de sellado muestra desgaste</span></label>
+                                    <label class="flex items-center gap-2"><input type="checkbox" class="text-indigo-600" /><span>7. Exterior presenta golpes</span></label>
+                                </div>
+                            </div>
+
+                            <!-- Tapa / Émbolo resultados y recomendaciones -->
+                            <div class="space-y-3">
+                                <div>
+                                    <h3 class="font-bold text-gray-800 mb-2 border-b pb-1">RESULTADO DE EVALUACIÓN - TAPA</h3>
+                                    <div class="space-y-1 text-xs">
+                                        <div class="flex items-center gap-2">
+                                            <span>1. Superficie roscada presenta</span>
+                                            <select class="border rounded px-1 py-0.5 text-[11px] w-28">
+                                                <option value="">-</option>
+                                                <option>DESGASTE</option>
+                                                <option>DAÑO</option>
+                                                <option>CORROSIÓN</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-gray-800 mb-2 border-b pb-1">RESULTADO DE EVALUACIÓN - ÉMBOLO</h3>
+                                    <div class="space-y-1 text-xs">
+                                        <div class="flex items-center gap-2">
+                                            <span>1. Diámetro exterior presenta</span>
+                                            <select class="border rounded px-1 py-0.5 text-[11px] w-32">
+                                                <option value="">-</option>
+                                                <option>GOLPES</option>
+                                                <option>RAYADURAS</option>
+                                                <option>DESGASTE</option>
+                                            </select>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <span>2. Alojamiento de sellos presentan</span>
+                                            <select class="border rounded px-1 py-0.5 text-[11px] w-32">
+                                                <option value="">-</option>
+                                                <option>RAYADURAS</option>
+                                                <option>CORROSIÓN</option>
+                                            </select>
+                                        </div>
+                                        <label class="flex items-center gap-2"><input type="checkbox" class="text-indigo-600" /><span>3. Sellos presentan contaminación</span></label>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <h3 class="font-bold text-gray-800 mb-2 border-b pb-1">RECOMENDACIONES</h3>
+                                    <h4 class="font-semibold text-gray-700 mb-1 text-xs">CILINDRO ESTÁNDAR</h4>
+                                    <div class="space-y-1 text-xs mb-2">
+                                        <div class="flex items-center gap-2">
+                                            <label class="flex items-center gap-2 flex-1"><input type="checkbox" class="text-indigo-600" /><span>1. Realizar bruñido de cilindro</span></label>
+                                            <select class="border rounded px-1 py-0.5 text-[11px] w-24">
+                                                <option value="">-</option>
+                                                <option>MÍNIMO</option>
+                                                <option>REGULAR</option>
+                                            </select>
+                                        </div>
+                                        <label class="flex items-center gap-2"><input type="checkbox" class="text-indigo-600" /><span>2. Realizar pulido de diámetro de salida</span></label>
+                                    </div>
+                                    <h4 class="font-semibold text-gray-700 mb-1 text-xs">CILINDRO NO ESTÁNDAR</h4>
+                                    <div class="space-y-1 text-xs mb-2">
+                                        <label class="flex items-center gap-2"><input type="checkbox" class="text-indigo-600" /><span>3. Realizar cambio de tubo</span></label>
+                                        <label class="flex items-center gap-2"><input type="checkbox" class="text-indigo-600" /><span>4. Realizar rectificado de superficie roscada</span></label>
+                                    </div>
+                                    <h4 class="font-semibold text-gray-700 mb-1 text-xs">TAPA ESTÁNDAR</h4>
+                                    <div class="space-y-1 text-xs mb-2">
+                                        <label class="flex items-center gap-2"><input type="checkbox" class="text-indigo-600" /><span>1. Pulido de alojamientos de tapa</span></label>
+                                        <label class="flex items-center gap-2"><input type="checkbox" class="text-indigo-600" /><span>2. Realizar cambio / instalación de sellos</span></label>
+                                    </div>
+                                    <h4 class="font-semibold text-gray-700 mb-1 text-xs">TAPA NO ESTÁNDAR</h4>
+                                    <div class="space-y-1 text-xs mb-2">
+                                        <label class="flex items-center gap-2"><input type="checkbox" class="text-indigo-600" /><span>1. Rectificado de alojamiento</span></label>
+                                        <label class="flex items-center gap-2"><input type="checkbox" class="text-indigo-600" /><span>2. Realizar fabricación de tapa</span></label>
+                                        <label class="flex items-center gap-2"><input type="checkbox" class="text-indigo-600" /><span>3. Realizar cambio de tapa (nuevo)</span></label>
+                                    </div>
+                                    <h4 class="font-semibold text-gray-700 mb-1 text-xs">ÉMBOLO ESTÁNDAR</h4>
+                                    <div class="space-y-1 text-xs mb-2">
+                                        <label class="flex items-center gap-2"><input type="checkbox" class="text-indigo-600" /><span>1. Pulido de alojamientos de émbolo</span></label>
+                                        <label class="flex items-center gap-2"><input type="checkbox" class="text-indigo-600" /><span>2. Realizar cambio / instalación de sellos</span></label>
+                                    </div>
+                                    <h4 class="font-semibold text-gray-700 mb-1 text-xs">ÉMBOLO NO ESTÁNDAR</h4>
+                                    <div class="space-y-1 text-xs">
+                                        <label class="flex items-center gap-2"><input type="checkbox" class="text-indigo-600" /><span>1. Rectificado de alojamiento</span></label>
+                                        <label class="flex items-center gap-2"><input type="checkbox" class="text-indigo-600" /><span>2. Realizar fabricación de émbolo</span></label>
+                                        <label class="flex items-center gap-2"><input type="checkbox" class="text-indigo-600" /><span>3. Realizar cambio de émbolo (nuevo)</span></label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECCIÓN 4: CILINDRO TELESCÓPICO -->
+            <section id="seccion-telescopico" data-tipo="telescopico" class="bg-white rounded-lg shadow overflow-hidden hidden">
+                <header class="bg-purple-700 text-white px-4 py-2 flex items-center space-x-2">
+                    <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-white text-purple-700 text-xs font-bold">4</span>
+                    <h2 class="text-sm md:text-base font-semibold tracking-wide">SECCIÓN 4: CILINDRO TELESCÓPICO</h2>
+                </header>
+                <div class="p-4 space-y-4 text-sm">
+                    <div class="p-2 bg-purple-50 border border-purple-200 rounded text-xs text-purple-900">
+                        NOTA INICIAL: Consultar número de etapas (2, 3 o 4) para determinar cantidad de camisas móviles y cuerpos intermedios.
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <!-- Mediciones cilindro camisa fija -->
+                        <div>
+                            <h3 class="font-bold text-gray-800 mb-2 border-b pb-1">MEDICIONES - CILINDRO (CAMISA FIJA)</h3>
+                            <div class="space-y-1 text-xs">
+                                <div class="flex items-center justify-between gap-2">
+                                    <span>1. Diámetro interior (3 puntos de medidas)</span>
+                                    <div class="grid grid-cols-3 gap-1 w-28">
+                                        <input class="border rounded px-1 py-0.5 text-xs" placeholder="P1" />
+                                        <input class="border rounded px-1 py-0.5 text-xs" placeholder="P2" />
+                                        <input class="border rounded px-1 py-0.5 text-xs" placeholder="P3" />
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between gap-2"><span>2. Diámetro de salida</span><input class="border rounded px-1 py-0.5 text-xs w-28" /></div>
+                                <div class="flex items-center justify-between gap-2"><span>3. Diámetro Exterior</span><input class="border rounded px-1 py-0.5 text-xs w-28" /></div>
+                                <div class="flex items-center justify-between gap-2"><span>4. Longitud Bruñido</span><input class="border rounded px-1 py-0.5 text-xs w-28" /></div>
+                                <div class="flex items-center justify-between gap-2"><span>5. Longitud Total</span><input class="border rounded px-1 py-0.5 text-xs w-28" /></div>
+                                <div class="flex items-center justify-between gap-2"><span>6. Diámetro Ojo</span><input class="border rounded px-1 py-0.5 text-xs w-28" /></div>
+                                <div class="flex items-center justify-between gap-2"><span>7. Diámetro Int. Cojinete</span><input class="border rounded px-1 py-0.5 text-xs w-28" /></div>
+                                <div class="flex items-center justify-between gap-2"><span>8. Ancho de Ojo</span><input class="border rounded px-1 py-0.5 text-xs w-28" /></div>
+                                <div>
+                                    <span class="block mb-1">9. Tomas</span>
+                                    <div class="flex flex-wrap gap-2">
+                                        <label class="inline-flex items-center gap-1"><input type="radio" name="tel_cil_tomas" value="Buena" class="text-purple-600" /><span>Buena</span></label>
+                                        <label class="inline-flex items-center gap-1"><input type="radio" name="tel_cil_tomas" value="Mala" class="text-purple-600" /><span>Mala</span></label>
+                                        <label class="inline-flex items-center gap-1"><input type="radio" name="tel_cil_tomas" value="NA" class="text-purple-600" /><span>N/A</span></label>
+                                    </div>
+                                </div>
+                                <div>
+                                    <span class="block mb-1">10. Est. de roscas</span>
+                                    <div class="flex flex-wrap gap-2">
+                                        <label class="inline-flex items-center gap-1"><input type="radio" name="tel_cil_roscas" value="Buena" class="text-purple-600" /><span>Buena</span></label>
+                                        <label class="inline-flex items-center gap-1"><input type="radio" name="tel_cil_roscas" value="Mala" class="text-purple-600" /><span>Mala</span></label>
+                                        <label class="inline-flex items-center gap-1"><input type="radio" name="tel_cil_roscas" value="NA" class="text-purple-600" /><span>N/A</span></label>
+                                    </div>
+                                </div>
+                                <div>
+                                    <span class="block mb-1">11. Pasa a NDT</span>
+                                    <div class="flex flex-wrap gap-2">
+                                        <label class="inline-flex items-center gap-1"><input type="radio" name="tel_cil_ndt" value="Si" class="text-purple-600" /><span>Sí</span></label>
+                                        <label class="inline-flex items-center gap-1"><input type="radio" name="tel_cil_ndt" value="No" class="text-purple-600" /><span>No</span></label>
+                                        <label class="inline-flex items-center gap-1"><input type="radio" name="tel_cil_ndt" value="NA" class="text-purple-600" /><span>N/A</span></label>
+                                    </div>
+                                </div>
+                                <div class="p-2 bg-yellow-100 border border-yellow-300 rounded text-[11px] mt-1">
+                                    Clasificar tipo de anclaje:<br />
+                                    • Con Cáncamo: va del ítem 1 al 11.<br />
+                                    • Sin Cáncamo: eliminar ítems 6, 7, 8 y aperturar sección TAPA POSTERIOR.
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Vástago -->
+                        <div>
+                            <h3 class="font-bold text-gray-800 mb-2 border-b pb-1">MEDICIONES - VÁSTAGO</h3>
+                            <div class="space-y-1 text-xs">
+                                <div class="flex items-center justify-between gap-2">
+                                    <span>1. Diámetro Vástago (3 puntos de medidas)</span>
+                                    <div class="grid grid-cols-3 gap-1 w-28">
+                                        <input class="border rounded px-1 py-0.5 text-xs" placeholder="P1" />
+                                        <input class="border rounded px-1 py-0.5 text-xs" placeholder="P2" />
+                                        <input class="border rounded px-1 py-0.5 text-xs" placeholder="P3" />
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between gap-2"><span>2. Longitud Cromo</span><input class="border rounded px-1 py-0.5 text-xs w-28" /></div>
+                                <div class="flex items-center justify-between gap-2"><span>3. Longitud Total</span><input class="border rounded px-1 py-0.5 text-xs w-28" /></div>
+                                <div class="flex items-center justify-between gap-2"><span>4. Diámetro Ext. Ojo</span><input class="border rounded px-1 py-0.5 text-xs w-28" /></div>
+                                <div class="flex items-center justify-between gap-2"><span>5. Diámetro Int. Ojo</span><input class="border rounded px-1 py-0.5 text-xs w-28" /></div>
+                                <div class="flex items-center justify-between gap-2"><span>6. Diámetro Int. Cojinete / Rótula</span><input class="border rounded px-1 py-0.5 text-xs w-28" /></div>
+                                <div class="flex items-center justify-between gap-2"><span>7. Ancho de Ojo</span><input class="border rounded px-1 py-0.5 text-xs w-28" /></div>
+                                <div class="flex items-center justify-between gap-2"><span>8. Flexión</span><input class="border rounded px-1 py-0.5 text-xs w-28" /></div>
+                                <div class="flex items-center justify-between gap-2"><span>9. Esp. Cromo</span><input class="border rounded px-1 py-0.5 text-xs w-28" /></div>
+                                <div>
+                                    <span class="block mb-1">10. Pasa a NDT</span>
+                                    <div class="flex flex-wrap gap-2">
+                                        <label class="inline-flex items-center gap-1"><input type="radio" name="tel_vas_ndt" value="Si" class="text-purple-600" /><span>Sí</span></label>
+                                        <label class="inline-flex items-center gap-1"><input type="radio" name="tel_vas_ndt" value="No" class="text-purple-600" /><span>No</span></label>
+                                        <label class="inline-flex items-center gap-1"><input type="radio" name="tel_vas_ndt" value="NA" class="text-purple-600" /><span>N/A</span></label>
+                                    </div>
+                                </div>
+                                <div>
+                                    <span class="block mb-1">11. Pasa prueba de estanqueidad</span>
+                                    <div class="flex flex-wrap gap-2">
+                                        <label class="inline-flex items-center gap-1"><input type="radio" name="tel_vas_est" value="Si" class="text-purple-600" /><span>Sí</span></label>
+                                        <label class="inline-flex items-center gap-1"><input type="radio" name="tel_vas_est" value="No" class="text-purple-600" /><span>No</span></label>
+                                        <label class="inline-flex items-center gap-1"><input type="radio" name="tel_vas_est" value="NA" class="text-purple-600" /><span>N/A</span></label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Cuerpo intermedio -->
+                        <div>
+                            <h3 class="font-bold text-gray-800 mb-2 border-b pb-1">MEDICIONES - CUERPO INTERMEDIO</h3>
+                            <p class="text-[11px] text-gray-600 mb-1">Repetir por cada etapa según formulario.</p>
+                            <div class="space-y-1 text-xs">
+                                <div class="flex items-center justify-between gap-2">
+                                    <span>1. Diámetro interior (3 puntos de medidas)</span>
+                                    <div class="grid grid-cols-3 gap-1 w-28">
+                                        <input class="border rounded px-1 py-0.5 text-xs" placeholder="P1" />
+                                        <input class="border rounded px-1 py-0.5 text-xs" placeholder="P2" />
+                                        <input class="border rounded px-1 py-0.5 text-xs" placeholder="P3" />
+                                    </div>
+                                </div>
+                                <div class="flex items-center justify-between gap-2"><span>2. Diámetro Exterior</span><input class="border rounded px-1 py-0.5 text-xs w-28" /></div>
+                                <div class="flex items-center justify-between gap-2"><span>3. Longitud Cromo</span><input class="border rounded px-1 py-0.5 text-xs w-28" /></div>
+                                <div class="flex items-center justify-between gap-2"><span>4. Longitud Bruñido</span><input class="border rounded px-1 py-0.5 text-xs w-28" /></div>
+                                <div class="flex items-center justify-between gap-2"><span>5. Longitud Total</span><input class="border rounded px-1 py-0.5 text-xs w-28" /></div>
+                                <div class="flex items-center justify-between gap-2"><span>6. Esp. Cromo</span><input class="border rounded px-1 py-0.5 text-xs w-28" /></div>
+                                <div>
+                                    <span class="block mb-1">7. Pasa a NDT</span>
+                                    <div class="flex flex-wrap gap-2">
+                                        <label class="inline-flex items-center gap-1"><input type="radio" name="tel_cint_ndt" value="Si" class="text-purple-600" /><span>Sí</span></label>
+                                        <label class="inline-flex items-center gap-1"><input type="radio" name="tel_cint_ndt" value="No" class="text-purple-600" /><span>No</span></label>
+                                        <label class="inline-flex items-center gap-1"><input type="radio" name="tel_cint_ndt" value="NA" class="text-purple-600" /><span>N/A</span></label>
+                                    </div>
+                                </div>
+                                <div>
+                                    <span class="block mb-1">8. Roscado</span>
+                                    <select class="border rounded px-1 py-0.5 text-[11px] w-24">
+                                        <option value="">-</option>
+                                        <option>Sí</option>
+                                        <option>No</option>
+                                        <option>N/A</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tapa posterior, Tapa y Émbolo mediciones/resumen/recomendaciones: resumidas pero completas -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <h3 class="font-bold text-gray-800 mb-2 border-b pb-1">MEDICIONES - TAPA POSTERIOR</h3>
+                            <p class="text-[11px] text-gray-600 mb-1">Solo si aplica (cilindro sin cáncamo).</p>
+                            <div class="space-y-1 text-xs">
+                                <div class="flex items-center justify-between gap-2"><span>1. Diámetro Exterior</span><input class="border rounded px-1 py-0.5 text-xs w-28" /></div>
+                                <div class="flex items-center justify-between gap-2"><span>2. Diámetro de sellado</span><input class="border rounded px-1 py-0.5 text-xs w-28" /></div>
+                                <div class="flex items-center justify-between gap-2"><span>3. Diámetro Ojo</span><input class="border rounded px-1 py-0.5 text-xs w-28" /></div>
+                                <div class="flex items-center justify-between gap-2"><span>4. Diámetro Int. Cojinete</span><input class="border rounded px-1 py-0.5 text-xs w-28" /></div>
+                                <div class="flex items-center justify-between gap-2"><span>5. Ancho de Ojo</span><input class="border rounded px-1 py-0.5 text-xs w-28" /></div>
+                                <div>
+                                    <span class="block mb-1">6. Estado de soldadura</span>
+                                    <select class="border rounded px-1 py-0.5 text-[11px] w-28">
+                                        <option value="">-</option>
+                                        <option>Buena</option>
+                                        <option>Mala</option>
+                                        <option>N/A</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <span class="block mb-1">7. Pasa a NDT</span>
+                                    <div class="flex flex-wrap gap-2">
+                                        <label class="inline-flex items-center gap-1"><input type="radio" name="tel_tpost_ndt" value="Si" class="text-purple-600" /><span>Sí</span></label>
+                                        <label class="inline-flex items-center gap-1"><input type="radio" name="tel_tpost_ndt" value="No" class="text-purple-600" /><span>No</span></label>
+                                        <label class="inline-flex items-center gap-1"><input type="radio" name="tel_tpost_ndt" value="NA" class="text-purple-600" /><span>N/A</span></label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-gray-800 mb-2 border-b pb-1">MEDICIONES - TAPA</h3>
+                            <div class="space-y-1 text-xs">
+                                <div class="flex items-center justify-between gap-2"><span>1. Diámetro Exterior</span><input class="border rounded px-1 py-0.5 text-xs w-28" /></div>
+                                <div class="flex items-center justify-between gap-2"><span>2. Diámetro Interior</span><input class="border rounded px-1 py-0.5 text-xs w-28" /></div>
+                                <div class="flex items-center justify-between gap-2"><span>3. Diámetro Sellado</span><input class="border rounded px-1 py-0.5 text-xs w-28" /></div>
+                                <div class="flex items-center justify-between gap-2"><span>4. Longitud Total</span><input class="border rounded px-1 py-0.5 text-xs w-28" /></div>
+                                <div class="flex items-center justify-between gap-2"><span>5. Exterior roscado</span>
+                                    <select class="border rounded px-1 py-0.5 text-[11px] w-24">
+                                        <option value="">-</option>
+                                        <option>Sí</option>
+                                        <option>No</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <span class="block mb-1">6. Pasa a NDT</span>
+                                    <div class="flex flex-wrap gap-2">
+                                        <label class="inline-flex items-center gap-1"><input type="radio" name="tel_tapa_ndt" value="Si" class="text-purple-600" /><span>Sí</span></label>
+                                        <label class="inline-flex items-center gap-1"><input type="radio" name="tel_tapa_ndt" value="No" class="text-purple-600" /><span>No</span></label>
+                                        <label class="inline-flex items-center gap-1"><input type="radio" name="tel_tapa_ndt" value="NA" class="text-purple-600" /><span>N/A</span></label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-gray-800 mb-2 border-b pb-1">MEDICIONES - ÉMBOLO</h3>
+                            <div class="space-y-1 text-xs">
+                                <div class="flex items-center justify-between gap-2"><span>1. Diámetro Exterior</span><input class="border rounded px-1 py-0.5 text-xs w-28" /></div>
+                                <div class="flex items-center justify-between gap-2"><span>2. Diámetro Interior</span><input class="border rounded px-1 py-0.5 text-xs w-28" /></div>
+                                <div class="flex items-center justify-between gap-2"><span>3. Longitud Total</span><input class="border rounded px-1 py-0.5 text-xs w-28" /></div>
+                                <div class="flex items-center justify-between gap-2"><span>4. Interior Roscado</span>
+                                    <select class="border rounded px-1 py-0.5 text-[11px] w-24">
+                                        <option value="">-</option>
+                                        <option>Sí</option>
+                                        <option>No</option>
+                                        <option>N/A</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <span class="block mb-1">5. Pasa a NDT</span>
+                                    <div class="flex flex-wrap gap-2">
+                                        <label class="inline-flex items-center gap-1"><input type="radio" name="tel_emb_ndt" value="Si" class="text-purple-600" /><span>Sí</span></label>
+                                        <label class="inline-flex items-center gap-1"><input type="radio" name="tel_emb_ndt" value="No" class="text-purple-600" /><span>No</span></label>
+                                        <label class="inline-flex items-center gap-1"><input type="radio" name="tel_emb_ndt" value="NA" class="text-purple-600" /><span>N/A</span></label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Resultados y recomendaciones resumen -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <h3 class="font-bold text-gray-800 mb-2 border-b pb-1">RESULTADO DE EVALUACIÓN</h3>
+                            <p class="text-[11px] text-gray-600 mb-1">Para cilindro interior, exterior, rótula, cáncamo y vástago usar los mismos ítems que en Sección 1, aplicados al cilindro telescópico.</p>
+                            <p class="text-[11px] text-gray-600">Agregar evaluación de CUERPO INTERMEDIO y TAPA POSTERIOR siguiendo los criterios de desgaste, rayaduras, corrosión, fisuras y daño en roscas.</p>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-gray-800 mb-2 border-b pb-1">RECOMENDACIONES - CILINDRO / VÁSTAGO / CUERPO INTERMEDIO</h3>
+                            <div class="space-y-1 text-xs">
+                                <h4 class="font-semibold text-gray-700 text-xs">CILINDRO ESTÁNDAR</h4>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-purple-600" /><span>1. Realizar bruñido de cilindro</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-purple-600" /><span>2. Realizar pulido de cara de brida</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-purple-600" /><span>3. Realizar pulido de alojamientos (si tiene tapa posterior)</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-purple-600" /><span>4. Recuperar diámetro de alojamiento con soldadura (si no tiene tapa posterior)</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-purple-600" /><span>5. Barrenado de alojamiento a medida nominal (si no tiene tapa posterior)</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-purple-600" /><span>6. Rectificado de caras laterales de cáncamo (si no tiene tapa posterior)</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-purple-600" /><span>7. Realizar cambio / instalación de rótula (si no tiene tapa posterior)</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-purple-600" /><span>8. Realizar cambio / instalación de seguros Seager (si no tiene tapa posterior)</span></label>
+                                <h4 class="font-semibold text-gray-700 text-xs mt-2">CILINDRO NO ESTÁNDAR</h4>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-purple-600" /><span>9. Reconstrucción de alojamiento</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-purple-600" /><span>10. Realizar cambio de tubo</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-purple-600" /><span>11. Realizar fabricación de cáncamo</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-purple-600" /><span>12. Realizar rectificado de agujeros roscados</span></label>
+                                <h4 class="font-semibold text-gray-700 text-xs mt-2">VÁSTAGO ESTÁNDAR / NO ESTÁNDAR</h4>
+                                <p class="text-[11px] text-gray-600">Usar mismas recomendaciones de Sección 1 (vástago estándar y no estándar) más pulido de alojamiento de sellos.</p>
+                                <h4 class="font-semibold text-gray-700 text-xs mt-2">CUERPO INTERMEDIO</h4>
+                                <p class="text-[11px] text-gray-600">Estándar: bruñido de cuerpo intermedio, rectificado y cromado, pulido de alojamientos.<br />No estándar: rectificado de alojamientos, rectificado de superficie roscada, reparar fisura de junta.</p>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-gray-800 mb-2 border-b pb-1">RECOMENDACIONES - TAPA POSTERIOR / TAPA / ÉMBOLO</h3>
+                            <div class="space-y-1 text-xs">
+                                <h4 class="font-semibold text-gray-700 text-xs">TAPA POSTERIOR ESTÁNDAR</h4>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-purple-600" /><span>1. Reparar soldadura de tubo de transferencia</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-purple-600" /><span>2. Reconstrucción de alojamiento</span></label>
+                                <h4 class="font-semibold text-gray-700 text-xs mt-2">TAPA ESTÁNDAR / NO ESTÁNDAR</h4>
+                                <p class="text-[11px] text-gray-600">Usar mismas recomendaciones de Sección 1 para tapa estándar.</p>
+                                <div class="flex items-center gap-2 mt-1">
+                                    <label class="flex items-center gap-2 flex-1"><input type="checkbox" class="text-purple-600" /><span>Rectificado de alojamiento de</span></label>
+                                    <select class="border rounded px-1 py-0.5 text-[11px] w-40">
+                                        <option value="">-</option>
+                                        <option>SELLO LIMPIADOR</option>
+                                        <option>SELLO PRINCIPAL</option>
+                                        <option>SELLO DE AMORTIGUACIÓN</option>
+                                        <option>ANILLO DE DESGASTE</option>
+                                        <option>ORING Y BACK UP</option>
+                                        <option>DIÁMETRO DE SELLADO</option>
+                                        <option>OTRO</option>
+                                    </select>
+                                </div>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-purple-600" /><span>Reparar con soldadura diámetro exterior</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-purple-600" /><span>Realizar fabricación de tapa</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-purple-600" /><span>Realizar cambio de tapa (nuevo)</span></label>
+                                <h4 class="font-semibold text-gray-700 text-xs mt-2">ÉMBOLO</h4>
+                                <p class="text-[11px] text-gray-600">Usar mismas recomendaciones estándar y no estándar de Sección 1, agregando "superficie roscada presenta daño" cuando aplique.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <div class="flex justify-end gap-4 pt-4 pb-8">
+                <a href="/produccion/index.html" class="px-6 py-2 border border-gray-300 rounded-lg bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 flex items-center">
+                    <i class="fas fa-times mr-2"></i> Cancelar
+                </a>
+                <button type="submit" class="px-8 py-2 rounded-lg bg-blue-700 hover:bg-blue-800 text-white text-sm font-semibold flex items-center">
+                    <i class="fas fa-save mr-2"></i> Guardar evaluación (solo formulario)
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const selector = document.getElementById('tipo-cilindro');
+            const secciones = document.querySelectorAll('section[data-tipo]');
+
+            function actualizarSeccion() {
+                const tipo = selector.value;
+                secciones.forEach(sec => {
+                    if (sec.dataset.tipo === tipo) {
+                        sec.classList.remove('hidden');
+                    } else {
+                        sec.classList.add('hidden');
+                    }
+                });
+            }
+
+            selector.addEventListener('change', actualizarSeccion);
+            actualizarSeccion();
+        });
+    </script>
+</body>
+</html>

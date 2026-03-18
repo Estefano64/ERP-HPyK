@@ -358,6 +358,17 @@ const startServer = async () => {
     console.log('   2/4 Creando catálogos con dependencias...');
     // NIVEL 2: Catálogos que dependen de otros catálogos
     await SubArea.sync({ force: false });
+
+    // Crear tablas base antes de aplicar migraciones incrementales con ALTER TABLE.
+    // En una base nueva, estas relaciones aún no existen en este punto.
+    await Material.sync({ force: false });
+    await Equipo.sync({ force: false });
+    await CodigoReparacion.sync({ force: false });
+    await OrdenTrabajo.sync({ force: false });
+    await Almacen.sync({ force: false });
+    await Proveedor.sync({ force: false });
+    await Compra.sync({ force: false });
+    await OTRepuesto.sync({ force: false });
     
     // Migración incremental: agregar columnas nuevas y corregir tipos (idempotente)
 
