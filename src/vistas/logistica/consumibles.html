@@ -7,11 +7,11 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script src="/src/components/navigation.js"></script>
+    <script src="/vistas/shared/navigation.js"></script>
 </head>
 <body class="bg-gray-50">
     <!-- Navigation -->
-    <div id="nav-container"></div>
+    <div id="navigation-container"></div>
 
     <!-- Header -->
     <div class="bg-gradient-to-r from-purple-600 to-purple-800 text-white shadow-lg">
@@ -25,10 +25,10 @@
                     <p class="text-purple-100 mt-1">Gestión de Stock y Consumo</p>
                 </div>
                 <div class="flex gap-2">
-                    <a href="materiales.html" class="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg text-sm transition">
+                    <a href="/logistica/materiales.html" class="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg text-sm transition">
                         <i class="fas fa-warehouse mr-2"></i>Materiales
                     </a>
-                    <a href="index.html" class="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg text-sm transition">
+                    <a href="/logistica/index.html" class="bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg text-sm transition">
                         <i class="fas fa-home mr-2"></i>Dashboard
                     </a>
                 </div>
@@ -443,6 +443,6 @@
         </div>
     </div>
 
-    <script src="/src/vistas/logistica/consumibles.js"></script>
+    <script src="/vistas/logistica/consumibles.js"></script>
 </body>
 </html>
