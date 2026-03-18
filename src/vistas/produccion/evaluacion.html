@@ -874,7 +874,7 @@
             mostrarToast('Hoja de evaluación registrada (solo demostración, sin guardar en BD).');
         });
 
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', async function () {
             const otInput = document.querySelector('[name="ot"]');
             if (!otInput) return;
 
@@ -900,6 +900,25 @@
             initImageUpload('file-vastago', 'preview-vastago-img', 'preview-vastago-text');
             initImageUpload('file-tapa', 'preview-tapa-img', 'preview-tapa-text');
             initImageUpload('file-piston', 'preview-piston-img', 'preview-piston-text');
+
+            // Auto-cargar OT si viene ?id= en la URL (desde botón microscopio en OTs)
+            const urlParams = new URLSearchParams(window.location.search);
+            const otId = urlParams.get('id');
+            if (otId) {
+                try {
+                    const res = await fetch(`/api/ot/${otId}`);
+                    if (res.ok) {
+                        const ot = await res.json();
+                        const otNumero = ot.ot || ot.numero_ot || '';
+                        if (otNumero) {
+                            otInput.value = otNumero;
+                            cargarDatosDesdeOT(otNumero);
+                        }
+                    }
+                } catch (e) {
+                    console.error('Error cargando OT por ID:', e);
+                }
+            }
         });
     </script>
 </body>
