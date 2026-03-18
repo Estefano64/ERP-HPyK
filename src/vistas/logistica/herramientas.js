@@ -39,7 +39,7 @@ function switchTab(tab) {
 // Load herramientas
 async function loadHerramientas() {
     try {
-        const response = await fetch('/api/herramientas');
+        const response = await fetch('/api/logistica/herramientas');
         if (response.ok) {
             herramientas = await response.json();
         } else {
@@ -60,11 +60,12 @@ async function loadHerramientas() {
 // Generate sample data
 function generateSampleHerramientas() {
     return [
-        { id: 1, codigo: 'HERR-001', nombre: 'Taladro Eléctrico Bosch', categoria: 'electricas', marca: 'Bosch', modelo: 'GSB 13 RE', estado: 'disponible', ubicacion: 'Taller - Estante A1', fecha_adquisicion: '2023-01-15', proximo_mantenimiento: '2026-03-01' },
-        { id: 2, codigo: 'HERR-002', nombre: 'Llave Inglesa 12"', categoria: 'manuales', marca: 'Stanley', modelo: 'ST90', estado: 'disponible', ubicacion: 'Taller - Caja 1', fecha_adquisicion: '2022-05-20', proximo_mantenimiento: '2026-06-01' },
-        { id: 3, codigo: 'HERR-003', nombre: 'Multímetro Digital', categoria: 'medicion', marca: 'Fluke', modelo: '117', estado: 'en_uso', ubicacion: 'Lab. Eléctrico', fecha_adquisicion: '2023-08-10', proximo_mantenimiento: '2026-04-15', ultimo_uso: '2026-02-20' },
-        { id: 4, codigo: 'HERR-004', nombre: 'Esmeril Angular', categoria: 'electricas', marca: 'Makita', modelo: 'GA5030', estado: 'mantenimiento', ubicacion: 'Taller - Banco 2', fecha_adquisicion: '2021-11-05', proximo_mantenimiento: '2026-02-28' },
-        { id: 5, codigo: 'HERR-005', nombre: 'Casco de Seguridad', categoria: 'seguridad', marca: '3M', modelo: 'H-700', estado: 'disponible', ubicacion: 'Almacén EPP', fecha_adquisicion: '2023-12-01', proximo_mantenimiento: '2027-01-01' }
+        // Datos de ejemplo alineados parcialmente al modelo backend
+        { id: 1, codigo: 'HERR-001', nombre: 'Taladro Eléctrico Bosch', stock: 10, asignadas: 2, estado: 'Disponible', categoria: 'electricas', marca: 'Bosch', modelo: 'GSB 13 RE', ubicacion: 'Taller - Estante A1', fecha_adquisicion: '2023-01-15', proximo_mantenimiento: '2026-03-01' },
+        { id: 2, codigo: 'HERR-002', nombre: 'Llave Inglesa 12"', stock: 5, asignadas: 0, estado: 'Disponible', categoria: 'manuales', marca: 'Stanley', modelo: 'ST90', ubicacion: 'Taller - Caja 1', fecha_adquisicion: '2022-05-20', proximo_mantenimiento: '2026-06-01' },
+        { id: 3, codigo: 'HERR-003', nombre: 'Multímetro Digital', stock: 3, asignadas: 2, estado: 'Bajo Stock', categoria: 'medicion', marca: 'Fluke', modelo: '117', ubicacion: 'Lab. Eléctrico', fecha_adquisicion: '2023-08-10', proximo_mantenimiento: '2026-04-15', ultimo_uso: '2026-02-20' },
+        { id: 4, codigo: 'HERR-004', nombre: 'Esmeril Angular', stock: 4, asignadas: 4, estado: 'Agotado', categoria: 'electricas', marca: 'Makita', modelo: 'GA5030', ubicacion: 'Taller - Banco 2', fecha_adquisicion: '2021-11-05', proximo_mantenimiento: '2026-02-28' },
+        { id: 5, codigo: 'HERR-005', nombre: 'Casco de Seguridad', stock: 20, asignadas: 1, estado: 'Disponible', categoria: 'seguridad', marca: '3M', modelo: 'H-700', ubicacion: 'Almacén EPP', fecha_adquisicion: '2023-12-01', proximo_mantenimiento: '2027-01-01' }
     ];
 }
 
@@ -88,14 +89,18 @@ function renderHerramientas() {
         const estadoBadge = getEstadoBadge(h.estado);
         const ultimoUso = h.ultimo_uso ? new Date(h.ultimo_uso).toLocaleDateString('es-ES') : '-';
         const proxMant = h.proximo_mantenimiento ? new Date(h.proximo_mantenimiento).toLocaleDateString('es-ES') : '-';
+        const categoriaLabel = h.categoria ? getCategoryLabel(h.categoria) : '-';
+        const marca = h.marca || '-';
+        const modelo = h.modelo || '';
+        const ubicacion = h.ubicacion || '-';
         
         return `
             <tr class="hover:bg-gray-50">
                 <td class="px-4 py-3 text-sm font-semibold">${h.codigo}</td>
                 <td class="px-4 py-3 text-sm">${h.nombre}</td>
-                <td class="px-4 py-3 text-sm">${getCategoryLabel(h.categoria)}</td>
-                <td class="px-4 py-3 text-sm">${h.marca || '-'} ${h.modelo || ''}</td>
-                <td class="px-4 py-3 text-sm">${h.ubicacion}</td>
+                <td class="px-4 py-3 text-sm">${categoriaLabel}</td>
+                <td class="px-4 py-3 text-sm">${marca} ${modelo}</td>
+                <td class="px-4 py-3 text-sm">${ubicacion}</td>
                 <td class="px-4 py-3 text-center">${estadoBadge}</td>
                 <td class="px-4 py-3 text-center text-sm">${ultimoUso}</td>
                 <td class="px-4 py-3 text-center text-sm">${proxMant}</td>
@@ -117,22 +122,53 @@ function renderHerramientas() {
 
 // Update dashboard
 function updateDashboard() {
-    document.getElementById('total-herramientas').textContent = herramientas.length;
-    document.getElementById('herramientas-disponibles').textContent = herramientas.filter(h => h.estado === 'disponible').length;
-    document.getElementById('herramientas-en-uso').textContent = herramientas.filter(h => h.estado === 'en_uso').length;
-    document.getElementById('herramientas-mantenimiento').textContent = herramientas.filter(h => h.estado === 'mantenimiento').length;
+    const total = herramientas.length;
+
+    let disponibles = 0;
+    let enUso = 0;
+    let mantenimiento = 0;
+
+    herramientas.forEach(h => {
+        const estado = (h.estado || '').toString().toLowerCase();
+        const stock = typeof h.stock === 'number' ? h.stock : 0;
+        const asignadas = typeof h.asignadas === 'number' ? h.asignadas : 0;
+        const disponiblesCalc = stock - asignadas;
+
+        // Disponibles: por stock/asignadas o por estado
+        if (disponiblesCalc > 0 || estado === 'disponible') {
+            disponibles++;
+        }
+
+        // En uso: cuando hay asignadas o estado en_uso
+        if (asignadas > 0 || estado === 'en_uso') {
+            enUso++;
+        }
+
+        // Mantenimiento/bajo stock: estados críticos
+        if (estado === 'bajo stock' || estado === 'agotado' || estado === 'mantenimiento') {
+            mantenimiento++;
+        }
+    });
+
+    document.getElementById('total-herramientas').textContent = total;
+    document.getElementById('herramientas-disponibles').textContent = disponibles;
+    document.getElementById('herramientas-en-uso').textContent = enUso;
+    document.getElementById('herramientas-mantenimiento').textContent = mantenimiento;
 }
 
 // Get estado badge
 function getEstadoBadge(estado) {
+    const normalized = (estado || '').toString().toLowerCase();
     const badges = {
         'disponible': '<span class="px-3 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">✅ Disponible</span>',
         'en_uso': '<span class="px-3 py-1 text-xs font-semibold rounded-full bg-orange-100 text-orange-800">👷 En Uso</span>',
         'mantenimiento': '<span class="px-3 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">⚙️ Mantenimiento</span>',
         'dañado': '<span class="px-3 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">❌ Dañado</span>',
-        'baja': '<span class="px-3 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">🗑️ Baja</span>'
+        'baja': '<span class="px-3 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">🗑️ Baja</span>',
+        'bajo stock': '<span class="px-3 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">⚠️ Bajo stock</span>',
+        'agotado': '<span class="px-3 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">⛔ Agotado</span>'
     };
-    return badges[estado] || '<span class="px-3 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">-</span>';
+    return badges[normalized] || '<span class="px-3 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">-</span>';
 }
 
 // Get category label
@@ -236,46 +272,56 @@ ${herr.observaciones ? '💬 Obs: ' + herr.observaciones : ''}
 
 function deleteHerramienta(id) {
     if (!confirm('¿Eliminar esta herramienta?')) return;
-    
-    herramientas = herramientas.filter(h => h.id !== id);
-    renderHerramientas();
-    updateDashboard();
-    showToast('✅ Herramienta eliminada', 'success');
+
+    fetch(`/api/logistica/herramientas/${id}`, {
+        method: 'DELETE'
+    })
+    .then(response => {
+        if (!response.ok) throw new Error('Error al eliminar herramienta');
+        showToast('✅ Herramienta eliminada correctamente', 'success');
+        return loadHerramientas();
+    })
+    .catch(error => {
+        console.error('Error al eliminar herramienta:', error);
+        showToast('❌ No se pudo eliminar la herramienta', 'error');
+    });
 }
 
 // Submit herramienta
 async function submitHerramienta(e) {
     e.preventDefault();
-    
-    const data = {
+
+    // Solo se persisten los campos del modelo backend
+    const payload = {
         codigo: document.getElementById('herr-codigo').value,
-        nombre: document.getElementById('herr-nombre').value,
-        categoria: document.getElementById('herr-categoria').value,
-        estado: document.getElementById('herr-estado').value,
-        marca: document.getElementById('herr-marca').value,
-        modelo: document.getElementById('herr-modelo').value,
-        numero_serie: document.getElementById('herr-serie').value,
-        ubicacion: document.getElementById('herr-ubicacion').value,
-        fecha_adquisicion: document.getElementById('herr-fecha-adquisicion').value,
-        proximo_mantenimiento: document.getElementById('herr-proximo-mant').value,
-        descripcion: document.getElementById('herr-descripcion').value,
-        observaciones: document.getElementById('herr-observaciones').value
+        nombre: document.getElementById('herr-nombre').value
     };
-    
-    if (editingId) {
-        const index = herramientas.findIndex(h => h.id === editingId);
-        herramientas[index] = { ...herramientas[index], ...data };
-        showToast('✅ Herramienta actualizada', 'success');
-    } else {
-        data.id = herramientas.length + 1;
-        herramientas.push(data);
-        showToast('✅ Herramienta creada', 'success');
+
+    const url = editingId
+        ? `/api/logistica/herramientas/${editingId}`
+        : '/api/logistica/herramientas';
+
+    const method = editingId ? 'PUT' : 'POST';
+
+    try {
+        const response = await fetch(url, {
+            method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+            throw new Error('Error al guardar herramienta');
+        }
+
+        showToast(editingId ? '✅ Herramienta actualizada' : '✅ Herramienta creada', 'success');
+        closeHerramientaModal();
+        editingId = null;
+        await loadHerramientas();
+    } catch (error) {
+        console.error('Error al guardar herramienta:', error);
+        showToast('❌ No se pudo guardar la herramienta', 'error');
     }
-    
-    closeHerramientaModal();
-    renderHerramientas();
-    updateDashboard();
-    fillHerramientasSelect();
 }
 
 // Fill herramientas select
@@ -284,9 +330,22 @@ function fillHerramientasSelect() {
     selects.forEach(selectId => {
         const select = document.getElementById(selectId);
         select.innerHTML = '<option value="">Seleccione...</option>';
-        herramientas.filter(h => h.estado === 'disponible').forEach(h => {
-            select.innerHTML += `<option value="${h.id}">${h.codigo} - ${h.nombre}</option>`;
-        });
+        herramientas
+            .filter(h => {
+                const estado = (h.estado || '').toString().toLowerCase();
+                const stock = typeof h.stock === 'number' ? h.stock : 0;
+                const asignadas = typeof h.asignadas === 'number' ? h.asignadas : 0;
+                const disponibles = stock - asignadas;
+
+                if (stock > 0 || asignadas > 0) {
+                    return disponibles > 0;
+                }
+
+                return estado === 'disponible';
+            })
+            .forEach(h => {
+                select.innerHTML += `<option value="${h.id}">${h.codigo} - ${h.nombre}</option>`;
+            });
     });
 }
 

@@ -1,6 +1,7 @@
 // Control de Consumibles - JavaScript
 let consumibles = [];
 let movimientos = [];
+let materialesSource = [];
 let editingId = null;
 
 // Initialize
@@ -40,9 +41,40 @@ function switchTab(tab) {
 // Load consumibles
 async function loadConsumibles() {
     try {
-        const response = await fetch('/api/consumibles');
+        // Consumibles se obtienen desde el catálogo general de materiales
+        const response = await fetch('/api/materiales');
         if (response.ok) {
-            consumibles = await response.json();
+            const materiales = await response.json();
+
+            if (Array.isArray(materiales)) {
+                // Guardar fuente original para poder hacer updates precisos
+                materialesSource = materiales;
+
+                consumibles = materiales
+                    // Filtrar materiales cuya categoría sea "Consumible" (código CON)
+                    .filter(m => m.categoria_codigo === 'CON' || m.categoria_descripcion === 'Consumible')
+                    // Mapear al modelo de consumibles usado por la vista
+                    .map(m => ({
+                        id: m.material_id,
+                        material_id: m.material_id,
+                        codigo: m.codigo,
+                        nombre: m.descripcion,
+                        // Para esta vista todos se consideran categoría "Mantenimiento" por defecto
+                        categoria: 'mantenimiento',
+                        unidad: mapUnidadFromCodigo(m.unidad_medida_codigo),
+                        stock: Number(m.stock_actual || 0),
+                        stock_minimo: Number(m.punto_reposicion || 0),
+                        marca: m.fabricante_codigo || '',
+                        proveedor: '',
+                        ubicacion: m.ubicacion || '',
+                        precio_unitario: Number(m.precio || 0),
+                        consumo_mensual: 0,
+                        ultimo_movimiento: m.updated_at || null,
+                        descripcion: m.descripcion_compuesta || m.descripcion
+                    }));
+            } else {
+                consumibles = generateSampleConsumibles();
+            }
         } else {
             consumibles = generateSampleConsumibles();
         }
@@ -72,6 +104,20 @@ function generateSampleConsumibles() {
         { id: 9, codigo: 'CONS-009', nombre: 'Filtros de Aire', categoria: 'mantenimiento', unidad: 'unidad', stock: 12, stock_minimo: 20, marca: 'Mann', proveedor: 'Repuestos MNO', ubicacion: 'Almacén Mantenimiento - E2', precio_unitario: 45.00, consumo_mensual: 10 },
         { id: 10, codigo: 'CONS-010', nombre: 'Casco de Seguridad', categoria: 'epp', unidad: 'unidad', stock: 5, stock_minimo: 10, marca: '3M', proveedor: 'Proveedor A', ubicacion: 'Almacén EPP - A3', precio_unitario: 65.00, consumo_mensual: 3, ultimo_movimiento: '2026-02-15' }
     ];
+}
+
+// Mapear código de unidad de medida de Material a unidad usada en esta vista
+function mapUnidadFromCodigo(codigo) {
+    const map = {
+        'UN': 'unidad',
+        'CJ': 'caja',
+        'PAQ': 'paquete',
+        'LT': 'litro',
+        'KG': 'kilogramo',
+        'MT': 'metro',
+        'PAR': 'par'
+    };
+    return map[codigo] || 'unidad';
 }
 
 // Load movimientos
@@ -300,11 +346,39 @@ ${cons.descripcion ? '📝 Descripción: ' + cons.descripcion : ''}
 
 function deleteConsumible(id) {
     if (!confirm('¿Eliminar este consumible?')) return;
-    
-    consumibles = consumibles.filter(c => c.id !== id);
-    renderConsumibles();
-    updateDashboard();
-    showToast('✅ Consumible eliminado', 'success');
+
+    const cons = consumibles.find(c => c.id === id);
+
+    // Si es un consumible vinculado a Material, intentar borrar también en backend
+    if (cons && cons.material_id) {
+        fetch(`/api/materiales/${cons.material_id}`, {
+            method: 'DELETE'
+        }).then(res => {
+            if (!res.ok) {
+                // Si falla el backend, continuar en modo local
+                console.warn('No se pudo eliminar en backend, se elimina solo en memoria');
+            }
+            consumibles = consumibles.filter(c => c.id !== id);
+            renderConsumibles();
+            updateDashboard();
+            fillConsumiblesSelect();
+            showToast('✅ Consumible eliminado', 'success');
+        }).catch(err => {
+            console.error('Error eliminando consumible en backend:', err);
+            consumibles = consumibles.filter(c => c.id !== id);
+            renderConsumibles();
+            updateDashboard();
+            fillConsumiblesSelect();
+            showToast('✅ Consumible eliminado (modo local)', 'success');
+        });
+    } else {
+        // Modo local (datos de ejemplo o no vinculados a material)
+        consumibles = consumibles.filter(c => c.id !== id);
+        renderConsumibles();
+        updateDashboard();
+        fillConsumiblesSelect();
+        showToast('✅ Consumible eliminado', 'success');
+    }
 }
 
 // Submit consumible
@@ -326,20 +400,96 @@ async function submitConsumible(e) {
         consumo_mensual: 0
     };
     
-    if (editingId) {
-        const index = consumibles.findIndex(c => c.id === editingId);
-        consumibles[index] = { ...consumibles[index], ...data };
-        showToast('✅ Consumible actualizado', 'success');
+    const existing = editingId ? consumibles.find(c => c.id === editingId) : null;
+
+    if (existing && existing.material_id) {
+        // Actualizar material real en backend
+        const material = materialesSource.find(m => m.material_id === existing.material_id);
+
+        if (material) {
+            const payload = {
+                ...material,
+                descripcion: data.nombre,
+                descripcion_compuesta: data.descripcion || material.descripcion_compuesta,
+                categoria_codigo: 'CON',
+                unidad_medida_codigo: mapCodigoFromUnidad(data.unidad || existing.unidad),
+                stock_actual: data.stock,
+                punto_reposicion: data.stock_minimo,
+                precio: data.precio_unitario,
+                fabricante_codigo: data.marca || material.fabricante_codigo,
+                ubicacion: data.ubicacion || material.ubicacion
+            };
+
+            try {
+                const res = await fetch(`/api/materiales/${existing.material_id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (res.ok) {
+                    showToast('✅ Consumible actualizado', 'success');
+                    // Recargar desde backend para mantener sincronizado
+                    await loadConsumibles();
+                } else {
+                    console.warn('Fallo actualización en backend, se actualiza solo en memoria');
+                    const index = consumibles.findIndex(c => c.id === editingId);
+                    consumibles[index] = { ...consumibles[index], ...data };
+                    renderConsumibles();
+                    updateDashboard();
+                    fillConsumiblesSelect();
+                    showToast('✅ Consumible actualizado (modo local)', 'success');
+                }
+            } catch (err) {
+                console.error('Error actualizando material:', err);
+                const index = consumibles.findIndex(c => c.id === editingId);
+                consumibles[index] = { ...consumibles[index], ...data };
+                renderConsumibles();
+                updateDashboard();
+                fillConsumiblesSelect();
+                showToast('✅ Consumible actualizado (modo local)', 'success');
+            }
+        } else {
+            // Sin referencia de material, actualizar solo en memoria
+            const index = consumibles.findIndex(c => c.id === editingId);
+            consumibles[index] = { ...consumibles[index], ...data };
+            renderConsumibles();
+            updateDashboard();
+            fillConsumiblesSelect();
+            showToast('✅ Consumible actualizado', 'success');
+        }
     } else {
-        data.id = consumibles.length + 1;
-        consumibles.push(data);
-        showToast('✅ Consumible creado', 'success');
+        // Creación o edición de datos solo en memoria (ejemplo / modo local)
+        if (editingId) {
+            const index = consumibles.findIndex(c => c.id === editingId);
+            consumibles[index] = { ...consumibles[index], ...data };
+            showToast('✅ Consumible actualizado (local)', 'success');
+        } else {
+            data.id = consumibles.length + 1;
+            consumibles.push(data);
+            showToast('✅ Consumible creado (local)', 'success');
+        }
+
+        renderConsumibles();
+        updateDashboard();
+        fillConsumiblesSelect();
     }
-    
+
     closeConsumibleModal();
-    renderConsumibles();
-    updateDashboard();
-    fillConsumiblesSelect();
+}
+
+// Mapear unidad de la vista a código de unidad de medida de Material
+function mapCodigoFromUnidad(unidad) {
+    const map = {
+        'unidad': 'UN',
+        'caja': 'CJ',
+        'paquete': 'PAQ',
+        'litro': 'LT',
+        'kilogramo': 'KG',
+        'metro': 'MT',
+        'par': 'PAR'
+    };
+    return map[unidad] || 'UN';
 }
 
 // Fill consumibles select

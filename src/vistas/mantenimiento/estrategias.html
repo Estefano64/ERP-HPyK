@@ -75,6 +75,37 @@
                     <tbody id="tableBody" class="divide-y divide-gray-200"></tbody>
                 </table>
             </div>
+            <!-- Tabla de revisión de estrategias vs OTs -->
+            <div class="mt-8">
+                <div class="flex items-center justify-between mb-3">
+                    <h2 class="text-xl font-semibold text-gray-800 flex items-center">
+                        <i class="fas fa-table-list text-indigo-600 mr-2"></i>
+                        Tabla de revisar las estrategias
+                    </h2>
+                    <p id="reviewSubtitle" class="text-sm text-gray-500">Seleccione una estrategia y haga clic en "Ver OTs".</p>
+                </div>
+                <div class="overflow-x-auto border border-gray-200 rounded-lg bg-gray-50">
+                    <table class="min-w-full">
+                        <thead class="bg-gradient-to-r from-gray-100 to-gray-200">
+                            <tr>
+                                <th class="px-4 py-2 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">OT</th>
+                                <th class="px-4 py-2 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Equipo</th>
+                                <th class="px-4 py-2 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Descripción</th>
+                                <th class="px-4 py-2 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Prioridad</th>
+                                <th class="px-4 py-2 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Estado OT</th>
+                                <th class="px-4 py-2 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Fecha recepción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="reviewTableBody" class="divide-y divide-gray-200 bg-white">
+                            <tr>
+                                <td colspan="6" class="px-4 py-6 text-center text-sm text-gray-500">
+                                    <i class="fas fa-info-circle mr-1"></i>No hay datos para mostrar. Seleccione una estrategia.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -108,6 +139,34 @@
                         <div class="md:col-span-2">
                             <label class="block text-sm font-medium text-gray-700 mb-1">Nombre *</label>
                             <input type="text" id="nombre" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-cyan-500 focus:border-transparent">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sección 1B: Área / Equipo / Unidad -->
+                <div class="bg-gray-50 rounded-lg p-4">
+                    <h4 class="text-lg font-semibold text-emerald-700 mb-4 flex items-center">
+                        <i class="fas fa-industry text-emerald-600 mr-2"></i>
+                        Área, Equipo y Unidad de Frecuencia
+                    </h4>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Área *</label>
+                            <select id="area_codigo" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-cyan-500 focus:border-transparent">
+                                <option value="">Seleccione...</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Equipo *</label>
+                            <select id="equipo_codigo" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-cyan-500 focus:border-transparent">
+                                <option value="">Seleccione...</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Unidad frecuencia *</label>
+                            <select id="unidad_medida_codigo" required class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-cyan-500 focus:border-transparent">
+                                <option value="">Seleccione...</option>
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -308,6 +367,7 @@
 
     <script>
         let estrategias = [];
+        let equiposCatalogo = [];
 
         // Dropdown functions
         function toggleDropdown(event, button) {
@@ -358,14 +418,115 @@
             setTimeout(() => { toast.style.transform = 'translateX(150%)'; }, 3000);
         }
 
-        // Cargar estrategias
+        // Cargar catálogos de estrategias (tipos, status, área/equipo/unidad)
+        async function loadCatalogosEstrategia() {
+            try {
+                // Tipos de estrategia
+                const tipoSelect = document.getElementById('tipo_mantenimiento');
+                if (tipoSelect) {
+                    const resTipos = await fetch('/api/catalogos/tipos-estrategia');
+                    if (resTipos.ok) {
+                        const tipos = await resTipos.json();
+                        // Limpiar opciones (dejando el placeholder)
+                        tipoSelect.innerHTML = '<option value="">Seleccione...</option>';
+                        tipos.filter(t => t.activo !== false).forEach(t => {
+                            const opt = document.createElement('option');
+                            opt.value = t.codigo;
+                            opt.textContent = t.nombre;
+                            tipoSelect.appendChild(opt);
+                        });
+                    }
+                }
+
+                // Status de estrategia
+                const estadoSelect = document.getElementById('estado');
+                if (estadoSelect) {
+                    const resStatus = await fetch('/api/catalogos/status-estrategia');
+                    if (resStatus.ok) {
+                        const estados = await resStatus.json();
+                        estadoSelect.innerHTML = '<option value="">Seleccione...</option>';
+                        estados.filter(s => s.activo !== false).forEach(s => {
+                            const opt = document.createElement('option');
+                            opt.value = s.codigo;
+                            opt.textContent = s.nombre;
+                            estadoSelect.appendChild(opt);
+                        });
+                    }
+                }
+
+                // Áreas
+                const areaSelect = document.getElementById('area_codigo');
+                if (areaSelect) {
+                    const resAreas = await fetch('/api/catalogos/areas');
+                    if (resAreas.ok) {
+                        const areas = await resAreas.json();
+                        areaSelect.innerHTML = '<option value="">Seleccione...</option>';
+                        areas.forEach(a => {
+                            const opt = document.createElement('option');
+                            opt.value = a.codigo;
+                            opt.textContent = a.nombre || a.descripcion || a.codigo;
+                            areaSelect.appendChild(opt);
+                        });
+                    }
+                }
+
+                // Unidades de medida (para frecuencia)
+                const unidadSelect = document.getElementById('unidad_medida_codigo');
+                if (unidadSelect) {
+                    const resUnidades = await fetch('/api/catalogos/unidades-medida');
+                    if (resUnidades.ok) {
+                        const unidades = await resUnidades.json();
+                        unidadSelect.innerHTML = '<option value="">Seleccione...</option>';
+                        unidades.forEach(u => {
+                            const opt = document.createElement('option');
+                            opt.value = u.codigo;
+                            opt.textContent = `${u.codigo} - ${u.nombre}`;
+                            unidadSelect.appendChild(opt);
+                        });
+                    }
+                }
+
+                // Equipos
+                const equipoSelect = document.getElementById('equipo_codigo');
+                if (equipoSelect) {
+                    const resEquipos = await fetch('/api/equipos');
+                    if (resEquipos.ok) {
+                        const equipos = await resEquipos.json();
+                        equiposCatalogo = Array.isArray(equipos) ? equipos : [];
+                        equipoSelect.innerHTML = '<option value="">Seleccione...</option>';
+                        equiposCatalogo.forEach(e => {
+                            const opt = document.createElement('option');
+                            opt.value = e.codigo;
+                            const areaNombre = (e.area && (e.area.nombre || e.area.descripcion)) || '';
+                            opt.textContent = `${e.codigo} - ${e.descripcion || ''}${areaNombre ? ' (' + areaNombre + ')' : ''}`;
+                            equipoSelect.appendChild(opt);
+                        });
+                    } else {
+                        equiposCatalogo = [];
+                    }
+                }
+            } catch (error) {
+                console.error('Error cargando catálogos de estrategias:', error);
+            }
+        }
+
+        // Cargar estrategias (lectura desde backend)
         async function loadEstrategias() {
             try {
                 const response = await fetch('/api/estrategias');
-                estrategias = await response.json();
-                renderTable();
+                if (response.ok) {
+                    const data = await response.json();
+                    estrategias = Array.isArray(data) ? data : [];
+                    renderTable();
+                } else {
+                    estrategias = [];
+                    renderTable();
+                    showToast('No se pudieron cargar las estrategias', 'error');
+                }
             } catch (error) {
                 console.error('Error cargando estrategias:', error);
+                estrategias = [];
+                renderTable();
                 showToast('Error al cargar estrategias', 'error');
             }
         }
@@ -374,32 +535,52 @@
         function renderTable() {
             const tbody = document.getElementById('tableBody');
             tbody.innerHTML = '';
-            
+
+            if (!Array.isArray(estrategias) || estrategias.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="px-4 py-6 text-center text-sm text-gray-500">
+                            <i class="fas fa-info-circle mr-1"></i>No hay estrategias registradas
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
             estrategias.forEach(estrategia => {
-                const estadoBadge = {
-                    'Activa': 'bg-green-100 text-green-800',
-                    'Inactiva': 'bg-gray-100 text-gray-800',
-                    'En Revisión': 'bg-yellow-100 text-yellow-800',
-                    'Obsoleta': 'bg-red-100 text-red-800'
-                }[estrategia.estado] || 'bg-gray-100 text-gray-800';
+                const descripcion = estrategia.descripcion || '';
+                const tipoNombre = (estrategia.tipo && estrategia.tipo.nombre) || estrategia.tipo_estrategia_codigo || '-';
+                const estadoNombre = (estrategia.status && estrategia.status.nombre) || estrategia.status_codigo || '-';
+                const frecuenciaTexto = estrategia.frecuencia
+                    ? `${estrategia.frecuencia} ${(estrategia.unidad_medida && estrategia.unidad_medida.codigo) || estrategia.unidad_medida_codigo || ''}`.trim()
+                    : '-';
+
+                const estadoBadgeClase = {
+                    'ACT': 'bg-green-100 text-green-800',
+                    'INA': 'bg-gray-100 text-gray-800',
+                    'REV': 'bg-yellow-100 text-yellow-800',
+                }[estrategia.status_codigo] || 'bg-gray-100 text-gray-800';
 
                 tbody.innerHTML += `
                     <tr class="hover:bg-gray-50">
                         <td class="px-4 py-3 text-sm font-medium text-gray-900">${estrategia.codigo}</td>
-                        <td class="px-4 py-3 text-sm text-gray-700">${estrategia.nombre}</td>
-                        <td class="px-4 py-3 text-sm text-gray-600">${estrategia.tipo_mantenimiento}</td>
-                        <td class="px-4 py-3 text-sm text-gray-600">${estrategia.frecuencia}</td>
+                        <td class="px-4 py-3 text-sm text-gray-700">${descripcion}</td>
+                        <td class="px-4 py-3 text-sm text-gray-600">${tipoNombre}</td>
+                        <td class="px-4 py-3 text-sm text-gray-600">${frecuenciaTexto}</td>
                         <td class="px-4 py-3">
-                            <span class="px-2 py-1 text-xs font-semibold rounded-full ${estadoBadge}">
-                                ${estrategia.estado}
+                            <span class="px-2 py-1 text-xs font-semibold rounded-full ${estadoBadgeClase}">
+                                ${estadoNombre}
                             </span>
                         </td>
                         <td class="px-4 py-3 text-sm">
-                            <button onclick="editEstrategia(${estrategia.id})" class="text-blue-600 hover:text-blue-800 mr-3" title="Editar">
+                            <button onclick="editEstrategia(${estrategia.estrategia_id})" class="text-blue-600 hover:text-blue-800 mr-3" title="Editar">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <button onclick="deleteEstrategia(${estrategia.id})" class="text-red-600 hover:text-red-800" title="Eliminar">
+                            <button onclick="deleteEstrategia(${estrategia.estrategia_id})" class="text-red-600 hover:text-red-800 mr-3" title="Eliminar">
                                 <i class="fas fa-trash"></i>
+                            </button>
+                            <button onclick="showEstrategiaOTs(${estrategia.estrategia_id})" class="text-indigo-600 hover:text-indigo-800" title="Ver OTs asociadas">
+                                <i class="fas fa-link"></i>
                             </button>
                         </td>
                     </tr>
@@ -418,54 +599,98 @@
             });
         }
 
-        // Guardar estrategia
+        // Guardar estrategia (creación y actualización)
         async function saveEstrategia(event) {
             event.preventDefault();
-            
-            const formData = {
-                codigo: document.getElementById('codigo').value,
-                nombre: document.getElementById('nombre').value,
-                tipo_mantenimiento: document.getElementById('tipo_mantenimiento').value,
-                prioridad: document.getElementById('prioridad').value,
-                descripcion: document.getElementById('descripcion').value,
-                frecuencia: document.getElementById('frecuencia').value,
-                dias_entre_mantenimiento: document.getElementById('dias_entre_mantenimiento').value,
-                horas_operacion: document.getElementById('horas_operacion').value,
-                duracion_estimada: document.getElementById('duracion_estimada').value,
-                personal_requerido: document.getElementById('personal_requerido').value,
-                especialidad_requerida: document.getElementById('especialidad_requerida').value,
-                herramientas_especiales: document.getElementById('herramientas_especiales').value,
-                costo_materiales: document.getElementById('costo_materiales').value,
-                costo_mano_obra: document.getElementById('costo_mano_obra').value,
-                costo_total_estimado: document.getElementById('costo_total_estimado').value,
-                nivel_criticidad: document.getElementById('nivel_criticidad').value,
-                estado: document.getElementById('estado').value,
-                requiere_parada_equipo: document.getElementById('requiere_parada_equipo').checked,
-                observaciones: document.getElementById('observaciones').value,
-                user_crea: document.getElementById('user_crea').value
+
+            const id = document.getElementById('estrategiaId').value;
+            const codigo = (document.getElementById('codigo').value || '').trim();
+            const nombre = (document.getElementById('nombre').value || '').trim();
+            const descripcion = (document.getElementById('descripcion').value || nombre).trim();
+            const tipoEstrategia = document.getElementById('tipo_mantenimiento').value;
+            const estado = document.getElementById('estado').value;
+            const diasFrecuencia = parseInt(document.getElementById('dias_entre_mantenimiento').value, 10);
+            const unidadMedidaCodigo = document.getElementById('unidad_medida_codigo').value;
+            const areaCodigo = document.getElementById('area_codigo').value;
+            const equipoCodigo = document.getElementById('equipo_codigo').value;
+
+            if (!codigo || !descripcion || !tipoEstrategia || !estado || !areaCodigo || !equipoCodigo || !unidadMedidaCodigo || !diasFrecuencia || diasFrecuencia <= 0) {
+                showToast('Complete los campos obligatorios (código, nombre, tipo, estado, área, equipo, unidad y días entre mantenimiento).', 'error');
+                return;
+            }
+
+            if (!id) {
+                // Crear nueva estrategia
+                const actividadCodigo = 'ACT-' + codigo.replace(/^EST-/, '').slice(0, 40);
+                const payloadCreate = {
+                    codigo,
+                    area_codigo: areaCodigo,
+                    equipo_codigo: equipoCodigo,
+                    actividad_codigo: actividadCodigo,
+                    frecuencia: diasFrecuencia,
+                    unidad_medida_codigo: unidadMedidaCodigo,
+                    descripcion,
+                    tipo_estrategia_codigo: tipoEstrategia,
+                    status_codigo: estado
+                };
+
+                try {
+                    const response = await fetch('/api/estrategias', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payloadCreate)
+                    });
+
+                    if (response.ok) {
+                        showToast('Estrategia creada exitosamente', 'success');
+                        closeModal();
+                        await loadEstrategias();
+                    } else {
+                        showToast('Error al crear estrategia', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    showToast('Error al crear estrategia', 'error');
+                }
+                return;
+            }
+
+            // Actualizar estrategia existente
+            const original = estrategias.find(e => e.estrategia_id === Number(id));
+            if (!original) {
+                showToast('No se encontró la estrategia a actualizar', 'error');
+                return;
+            }
+
+            const payloadUpdate = {
+                codigo: original.codigo,
+                area_codigo: areaCodigo || original.area_codigo,
+                equipo_codigo: equipoCodigo || original.equipo_codigo,
+                actividad_codigo: original.actividad_codigo,
+                frecuencia: !isNaN(diasFrecuencia) && diasFrecuencia > 0 ? diasFrecuencia : original.frecuencia,
+                unidad_medida_codigo: unidadMedidaCodigo || original.unidad_medida_codigo,
+                descripcion,
+                tipo_estrategia_codigo: tipoEstrategia,
+                status_codigo: estado
             };
 
             try {
-                const id = document.getElementById('estrategiaId').value;
-                const url = id ? `/api/estrategias/${id}` : '/api/estrategias';
-                const method = id ? 'PUT' : 'POST';
-
-                const response = await fetch(url, {
-                    method: method,
+                const response = await fetch(`/api/estrategias/${id}`, {
+                    method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(formData)
+                    body: JSON.stringify(payloadUpdate)
                 });
 
                 if (response.ok) {
-                    showToast(id ? 'Estrategia actualizada exitosamente' : 'Estrategia creada exitosamente', 'success');
+                    showToast('Estrategia actualizada exitosamente', 'success');
                     closeModal();
-                    loadEstrategias();
+                    await loadEstrategias();
                 } else {
-                    showToast('Error al guardar estrategia', 'error');
+                    showToast('Error al actualizar estrategia', 'error');
                 }
             } catch (error) {
                 console.error('Error:', error);
-                showToast('Error al guardar estrategia', 'error');
+                showToast('Error al actualizar estrategia', 'error');
             }
         }
 
@@ -473,31 +698,32 @@
         async function editEstrategia(id) {
             try {
                 const response = await fetch(`/api/estrategias/${id}`);
+                if (!response.ok) {
+                    showToast('Error al cargar estrategia', 'error');
+                    return;
+                }
+
                 const estrategia = await response.json();
 
                 document.getElementById('modalTitle').innerHTML = '<i class="fas fa-edit text-cyan-600 mr-2"></i>Editar Estrategia';
-                document.getElementById('estrategiaId').value = estrategia.id;
+                document.getElementById('estrategiaId').value = estrategia.estrategia_id;
                 document.getElementById('codigo').value = estrategia.codigo;
-                document.getElementById('nombre').value = estrategia.nombre;
-                document.getElementById('tipo_mantenimiento').value = estrategia.tipo_mantenimiento || '';
-                document.getElementById('prioridad').value = estrategia.prioridad || '';
+                document.getElementById('nombre').value = estrategia.descripcion || '';
+                document.getElementById('tipo_mantenimiento').value = estrategia.tipo_estrategia_codigo || '';
                 document.getElementById('descripcion').value = estrategia.descripcion || '';
-                document.getElementById('frecuencia').value = estrategia.frecuencia || '';
-                document.getElementById('dias_entre_mantenimiento').value = estrategia.dias_entre_mantenimiento || '';
-                document.getElementById('horas_operacion').value = estrategia.horas_operacion || '';
-                document.getElementById('duracion_estimada').value = estrategia.duracion_estimada || '';
-                document.getElementById('personal_requerido').value = estrategia.personal_requerido || '';
-                document.getElementById('especialidad_requerida').value = estrategia.especialidad_requerida || '';
-                document.getElementById('herramientas_especiales').value = estrategia.herramientas_especiales || '';
-                document.getElementById('costo_materiales').value = estrategia.costo_materiales || '';
-                document.getElementById('costo_mano_obra').value = estrategia.costo_mano_obra || '';
-                document.getElementById('costo_total_estimado').value = estrategia.costo_total_estimado || '';
-                document.getElementById('nivel_criticidad').value = estrategia.nivel_criticidad || '';
-                document.getElementById('estado').value = estrategia.estado || '';
-                document.getElementById('requiere_parada_equipo').checked = estrategia.requiere_parada_equipo || false;
-                document.getElementById('observaciones').value = estrategia.observaciones || '';
-                document.getElementById('user_crea').value = estrategia.user_crea || '';
-                document.getElementById('fecha_creacion').value = estrategia.fecha_creacion ? new Date(estrategia.fecha_creacion).toISOString().slice(0, 16) : '';
+                document.getElementById('dias_entre_mantenimiento').value = estrategia.frecuencia || '';
+                document.getElementById('area_codigo').value = estrategia.area_codigo || '';
+                document.getElementById('equipo_codigo').value = estrategia.equipo_codigo || '';
+                document.getElementById('unidad_medida_codigo').value = estrategia.unidad_medida_codigo || '';
+                document.getElementById('area_codigo').value = estrategia.area_codigo || '';
+                document.getElementById('equipo_codigo').value = estrategia.equipo_codigo || '';
+                document.getElementById('unidad_medida_codigo').value = estrategia.unidad_medida_codigo || '';
+                document.getElementById('nivel_criticidad').value = '';
+                document.getElementById('estado').value = estrategia.status_codigo || '';
+                document.getElementById('requiere_parada_equipo').checked = false;
+                document.getElementById('observaciones').value = '';
+                document.getElementById('user_crea').value = localStorage.getItem('username') || 'Admin';
+                document.getElementById('fecha_creacion').value = '';
 
                 document.getElementById('modal').classList.add('active');
             } catch (error) {
@@ -514,7 +740,7 @@
                 const response = await fetch(`/api/estrategias/${id}`, { method: 'DELETE' });
                 if (response.ok) {
                     showToast('Estrategia eliminada exitosamente', 'success');
-                    loadEstrategias();
+                    await loadEstrategias();
                 } else {
                     showToast('Error al eliminar estrategia', 'error');
                 }
@@ -524,8 +750,89 @@
             }
         }
 
+        // Mostrar OTs asociadas a una estrategia (conexión Estrategias ↔ OTs)
+        async function showEstrategiaOTs(id) {
+            const estrategia = estrategias.find(e => e.estrategia_id === Number(id));
+            const reviewBody = document.getElementById('reviewTableBody');
+            const subtitle = document.getElementById('reviewSubtitle');
+
+            if (!estrategia) {
+                subtitle.textContent = 'No se encontró la estrategia seleccionada.';
+                reviewBody.innerHTML = '<tr><td colspan="6" class="px-4 py-6 text-center text-sm text-red-500">Error: estrategia no encontrada.</td></tr>';
+                return;
+            }
+
+            subtitle.textContent = `OTs con estrategia para el equipo ${estrategia.equipo_codigo} (código ${estrategia.codigo}).`;
+            reviewBody.innerHTML = '<tr><td colspan="6" class="px-4 py-6 text-center text-sm text-gray-500"><i class="fas fa-spinner fa-spin mr-1"></i>Cargando OTs...</td></tr>';
+
+            try {
+                const params = new URLSearchParams({
+                    page: '1',
+                    limit: '100',
+                    search: estrategia.equipo_codigo || ''
+                });
+                const response = await fetch(`/api/ot?${params.toString()}`);
+                if (!response.ok) {
+                    throw new Error('Respuesta no válida del servidor');
+                }
+
+                const data = await response.json();
+                const ordenes = Array.isArray(data.ordenes) ? data.ordenes : [];
+
+                const filtradas = ordenes.filter(ot => {
+                    const mismoEquipo = !estrategia.equipo_codigo || ot.equipo_codigo === estrategia.equipo_codigo;
+                    const marcadaEstrategia = ot.estrategia === true || ot.estrategia === 1;
+                    return mismoEquipo && marcadaEstrategia;
+                });
+
+                if (filtradas.length === 0) {
+                    reviewBody.innerHTML = '<tr><td colspan="6" class="px-4 py-6 text-center text-sm text-gray-500"><i class="fas fa-info-circle mr-1"></i>No se encontraron OTs con estrategia para este equipo.</td></tr>';
+                    return;
+                }
+
+                reviewBody.innerHTML = '';
+                filtradas.forEach(ot => {
+                    const prioridad = ot.prioridad_atencion_codigo || '-';
+                    const estado = ot.ot_status_codigo || '-';
+                    const fecha = ot.fecha_recepcion ? new Date(ot.fecha_recepcion).toISOString().slice(0, 10) : '';
+
+                    const prioridadBadge = {
+                        'E': 'bg-red-100 text-red-800',
+                        '1': 'bg-orange-100 text-orange-800',
+                        '2': 'bg-yellow-100 text-yellow-800',
+                        '3': 'bg-green-100 text-green-800'
+                    }[prioridad] || 'bg-gray-100 text-gray-800';
+
+                    const estadoBadge = {
+                        'Abierta': 'bg-yellow-100 text-yellow-800',
+                        'EnProceso': 'bg-cyan-100 text-cyan-800',
+                        'Cerrada': 'bg-green-100 text-green-800'
+                    }[estado] || 'bg-gray-100 text-gray-800';
+
+                    reviewBody.innerHTML += `
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-3 text-sm font-mono font-semibold text-gray-900">${ot.ot || '-'}</td>
+                            <td class="px-4 py-3 text-sm text-gray-700">${ot.equipo_codigo || '-'}</td>
+                            <td class="px-4 py-3 text-sm text-gray-600">${ot.descripcion || ''}</td>
+                            <td class="px-4 py-3 text-sm">
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full ${prioridadBadge}">${prioridad}</span>
+                            </td>
+                            <td class="px-4 py-3 text-sm">
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full ${estadoBadge}">${estado}</span>
+                            </td>
+                            <td class="px-4 py-3 text-sm text-gray-600">${fecha || '-'}</td>
+                        </tr>
+                    `;
+                });
+            } catch (error) {
+                console.error('Error al cargar OTs para estrategia:', error);
+                reviewBody.innerHTML = '<tr><td colspan="6" class="px-4 py-6 text-center text-sm text-red-500">Error al cargar OTs asociadas.</td></tr>';
+            }
+        }
+
         // Inicialización
         document.addEventListener('DOMContentLoaded', () => {
+            loadCatalogosEstrategia();
             loadEstrategias();
         });
     </script>

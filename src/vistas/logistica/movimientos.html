@@ -30,7 +30,7 @@
                     </div>
                 </div>
                 <div class="flex items-center space-x-3">
-                    <a href="/src/vistas/logistica/materiales.html" class="bg-purple-700 hover:bg-purple-800 px-4 py-2 rounded-lg transition">
+                    <a href="/logistica/materiales.html" class="bg-purple-700 hover:bg-purple-800 px-4 py-2 rounded-lg transition">
                         <i class="fas fa-box"></i> Inventario
                     </a>
                     <a href="/index.html" class="bg-purple-700 hover:bg-purple-800 px-4 py-2 rounded-lg transition">
@@ -520,9 +520,10 @@
         const itemsPerPage = 20;
 
         // Initialize
-        document.addEventListener('DOMContentLoaded', () => {
-            loadMovimientos();
-            loadMateriales();
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Cargar primero materiales para poder mapear nombres, UDM y precios
+            await loadMateriales();
+            await loadMovimientos();
             
             // Set fecha actual
             const today = new Date().toISOString().split('T')[0];
@@ -557,9 +558,41 @@
         // Load movimientos
         async function loadMovimientos() {
             try {
-                const response = await fetch('/api/movimientos');
+                const response = await fetch('/api/logistica/movimientos');
                 if (response.ok) {
-                    movimientos = await response.json();
+                    const raw = await response.json();
+
+                    if (Array.isArray(raw) && raw.length && (raw[0].tipo_movimiento || raw[0].material_id)) {
+                        // Mapear desde el modelo MovimientoInventario a la estructura usada por la vista
+                        movimientos = raw.map(m => {
+                            const material = materiales.find(mat =>
+                                mat.material_id == m.material_id ||
+                                mat.id == m.material_id
+                            );
+
+                            const precioUnitario = parseFloat(material?.precio || 0) || 0;
+                            const cantidad = parseFloat(m.cantidad || 0) || 0;
+
+                            return {
+                                id: m.id,
+                                fecha: m.fecha_movimiento ? new Date(m.fecha_movimiento).toISOString().split('T')[0] : null,
+                                tipo: (m.tipo_movimiento || '').toString().toLowerCase() || 'ajuste',
+                                material_nombre: material
+                                    ? `${material.codigo || material.codigo_sap || material.codigo_interno || ''} - ${material.descripcion || material.nombre || ''}`.trim()
+                                    : `Material #${m.material_id}`,
+                                cantidad,
+                                unidad_medida: material?.unidad_medida_codigo || 'UN',
+                                precio_unitario: precioUnitario,
+                                valor_total: cantidad * precioUnitario,
+                                referencia: m.documento_referencia || '',
+                                usuario: m.usuario || 'Admin',
+                                observaciones: m.observacion || ''
+                            };
+                        });
+                    } else {
+                        // Si la respuesta no es la esperada, usar datos de ejemplo
+                        movimientos = generateSampleData();
+                    }
                 } else {
                     // Datos de ejemplo si no hay backend
                     movimientos = generateSampleData();
@@ -964,7 +997,7 @@
             }
             
             try {
-                const response = await fetch('/api/movimientos', {
+                const response = await fetch('/api/logistica/movimientos', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(formData)
