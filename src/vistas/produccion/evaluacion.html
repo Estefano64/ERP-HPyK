@@ -13,17 +13,17 @@
     <div id="navigation-container"></div>
 
     <!-- Encabezado -->
-    <div class="bg-gradient-to-r from-purple-600 to-purple-800 text-white shadow-lg">
+    <div class="bg-gray-900 text-white shadow-lg">
         <div class="container mx-auto px-6 py-5">
             <div class="flex items-center justify-between">
                 <div class="flex items-center space-x-4">
                     <i class="fas fa-microscope text-3xl"></i>
                     <div>
                         <h1 class="text-2xl font-bold">Hoja de Evaluación de Cilindro</h1>
-                        <p class="text-purple-200 text-sm">Formato digital basado en la hoja física de evaluación</p>
+                        <p class="text-gray-300 text-sm">Formato digital basado en la hoja física de evaluación</p>
                     </div>
                 </div>
-                <a href="/produccion/index.html" class="bg-purple-700 hover:bg-purple-900 px-5 py-2 rounded-lg transition flex items-center text-sm">
+                <a href="/produccion/index.html" class="bg-gray-800 hover:bg-gray-900 px-5 py-2 rounded-lg transition flex items-center text-sm">
                     <i class="fas fa-arrow-left mr-2"></i> Volver a Producción
                 </a>
             </div>
@@ -31,7 +31,7 @@
     </div>
 
     <!-- Contenido principal -->
-    <div class="container mx-auto px-4 py-8 max-w-6xl">
+    <div class="container mx-auto px-4 py-8 max-w-7xl">
         <!-- Toast -->
         <div id="toast" class="hidden fixed top-4 right-4 z-50 px-5 py-3 rounded-lg shadow-lg text-white text-sm font-medium"></div>
 
@@ -39,13 +39,13 @@
             <!-- DATOS GENERALES -->
             <div class="bg-white rounded-lg shadow-md">
                 <div class="bg-gray-100 px-6 py-3 rounded-t-lg border-b flex items-center space-x-3">
-                    <span class="bg-purple-600 text-white font-bold rounded-full w-7 h-7 flex items-center justify-center text-sm">1</span>
+                    <span class="bg-gray-800 text-white font-bold rounded-full w-7 h-7 flex items-center justify-center text-sm">1</span>
                     <h2 class="text-lg font-bold text-gray-800">Datos Generales de la OT</h2>
                 </div>
                 <div class="p-6 grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                     <div>
                         <label class="block font-semibold text-gray-700 mb-1">Fecha Apertura</label>
-                        <input type="date" class="w-full border rounded-lg px-3 py-2" name="fecha_apertura">
+                        <input type="date" class="w-full border rounded-lg px-3 py-2 bg-gray-100" name="fecha_apertura" readonly>
                     </div>
                     <div>
                         <label class="block font-semibold text-gray-700 mb-1">Fecha Prog. Entrega</label>
@@ -53,43 +53,56 @@
                     </div>
                     <div>
                         <label class="block font-semibold text-gray-700 mb-1">Guía Cliente</label>
-                        <input type="text" class="w-full border rounded-lg px-3 py-2" name="guia_cliente">
-                    </div>
-                    <div>
-                        <label class="block font-semibold text-gray-700 mb-1">Presión de Trabajo</label>
-                        <input type="text" class="w-full border rounded-lg px-3 py-2" name="presion_trabajo" placeholder="bar / psi">
+                        <input type="text" class="w-full border rounded-lg px-3 py-2 bg-gray-100" name="guia_cliente" readonly>
                     </div>
                     <div>
                         <label class="block font-semibold text-gray-700 mb-1">Cliente</label>
-                        <input type="text" class="w-full border rounded-lg px-3 py-2" name="cliente">
+                        <input type="text" class="w-full border rounded-lg px-3 py-2 bg-gray-100" name="cliente" readonly>
                     </div>
                     <div>
-                        <label class="block font-semibold text-gray-700 mb-1">OT</label>
-                        <input type="text" class="w-full border rounded-lg px-3 py-2" name="ot">
+                        <label class="block font-semibold text-gray-700 mb-1">OT (manual)</label>
+                        <input type="text" class="w-full border rounded-lg px-3 py-2" name="ot" placeholder="Ej: OT-2026-001">
+                        <p class="text-xs text-gray-500 mt-1">Al salir del campo se cargarán los datos de la OT.</p>
                     </div>
                     <div>
-                        <label class="block font-semibold text-gray-700 mb-1">Marca</label>
-                        <input type="text" class="w-full border rounded-lg px-3 py-2" name="marca">
+                        <label class="block font-semibold text-gray-700 mb-1">Fabricante</label>
+                        <input type="text" class="w-full border rounded-lg px-3 py-2 bg-gray-100" name="fabricante" readonly>
                     </div>
                     <div>
-                        <label class="block font-semibold text-gray-700 mb-1">Modelo</label>
-                        <input type="text" class="w-full border rounded-lg px-3 py-2" name="modelo">
+                        <label class="block font-semibold text-gray-700 mb-1">Flota</label>
+                        <input type="text" class="w-full border rounded-lg px-3 py-2 bg-gray-100" name="flota" readonly>
                     </div>
                     <div>
-                        <label class="block font-semibold text-gray-700 mb-1">Aplicación</label>
-                        <input type="text" class="w-full border rounded-lg px-3 py-2" name="aplicacion">
+                        <label class="block font-semibold text-gray-700 mb-1">Descripción</label>
+                        <input type="text" class="w-full border rounded-lg px-3 py-2 bg-gray-100" name="descripcion" readonly>
                     </div>
                     <div>
                         <label class="block font-semibold text-gray-700 mb-1">Tipo</label>
-                        <input type="text" class="w-full border rounded-lg px-3 py-2" name="tipo">
+                        <input type="text" class="w-full border rounded-lg px-3 py-2 bg-gray-100" name="tipo" readonly>
                     </div>
                     <div>
                         <label class="block font-semibold text-gray-700 mb-1">Nº Parte</label>
-                        <input type="text" class="w-full border rounded-lg px-3 py-2" name="numero_parte">
+                        <input type="text" class="w-full border rounded-lg px-3 py-2 bg-gray-100" name="numero_parte" readonly>
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-1">Posición</label>
+                        <input type="text" class="w-full border rounded-lg px-3 py-2 bg-gray-100" name="posicion" readonly>
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-1">Código Reparable</label>
+                        <input type="text" class="w-full border rounded-lg px-3 py-2 bg-gray-100" name="codigo_reparable" readonly>
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-1">Estrategia</label>
+                        <input type="text" class="w-full border rounded-lg px-3 py-2 bg-gray-100" name="estrategia" readonly>
                     </div>
                     <div>
                         <label class="block font-semibold text-gray-700 mb-1">Sist. Medición</label>
-                        <input type="text" class="w-full border rounded-lg px-3 py-2" name="sistema_medicion">
+                        <select name="sistema_medicion" class="w-full border rounded-lg px-3 py-2 bg-white">
+                            <option value="">Seleccione...</option>
+                            <option value="Metrico">Sistema Métrico</option>
+                            <option value="Imperial">Sistema Imperial</option>
+                        </select>
                     </div>
                     <div>
                         <label class="block font-semibold text-gray-700 mb-1">Fecha de Evaluación</label>
@@ -104,20 +117,26 @@
 
             <!-- CILINDRO (BOTELLA) -->
             <div class="bg-white rounded-lg shadow-md">
-                <div class="bg-blue-600 text-white px-6 py-3 rounded-t-lg flex items-center justify-between">
+                <div class="bg-gray-800 text-white px-6 py-3 rounded-t-lg flex items-center justify-between">
                     <div class="flex items-center space-x-3">
-                        <span class="bg-white text-blue-700 font-bold rounded-full w-7 h-7 flex items-center justify-center text-sm">2</span>
+                        <span class="bg-white text-gray-800 font-bold rounded-full w-7 h-7 flex items-center justify-center text-sm">2</span>
                         <h2 class="text-lg font-bold">Cilindro (Botella)</h2>
                     </div>
-                    <div class="text-xs text-blue-100">REF. CILINDRO / Medidas</div>
+                    <div class="text-xs text-gray-300">REF. CILINDRO / Medidas</div>
                 </div>
                 <div class="p-6 space-y-4 text-sm">
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <div>
-                            <label class="block font-semibold text-gray-700 mb-1">Ref. Cilindro</label>
-                            <input type="text" class="w-full border rounded-lg px-3 py-2" name="ref_cilindro">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="space-y-2 md:col-span-1">
+                            <div>
+                                <label class="block font-semibold text-gray-700 mb-1">Ref. Cilindro</label>
+                                <input type="text" class="w-full max-w-xs border rounded-lg px-3 py-2 bg-gray-100" name="ref_cilindro" readonly>
+                            </div>
+                            <!-- Imagen de referencia fija del cilindro -->
+                            <div class="h-24 w-2/3 border border-gray-300 rounded flex items-center justify-center text-[11px] text-gray-500 bg-white/60">
+                                Imagen de referencia del cilindro (A, B, C, D)
+                            </div>
                         </div>
-                        <div class="md:col-span-3">
+                        <div class="md:col-span-2">
                             <label class="block font-semibold text-gray-700 mb-2">Mediciones (mm)</label>
                             <div class="overflow-x-auto">
                                 <table class="min-w-full text-xs border border-gray-200 rounded">
@@ -133,52 +152,66 @@
                                     <tbody>
                                         <tr>
                                             <td class="px-2 py-1 border text-gray-700">Diámetro Interior</td>
-                                            <td class="px-1 border"><input name="cil_dint_a1" class="w-full px-1 py-0.5 border rounded text-xs"></td>
-                                            <td class="px-1 border"><input name="cil_dint_a2" class="w-full px-1 py-0.5 border rounded text-xs"></td>
-                                            <td class="px-1 border"><input name="cil_dint_a3" class="w-full px-1 py-0.5 border rounded text-xs"></td>
-                                            <td class="px-1 border"><input name="cil_dint_a4" class="w-full px-1 py-0.5 border rounded text-xs"></td>
+                                            <td class="px-1 py-1 border">
+                                                <div class="flex gap-1">
+                                                    <input name="cil_dint_a1_x" placeholder="X" class="w-1/2 px-1 py-0.5 border rounded text-[10px]">
+                                                    <input name="cil_dint_a1_y" placeholder="Y" class="w-1/2 px-1 py-0.5 border rounded text-[10px]">
+                                                </div>
+                                            </td>
+                                            <td class="px-1 py-1 border">
+                                                <div class="flex gap-1">
+                                                    <input name="cil_dint_a2_x" placeholder="X" class="w-1/2 px-1 py-0.5 border rounded text-[10px]">
+                                                    <input name="cil_dint_a2_y" placeholder="Y" class="w-1/2 px-1 py-0.5 border rounded text-[10px]">
+                                                </div>
+                                            </td>
+                                            <td class="px-1 py-1 border">
+                                                <div class="flex gap-1">
+                                                    <input name="cil_dint_a3_x" placeholder="X" class="w-1/2 px-1 py-0.5 border rounded text-[10px]">
+                                                    <input name="cil_dint_a3_y" placeholder="Y" class="w-1/2 px-1 py-0.5 border rounded text-[10px]">
+                                                </div>
+                                            </td>
+                                            <td class="px-1 py-1 border">
+                                                <div class="flex gap-1">
+                                                    <input name="cil_dint_a4_x" placeholder="X" class="w-1/2 px-1 py-0.5 border rounded text-[10px]">
+                                                    <input name="cil_dint_a4_y" placeholder="Y" class="w-1/2 px-1 py-0.5 border rounded text-[10px]">
+                                                </div>
+                                            </td>
                                         </tr>
                                         <tr>
                                             <td class="px-2 py-1 border text-gray-700">Diámetro de Salida</td>
-                                            <td class="px-1 border"><input name="cil_dsal_a1" class="w-full px-1 py-0.5 border rounded text-xs"></td>
-                                            <td class="px-1 border"><input name="cil_dsal_a2" class="w-full px-1 py-0.5 border rounded text-xs"></td>
-                                            <td class="px-1 border"><input name="cil_dsal_a3" class="w-full px-1 py-0.5 border rounded text-xs"></td>
-                                            <td class="px-1 border"><input name="cil_dsal_a4" class="w-full px-1 py-0.5 border rounded text-xs"></td>
+                                            <td class="px-1 py-1 border" colspan="2"><input name="cil_dsal_1" class="w-full px-1 py-0.5 border rounded text-xs"></td>
+                                            <td class="px-1 py-1 border" colspan="2"><input name="cil_dsal_2" class="w-full px-1 py-0.5 border rounded text-xs"></td>
                                         </tr>
                                         <tr>
                                             <td class="px-2 py-1 border text-gray-700">Diámetro Exterior</td>
-                                            <td class="px-1 border"><input name="cil_dext_a1" class="w-full px-1 py-0.5 border rounded text-xs"></td>
-                                            <td class="px-1 border"><input name="cil_dext_a2" class="w-full px-1 py-0.5 border rounded text-xs"></td>
-                                            <td class="px-1 border"><input name="cil_dext_a3" class="w-full px-1 py-0.5 border rounded text-xs"></td>
-                                            <td class="px-1 border"><input name="cil_dext_a4" class="w-full px-1 py-0.5 border rounded text-xs"></td>
+                                            <td class="px-1 py-1 border" colspan="2"><input name="cil_dext_1" class="w-full px-1 py-0.5 border rounded text-xs"></td>
+                                            <td class="px-1 py-1 border" colspan="2"><input name="cil_dext_2" class="w-full px-1 py-0.5 border rounded text-xs"></td>
                                         </tr>
                                         <tr>
                                             <td class="px-2 py-1 border text-gray-700">Longitud Bruñido</td>
-                                            <td class="px-1 border"><input name="cil_lbru_a1" class="w-full px-1 py-0.5 border rounded text-xs"></td>
-                                            <td class="px-1 border"><input name="cil_lbru_a2" class="w-full px-1 py-0.5 border rounded text-xs"></td>
-                                            <td class="px-1 border"><input name="cil_lbru_a3" class="w-full px-1 py-0.5 border rounded text-xs"></td>
-                                            <td class="px-1 border"><input name="cil_lbru_a4" class="w-full px-1 py-0.5 border rounded text-xs"></td>
+                                            <td class="px-1 border" colspan="4"><input name="cil_lbru" class="w-full px-1 py-0.5 border rounded text-xs"></td>
                                         </tr>
                                         <tr>
                                             <td class="px-2 py-1 border text-gray-700">Longitud Total</td>
-                                            <td class="px-1 border"><input name="cil_ltot_a1" class="w-full px-1 py-0.5 border rounded text-xs"></td>
-                                            <td class="px-1 border"><input name="cil_ltot_a2" class="w-full px-1 py-0.5 border rounded text-xs"></td>
-                                            <td class="px-1 border"><input name="cil_ltot_a3" class="w-full px-1 py-0.5 border rounded text-xs"></td>
-                                            <td class="px-1 border"><input name="cil_ltot_a4" class="w-full px-1 py-0.5 border rounded text-xs"></td>
+                                            <td class="px-1 border" colspan="4"><input name="cil_ltot" class="w-full px-1 py-0.5 border rounded text-xs"></td>
                                         </tr>
                                         <tr>
                                             <td class="px-2 py-1 border text-gray-700">Diámetro Ojo</td>
-                                            <td class="px-1 border"><input name="cil_dojo_a1" class="w-full px-1 py-0.5 border rounded text-xs"></td>
-                                            <td class="px-1 border"><input name="cil_dojo_a2" class="w-full px-1 py-0.5 border rounded text-xs"></td>
-                                            <td class="px-1 border"><input name="cil_dojo_a3" class="w-full px-1 py-0.5 border rounded text-xs"></td>
-                                            <td class="px-1 border"><input name="cil_dojo_a4" class="w-full px-1 py-0.5 border rounded text-xs"></td>
+                                            <td class="px-1 py-1 border" colspan="4">
+                                                <div class="flex gap-2 justify-start">
+                                                    <input name="cil_dojo_x" placeholder="X" class="w-20 px-1 py-0.5 border rounded text-[10px]">
+                                                    <input name="cil_dojo_y" placeholder="Y" class="w-20 px-1 py-0.5 border rounded text-[10px]">
+                                                </div>
+                                            </td>
                                         </tr>
                                         <tr>
                                             <td class="px-2 py-1 border text-gray-700">Diám. Int. Cojinete</td>
-                                            <td class="px-1 border"><input name="cil_dcoj_a1" class="w-full px-1 py-0.5 border rounded text-xs"></td>
-                                            <td class="px-1 border"><input name="cil_dcoj_a2" class="w-full px-1 py-0.5 border rounded text-xs"></td>
-                                            <td class="px-1 border"><input name="cil_dcoj_a3" class="w-full px-1 py-0.5 border rounded text-xs"></td>
-                                            <td class="px-1 border"><input name="cil_dcoj_a4" class="w-full px-1 py-0.5 border rounded text-xs"></td>
+                                            <td class="px-1 py-1 border" colspan="4">
+                                                <div class="flex gap-2 justify-start">
+                                                    <input name="cil_dcoj_x" placeholder="X" class="w-20 px-1 py-0.5 border rounded text-[10px]">
+                                                    <input name="cil_dcoj_y" placeholder="Y" class="w-20 px-1 py-0.5 border rounded text-[10px]">
+                                                </div>
+                                            </td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -187,73 +220,153 @@
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div>
-                            <label class="block font-semibold text-gray-700 mb-1">Ancho de Ojo</label>
-                            <input type="text" class="w-full border rounded-lg px-3 py-2" name="cil_ancho_ojo">
+                        <!-- Columna izquierda: Ancho de ojo -->
+                        <div class="space-y-3">
+                            <div>
+                                <label class="block font-semibold text-gray-700 mb-1">Ancho de Ojo</label>
+                                <input type="text" class="w-full border rounded-lg px-3 py-2" name="cil_ancho_ojo">
+                            </div>
                         </div>
-                        <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-3">
-                            <div>
-                                <p class="font-semibold text-gray-700 text-xs mb-1">Tomas</p>
-                                <div class="flex items-center space-x-3 text-xs">
-                                    <label class="flex items-center space-x-1"><input type="radio" name="cil_tomas" value="Buena" class="text-green-600"><span>Buena</span></label>
-                                    <label class="flex items-center space-x-1"><input type="radio" name="cil_tomas" value="Mala" class="text-red-600"><span>Mala</span></label>
-                                </div>
-                            </div>
-                            <div>
-                                <p class="font-semibold text-gray-700 text-xs mb-1">Est. de roscas</p>
-                                <div class="flex items-center space-x-3 text-xs">
-                                    <label class="flex items-center space-x-1"><input type="radio" name="cil_roscas" value="Buena" class="text-green-600"><span>Buena</span></label>
-                                    <label class="flex items-center space-x-1"><input type="radio" name="cil_roscas" value="Mala" class="text-red-600"><span>Mala</span></label>
-                                </div>
-                            </div>
-                            <div>
-                                <p class="font-semibold text-gray-700 text-xs mb-1">Seal Lip</p>
-                                <div class="flex items-center space-x-3 text-xs">
-                                    <label class="flex items-center space-x-1"><input type="radio" name="cil_seallip" value="Buena" class="text-green-600"><span>Buena</span></label>
-                                    <label class="flex items-center space-x-1"><input type="radio" name="cil_seallip" value="Mala" class="text-red-600"><span>Mala</span></label>
+
+                        <!-- Columna derecha: recuadro Buena / Mala y NDT -->
+                        <div class="md:col-span-2">
+                            <div class="border border-gray-300 rounded-lg overflow-hidden text-xs">
+                                <table class="w-full">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th class="border border-gray-300 px-2 py-1 text-left"></th>
+                                            <th class="border border-gray-300 px-2 py-1 text-center">Buena</th>
+                                            <th class="border border-gray-300 px-2 py-1 text-center">Mala</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td class="border border-gray-300 px-2 py-1 align-middle">Tomas</td>
+                                            <td class="border border-gray-300 px-2 py-1 text-center">
+                                                <input type="radio" name="cil_tomas" value="Buena" class="text-gray-700">
+                                            </td>
+                                            <td class="border border-gray-300 px-2 py-1 text-center">
+                                                <input type="radio" name="cil_tomas" value="Mala" class="text-gray-700">
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="border border-gray-300 px-2 py-1 align-middle">Est. de roscas</td>
+                                            <td class="border border-gray-300 px-2 py-1 text-center">
+                                                <input type="radio" name="cil_roscas" value="Buena" class="text-gray-700">
+                                            </td>
+                                            <td class="border border-gray-300 px-2 py-1 text-center">
+                                                <input type="radio" name="cil_roscas" value="Mala" class="text-gray-700">
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <div class="border-t border-gray-300 px-3 py-2 flex items-center justify-between">
+                                    <span class="font-semibold text-gray-700 text-xs">Pasa a NDT</span>
+                                    <div class="flex items-center space-x-4 text-xs">
+                                        <label class="flex items-center space-x-1"><input type="radio" name="cil_ndt" value="SI" class="text-gray-700"><span>Sí</span></label>
+                                        <label class="flex items-center space-x-1"><input type="radio" name="cil_ndt" value="NO" class="text-gray-700"><span>No</span></label>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
-                        <div class="md:col-span-2">
-                            <label class="block font-semibold text-gray-700 mb-1">Referencia</label>
-                            <input type="text" class="w-full border rounded-lg px-3 py-2" name="cil_referencia">
-                        </div>
-                        <div>
-                            <p class="font-semibold text-gray-700 mb-1 text-sm">¿Pasa a NDT?</p>
-                            <div class="flex items-center space-x-4 text-xs">
-                                <label class="flex items-center space-x-1"><input type="radio" name="cil_ndt" value="SI" class="text-blue-600"><span>Sí</span></label>
-                                <label class="flex items-center space-x-1"><input type="radio" name="cil_ndt" value="NO" class="text-blue-600"><span>No</span></label>
+                    <!-- CHECK LIST ERRORES COMUNES - CILINDRO -->
+                    <div class="border-t border-gray-200 pt-4 mt-2">
+                        <h3 class="font-semibold text-gray-800 text-sm mb-2">Check list de errores comunes - Cilindro</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                            <!-- Cilindro interior -->
+                            <div>
+                                <h4 class="font-semibold text-gray-700 mb-1 text-[11px]">CILINDRO INTERIOR</h4>
+                                <div class="space-y-1">
+                                    <div class="flex items-center justify-between gap-2">
+                                        <span>1. Presenta rayaduras axiales en interior de cilindro</span>
+                                        <select class="border rounded px-1 py-0.5 text-[11px] w-24">
+                                            <option value="">-</option>
+                                            <option>LEVE</option>
+                                            <option>REGULAR</option>
+                                            <option>GRAVE</option>
+                                        </select>
+                                    </div>
+                                    <div class="flex items-center justify-between gap-2">
+                                        <span>2. Presenta rayaduras radiales en interior de cilindro</span>
+                                        <select class="border rounded px-1 py-0.5 text-[11px] w-24">
+                                            <option value="">-</option>
+                                            <option>LEVE</option>
+                                            <option>REGULAR</option>
+                                            <option>GRAVE</option>
+                                        </select>
+                                    </div>
+                                    <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>3. Diámetro interior presenta deformación</span></label>
+                                    <div class="flex items-center gap-2">
+                                        <label class="flex items-center gap-2 flex-1"><input type="checkbox" class="text-blue-600"><span>4. Medida interna fuera de tolerancia por</span></label>
+                                        <input class="border rounded px-1 py-0.5 text-[11px] w-16" placeholder="mm">
+                                    </div>
+                                    <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>5. Diámetro interior muestra desgaste</span></label>
+                                    <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>6. Diámetro de sellado muestra desgaste</span></label>
+                                </div>
                             </div>
+
+                            <!-- Cilindro exterior -->
+                            <div>
+                                <h4 class="font-semibold text-gray-700 mb-1 text-[11px]">CILINDRO EXTERIOR</h4>
+                                <div class="space-y-1">
+                                    <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>1. Presenta golpes en el exterior del cilindro</span></label>
+                                    <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>2. Presenta desgaste en exterior del cilindro</span></label>
+                                    <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>3. Presenta deformación en exterior de cilindro</span></label>
+                                    <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>4. Presenta depósitos de soldadura ajenos al diseño original</span></label>
+                                    <p class="text-[11px] text-gray-700 bg-gray-100 rounded px-2 py-1 mt-1">Nota: Preguntar si lleva cojinete o rótula.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <label class="block text-[11px] font-semibold text-gray-700 mb-1">Comentarios - Cilindro</label>
+                            <textarea class="w-full border rounded px-2 py-1 text-[11px]" rows="2" placeholder="Observaciones adicionales del cilindro (interior / exterior)..."></textarea>
                         </div>
                     </div>
 
                     <div>
-                        <label class="block font-semibold text-gray-700 mb-1">Resultado evaluación del cilindro</label>
-                        <textarea name="cil_resultado" rows="2" class="w-full border rounded-lg px-3 py-2 text-sm" placeholder="Conclusiones de la evaluación del cilindro..."></textarea>
+                        <label class="block font-semibold text-gray-700 mb-1">Resultado evaluación del cilindro (comentarios generales)</label>
+                        <textarea name="cil_resultado" rows="2" class="w-full border rounded-lg px-3 py-2 text-sm" placeholder="Conclusiones generales de la evaluación del cilindro..."></textarea>
                     </div>
                     <div>
                         <label class="block font-semibold text-gray-700 mb-1">Recomendaciones (Cilindro)</label>
                         <textarea name="cil_recomendaciones" rows="2" class="w-full border rounded-lg px-3 py-2 text-sm" placeholder="Recomendaciones técnicas para el cilindro..."></textarea>
+                    </div>
+                    <!-- IMÁGENES - CILINDRO -->
+                    <div class="border-t border-gray-200 pt-4 mt-2">
+                        <label class="block font-semibold text-gray-700 mb-2 text-sm">Imágenes del cilindro</label>
+                        <div class="space-y-2">
+                            <div id="preview-cilindro" class="h-40 border-2 border-dashed border-gray-300 rounded flex items-center justify-center text-xs text-gray-500 bg-white/40 relative overflow-hidden">
+                                <span id="preview-cilindro-text" class="px-2 text-center">Añadir fotos de la condición del cilindro</span>
+                                <img id="preview-cilindro-img" class="absolute inset-0 w-full h-full object-contain hidden" alt="Imagen cilindro">
+                            </div>
+                            <button type="button" class="px-3 py-1 text-xs border rounded bg-white hover:bg-gray-100" onclick="document.getElementById('file-cilindro').click()">Subir imagen de cilindro</button>
+                            <input id="file-cilindro" name="img_cilindro" type="file" accept="image/*" class="hidden">
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- VÁSTAGO -->
             <div class="bg-white rounded-lg shadow-md">
-                <div class="bg-orange-500 text-white px-6 py-3 rounded-t-lg flex items-center space-x-3">
-                    <span class="bg-white text-orange-600 font-bold rounded-full w-7 h-7 flex items-center justify-center text-sm">3</span>
+                <div class="bg-gray-800 text-white px-6 py-3 rounded-t-lg flex items-center space-x-3">
+                    <span class="bg-white text-gray-800 font-bold rounded-full w-7 h-7 flex items-center justify-center text-sm">3</span>
                     <h2 class="text-lg font-bold">Vástago</h2>
                 </div>
                 <div class="p-6 space-y-4 text-sm">
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <div>
-                            <label class="block font-semibold text-gray-700 mb-1">Ref. Vástago</label>
-                            <input type="text" class="w-full border rounded-lg px-3 py-2" name="ref_vastago">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="space-y-2 md:col-span-1">
+                            <div>
+                                <label class="block font-semibold text-gray-700 mb-1">Ref. Vástago</label>
+                                <input type="text" class="w-full max-w-xs border rounded-lg px-3 py-2 bg-gray-100" name="ref_vastago" readonly>
+                            </div>
+                            <!-- Imagen de referencia fija del vástago -->
+                            <div class="h-24 w-2/3 border border-gray-300 rounded flex items-center justify-center text-[11px] text-gray-500 bg-white/60">
+                                Imagen de referencia del vástago (A, B, C, D)
+                            </div>
                         </div>
-                        <div class="md:col-span-3">
+                        <div class="md:col-span-2">
                             <label class="block font-semibold text-gray-700 mb-2">Mediciones (X / Y)</label>
                             <div class="overflow-x-auto">
                                 <table class="min-w-full text-xs border border-gray-200 rounded">
@@ -277,18 +390,15 @@
                                         </tr>
                                         <tr>
                                             <td class="px-2 py-1 border text-gray-700">Longitud Cromo</td>
-                                            <td class="px-1 border"><input name="vas_lcro_x" class="w-full px-1 py-0.5 border rounded text-xs"></td>
-                                            <td class="px-1 border"><input name="vas_lcro_y" class="w-full px-1 py-0.5 border rounded text-xs"></td>
+                                            <td class="px-1 border" colspan="2"><input name="vas_lcro" class="w-full px-1 py-0.5 border rounded text-xs"></td>
                                         </tr>
                                         <tr>
                                             <td class="px-2 py-1 border text-gray-700">Longitud Total</td>
-                                            <td class="px-1 border"><input name="vas_ltot_x" class="w-full px-1 py-0.5 border rounded text-xs"></td>
-                                            <td class="px-1 border"><input name="vas_ltot_y" class="w-full px-1 py-0.5 border rounded text-xs"></td>
+                                            <td class="px-1 border" colspan="2"><input name="vas_ltot" class="w-full px-1 py-0.5 border rounded text-xs"></td>
                                         </tr>
                                         <tr>
                                             <td class="px-2 py-1 border text-gray-700">Longitud de Espiga</td>
-                                            <td class="px-1 border"><input name="vas_lesp_x" class="w-full px-1 py-0.5 border rounded text-xs"></td>
-                                            <td class="px-1 border"><input name="vas_lesp_y" class="w-full px-1 py-0.5 border rounded text-xs"></td>
+                                            <td class="px-1 border" colspan="2"><input name="vas_lesp" class="w-full px-1 py-0.5 border rounded text-xs"></td>
                                         </tr>
                                         <tr>
                                             <td class="px-2 py-1 border text-gray-700">Diám. Ext. Ojo</td>
@@ -316,17 +426,7 @@
                             <label class="block font-semibold text-gray-700 mb-1">Ancho de Ojo</label>
                             <input type="text" class="w-full border rounded-lg px-3 py-2" name="vas_ancho_ojo">
                         </div>
-                        <div>
-                            <label class="block font-semibold text-gray-700 mb-1">Seal Lip</label>
-                            <div class="flex items-center space-x-4 text-xs">
-                                <label class="flex items-center space-x-1"><input type="radio" name="vas_seallip" value="Buena" class="text-green-600"><span>Buena</span></label>
-                                <label class="flex items-center space-x-1"><input type="radio" name="vas_seallip" value="Mala" class="text-red-600"><span>Mala</span></label>
-                            </div>
-                        </div>
-                        <div class="md:col-span-2">
-                            <label class="block font-semibold text-gray-700 mb-1">Dureza / Flexión / Espesor Cromo</label>
-                            <input type="text" class="w-full border rounded-lg px-3 py-2" name="vas_dureza_info" placeholder="Observaciones de dureza, flexión y espesor de cromo">
-                        </div>
+                        
                     </div>
 
                     <div class="flex flex-wrap items-center gap-6">
@@ -339,6 +439,103 @@
                         </div>
                     </div>
 
+                    <!-- CHECK LIST ERRORES COMUNES - VÁSTAGO Y ACCESORIOS -->
+                    <div class="border-t border-gray-200 pt-4 mt-2">
+                        <h3 class="font-semibold text-gray-800 text-sm mb-2">Check list de errores comunes - Vástago y accesorios</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                            <!-- Cojinete y rótula -->
+                            <div class="space-y-3">
+                                <div>
+                                    <h4 class="font-semibold text-gray-700 mb-1 text-[11px]">COJINETE</h4>
+                                    <div class="space-y-1">
+                                        <div class="flex items-center gap-2">
+                                            <span>1. Presenta en exterior de cojinete:</span>
+                                        </div>
+                                        <div class="flex flex-wrap gap-2 ml-4">
+                                            <label class="inline-flex items-center gap-1"><input type="checkbox" class="text-blue-600"><span>CORROSIÓN</span></label>
+                                            <label class="inline-flex items-center gap-1"><input type="checkbox" class="text-blue-600"><span>PICADURAS</span></label>
+                                            <label class="inline-flex items-center gap-1"><input type="checkbox" class="text-blue-600"><span>DESGASTE</span></label>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <span>2. Cojinete llegó:</span>
+                                            <div class="flex flex-wrap gap-2">
+                                                <label class="inline-flex items-center gap-1"><input type="checkbox" class="text-blue-600"><span>FISURADO</span></label>
+                                                <label class="inline-flex items-center gap-1"><input type="checkbox" class="text-blue-600"><span>FRACTURADO</span></label>
+                                            </div>
+                                        </div>
+                                        <div class="p-2 bg-gray-100 border border-gray-300 rounded">
+                                            <label class="flex items-center gap-2 text-[11px]"><input type="checkbox" class="text-blue-600"><span>3. Llegó sin cojinete (si se marca este, omitir todos los demás).</span></label>
+                                        </div>
+                                        <div class="flex items-center gap-2">
+                                            <label class="flex items-center gap-2 flex-1"><input type="checkbox" class="text-blue-600"><span>4. Cojinete presenta forma ovoide</span></label>
+                                            <span class="text-[11px]">X:</span><input class="border rounded px-1 py-0.5 text-[11px] w-10">
+                                            <span class="text-[11px]">Y:</span><input class="border rounded px-1 py-0.5 text-[11px] w-10">
+                                        </div>
+                                        <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>5. Llegó sin sellos limpiadores</span></label>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-gray-700 mb-1 text-[11px]">RÓTULA</h4>
+                                    <div class="space-y-1">
+                                        <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>1. Presenta corrosión en interior de rótula</span></label>
+                                        <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>2. Presenta picaduras en interior de rótula</span></label>
+                                        <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>3. Presenta desgaste en interior de rótula</span></label>
+                                        <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>4. Rótula llegó fracturada</span></label>
+                                        <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>5. Rótula llegó fisurada</span></label>
+                                        <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>6. Llegó sin rótula</span></label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Cáncamo y vástago barra -->
+                            <div class="space-y-3">
+                                <div>
+                                    <h4 class="font-semibold text-gray-700 mb-1 text-[11px]">CÁNCAMO</h4>
+                                    <div class="space-y-1">
+                                        <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>1. Presenta desgaste en alojamiento</span></label>
+                                        <div class="flex items-center gap-2">
+                                            <label class="flex items-center gap-2 flex-1"><input type="checkbox" class="text-blue-600"><span>2. Presenta forma ovoide</span></label>
+                                            <span class="text-[11px]">X:</span><input class="border rounded px-1 py-0.5 text-[11px] w-10">
+                                            <span class="text-[11px]">Y:</span><input class="border rounded px-1 py-0.5 text-[11px] w-10">
+                                        </div>
+                                        <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>3. Presenta corrosión en alojamiento</span></label>
+                                        <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>4. Presenta fisura en alojamiento</span></label>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold text-gray-700 mb-1 text-[11px]">VÁSTAGO (barra)</h4>
+                                    <div class="space-y-1">
+                                        <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>1. Presenta desgaste en superficie cromada</span></label>
+                                        <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>2. Presenta picaduras en superficie cromada</span></label>
+                                        <div class="flex items-center gap-2">
+                                            <label class="flex items-center gap-2 flex-1"><input type="checkbox" class="text-blue-600"><span>3. Barra presenta flexión de</span></label>
+                                            <input class="border rounded px-1 py-0.5 text-[11px] w-12" placeholder="mm">
+                                        </div>
+                                        <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>4. Presenta flexión de espiga</span></label>
+                                        <div class="flex items-center gap-2">
+                                            <label class="flex items-center gap-2 flex-1"><input type="checkbox" class="text-blue-600"><span>5. Presenta poco espesor de cromo</span></label>
+                                            <input class="border rounded px-1 py-0.5 text-[11px] w-12" placeholder="mm">
+                                        </div>
+                                        <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>6. Presenta desprendimiento de capa de cromo</span></label>
+                                        <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>7. Presenta excesiva capa de cromo</span></label>
+                                        <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>8. Presenta daño en superficie roscada de espiga</span></label>
+                                        <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>9. Presenta fisura en espiga</span></label>
+                                        <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>10. Presenta fisura en junta</span></label>
+                                        <div class="p-2 bg-gray-100 border border-gray-300 rounded">
+                                            <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>11. Llegó sin cáncamo</span></label>
+                                            <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>12. Llegó con cáncamo desprendido</span></label>
+                                            <p class="text-[11px] mt-1">Nota: Si es cáncamo cóncavo, omitir ítems 1, 2, 3, 4.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <label class="block text-[11px] font-semibold text-gray-700 mb-1">Comentarios - Vástago y accesorios</label>
+                            <textarea class="w-full border rounded px-2 py-1 text-[11px]" rows="2" placeholder="Observaciones adicionales de vástago, cojinete, rótula y cáncamo..."></textarea>
+                        </div>
+                    </div>
+
                     <div>
                         <label class="block font-semibold text-gray-700 mb-1">Resultado evaluación del vástago</label>
                         <textarea name="vas_resultado" rows="2" class="w-full border rounded-lg px-3 py-2 text-sm" placeholder="Conclusiones de la evaluación del vástago..."></textarea>
@@ -347,38 +544,58 @@
                         <label class="block font-semibold text-gray-700 mb-1">Recomendaciones (Vástago)</label>
                         <textarea name="vas_recomendaciones" rows="2" class="w-full border rounded-lg px-3 py-2 text-sm" placeholder="Recomendaciones técnicas para el vástago..."></textarea>
                     </div>
+                    <!-- IMÁGENES - VÁSTAGO -->
+                    <div class="border-t border-gray-200 pt-4 mt-2">
+                        <label class="block font-semibold text-gray-700 mb-2 text-sm">Imágenes del vástago</label>
+                        <div class="space-y-2">
+                            <div id="preview-vastago" class="h-40 border-2 border-dashed border-gray-300 rounded flex items-center justify-center text-xs text-gray-500 bg-white/40 relative overflow-hidden">
+                                <span id="preview-vastago-text" class="px-2 text-center">Añadir fotos de la condición del vástago</span>
+                                <img id="preview-vastago-img" class="absolute inset-0 w-full h-full object-contain hidden" alt="Imagen vástago">
+                            </div>
+                            <button type="button" class="px-3 py-1 text-xs border rounded bg-white hover:bg-gray-100" onclick="document.getElementById('file-vastago').click()">Subir imagen de vástago</button>
+                            <input id="file-vastago" name="img_vastago" type="file" accept="image/*" class="hidden">
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <!-- TAPA Y PISTÓN -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- TAPA Y PISTÓN (UNO DEBAJO DEL OTRO) -->
+            <div class="space-y-6">
                 <!-- Tapa -->
                 <div class="bg-white rounded-lg shadow-md">
-                    <div class="bg-teal-600 text-white px-6 py-3 rounded-t-lg flex items-center space-x-3">
-                        <span class="bg-white text-teal-700 font-bold rounded-full w-7 h-7 flex items-center justify-center text-sm">4</span>
+                    <div class="bg-gray-800 text-white px-6 py-3 rounded-t-lg flex items-center space-x-3">
+                        <span class="bg-white text-gray-800 font-bold rounded-full w-7 h-7 flex items-center justify-center text-sm">4</span>
                         <h2 class="text-lg font-bold">Tapa</h2>
                     </div>
                     <div class="p-6 space-y-4 text-sm">
-                        <div>
-                            <label class="block font-semibold text-gray-700 mb-1">Ref. Tapa</label>
-                            <input type="text" class="w-full border rounded-lg px-3 py-2" name="ref_tapa">
-                        </div>
-                        <div class="grid grid-cols-2 gap-3">
-                            <div>
-                                <label class="block font-semibold text-gray-700 mb-1">Diámetro Exterior</label>
-                                <input type="text" class="w-full border rounded-lg px-3 py-2" name="tapa_dext">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="space-y-2 md:col-span-1">
+                                <div>
+                                    <label class="block font-semibold text-gray-700 mb-1">Ref. Tapa</label>
+                                    <input type="text" class="w-full max-w-xs border rounded-lg px-3 py-2 bg-gray-100" name="ref_tapa" readonly>
+                                </div>
+                                <!-- Imagen de referencia fija de la tapa -->
+                                <div class="h-24 w-2/3 border border-gray-300 rounded flex items-center justify-center text-[11px] text-gray-500 bg-white/60">
+                                    Imagen de referencia de la tapa (A, B, C, D)
+                                </div>
                             </div>
-                            <div>
-                                <label class="block font-semibold text-gray-700 mb-1">Diámetro Interior</label>
-                                <input type="text" class="w-full border rounded-lg px-3 py-2" name="tapa_dint">
-                            </div>
-                            <div>
-                                <label class="block font-semibold text-gray-700 mb-1">Diámetro Sellado</label>
-                                <input type="text" class="w-full border rounded-lg px-3 py-2" name="tapa_dsellado">
-                            </div>
-                            <div>
-                                <label class="block font-semibold text-gray-700 mb-1">Longitud Total</label>
-                                <input type="text" class="w-full border rounded-lg px-3 py-2" name="tapa_ltot">
+                            <div class="grid grid-cols-2 gap-3 md:col-span-2">
+                                <div>
+                                    <label class="block font-semibold text-gray-700 mb-1">Diámetro Exterior</label>
+                                    <input type="text" class="w-full border rounded-lg px-3 py-2" name="tapa_dext">
+                                </div>
+                                <div>
+                                    <label class="block font-semibold text-gray-700 mb-1">Diámetro Interior</label>
+                                    <input type="text" class="w-full border rounded-lg px-3 py-2" name="tapa_dint">
+                                </div>
+                                <div>
+                                    <label class="block font-semibold text-gray-700 mb-1">Diámetro Sellado</label>
+                                    <input type="text" class="w-full border rounded-lg px-3 py-2" name="tapa_dsellado">
+                                </div>
+                                <div>
+                                    <label class="block font-semibold text-gray-700 mb-1">Longitud Total</label>
+                                    <input type="text" class="w-full border rounded-lg px-3 py-2" name="tapa_ltot">
+                                </div>
                             </div>
                         </div>
                         <div class="flex items-center justify-between mt-2">
@@ -386,6 +603,22 @@
                             <div class="flex items-center space-x-4 text-xs">
                                 <label class="flex items-center space-x-1"><input type="radio" name="tapa_ndt" value="SI" class="text-blue-600"><span>Sí</span></label>
                                 <label class="flex items-center space-x-1"><input type="radio" name="tapa_ndt" value="NO" class="text-blue-600"><span>No</span></label>
+                            </div>
+                        </div>
+                        <!-- CHECK LIST ERRORES COMUNES - TAPA -->
+                        <div class="border-t border-gray-200 pt-4 mt-2">
+                            <h3 class="font-semibold text-gray-800 text-sm mb-2">Check list de errores comunes - Tapa</h3>
+                            <div class="space-y-1 text-xs">
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>1. Desgaste en alojamientos de sellos</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>2. Corrosión en superficie exterior</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>3. Corrosión en superficie interior</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>4. Fisura o fractura en cuerpo de tapa</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>5. Daño en roscas exteriores</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>6. Ovalización en alojamiento de vástago</span></label>
+                            </div>
+                            <div class="mt-2">
+                                <label class="block text-[11px] font-semibold text-gray-700 mb-1">Comentarios - Tapa</label>
+                                <textarea class="w-full border rounded px-2 py-1 text-[11px]" rows="2" placeholder="Observaciones adicionales de la tapa..."></textarea>
                             </div>
                         </div>
                         <div>
@@ -396,32 +629,52 @@
                             <label class="block font-semibold text-gray-700 mb-1">Recomendaciones (Tapa)</label>
                             <textarea name="tapa_recomendaciones" rows="2" class="w-full border rounded-lg px-3 py-2 text-sm" placeholder="Recomendaciones técnicas para la tapa..."></textarea>
                         </div>
+                        <!-- IMÁGENES - TAPA -->
+                        <div class="border-t border-gray-200 pt-4 mt-2">
+                            <label class="block font-semibold text-gray-700 mb-2 text-sm">Imágenes de la tapa</label>
+                            <div class="space-y-2">
+                                <div id="preview-tapa" class="h-40 border-2 border-dashed border-gray-300 rounded flex items-center justify-center text-xs text-gray-500 bg-white/40 relative overflow-hidden">
+                                    <span id="preview-tapa-text" class="px-2 text-center">Añadir fotos de la condición de la tapa</span>
+                                    <img id="preview-tapa-img" class="absolute inset-0 w-full h-full object-contain hidden" alt="Imagen tapa">
+                                </div>
+                                <button type="button" class="px-3 py-1 text-xs border rounded bg-white hover:bg-gray-100" onclick="document.getElementById('file-tapa').click()">Subir imagen de tapa</button>
+                                <input id="file-tapa" name="img_tapa" type="file" accept="image/*" class="hidden">
+                            </div>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Pistón -->
                 <div class="bg-white rounded-lg shadow-md">
-                    <div class="bg-yellow-500 text-white px-6 py-3 rounded-t-lg flex items-center space-x-3">
-                        <span class="bg-white text-yellow-700 font-bold rounded-full w-7 h-7 flex items-center justify-center text-sm">5</span>
+                    <div class="bg-gray-800 text-white px-6 py-3 rounded-t-lg flex items-center space-x-3">
+                        <span class="bg-white text-gray-800 font-bold rounded-full w-7 h-7 flex items-center justify-center text-sm">5</span>
                         <h2 class="text-lg font-bold">Pistón</h2>
                     </div>
                     <div class="p-6 space-y-4 text-sm">
-                        <div>
-                            <label class="block font-semibold text-gray-700 mb-1">Ref. Pistón</label>
-                            <input type="text" class="w-full border rounded-lg px-3 py-2" name="ref_piston">
-                        </div>
-                        <div class="grid grid-cols-2 gap-3">
-                            <div>
-                                <label class="block font-semibold text-gray-700 mb-1">Diámetro Exterior</label>
-                                <input type="text" class="w-full border rounded-lg px-3 py-2" name="piston_dext">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="space-y-2 md:col-span-1">
+                                <div>
+                                    <label class="block font-semibold text-gray-700 mb-1">Ref. Pistón</label>
+                                    <input type="text" class="w-full max-w-xs border rounded-lg px-3 py-2 bg-gray-100" name="ref_piston" readonly>
+                                </div>
+                                <!-- Imagen de referencia fija del pistón -->
+                                <div class="h-24 w-2/3 border border-gray-300 rounded flex items-center justify-center text-[11px] text-gray-500 bg-white/60">
+                                    Imagen de referencia del pistón (A, B, C, D)
+                                </div>
                             </div>
-                            <div>
-                                <label class="block font-semibold text-gray-700 mb-1">Diámetro Interior</label>
-                                <input type="text" class="w-full border rounded-lg px-3 py-2" name="piston_dint">
-                            </div>
-                            <div>
-                                <label class="block font-semibold text-gray-700 mb-1">Longitud Total</label>
-                                <input type="text" class="w-full border rounded-lg px-3 py-2" name="piston_ltot">
+                            <div class="grid grid-cols-2 gap-3 md:col-span-2">
+                                <div>
+                                    <label class="block font-semibold text-gray-700 mb-1">Diámetro Exterior</label>
+                                    <input type="text" class="w-full border rounded-lg px-3 py-2" name="piston_dext">
+                                </div>
+                                <div>
+                                    <label class="block font-semibold text-gray-700 mb-1">Diámetro Interior</label>
+                                    <input type="text" class="w-full border rounded-lg px-3 py-2" name="piston_dint">
+                                </div>
+                                <div>
+                                    <label class="block font-semibold text-gray-700 mb-1">Longitud Total</label>
+                                    <input type="text" class="w-full border rounded-lg px-3 py-2" name="piston_ltot">
+                                </div>
                             </div>
                         </div>
                         <div class="flex items-center justify-between mt-2">
@@ -429,6 +682,22 @@
                             <div class="flex items-center space-x-4 text-xs">
                                 <label class="flex items-center space-x-1"><input type="radio" name="piston_ndt" value="SI" class="text-blue-600"><span>Sí</span></label>
                                 <label class="flex items-center space-x-1"><input type="radio" name="piston_ndt" value="NO" class="text-blue-600"><span>No</span></label>
+                            </div>
+                        </div>
+                        <!-- CHECK LIST ERRORES COMUNES - PISTÓN -->
+                        <div class="border-t border-gray-200 pt-4 mt-2">
+                            <h3 class="font-semibold text-gray-800 text-sm mb-2">Check list de errores comunes - Pistón</h3>
+                            <div class="space-y-1 text-xs">
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>1. Desgaste excesivo en diámetro exterior</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>2. Desgaste en alojamientos de sellos</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>3. Corrosión en superficie del pistón</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>4. Golpes o deformación en caras del pistón</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>5. Daño en roscas interiores</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>6. Fisuras visibles en cuerpo del pistón</span></label>
+                            </div>
+                            <div class="mt-2">
+                                <label class="block text-[11px] font-semibold text-gray-700 mb-1">Comentarios - Pistón</label>
+                                <textarea class="w-full border rounded px-2 py-1 text-[11px]" rows="2" placeholder="Observaciones adicionales del pistón..."></textarea>
                             </div>
                         </div>
                         <div>
@@ -439,6 +708,18 @@
                             <label class="block font-semibold text-gray-700 mb-1">Recomendaciones (Pistón)</label>
                             <textarea name="piston_recomendaciones" rows="2" class="w-full border rounded-lg px-3 py-2 text-sm" placeholder="Recomendaciones técnicas para el pistón..."></textarea>
                         </div>
+                        <!-- IMÁGENES - PISTÓN -->
+                        <div class="border-t border-gray-200 pt-4 mt-2">
+                            <label class="block font-semibold text-gray-700 mb-2 text-sm">Imágenes del pistón</label>
+                            <div class="space-y-2">
+                                <div id="preview-piston" class="h-40 border-2 border-dashed border-gray-300 rounded flex items-center justify-center text-xs text-gray-500 bg-white/40 relative overflow-hidden">
+                                    <span id="preview-piston-text" class="px-2 text-center">Añadir fotos de la condición del pistón</span>
+                                    <img id="preview-piston-img" class="absolute inset-0 w-full h-full object-contain hidden" alt="Imagen pistón">
+                                </div>
+                                <button type="button" class="px-3 py-1 text-xs border rounded bg-white hover:bg-gray-100" onclick="document.getElementById('file-piston').click()">Subir imagen de pistón</button>
+                                <input id="file-piston" name="img_piston" type="file" accept="image/*" class="hidden">
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -448,7 +729,7 @@
                 <a href="/produccion/index.html" class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition font-medium text-sm flex items-center">
                     <i class="fas fa-times mr-2"></i> Cancelar
                 </a>
-                <button type="submit" class="px-8 py-3 bg-purple-700 hover:bg-purple-800 text-white rounded-lg transition font-semibold text-sm flex items-center">
+                <button type="submit" class="px-8 py-3 bg-gray-900 hover:bg-black text-white rounded-lg transition font-semibold text-sm flex items-center">
                     <i class="fas fa-save mr-2"></i> Guardar Hoja de Evaluación
                 </button>
             </div>
@@ -460,16 +741,165 @@
             const t = document.getElementById('toast');
             t.textContent = mensaje;
             t.className = `fixed top-4 right-4 z-50 px-5 py-3 rounded-lg shadow-lg text-white text-sm font-medium ${
-                tipo === 'error' ? 'bg-red-600' : 'bg-green-600'
+                tipo === 'error' ? 'bg-red-600' : tipo === 'warning' ? 'bg-yellow-500' : 'bg-green-600'
             }`;
             t.classList.remove('hidden');
             setTimeout(() => t.classList.add('hidden'), 3000);
+        }
+
+        function setInputValue(name, value) {
+            const input = document.querySelector(`[name="${name}"]`);
+            if (!input) return;
+            input.value = value ?? '';
+        }
+
+        function setDateValue(name, iso) {
+            if (!iso) return;
+            const input = document.querySelector(`[name="${name}"]`);
+            if (!input) return;
+            const d = new Date(iso);
+            if (isNaN(d.getTime())) return;
+            input.value = d.toISOString().split('T')[0];
+        }
+
+        function initImageUpload(inputId, imgId, textId) {
+            const input = document.getElementById(inputId);
+            const img = document.getElementById(imgId);
+            const text = document.getElementById(textId);
+            if (!input || !img || !text) return;
+
+            input.addEventListener('change', () => {
+                const file = input.files && input.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = e => {
+                    img.src = e.target.result;
+                    img.classList.remove('hidden');
+                    text.classList.add('hidden');
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        async function cargarDatosDesdeOT(otNumero) {
+            try {
+                const res = await fetch(`/api/ot?search=${encodeURIComponent(otNumero)}&limit=1`);
+                if (!res.ok) throw new Error('No se pudo buscar la OT');
+                const data = await res.json();
+                const ot = Array.isArray(data) ? data[0] : (data.ordenes && data.ordenes[0]);
+
+                if (!ot) {
+                    mostrarToast('No se encontró ninguna OT con ese número', 'warning');
+                    return;
+                }
+
+                // Campos directos desde la OT
+                setDateValue('fecha_apertura', ot.fecha_recepcion || ot.fecha_creacion);
+                setInputValue('guia_cliente', ot.guia_remision || '');
+                setInputValue('tipo', ot.tipo || '');
+                setInputValue('flota', ot.cod_rep_flota || '');
+                setInputValue('numero_parte', ot.np || '');
+                setInputValue('descripcion', ot.descripcion || '');
+                setInputValue('posicion', ot.cod_rep_posicion || '');
+
+                if (typeof ot.estrategia === 'boolean') {
+                    setInputValue('estrategia', ot.estrategia ? 'Con estrategia' : 'Sin estrategia');
+                }
+
+                const promises = [];
+
+                // Cliente
+                if (ot.id_cliente) {
+                    promises.push(
+                        fetch(`/api/catalogos/clientes/${ot.id_cliente}`)
+                            .then(r => (r.ok ? r.json() : null))
+                            .then(c => {
+                                if (c) {
+                                    setInputValue('cliente', c.nombre_comercial || c.razon_social || '');
+                                }
+                            })
+                    );
+                }
+
+                // Fabricante
+                if (ot.id_fabricante) {
+                    promises.push(
+                        fetch(`/api/catalogos/fabricantes/${ot.id_fabricante}`)
+                            .then(r => (r.ok ? r.json() : null))
+                            .then(f => {
+                                if (f) {
+                                    setInputValue('fabricante', f.nombre || f.codigo || '');
+                                }
+                            })
+                    );
+                }
+
+                // Código reparable (CodRep)
+                if (ot.id_cod_rep) {
+                    promises.push(
+                        fetch(`/api/cod-rep/${ot.id_cod_rep}`)
+                            .then(r => (r.ok ? r.json() : null))
+                            .then(cr => {
+                                if (!cr) return;
+                                setInputValue('codigo_reparable', cr.codigo || '');
+
+                                // Si algunos campos siguen vacíos, completar con datos del CodRep
+                                const descInput = document.querySelector('[name="descripcion"]');
+                                if (descInput && !descInput.value) setInputValue('descripcion', cr.descripcion || '');
+
+                                const flotaInput = document.querySelector('[name="flota"]');
+                                if (flotaInput && !flotaInput.value) setInputValue('flota', cr.flota_codigo || '');
+
+                                const posInput = document.querySelector('[name="posicion"]');
+                                if (posInput && !posInput.value) setInputValue('posicion', cr.posicion_codigo || '');
+
+                                const npInput = document.querySelector('[name="numero_parte"]');
+                                if (npInput && !npInput.value) setInputValue('numero_parte', cr.np || '');
+                            })
+                    );
+                }
+
+                await Promise.all(promises);
+
+                mostrarToast('Datos de cabecera cargados desde la OT.');
+            } catch (error) {
+                console.error('Error cargando datos de OT para evaluación:', error);
+                mostrarToast('Error al cargar datos desde la OT', 'error');
+            }
         }
 
         document.getElementById('form-evaluacion').addEventListener('submit', function (e) {
             e.preventDefault();
             // Por ahora solo mostramos un mensaje. Integración con backend se puede agregar luego.
             mostrarToast('Hoja de evaluación registrada (solo demostración, sin guardar en BD).');
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const otInput = document.querySelector('[name="ot"]');
+            if (!otInput) return;
+
+            otInput.addEventListener('blur', function () {
+                const valor = otInput.value.trim();
+                if (valor) {
+                    cargarDatosDesdeOT(valor);
+                }
+            });
+
+            otInput.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    const valor = otInput.value.trim();
+                    if (valor) {
+                        cargarDatosDesdeOT(valor);
+                    }
+                }
+            });
+
+            // Inicializar carga de imágenes de referencia
+            initImageUpload('file-cilindro', 'preview-cilindro-img', 'preview-cilindro-text');
+            initImageUpload('file-vastago', 'preview-vastago-img', 'preview-vastago-text');
+            initImageUpload('file-tapa', 'preview-tapa-img', 'preview-tapa-text');
+            initImageUpload('file-piston', 'preview-piston-img', 'preview-piston-text');
         });
     </script>
 </body>
