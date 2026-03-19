@@ -106,12 +106,46 @@
                     </table>
                 </div>
             </div>
+
+            <!-- Tabla de requerimientos por estrategia (Solicitud de requerimientos) -->
+            <div class="mt-8">
+                <div class="flex items-center justify-between mb-3">
+                    <h2 class="text-xl font-semibold text-gray-800 flex items-center">
+                        <i class="fas fa-clipboard-list text-emerald-600 mr-2"></i>
+                        Solicitud de requerimientos por estrategia
+                    </h2>
+                    <p id="reqSubtitle" class="text-sm text-gray-500">Seleccione una estrategia y haga clic en "Ver Req.".</p>
+                </div>
+                <div class="overflow-x-auto border border-gray-200 rounded-lg bg-gray-50">
+                    <table class="min-w-full">
+                        <thead class="bg-gradient-to-r from-gray-100 to-gray-200">
+                            <tr>
+                                <th class="px-4 py-2 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Ítem</th>
+                                <th class="px-4 py-2 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Tipo</th>
+                                <th class="px-4 py-2 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Código</th>
+                                <th class="px-4 py-2 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Descripción</th>
+                                <th class="px-4 py-2 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Cantidad</th>
+                                <th class="px-4 py-2 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">U.M.</th>
+                                <th class="px-4 py-2 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Nro. Parte</th>
+                                <th class="px-4 py-2 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Observaciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="reqTableBody" class="divide-y divide-gray-200 bg-white">
+                            <tr>
+                                <td colspan="8" class="px-4 py-6 text-center text-sm text-gray-500">
+                                    <i class="fas fa-info-circle mr-1"></i>No hay requerimientos para mostrar. Seleccione una estrategia.
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 
     <!-- Modal Formulario -->
     <div id="modal" class="modal fixed inset-0 bg-gray-900 bg-opacity-50 overflow-y-auto h-full w-full z-50 items-center justify-center">
-        <div class="relative mx-auto p-8 border w-11/12 max-w-5xl shadow-2xl rounded-xl bg-white my-8">
+        <div class="relative mx-auto p-8 border w-11/12 max-w-5xl shadow-2xl rounded-xl bg-white my-8 max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center mb-6 pb-4 border-b border-gray-200">
                 <h3 class="text-3xl font-bold text-gray-800" id="modalTitle">
                     <i class="fas fa-lightbulb text-cyan-600 mr-2"></i>
@@ -579,8 +613,11 @@
                             <button onclick="deleteEstrategia(${estrategia.estrategia_id})" class="text-red-600 hover:text-red-800 mr-3" title="Eliminar">
                                 <i class="fas fa-trash"></i>
                             </button>
-                            <button onclick="showEstrategiaOTs(${estrategia.estrategia_id})" class="text-indigo-600 hover:text-indigo-800" title="Ver OTs asociadas">
+                            <button onclick="showEstrategiaOTs(${estrategia.estrategia_id})" class="text-indigo-600 hover:text-indigo-800 mr-3" title="Ver OTs asociadas">
                                 <i class="fas fa-link"></i>
+                            </button>
+                            <button onclick="showEstrategiaRequerimientos(${estrategia.estrategia_id})" class="text-emerald-600 hover:text-emerald-800" title="Ver requerimientos">
+                                <i class="fas fa-boxes"></i>
                             </button>
                         </td>
                     </tr>
@@ -827,6 +864,66 @@
             } catch (error) {
                 console.error('Error al cargar OTs para estrategia:', error);
                 reviewBody.innerHTML = '<tr><td colspan="6" class="px-4 py-6 text-center text-sm text-red-500">Error al cargar OTs asociadas.</td></tr>';
+            }
+        }
+
+        // Mostrar requerimientos (lista de materiales/servicios) por estrategia
+        async function showEstrategiaRequerimientos(id) {
+            const estrategia = estrategias.find(e => e.estrategia_id === Number(id));
+            const reqBody = document.getElementById('reqTableBody');
+            const subtitle = document.getElementById('reqSubtitle');
+
+            if (!reqBody || !subtitle) return;
+
+            if (!estrategia) {
+                subtitle.textContent = 'No se encontró la estrategia seleccionada.';
+                reqBody.innerHTML = '<tr><td colspan="8" class="px-4 py-6 text-center text-sm text-red-500">Error: estrategia no encontrada.</td></tr>';
+                return;
+            }
+
+            subtitle.textContent = `Requerimientos definidos para la estrategia ${estrategia.codigo} (${estrategia.descripcion || ''}).`;
+            reqBody.innerHTML = '<tr><td colspan="8" class="px-4 py-6 text-center text-sm text-gray-500"><i class="fas fa-spinner fa-spin mr-1"></i>Cargando requerimientos...</td></tr>';
+
+            try {
+                const response = await fetch(`/api/mantenimiento/estrategias/${id}/requerimientos`);
+                if (!response.ok) {
+                    throw new Error('Respuesta no válida del servidor');
+                }
+
+                const payload = await response.json();
+                const lista = Array.isArray(payload.tareas) ? payload.tareas : [];
+
+                if (lista.length === 0) {
+                    reqBody.innerHTML = '<tr><td colspan="8" class="px-4 py-6 text-center text-sm text-gray-500"><i class="fas fa-info-circle mr-1"></i>Esta estrategia no tiene requerimientos definidos en la lista de tareas.</td></tr>';
+                    return;
+                }
+
+                reqBody.innerHTML = '';
+                lista.forEach((t, idx) => {
+                    const tipo = t.tipo_codigo || 'MAT';
+                    const codigo = t.material_codigo || t.servicio_codigo || '';
+                    const descripcion = t.descripcion || t.material_nombre || t.texto || '-';
+                    const cantidad = t.cantidad || t.requerimiento || 1;
+                    const unidad = t.unidad_medida || t.unidad_medida_codigo || 'UND';
+                    const nroParte = t.np || t.numero_parte || '-';
+                    const obs = t.texto || t.observaciones || '';
+
+                    reqBody.innerHTML += `
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-4 py-2 text-sm text-gray-700">${t.item_numero || idx + 1}</td>
+                            <td class="px-4 py-2 text-sm text-gray-700">${tipo}</td>
+                            <td class="px-4 py-2 text-sm text-gray-700">${codigo}</td>
+                            <td class="px-4 py-2 text-sm text-gray-700">${descripcion}</td>
+                            <td class="px-4 py-2 text-sm text-gray-700">${cantidad}</td>
+                            <td class="px-4 py-2 text-sm text-gray-700">${unidad}</td>
+                            <td class="px-4 py-2 text-sm text-gray-700">${nroParte}</td>
+                            <td class="px-4 py-2 text-sm text-gray-700">${obs}</td>
+                        </tr>
+                    `;
+                });
+            } catch (error) {
+                console.error('Error al cargar requerimientos de estrategia:', error);
+                reqBody.innerHTML = '<tr><td colspan="8" class="px-4 py-6 text-center text-sm text-red-500">Error al cargar los requerimientos de la estrategia.</td></tr>';
             }
         }
 

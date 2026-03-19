@@ -71,12 +71,12 @@
     <div class="container mx-auto px-3 md:px-6 py-4 md:py-8">
         <!-- Header Section -->
         <div class="mb-6 md:mb-8">
-            <h2 class="text-xl md:text-2xl font-bold text-gray-800 mb-2">Parque de Equipos</h2>
-            <p class="text-sm md:text-base text-gray-600">Gestión y seguimiento de equipos industriales</p>
+            <h2 class="text-xl md:text-2xl font-bold text-gray-800 mb-2">Panel de Mantenimiento</h2>
+            <p class="text-sm md:text-base text-gray-600">Parque de equipos, planes de mantenimiento y notificaciones</p>
         </div>
 
-        <!-- Accesos Directos - Solo Equipos -->
-        <div class="max-w-2xl mx-auto">
+        <!-- Accesos Directos -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl mx-auto">
             
             <!-- EQUIPOS -->
             <div class="bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow">
@@ -110,6 +110,47 @@
                 </div>
             </div>
 
+            <!-- FRECUENCIAS / PLANES -->
+            <div class="bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow">
+                <div class="bg-gradient-to-r from-indigo-600 to-indigo-700 text-white px-4 md:px-6 py-3 md:py-4 rounded-t-lg">
+                    <div class="flex items-center space-x-2 md:space-x-3">
+                        <i class="fas fa-calendar-check text-xl md:text-2xl"></i>
+                        <h3 class="text-lg md:text-xl font-bold">PLANES Y FRECUENCIAS</h3>
+                    </div>
+                </div>
+                <div class="p-4 md:p-6">
+                    <p class="text-gray-600 text-xs md:text-sm mb-3 md:mb-4">
+                        Estrategias de mantenimiento preventivo por equipo y frecuencia.
+                    </p>
+                    <div class="space-y-2">
+                        <a href="/mantenimiento/estrategias.html" class="flex items-center justify-between px-3 md:px-4 py-2 md:py-3 bg-indigo-50 hover:bg-indigo-100 rounded-lg transition group">
+                            <span class="flex items-center space-x-2">
+                                <i class="fas fa-stream text-indigo-600"></i>
+                                <span class="text-gray-700 group-hover:text-indigo-700 font-medium text-sm md:text-base">Tabla de Frecuencias</span>
+                            </span>
+                            <i class="fas fa-chevron-right text-gray-400 group-hover:text-indigo-600"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PRÓXIMOS MANTENIMIENTOS -->
+            <div class="bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow md:col-span-2">
+                <div class="bg-gradient-to-r from-amber-500 to-amber-600 text-white px-4 md:px-6 py-3 md:py-4 rounded-t-lg flex items-center justify-between">
+                    <div class="flex items-center space-x-2 md:space-x-3">
+                        <i class="fas fa-bell text-xl md:text-2xl"></i>
+                        <h3 class="text-lg md:text-xl font-bold">PRÓXIMOS MANTENIMIENTOS (7 días)</h3>
+                    </div>
+                    <span id="proximos-count" class="text-xs md:text-sm bg-white/10 px-2 py-1 rounded-full"></span>
+                </div>
+                <div class="p-4 md:p-6">
+                    <p class="text-gray-600 text-xs md:text-sm mb-3 md:mb-4">
+                        Equipos con estrategias cuya próxima ejecución está dentro de los próximos días. Fuente: tabla de estrategias.
+                    </p>
+                    <div id="proximos-container" class="space-y-2 text-xs md:text-sm text-gray-700"></div>
+                </div>
+            </div>
+
         </div>
     </div>
 
@@ -129,6 +170,46 @@
                     }, 50);
                 }, index * 100);
             });
+
+            // Cargar próximos mantenimientos desde la API
+            fetch('/api/mantenimiento/equipos-proximos?diasAviso=7')
+                .then(r => r.json())
+                .then(data => {
+                    const cont = document.getElementById('proximos-container');
+                    const badge = document.getElementById('proximos-count');
+                    if (!cont || !badge || !data || !Array.isArray(data.estrategias)) return;
+
+                    badge.textContent = `${data.total || 0} equipos`;
+
+                    if (data.estrategias.length === 0) {
+                        cont.innerHTML = '<p class="text-gray-500">No hay mantenimientos programados dentro del rango configurado.</p>';
+                        return;
+                    }
+
+                    cont.innerHTML = data.estrategias.map((e) => {
+                        const eq = e.equipo || {};
+                        const planta = (eq.planta && eq.planta.codigo) || '-';
+                        const area = (eq.area && eq.area.codigo) || '-';
+                        const crit = (eq.criticidad && eq.criticidad.codigo) || '-';
+                        const fecha = e.fecha_proxima_ejecucion ? new Date(e.fecha_proxima_ejecucion).toISOString().slice(0, 10) : '';
+                        const um = e.unidad_medida && (e.unidad_medida.codigo || e.unidad_medida.nombre) || '';
+                        return `
+                            <div class="flex justify-between items-center border border-amber-100 bg-amber-50 rounded-lg px-3 py-2">
+                                <div>
+                                    <div class="font-semibold text-gray-800">${eq.codigo || ''} - ${eq.descripcion || ''}</div>
+                                    <div class="text-[11px] text-gray-600">Planta: ${planta} · Área: ${area} · Criticidad: ${crit}</div>
+                                </div>
+                                <div class="text-right text-[11px]">
+                                    <div class="font-semibold text-amber-700">${fecha}</div>
+                                    <div class="text-gray-500">Frecuencia: ${e.frecuencia ?? ''} ${um}</div>
+                                </div>
+                            </div>`;
+                    }).join('');
+                })
+                .catch(() => {
+                    const cont = document.getElementById('proximos-container');
+                    if (cont) cont.innerHTML = '<p class="text-gray-400">No se pudo cargar la información de próximos mantenimientos.</p>';
+                });
         });
     </script>
 </body>
