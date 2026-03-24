@@ -392,8 +392,8 @@
                         </div>
                         
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Guía Remisión</label>
-                            <input type="text" id="guia_remision" 
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Guía Remisión (llegada)</label>
+                            <input type="text" id="guia_remision"
                                 class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-cyan-500 focus:border-transparent">
                         </div>
                         
@@ -439,27 +439,22 @@
                     </div>
                 </div>
 
-                <!-- Garantía y Reparación -->
+                <!-- Tipo Reparación y Garantía -->
                 <div class="bg-gray-50 rounded-lg p-4">
                     <h4 class="text-lg font-semibold text-gray-700 mb-4 flex items-center">
                         <i class="fas fa-shield-alt text-red-600 mr-2"></i>
-                        Garantía y Reparación
+                        Tipo Reparación y Garantía
                     </h4>
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Garantía</label>
-                            <select id="garantia_codigo"
-                                class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-cyan-500 focus:border-transparent">
-                                <option value="">Seleccione...</option>
-                            </select>
+                        <div class="flex items-center space-x-2">
+                            <input type="checkbox" id="garantia_codigo" class="w-4 h-4 text-cyan-600 rounded"
+                                onchange="if(this.checked){ document.getElementById('tipo_garantia_codigo').value='Por definir'; } else { document.getElementById('tipo_garantia_codigo').value=''; }">
+                            <label for="garantia_codigo" class="text-sm font-medium text-gray-700">Garantía</label>
                         </div>
-                        
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Base Metálica</label>
-                            <select id="base_metalica_codigo"
-                                class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-cyan-500 focus:border-transparent">
-                                <option value="">Seleccione...</option>
-                            </select>
+
+                        <div class="flex items-center space-x-2">
+                            <input type="checkbox" id="base_metalica_codigo" class="w-4 h-4 text-cyan-600 rounded">
+                            <label for="base_metalica_codigo" class="text-sm font-medium text-gray-700">Base Metálica</label>
                         </div>
                         
                         <div>
@@ -469,24 +464,24 @@
                         </div>
                         
                         <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Tipo Garantía</label>
+                            <select id="tipo_garantia_codigo"
+                                class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-cyan-500 focus:border-transparent">
+                                <option value="">Seleccione...</option>
+                            </select>
+                        </div>
+
+                        <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Atención Reparación</label>
                             <select id="atencion_reparacion_codigo"
                                 class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-cyan-500 focus:border-transparent">
                                 <option value="">Seleccione...</option>
                             </select>
                         </div>
-                        
+
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Tipo Reparación</label>
                             <select id="tipo_reparacion_codigo"
-                                class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-cyan-500 focus:border-transparent">
-                                <option value="">Seleccione...</option>
-                            </select>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Tipo Garantía</label>
-                            <select id="tipo_garantia_codigo"
                                 class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-cyan-500 focus:border-transparent">
                                 <option value="">Seleccione...</option>
                             </select>
@@ -615,17 +610,14 @@
                 <button onclick="switchTab('tareas')" id="tab-tareas" class="tab-button flex-1 py-4 px-6 text-center whitespace-nowrap">
                     <i class="fas fa-tasks mr-2"></i> Tareas
                 </button>
+                <button onclick="switchTab('requerimientos')" id="tab-requerimientos" class="tab-button flex-1 py-4 px-6 text-center whitespace-nowrap">
+                    <i class="fas fa-clipboard-list mr-2"></i> Requerimientos
+                </button>
                 <button onclick="switchTab('costos')" id="tab-costos" class="tab-button flex-1 py-4 px-6 text-center whitespace-nowrap">
                     <i class="fas fa-dollar-sign mr-2"></i> Costos
                 </button>
                 <button onclick="switchTab('documentos')" id="tab-documentos" class="tab-button flex-1 py-4 px-6 text-center whitespace-nowrap">
-                    <i class="fas fa-paperclip mr-2"></i> Documentos
-                </button>
-                <button onclick="switchTab('requerimientos')" id="tab-requerimientos" class="tab-button flex-1 py-4 px-6 text-center whitespace-nowrap">
-                    <i class="fas fa-clipboard-list mr-2"></i> Requerimientos
-                </button>
-                <button onclick="switchTab('planificacion')" id="tab-planificacion" class="tab-button flex-1 py-4 px-6 text-center whitespace-nowrap">
-                    <i class="fas fa-calendar-alt mr-2"></i> Planificación
+                    <i class="fas fa-paperclip mr-2"></i> Adjuntos
                 </button>
                 <button onclick="switchTab('historial')" id="tab-historial" class="tab-button flex-1 py-4 px-6 text-center whitespace-nowrap">
                     <i class="fas fa-history mr-2"></i> Historial
@@ -636,31 +628,262 @@
             <div class="p-6 overflow-y-auto flex-1">
                 <!-- Tab 1: Resumen de la OT -->
                 <div id="content-resumen" class="tab-content active">
-                    <h4 class="text-xl font-bold text-gray-800 mb-4">Información General</h4>
-                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-                        <div class="bg-gray-50 p-4 rounded-lg">
-                            <p class="text-sm text-gray-600">Operación</p>
-                            <p class="font-semibold text-gray-800" id="detail-operacion">-</p>
+                    <!-- Estados (editable) -->
+                    <div class="mb-5">
+                        <div class="flex items-center justify-between border-b pb-2 mb-3">
+                            <h4 class="text-md font-semibold text-gray-700">
+                                <i class="fas fa-tasks text-purple-600 mr-2"></i>Estados
+                            </h4>
+                            <button onclick="guardarEstados()" class="bg-purple-600 hover:bg-purple-700 text-white text-xs px-3 py-1.5 rounded-lg transition">
+                                <i class="fas fa-save mr-1"></i> Guardar Estados
+                            </button>
                         </div>
-                        <div class="bg-gray-50 p-4 rounded-lg">
-                            <p class="text-sm text-gray-600">Proceso</p>
-                            <p class="font-semibold text-gray-800" id="detail-proceso">-</p>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            <div class="bg-purple-50 p-3 rounded-lg">
+                                <label class="text-xs text-gray-500 uppercase block mb-1">Estado OT</label>
+                                <select id="r-estado-ot" class="w-full border border-purple-200 rounded px-2 py-1.5 text-sm font-semibold text-gray-800 bg-white focus:ring-2 focus:ring-purple-400 focus:outline-none"></select>
+                            </div>
+                            <div class="bg-purple-50 p-3 rounded-lg">
+                                <label class="text-xs text-gray-500 uppercase block mb-1">Estado Recursos</label>
+                                <select id="r-estado-recursos" class="w-full border border-purple-200 rounded px-2 py-1.5 text-sm font-semibold text-gray-800 bg-white focus:ring-2 focus:ring-purple-400 focus:outline-none"></select>
+                            </div>
+                            <div class="bg-purple-50 p-3 rounded-lg">
+                                <label class="text-xs text-gray-500 uppercase block mb-1">Estado Taller</label>
+                                <select id="r-estado-taller" class="w-full border border-purple-200 rounded px-2 py-1.5 text-sm font-semibold text-gray-800 bg-white focus:ring-2 focus:ring-purple-400 focus:outline-none"></select>
+                            </div>
                         </div>
-                        <div class="bg-gray-50 p-4 rounded-lg">
-                            <p class="text-sm text-gray-600">Componente</p>
-                            <p class="font-semibold text-gray-800" id="detail-componente">-</p>
+                    </div>
+
+                    <!-- Identificación -->
+                    <div class="mb-5">
+                        <h4 class="text-md font-semibold text-gray-700 mb-3 border-b pb-2">
+                            <i class="fas fa-id-card text-cyan-600 mr-2"></i>Identificación
+                        </h4>
+                        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <p class="text-xs text-gray-500 uppercase">Nro OT</p>
+                                <p class="font-semibold text-gray-800" id="r-ot">-</p>
+                            </div>
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <p class="text-xs text-gray-500 uppercase">Cliente</p>
+                                <p class="font-semibold text-gray-800" id="r-cliente">-</p>
+                            </div>
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <p class="text-xs text-gray-500 uppercase">Descripción</p>
+                                <p class="font-semibold text-gray-800" id="r-descripcion">-</p>
+                            </div>
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <p class="text-xs text-gray-500 uppercase">Estrategia</p>
+                                <p class="font-semibold text-gray-800" id="r-estrategia">-</p>
+                            </div>
                         </div>
-                        <div class="bg-gray-50 p-4 rounded-lg">
-                            <p class="text-sm text-gray-600">Fecha Inicio</p>
-                            <p class="font-semibold text-gray-800" id="detail-fecha-inicio">-</p>
+                    </div>
+
+                    <!-- Equipo / Componente -->
+                    <div class="mb-5">
+                        <h4 class="text-md font-semibold text-gray-700 mb-3 border-b pb-2">
+                            <i class="fas fa-cogs text-indigo-600 mr-2"></i>Equipo / Componente
+                        </h4>
+                        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <p class="text-xs text-gray-500 uppercase">Código Reparación</p>
+                                <p class="font-semibold text-gray-800" id="r-cod-rep">-</p>
+                            </div>
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <p class="text-xs text-gray-500 uppercase">Tipo</p>
+                                <p class="font-semibold text-gray-800" id="r-tipo">-</p>
+                            </div>
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <p class="text-xs text-gray-500 uppercase">Equipo</p>
+                                <p class="font-semibold text-gray-800" id="r-equipo">-</p>
+                            </div>
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <p class="text-xs text-gray-500 uppercase">N/P</p>
+                                <p class="font-semibold text-gray-800" id="r-np">-</p>
+                            </div>
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <p class="text-xs text-gray-500 uppercase">N/S</p>
+                                <p class="font-semibold text-gray-800" id="r-ns">-</p>
+                            </div>
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <p class="text-xs text-gray-500 uppercase">Fabricante</p>
+                                <p class="font-semibold text-gray-800" id="r-fabricante">-</p>
+                            </div>
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <p class="text-xs text-gray-500 uppercase">Flota</p>
+                                <p class="font-semibold text-gray-800" id="r-flota">-</p>
+                            </div>
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <p class="text-xs text-gray-500 uppercase">Posición</p>
+                                <p class="font-semibold text-gray-800" id="r-posicion">-</p>
+                            </div>
                         </div>
-                        <div class="bg-gray-50 p-4 rounded-lg">
-                            <p class="text-sm text-gray-600">Fecha Fin</p>
-                            <p class="font-semibold text-gray-800" id="detail-fecha-fin">-</p>
+                    </div>
+
+                    <!-- Documentos del Cliente -->
+                    <div class="mb-5">
+                        <h4 class="text-md font-semibold text-gray-700 mb-3 border-b pb-2">
+                            <i class="fas fa-file-alt text-green-600 mr-2"></i>Documentos del Cliente
+                        </h4>
+                        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <p class="text-xs text-gray-500 uppercase">Plaqueteo</p>
+                                <p class="font-semibold text-gray-800" id="r-plaqueteo">-</p>
+                            </div>
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <p class="text-xs text-gray-500 uppercase">WO Cliente</p>
+                                <p class="font-semibold text-gray-800" id="r-wo-cliente">-</p>
+                            </div>
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <p class="text-xs text-gray-500 uppercase">PO Cliente</p>
+                                <p class="font-semibold text-gray-800" id="r-po-cliente">-</p>
+                            </div>
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <p class="text-xs text-gray-500 uppercase">ID Viajero</p>
+                                <p class="font-semibold text-gray-800" id="r-id-viajero">-</p>
+                            </div>
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <p class="text-xs text-gray-500 uppercase">Guía Remisión (llegada)</p>
+                                <p class="font-semibold text-gray-800" id="r-guia-remision">-</p>
+                            </div>
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <p class="text-xs text-gray-500 uppercase">Empresa Entrega</p>
+                                <p class="font-semibold text-gray-800" id="r-empresa-entrega">-</p>
+                            </div>
                         </div>
-                        <div class="bg-gray-50 p-4 rounded-lg">
-                            <p class="text-sm text-gray-600">Prioridad</p>
-                            <p class="font-semibold text-gray-800" id="detail-prioridad">-</p>
+                    </div>
+
+                    <!-- Fechas -->
+                    <div class="mb-5">
+                        <h4 class="text-md font-semibold text-gray-700 mb-3 border-b pb-2">
+                            <i class="fas fa-calendar-alt text-orange-600 mr-2"></i>Fechas
+                        </h4>
+                        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <p class="text-xs text-gray-500 uppercase">Fecha Recepción</p>
+                                <p class="font-semibold text-gray-800" id="r-fecha-recepcion">-</p>
+                            </div>
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <p class="text-xs text-gray-500 uppercase">Fecha Req. Cliente</p>
+                                <p class="font-semibold text-gray-800" id="r-fecha-req-cliente">-</p>
+                            </div>
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <p class="text-xs text-gray-500 uppercase">Fecha Evaluación</p>
+                                <p class="font-semibold text-gray-800" id="r-fecha-evaluacion">-</p>
+                            </div>
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <p class="text-xs text-gray-500 uppercase">Fecha Cotización</p>
+                                <p class="font-semibold text-gray-800" id="r-fecha-cotizacion">-</p>
+                            </div>
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <p class="text-xs text-gray-500 uppercase">Fecha Aprobación</p>
+                                <p class="font-semibold text-gray-800" id="r-fecha-aprobacion">-</p>
+                            </div>
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <p class="text-xs text-gray-500 uppercase">Fecha Entrega</p>
+                                <p class="font-semibold text-gray-800" id="r-fecha-entrega">-</p>
+                            </div>
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <p class="text-xs text-gray-500 uppercase">Fecha Facturación</p>
+                                <p class="font-semibold text-gray-800" id="r-fecha-facturacion">-</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tipo Reparación y Garantía -->
+                    <div class="mb-5">
+                        <h4 class="text-md font-semibold text-gray-700 mb-3 border-b pb-2">
+                            <i class="fas fa-shield-alt text-red-600 mr-2"></i>Tipo Reparación y Garantía
+                        </h4>
+                        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <p class="text-xs text-gray-500 uppercase">Garantía</p>
+                                <p class="font-semibold text-gray-800" id="r-garantia">-</p>
+                            </div>
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <p class="text-xs text-gray-500 uppercase">Tipo Garantía</p>
+                                <p class="font-semibold text-gray-800" id="r-tipo-garantia">-</p>
+                            </div>
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <p class="text-xs text-gray-500 uppercase">Atención Reparación</p>
+                                <p class="font-semibold text-gray-800" id="r-atencion-rep">-</p>
+                            </div>
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <p class="text-xs text-gray-500 uppercase">Tipo Reparación</p>
+                                <p class="font-semibold text-gray-800" id="r-tipo-rep">-</p>
+                            </div>
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <p class="text-xs text-gray-500 uppercase">Prioridad</p>
+                                <p class="font-semibold text-gray-800" id="r-prioridad">-</p>
+                            </div>
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <p class="text-xs text-gray-500 uppercase">Contrato (días)</p>
+                                <p class="font-semibold text-gray-800" id="r-contrato-dias">-</p>
+                            </div>
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <p class="text-xs text-gray-500 uppercase">Base Metálica</p>
+                                <p class="font-semibold text-gray-800" id="r-base-metalica">-</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Control / Horas -->
+                    <div class="mb-5">
+                        <h4 class="text-md font-semibold text-gray-700 mb-3 border-b pb-2">
+                            <i class="fas fa-tachometer-alt text-blue-600 mr-2"></i>Control
+                        </h4>
+                        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <p class="text-xs text-gray-500 uppercase">PCR</p>
+                                <p class="font-semibold text-gray-800" id="r-pcr">-</p>
+                            </div>
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <p class="text-xs text-gray-500 uppercase">Horas</p>
+                                <p class="font-semibold text-gray-800" id="r-horas">-</p>
+                            </div>
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <p class="text-xs text-gray-500 uppercase">% PCR</p>
+                                <p class="font-semibold text-gray-800" id="r-pct-pcr">-</p>
+                            </div>
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <p class="text-xs text-gray-500 uppercase">Días en Taller</p>
+                                <p class="font-semibold text-gray-800" id="r-dias-taller">-</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Comentarios -->
+                    <div class="mb-5" id="r-comentarios-section" style="display:none">
+                        <h4 class="text-md font-semibold text-gray-700 mb-3 border-b pb-2">
+                            <i class="fas fa-comment text-yellow-600 mr-2"></i>Comentarios
+                        </h4>
+                        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded">
+                            <p class="text-gray-700" id="r-comentarios">-</p>
+                        </div>
+                    </div>
+
+                    <!-- Auditoría -->
+                    <div class="mb-5">
+                        <h4 class="text-md font-semibold text-gray-700 mb-3 border-b pb-2">
+                            <i class="fas fa-user-clock text-gray-500 mr-2"></i>Auditoría
+                        </h4>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <p class="text-xs text-gray-500 uppercase">Creado por</p>
+                                <p class="font-semibold text-gray-800" id="r-usuario-crea">-</p>
+                            </div>
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <p class="text-xs text-gray-500 uppercase">Fecha Creación</p>
+                                <p class="font-semibold text-gray-800" id="r-fecha-creacion">-</p>
+                            </div>
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <p class="text-xs text-gray-500 uppercase">Actualizado por</p>
+                                <p class="font-semibold text-gray-800" id="r-usuario-actualiza">-</p>
+                            </div>
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <p class="text-xs text-gray-500 uppercase">Fecha Actualización</p>
+                                <p class="font-semibold text-gray-800" id="r-fecha-actualiza">-</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1141,43 +1364,7 @@
                 </div>
 
                 <!-- Tab 6: Planificación de operaciones -->
-                <div id="content-planificacion" class="tab-content">
-                    <!-- Header -->
-                    <div class="flex flex-wrap items-center justify-between gap-3 mb-5">
-                        <div>
-                            <h4 class="text-xl font-bold text-gray-800">Planificación de Operaciones</h4>
-                            <p class="text-sm text-gray-500 mt-1">Operaciones generadas según la clasificación STD/NoSTD de la evaluación técnica</p>
-                        </div>
-                        <div class="flex gap-2">
-                            <button onclick="loadPlanificacion()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm">
-                                <i class="fas fa-sync-alt mr-1"></i> Actualizar
-                            </button>
-                            <button onclick="generarPlan()" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm font-medium">
-                                <i class="fas fa-magic mr-1"></i> Generar Plan
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Alerta si no hay evaluación -->
-                    <div id="plan-sin-evaluacion" class="hidden bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4 flex items-start gap-3">
-                        <i class="fas fa-exclamation-triangle text-yellow-500 mt-0.5"></i>
-                        <div>
-                            <p class="font-medium text-yellow-800">Sin evaluación técnica</p>
-                            <p class="text-sm text-yellow-700">Esta OT no tiene evaluación técnica completada (STD/NoSTD por componente). Complete primero la evaluación antes de generar el plan.</p>
-                        </div>
-                    </div>
-
-                    <!-- Contenedor de operaciones agrupadas por componente -->
-                    <div id="planificacionContainer">
-                        <div class="text-center text-gray-400 py-10">
-                            <i class="fas fa-calendar-alt text-4xl mb-3 block"></i>
-                            <p>Sin operaciones planificadas</p>
-                            <p class="text-sm mt-1">Haz clic en "Generar Plan" para crear el cronograma según la evaluación</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Tab 5: Historial de Operaciones -->
+                <!-- Tab: Historial de Operaciones -->
                 <div id="content-historial" class="tab-content">
                     <h4 class="text-xl font-bold text-gray-800 mb-4">Historial de Pedidos y Operaciones</h4>
                     
@@ -1417,7 +1604,7 @@
             }`;
             toastMessage.textContent = message;
             toast.classList.remove('hidden');
-            setTimeout(() => toast.classList.add('hidden'), 3000);
+            setTimeout(() => toast.classList.add('hidden'), 2000);
         }
 
         // Cache global para datos de catálogos (para auto-llenado)
@@ -1427,6 +1614,9 @@
         let _clientesCache = [];
         let _materialesList = [];
         let _materialesLoaded = false;
+        let _otStatusCache = [];
+        let _recursosStatusCache = [];
+        let _tallerStatusCache = [];
 
         async function loadMaterialesList() {
             if (_materialesLoaded) return;
@@ -1531,41 +1721,30 @@
                 const otStatusSelect = document.getElementById('ot_status_codigo');
                 otStatusSelect.innerHTML = '<option value="">Seleccione estado...</option>';
                 const otStatusArray = Array.isArray(otStatus) ? otStatus : [];
+                _otStatusCache = otStatusArray;
                 otStatusArray.forEach(os => {
                     otStatusSelect.innerHTML += `<option value="${os.codigo}">${os.nombre}</option>`;
                 });
-                
+
                 // Cargar estados recursos
                 const recursosStatusSelect = document.getElementById('recursos_status_codigo');
                 recursosStatusSelect.innerHTML = '<option value="">Seleccione estado recursos...</option>';
                 const recursosArray = Array.isArray(recursosStatus) ? recursosStatus : [];
+                _recursosStatusCache = recursosArray;
                 recursosArray.forEach(rs => {
                     recursosStatusSelect.innerHTML += `<option value="${rs.codigo}">${rs.nombre}</option>`;
                 });
-                
+
                 // Cargar estados taller
                 const tallerStatusSelect = document.getElementById('taller_status_codigo');
                 tallerStatusSelect.innerHTML = '<option value="">Seleccione estado taller...</option>';
                 const tallerArray = Array.isArray(tallerStatus) ? tallerStatus : [];
+                _tallerStatusCache = tallerArray;
                 tallerArray.forEach(ts => {
                     tallerStatusSelect.innerHTML += `<option value="${ts.codigo}">${ts.nombre}</option>`;
                 });
                 
-                // Cargar garantías
-                const garantiaSelect = document.getElementById('garantia_codigo');
-                garantiaSelect.innerHTML = '<option value="">Seleccione...</option>';
-                const garantiasArray = Array.isArray(garantias) ? garantias : [];
-                garantiasArray.forEach(g => {
-                    garantiaSelect.innerHTML += `<option value="${g.codigo}">${g.nombre}</option>`;
-                });
-                
-                // Cargar bases metálicas
-                const baseMetalicaSelect = document.getElementById('base_metalica_codigo');
-                baseMetalicaSelect.innerHTML = '<option value="">Seleccione...</option>';
-                const basesArray = Array.isArray(basesMetalicas) ? basesMetalicas : [];
-                basesArray.forEach(bm => {
-                    baseMetalicaSelect.innerHTML += `<option value="${bm.codigo}">${bm.nombre}</option>`;
-                });
+                // Garantía y Base Metálica ahora son checkboxes (no requieren carga de catálogo)
 
                 // Guardar fabricantes en caché para auto-llenado
                 _fabricantesCache = Array.isArray(fabricantes) ? fabricantes : [];
@@ -2790,6 +2969,10 @@
             document.getElementById('usuario_crea').value = 'Admin';
             document.getElementById('fecha_creacion').value = new Date().toISOString().slice(0, 16);
             document.getElementById('detailsSection').classList.add('hidden');
+            // Valores por defecto de estados
+            document.getElementById('ot_status_codigo').value = 'Abierta';
+            document.getElementById('recursos_status_codigo').value = 'En revision procesos';
+            document.getElementById('taller_status_codigo').value = 'Pdt Evaluación';
             // Pre-cargar siguiente número de OT
             const otInput = document.getElementById('ot');
             otInput.value = 'Generando...';
@@ -2840,8 +3023,8 @@
             document.getElementById('pcr').value = orden.pcr || '';
             document.getElementById('horas').value = orden.horas || '0';
             document.getElementById('porcentaje_pcr').value = orden.porcentaje_pcr || '0.00';
-            document.getElementById('garantia_codigo').value = orden.garantia_codigo || '';
-            document.getElementById('base_metalica_codigo').value = orden.base_metalica_codigo || '';
+            document.getElementById('garantia_codigo').checked = orden.garantia_codigo === 'Si';
+            document.getElementById('base_metalica_codigo').checked = !!(orden.base_metalica_codigo && orden.base_metalica_codigo !== 'No');
             document.getElementById('contrato_dias').value = orden.contrato_dias || '';
             document.getElementById('atencion_reparacion_codigo').value = orden.atencion_reparacion_codigo || '';
             document.getElementById('tipo_reparacion_codigo').value = orden.tipo_reparacion_codigo || '';
@@ -2889,8 +3072,8 @@
                     fecha_requerimiento_cliente: document.getElementById('fecha_requerimiento_cliente').value || null,
                     pcr: parseFloat(document.getElementById('pcr').value) || null,
                     horas: parseFloat(document.getElementById('horas').value) || 0,
-                    garantia_codigo: document.getElementById('garantia_codigo').value || null,
-                    base_metalica_codigo: document.getElementById('base_metalica_codigo').value || null,
+                    garantia_codigo: document.getElementById('garantia_codigo').checked ? 'Si' : 'No',
+                    base_metalica_codigo: document.getElementById('base_metalica_codigo').checked ? 'Si' : 'No',
                     contrato_dias: parseInt(document.getElementById('contrato_dias').value) || null,
                     atencion_reparacion_codigo: document.getElementById('atencion_reparacion_codigo').value || null,
                     tipo_reparacion_codigo: document.getElementById('tipo_reparacion_codigo').value || null,
@@ -3004,18 +3187,89 @@
             document.getElementById('detailEquipo').textContent = orden.equipo_codigo || '-';
             document.getElementById('detailEstado').textContent = orden.ot_status_codigo || '-';
 
-            // Llenar tab de resumen
-            document.getElementById('detail-operacion').textContent = orden.descripcion || '-';
-            document.getElementById('detail-proceso').textContent = orden.tipo_reparacion_codigo || '-';
-            document.getElementById('detail-componente').textContent = orden.equipo_codigo || '-';
-            document.getElementById('detail-fecha-inicio').textContent = orden.fecha_recepcion ? new Date(orden.fecha_recepcion).toLocaleDateString('es-ES') : '-';
-            document.getElementById('detail-fecha-fin').textContent = orden.fecha_requerimiento_cliente ? new Date(orden.fecha_requerimiento_cliente).toLocaleDateString('es-ES') : '-';
-            document.getElementById('detail-prioridad').textContent = orden.prioridad_atencion_codigo || '-';
+            // Llenar tab de resumen — todas las secciones
+            const fmt = v => v || '-';
+            const fmtDate = d => d ? new Date(d).toLocaleDateString('es-ES') : '-';
+            const fmtDateTime = d => d ? new Date(d).toLocaleString('es-ES') : '-';
+
+            // Identificación
+            document.getElementById('r-ot').textContent = fmt(orden.ot);
+            const clienteObj = _clientesCache.find(c => c.cliente_id == orden.id_cliente);
+            document.getElementById('r-cliente').textContent = fmt(clienteObj?.razon_social || orden.id_cliente);
+            document.getElementById('r-descripcion').textContent = fmt(orden.descripcion);
+            document.getElementById('r-estrategia').textContent = orden.tiene_estrategia ? 'Sí' : 'No';
+
+            // Equipo / Componente
+            document.getElementById('r-cod-rep').textContent = fmt(orden.codigo_reparacion_codigo);
+            document.getElementById('r-tipo').textContent = fmt(orden.tipo_componente_codigo);
+            document.getElementById('r-equipo').textContent = fmt(orden.equipo_codigo);
+            document.getElementById('r-np').textContent = fmt(orden.np);
+            document.getElementById('r-ns').textContent = fmt(orden.ns);
+            document.getElementById('r-fabricante').textContent = fmt(orden.fabricante_codigo);
+            document.getElementById('r-flota').textContent = fmt(orden.flota_equipo_codigo);
+            document.getElementById('r-posicion').textContent = fmt(orden.posicion_codigo);
+
+            // Documentos del Cliente
+            document.getElementById('r-plaqueteo').textContent = fmt(orden.plaqueteo);
+            document.getElementById('r-wo-cliente').textContent = fmt(orden.wo_cliente);
+            document.getElementById('r-po-cliente').textContent = fmt(orden.po_cliente);
+            document.getElementById('r-id-viajero').textContent = fmt(orden.id_viajero);
+            document.getElementById('r-guia-remision').textContent = fmt(orden.guia_remision);
+            document.getElementById('r-empresa-entrega').textContent = fmt(orden.empresa_entrega);
+
+            // Fechas
+            document.getElementById('r-fecha-recepcion').textContent = fmtDate(orden.fecha_recepcion);
+            document.getElementById('r-fecha-req-cliente').textContent = fmtDate(orden.fecha_requerimiento_cliente);
+            document.getElementById('r-fecha-evaluacion').textContent = fmtDate(orden.fecha_evaluacion);
+            document.getElementById('r-fecha-cotizacion').textContent = fmtDate(orden.fecha_cotizacion);
+            document.getElementById('r-fecha-aprobacion').textContent = fmtDate(orden.fecha_aprobacion);
+            document.getElementById('r-fecha-entrega').textContent = fmtDate(orden.fecha_entrega);
+            document.getElementById('r-fecha-facturacion').textContent = fmtDate(orden.fecha_facturacion);
+
+            // Tipo Reparación y Garantía
+            document.getElementById('r-garantia').textContent = fmt(orden.garantia_codigo);
+            document.getElementById('r-tipo-garantia').textContent = fmt(orden.tipo_garantia_codigo);
+            document.getElementById('r-atencion-rep').textContent = fmt(orden.atencion_reparacion_codigo);
+            document.getElementById('r-tipo-rep').textContent = fmt(orden.tipo_reparacion_codigo);
+            document.getElementById('r-prioridad').textContent = fmt(orden.prioridad_atencion_codigo);
+            document.getElementById('r-contrato-dias').textContent = fmt(orden.contrato_dias);
+            document.getElementById('r-base-metalica').textContent = fmt(orden.base_metalica_codigo);
+
+            // Estados (editables — llenar selects)
+            const fillStatusSelect = (selectId, cache, currentValue) => {
+                const sel = document.getElementById(selectId);
+                sel.innerHTML = cache.map(s =>
+                    `<option value="${s.codigo}" ${s.codigo === currentValue ? 'selected' : ''}>${s.nombre}</option>`
+                ).join('');
+            };
+            fillStatusSelect('r-estado-ot', _otStatusCache, orden.ot_status_codigo);
+            fillStatusSelect('r-estado-recursos', _recursosStatusCache, orden.recursos_status_codigo);
+            fillStatusSelect('r-estado-taller', _tallerStatusCache, orden.taller_status_codigo);
+
+            // Control
+            document.getElementById('r-pcr').textContent = fmt(orden.pcr);
+            document.getElementById('r-horas').textContent = fmt(orden.horas_hombre);
+            document.getElementById('r-pct-pcr').textContent = orden.pct_pcr != null ? orden.pct_pcr + '%' : '-';
+            document.getElementById('r-dias-taller').textContent = fmt(orden.dias_taller);
+
+            // Comentarios
+            const comentariosSection = document.getElementById('r-comentarios-section');
+            if (orden.comentarios) {
+                comentariosSection.style.display = '';
+                document.getElementById('r-comentarios').textContent = orden.comentarios;
+            } else {
+                comentariosSection.style.display = 'none';
+            }
+
+            // Auditoría
+            document.getElementById('r-usuario-crea').textContent = fmt(orden.usuario_crea);
+            document.getElementById('r-fecha-creacion').textContent = fmtDateTime(orden.createdAt);
+            document.getElementById('r-usuario-actualiza').textContent = fmt(orden.usuario_actualiza);
+            document.getElementById('r-fecha-actualiza').textContent = fmtDateTime(orden.updatedAt);
 
             // Cargar datos relacionados
             loadTareas();
             loadRequerimientos();
-            loadPlanificacion();
             loadHistorial();
 
             // Mostrar la sección
@@ -3043,6 +3297,31 @@
         function closeDetailsIfBackdrop(event) {
             if (event.target === document.getElementById('detailsSection')) {
                 closeDetails();
+            }
+        }
+
+        // Guardar estados editables desde el Resumen
+        async function guardarEstados() {
+            if (!currentOTId) return;
+            const body = {
+                ot_status_codigo: document.getElementById('r-estado-ot').value,
+                recursos_status_codigo: document.getElementById('r-estado-recursos').value,
+                taller_status_codigo: document.getElementById('r-estado-taller').value
+            };
+            try {
+                const res = await fetch(`/api/ot/${currentOTId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                if (!res.ok) throw new Error('Error al guardar');
+                showToast('Estados actualizados correctamente', 'success');
+                // Actualizar header del modal
+                document.getElementById('detailEstado').textContent = body.ot_status_codigo;
+                // Refrescar lista de OTs
+                loadOrdenes();
+            } catch (e) {
+                showToast('Error al guardar estados: ' + e.message, 'error');
             }
         }
 
