@@ -120,7 +120,7 @@
                     </div>
                     <div class="text-xs text-gray-300">REF. CILINDRO / Medidas</div>
                 </div>
-                <div class="p-6 space-y-4 text-sm">
+                <div class="p-6 space-y-3 text-sm">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div class="space-y-2 md:col-span-1">
                             <div>
@@ -134,104 +134,190 @@
                         </div>
                         <div class="md:col-span-2">
                             <label class="block font-semibold text-gray-700 mb-2">Mediciones (mm)</label>
-                            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-start">
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-3 items-start">
                                 <!-- Columna izquierda: Medida ejemplo -->
-                                <div class="md:col-span-1 bg-gray-50 border border-dashed border-gray-300 rounded-lg p-3 text-xs text-gray-600">
+                                <div class="md:col-span-1 bg-gray-50 border border-dashed border-gray-300 rounded-lg p-3 text-xs text-gray-600 w-full max-w-xs">
                                     <p class="font-semibold text-gray-700 mb-1">Medida ejemplo</p>
-                                    <p>Use este recuadro para anotar la medida de referencia tomada de la hoja física (diseño/nominal) antes de registrar las lecturas A1-A4.</p>
+                                    <p>Use este recuadro para anotar la medida nominal de cada punto (A1-A4) en X e Y, tomada de la hoja física, antes de registrar las lecturas reales.</p>
                                     <div class="mt-2 space-y-1">
                                         <div class="flex items-center justify-between gap-2">
-                                            <span class="text-[11px] text-gray-700">Diám. interior</span>
-                                            <input class="w-20 border rounded px-1 py-0.5 text-[11px]" placeholder="Ej: 180.00">
+                                            <span class="text-[11px] text-gray-700 w-10">A1</span>
+                                            <div class="flex items-center gap-1">
+                                                <span class="text-[10px] text-gray-500">X</span>
+                                                <input
+                                                    type="number"
+                                                    name="cil_dint_a1x_nominal"
+                                                    step="0.0001"
+                                                    inputmode="decimal"
+                                                    oninput="limitDecimals(this, 4)"
+                                                    class="w-16 border rounded px-1 py-0.5 text-[11px] text-right"
+                                                    placeholder="Ej: 180.00">
+                                                <span class="text-[10px] text-gray-500">Y</span>
+                                                <input
+                                                    type="number"
+                                                    name="cil_dint_a1y_nominal"
+                                                    step="0.0001"
+                                                    inputmode="decimal"
+                                                    oninput="limitDecimals(this, 4)"
+                                                    class="w-16 border rounded px-1 py-0.5 text-[11px] text-right"
+                                                    placeholder="Ej: 180.00">
+                                            </div>
                                         </div>
                                         <div class="flex items-center justify-between gap-2">
-                                            <span class="text-[11px] text-gray-700">Diám. salida</span>
-                                            <input class="w-20 border rounded px-1 py-0.5 text-[11px]" placeholder="Ej: 90.00">
+                                            <span class="text-[11px] text-gray-700 w-10">A2</span>
+                                            <div class="flex items-center gap-1">
+                                                <span class="text-[10px] text-gray-500">X</span>
+                                                <input
+                                                    type="number"
+                                                    name="cil_dint_a2x_nominal"
+                                                    step="0.0001"
+                                                    inputmode="decimal"
+                                                    oninput="limitDecimals(this, 4)"
+                                                    class="w-16 border rounded px-1 py-0.5 text-[11px] text-right"
+                                                    placeholder="Ej: 180.00">
+                                                <span class="text-[10px] text-gray-500">Y</span>
+                                                <input
+                                                    type="number"
+                                                    name="cil_dint_a2y_nominal"
+                                                    step="0.0001"
+                                                    inputmode="decimal"
+                                                    oninput="limitDecimals(this, 4)"
+                                                    class="w-16 border rounded px-1 py-0.5 text-[11px] text-right"
+                                                    placeholder="Ej: 180.00">
+                                            </div>
                                         </div>
                                         <div class="flex items-center justify-between gap-2">
-                                            <span class="text-[11px] text-gray-700">Diám. exterior</span>
-                                            <input class="w-20 border rounded px-1 py-0.5 text-[11px]" placeholder="Ej: 220.00">
+                                            <span class="text-[11px] text-gray-700 w-10">A3</span>
+                                            <div class="flex items-center gap-1">
+                                                <span class="text-[10px] text-gray-500">X</span>
+                                                <input
+                                                    type="number"
+                                                    name="cil_dint_a3x_nominal"
+                                                    step="0.0001"
+                                                    inputmode="decimal"
+                                                    oninput="limitDecimals(this, 4)"
+                                                    class="w-16 border rounded px-1 py-0.5 text-[11px] text-right"
+                                                    placeholder="Ej: 180.00">
+                                                <span class="text-[10px] text-gray-500">Y</span>
+                                                <input
+                                                    type="number"
+                                                    name="cil_dint_a3y_nominal"
+                                                    step="0.0001"
+                                                    inputmode="decimal"
+                                                    oninput="limitDecimals(this, 4)"
+                                                    class="w-16 border rounded px-1 py-0.5 text-[11px] text-right"
+                                                    placeholder="Ej: 180.00">
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center justify-between gap-2">
+                                            <span class="text-[11px] text-gray-700 w-10">A4</span>
+                                            <div class="flex items-center gap-1">
+                                                <span class="text-[10px] text-gray-500">X</span>
+                                                <input
+                                                    type="number"
+                                                    name="cil_dint_a4x_nominal"
+                                                    step="0.0001"
+                                                    inputmode="decimal"
+                                                    oninput="limitDecimals(this, 4)"
+                                                    class="w-16 border rounded px-1 py-0.5 text-[11px] text-right"
+                                                    placeholder="Ej: 180.00">
+                                                <span class="text-[10px] text-gray-500">Y</span>
+                                                <input
+                                                    type="number"
+                                                    name="cil_dint_a4y_nominal"
+                                                    step="0.0001"
+                                                    inputmode="decimal"
+                                                    oninput="limitDecimals(this, 4)"
+                                                    class="w-16 border rounded px-1 py-0.5 text-[11px] text-right"
+                                                    placeholder="Ej: 180.00">
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                                <!-- Columna derecha: tabla de mediciones -->
-                                <div class="md:col-span-3 overflow-x-auto">
-                                    <table class="min-w-full text-xs border border-gray-200 rounded">
-                                        <thead class="bg-gray-100">
-                                            <tr>
-                                                <th class="px-2 py-1 border">Parámetro</th>
-                                                <th class="px-2 py-1 border">A1</th>
-                                                <th class="px-2 py-1 border">A2</th>
-                                                <th class="px-2 py-1 border">A3</th>
-                                                <th class="px-2 py-1 border">A4</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td class="px-2 py-1 border text-gray-700">Diámetro Interior</td>
-                                                <td class="px-1 py-1 border">
-                                                    <div class="flex gap-1">
-                                                        <input name="cil_dint_a1_x" placeholder="X" class="w-1/2 px-1 py-0.5 border rounded text-[10px]">
-                                                        <input name="cil_dint_a1_y" placeholder="Y" class="w-1/2 px-1 py-0.5 border rounded text-[10px]">
-                                                    </div>
-                                                </td>
-                                                <td class="px-1 py-1 border">
-                                                    <div class="flex gap-1">
-                                                        <input name="cil_dint_a2_x" placeholder="X" class="w-1/2 px-1 py-0.5 border rounded text-[10px]">
-                                                        <input name="cil_dint_a2_y" placeholder="Y" class="w-1/2 px-1 py-0.5 border rounded text-[10px]">
-                                                    </div>
-                                                </td>
-                                                <td class="px-1 py-1 border">
-                                                    <div class="flex gap-1">
-                                                        <input name="cil_dint_a3_x" placeholder="X" class="w-1/2 px-1 py-0.5 border rounded text-[10px]">
-                                                        <input name="cil_dint_a3_y" placeholder="Y" class="w-1/2 px-1 py-0.5 border rounded text-[10px]">
-                                                    </div>
-                                                </td>
-                                                <td class="px-1 py-1 border">
-                                                    <div class="flex gap-1">
-                                                        <input name="cil_dint_a4_x" placeholder="X" class="w-1/2 px-1 py-0.5 border rounded text-[10px]">
-                                                        <input name="cil_dint_a4_y" placeholder="Y" class="w-1/2 px-1 py-0.5 border rounded text-[10px]">
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td class="px-2 py-1 border text-gray-700">Diámetro de Salida</td>
-                                                <td class="px-1 py-1 border" colspan="2"><input name="cil_dsal_1" class="w-full px-1 py-0.5 border rounded text-xs"></td>
-                                                <td class="px-1 py-1 border" colspan="2"><input name="cil_dsal_2" class="w-full px-1 py-0.5 border rounded text-xs"></td>
-                                            </tr>
-                                            <tr>
-                                                <td class="px-2 py-1 border text-gray-700">Diámetro Exterior</td>
-                                                <td class="px-1 py-1 border" colspan="2"><input name="cil_dext_1" class="w-full px-1 py-0.5 border rounded text-xs"></td>
-                                                <td class="px-1 py-1 border" colspan="2"><input name="cil_dext_2" class="w-full px-1 py-0.5 border rounded text-xs"></td>
-                                            </tr>
-                                            <tr>
-                                                <td class="px-2 py-1 border text-gray-700">Longitud Bruñido</td>
-                                                <td class="px-1 border" colspan="4"><input name="cil_lbru" class="w-full px-1 py-0.5 border rounded text-xs"></td>
-                                            </tr>
-                                            <tr>
-                                                <td class="px-2 py-1 border text-gray-700">Longitud Total</td>
-                                                <td class="px-1 border" colspan="4"><input name="cil_ltot" class="w-full px-1 py-0.5 border rounded text-xs"></td>
-                                            </tr>
-                                            <tr>
-                                                <td class="px-2 py-1 border text-gray-700">Diámetro Ojo</td>
-                                                <td class="px-1 py-1 border" colspan="4">
-                                                    <div class="flex gap-2 justify-start">
-                                                        <input name="cil_dojo_x" placeholder="X" class="w-20 px-1 py-0.5 border rounded text-[10px]">
-                                                        <input name="cil_dojo_y" placeholder="Y" class="w-20 px-1 py-0.5 border rounded text-[10px]">
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td class="px-2 py-1 border text-gray-700">Diám. Int. Cojinete</td>
-                                                <td class="px-1 py-1 border" colspan="4">
-                                                    <div class="flex gap-2 justify-start">
-                                                        <input name="cil_dcoj_x" placeholder="X" class="w-20 px-1 py-0.5 border rounded text-[10px]">
-                                                        <input name="cil_dcoj_y" placeholder="Y" class="w-20 px-1 py-0.5 border rounded text-[10px]">
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
+                                <!-- Columna derecha: filas compactas de medición, sin tabla -->
+                                <div class="md:col-span-3 text-xs space-y-2">
+                                    <!-- Encabezado A1-A4 -->
+                                    <div class="flex justify-end pr-1 text-[11px] text-gray-500 gap-2">
+                                        <span class="w-16 text-center">A1</span>
+                                        <span class="w-16 text-center">A2</span>
+                                        <span class="w-16 text-center">A3</span>
+                                        <span class="w-16 text-center">A4</span>
+                                    </div>
+
+                                    <!-- Diámetro Interior -->
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-28 text-gray-700">Diámetro Interior</div>
+                                        <div class="flex-1 flex justify-end gap-2">
+                                            <div class="flex gap-1 w-28">
+                                                <input type="number" name="cil_dint_a1_x" step="0.0001" inputmode="decimal" oninput="limitDecimals(this, 4)" placeholder="X" class="w-1/2 px-1 py-0.5 border rounded text-[10px] text-right">
+                                                <input type="number" name="cil_dint_a1_y" step="0.0001" inputmode="decimal" oninput="limitDecimals(this, 4)" placeholder="Y" class="w-1/2 px-1 py-0.5 border rounded text-[10px] text-right">
+                                            </div>
+                                            <div class="flex gap-1 w-28">
+                                                <input type="number" name="cil_dint_a2_x" step="0.0001" inputmode="decimal" oninput="limitDecimals(this, 4)" placeholder="X" class="w-1/2 px-1 py-0.5 border rounded text-[10px] text-right">
+                                                <input type="number" name="cil_dint_a2_y" step="0.0001" inputmode="decimal" oninput="limitDecimals(this, 4)" placeholder="Y" class="w-1/2 px-1 py-0.5 border rounded text-[10px] text-right">
+                                            </div>
+                                            <div class="flex gap-1 w-28">
+                                                <input type="number" name="cil_dint_a3_x" step="0.0001" inputmode="decimal" oninput="limitDecimals(this, 4)" placeholder="X" class="w-1/2 px-1 py-0.5 border rounded text-[10px] text-right">
+                                                <input type="number" name="cil_dint_a3_y" step="0.0001" inputmode="decimal" oninput="limitDecimals(this, 4)" placeholder="Y" class="w-1/2 px-1 py-0.5 border rounded text-[10px] text-right">
+                                            </div>
+                                            <div class="flex gap-1 w-28">
+                                                <input type="number" name="cil_dint_a4_x" step="0.0001" inputmode="decimal" oninput="limitDecimals(this, 4)" placeholder="X" class="w-1/2 px-1 py-0.5 border rounded text-[10px] text-right">
+                                                <input type="number" name="cil_dint_a4_y" step="0.0001" inputmode="decimal" oninput="limitDecimals(this, 4)" placeholder="Y" class="w-1/2 px-1 py-0.5 border rounded text-[10px] text-right">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Diámetro de salida -->
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-28 text-gray-700">Diámetro de Salida</div>
+                                        <div class="flex-1 flex justify-end gap-4">
+                                            <input type="number" name="cil_dsal_1" step="0.0001" inputmode="decimal" oninput="limitDecimals(this, 4)" class="w-24 px-1 py-0.5 border rounded text-xs text-right">
+                                            <input type="number" name="cil_dsal_2" step="0.0001" inputmode="decimal" oninput="limitDecimals(this, 4)" class="w-24 px-1 py-0.5 border rounded text-xs text-right">
+                                        </div>
+                                    </div>
+
+                                    <!-- Diámetro exterior -->
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-28 text-gray-700">Diámetro Exterior</div>
+                                        <div class="flex-1 flex justify-end gap-4">
+                                            <input type="number" name="cil_dext_1" step="0.0001" inputmode="decimal" oninput="limitDecimals(this, 4)" class="w-24 px-1 py-0.5 border rounded text-xs text-right">
+                                            <input type="number" name="cil_dext_2" step="0.0001" inputmode="decimal" oninput="limitDecimals(this, 4)" class="w-24 px-1 py-0.5 border rounded text-xs text-right">
+                                        </div>
+                                    </div>
+
+                                    <!-- Longitud bruñido -->
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-28 text-gray-700">Longitud Bruñido</div>
+                                        <div class="flex-1 flex justify-end">
+                                            <input type="number" name="cil_lbru" step="0.0001" inputmode="decimal" oninput="limitDecimals(this, 4)" class="w-28 px-1 py-0.5 border rounded text-xs text-right">
+                                        </div>
+                                    </div>
+
+                                    <!-- Longitud total -->
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-28 text-gray-700">Longitud Total</div>
+                                        <div class="flex-1 flex justify-end">
+                                            <input type="number" name="cil_ltot" step="0.0001" inputmode="decimal" oninput="limitDecimals(this, 4)" class="w-28 px-1 py-0.5 border rounded text-xs text-right">
+                                        </div>
+                                    </div>
+
+                                    <!-- Diámetro ojo -->
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-28 text-gray-700">Diámetro Ojo</div>
+                                        <div class="flex-1 flex justify-end gap-2">
+                                            <input type="number" name="cil_dojo_x" step="0.0001" inputmode="decimal" oninput="limitDecimals(this, 4)" placeholder="X" class="w-20 px-1 py-0.5 border rounded text-[10px] text-right">
+                                            <input type="number" name="cil_dojo_y" step="0.0001" inputmode="decimal" oninput="limitDecimals(this, 4)" placeholder="Y" class="w-20 px-1 py-0.5 border rounded text-[10px] text-right">
+                                        </div>
+                                    </div>
+
+                                    <!-- Diám. int. cojinete -->
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-28 text-gray-700">Diám. Int. Cojinete</div>
+                                        <div class="flex-1 flex justify-end gap-2">
+                                            <input type="number" name="cil_dcoj_x" step="0.0001" inputmode="decimal" oninput="limitDecimals(this, 4)" placeholder="X" class="w-20 px-1 py-0.5 border rounded text-[10px] text-right">
+                                            <input type="number" name="cil_dcoj_y" step="0.0001" inputmode="decimal" oninput="limitDecimals(this, 4)" placeholder="Y" class="w-20 px-1 py-0.5 border rounded text-[10px] text-right">
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -242,7 +328,7 @@
                         <div class="space-y-3">
                             <div>
                                 <label class="block font-semibold text-gray-700 mb-1">Ancho de Ojo</label>
-                                <input type="text" class="w-full border rounded-lg px-3 py-2" name="cil_ancho_ojo">
+                                <input type="number" step="0.0001" inputmode="decimal" oninput="limitDecimals(this, 4)" class="w-full border rounded-lg px-3 py-2 text-right" name="cil_ancho_ojo">
                             </div>
                         </div>
 
@@ -290,12 +376,12 @@
                     </div>
 
                     <!-- CHECK LIST ERRORES COMUNES - CILINDRO -->
-                    <div class="border-t border-gray-200 pt-4 mt-2">
+                    <div class="border-t border-gray-200 pt-3 mt-2">
                         <h3 class="font-semibold text-gray-800 text-base mb-3">Check list de errores comunes - Cilindro</h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                             <!-- Cilindro interior -->
-                            <div>
-                                <h4 class="font-semibold text-gray-700 mb-1 text-[11px]">CILINDRO INTERIOR</h4>
+                            <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 space-y-2">
+                                <h4 class="font-semibold text-gray-700 mb-1 text-[11px] tracking-wide">CILINDRO INTERIOR</h4>
                                 <div class="space-y-1">
                                     <div class="flex items-center justify-between gap-2">
                                         <span>1. Presenta rayaduras axiales en interior de cilindro</span>
@@ -318,7 +404,7 @@
                                     <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>3. Diámetro interior presenta deformación</span></label>
                                     <div class="flex items-center gap-2">
                                         <label class="flex items-center gap-2 flex-1"><input type="checkbox" class="text-blue-600"><span>4. Medida interna fuera de tolerancia por</span></label>
-                                        <input class="border rounded px-1 py-0.5 text-[11px] w-16" placeholder="mm">
+                                        <input type="number" step="0.0001" inputmode="decimal" oninput="limitDecimals(this, 4)" class="border rounded px-1 py-0.5 text-[11px] w-16 text-right" placeholder="mm">
                                     </div>
                                     <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>5. Diámetro interior muestra desgaste</span></label>
                                     <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>6. Diámetro de sellado muestra desgaste</span></label>
@@ -326,8 +412,8 @@
                             </div>
 
                             <!-- Cilindro exterior -->
-                            <div>
-                                <h4 class="font-semibold text-gray-700 mb-1 text-[11px]">CILINDRO EXTERIOR</h4>
+                            <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 space-y-2">
+                                <h4 class="font-semibold text-gray-700 mb-1 text-[11px] tracking-wide">CILINDRO EXTERIOR</h4>
                                 <div class="space-y-1">
                                     <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>1. Presenta golpes en el exterior del cilindro</span></label>
                                     <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>2. Presenta desgaste en exterior del cilindro</span></label>
@@ -372,7 +458,7 @@
                     <span class="bg-white text-gray-800 font-bold rounded-full w-7 h-7 flex items-center justify-center text-sm">3</span>
                     <h2 class="text-lg font-bold">Vástago</h2>
                 </div>
-                <div class="p-6 space-y-4 text-sm">
+                <div class="p-6 space-y-3 text-sm">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div class="space-y-2 md:col-span-1">
                             <div>
@@ -387,7 +473,7 @@
                         <div class="md:col-span-2">
                             <label class="block font-semibold text-gray-700 mb-2">Mediciones (X / Y)</label>
                             <div class="overflow-x-auto">
-                                <table class="min-w-full text-xs border border-gray-200 rounded">
+                                <table class="table-auto text-xs border border-gray-200 rounded">
                                     <thead class="bg-gray-100">
                                         <tr>
                                             <th class="px-2 py-1 border">Parámetro</th>
@@ -398,40 +484,40 @@
                                     <tbody>
                                         <tr>
                                             <td class="px-2 py-1 border text-gray-700">Diámetro Espiga</td>
-                                            <td class="px-1 border"><input name="vas_desp_x" class="w-full px-1 py-0.5 border rounded text-xs"></td>
-                                            <td class="px-1 border"><input name="vas_desp_y" class="w-full px-1 py-0.5 border rounded text-xs"></td>
+                                            <td class="px-1 border text-center"><input type="number" name="vas_desp_x" step="0.0001" inputmode="decimal" oninput="limitDecimals(this, 4)" class="w-20 px-1 py-0.5 border rounded text-xs text-right mx-auto"></td>
+                                            <td class="px-1 border text-center"><input type="number" name="vas_desp_y" step="0.0001" inputmode="decimal" oninput="limitDecimals(this, 4)" class="w-20 px-1 py-0.5 border rounded text-xs text-right mx-auto"></td>
                                         </tr>
                                         <tr>
                                             <td class="px-2 py-1 border text-gray-700">Diámetro Vástago</td>
-                                            <td class="px-1 border"><input name="vas_dvas_x" class="w-full px-1 py-0.5 border rounded text-xs"></td>
-                                            <td class="px-1 border"><input name="vas_dvas_y" class="w-full px-1 py-0.5 border rounded text-xs"></td>
+                                            <td class="px-1 border text-center"><input type="number" name="vas_dvas_x" step="0.0001" inputmode="decimal" oninput="limitDecimals(this, 4)" class="w-20 px-1 py-0.5 border rounded text-xs text-right mx-auto"></td>
+                                            <td class="px-1 border text-center"><input type="number" name="vas_dvas_y" step="0.0001" inputmode="decimal" oninput="limitDecimals(this, 4)" class="w-20 px-1 py-0.5 border rounded text-xs text-right mx-auto"></td>
                                         </tr>
                                         <tr>
                                             <td class="px-2 py-1 border text-gray-700">Longitud Cromo</td>
-                                            <td class="px-1 border" colspan="2"><input name="vas_lcro" class="w-full px-1 py-0.5 border rounded text-xs"></td>
+                                            <td class="px-1 border text-center" colspan="2"><input type="number" name="vas_lcro" step="0.0001" inputmode="decimal" oninput="limitDecimals(this, 4)" class="w-28 px-1 py-0.5 border rounded text-xs text-right mx-auto"></td>
                                         </tr>
                                         <tr>
                                             <td class="px-2 py-1 border text-gray-700">Longitud Total</td>
-                                            <td class="px-1 border" colspan="2"><input name="vas_ltot" class="w-full px-1 py-0.5 border rounded text-xs"></td>
+                                            <td class="px-1 border text-center" colspan="2"><input type="number" name="vas_ltot" step="0.0001" inputmode="decimal" oninput="limitDecimals(this, 4)" class="w-28 px-1 py-0.5 border rounded text-xs text-right mx-auto"></td>
                                         </tr>
                                         <tr>
                                             <td class="px-2 py-1 border text-gray-700">Longitud de Espiga</td>
-                                            <td class="px-1 border" colspan="2"><input name="vas_lesp" class="w-full px-1 py-0.5 border rounded text-xs"></td>
+                                            <td class="px-1 border text-center" colspan="2"><input type="number" name="vas_lesp" step="0.0001" inputmode="decimal" oninput="limitDecimals(this, 4)" class="w-28 px-1 py-0.5 border rounded text-xs text-right mx-auto"></td>
                                         </tr>
                                         <tr>
                                             <td class="px-2 py-1 border text-gray-700">Diám. Ext. Ojo</td>
-                                            <td class="px-1 border"><input name="vas_dextojo_x" class="w-full px-1 py-0.5 border rounded text-xs"></td>
-                                            <td class="px-1 border"><input name="vas_dextojo_y" class="w-full px-1 py-0.5 border rounded text-xs"></td>
+                                            <td class="px-1 border text-center"><input type="number" name="vas_dextojo_x" step="0.0001" inputmode="decimal" oninput="limitDecimals(this, 4)" class="w-20 px-1 py-0.5 border rounded text-xs text-right mx-auto"></td>
+                                            <td class="px-1 border text-center"><input type="number" name="vas_dextojo_y" step="0.0001" inputmode="decimal" oninput="limitDecimals(this, 4)" class="w-20 px-1 py-0.5 border rounded text-xs text-right mx-auto"></td>
                                         </tr>
                                         <tr>
                                             <td class="px-2 py-1 border text-gray-700">Diám. Int. Ojo</td>
-                                            <td class="px-1 border"><input name="vas_dintojo_x" class="w-full px-1 py-0.5 border rounded text-xs"></td>
-                                            <td class="px-1 border"><input name="vas_dintojo_y" class="w-full px-1 py-0.5 border rounded text-xs"></td>
+                                            <td class="px-1 border text-center"><input type="number" name="vas_dintojo_x" step="0.0001" inputmode="decimal" oninput="limitDecimals(this, 4)" class="w-20 px-1 py-0.5 border rounded text-xs text-right mx-auto"></td>
+                                            <td class="px-1 border text-center"><input type="number" name="vas_dintojo_y" step="0.0001" inputmode="decimal" oninput="limitDecimals(this, 4)" class="w-20 px-1 py-0.5 border rounded text-xs text-right mx-auto"></td>
                                         </tr>
                                         <tr>
                                             <td class="px-2 py-1 border text-gray-700">Diám. Int. Cojinete</td>
-                                            <td class="px-1 border"><input name="vas_dcoj_x" class="w-full px-1 py-0.5 border rounded text-xs"></td>
-                                            <td class="px-1 border"><input name="vas_dcoj_y" class="w-full px-1 py-0.5 border rounded text-xs"></td>
+                                            <td class="px-1 border text-center"><input type="number" name="vas_dcoj_x" step="0.0001" inputmode="decimal" oninput="limitDecimals(this, 4)" class="w-20 px-1 py-0.5 border rounded text-xs text-right mx-auto"></td>
+                                            <td class="px-1 border text-center"><input type="number" name="vas_dcoj_y" step="0.0001" inputmode="decimal" oninput="limitDecimals(this, 4)" class="w-20 px-1 py-0.5 border rounded text-xs text-right mx-auto"></td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -442,7 +528,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
                         <div>
                             <label class="block font-semibold text-gray-700 mb-1">Ancho de Ojo</label>
-                            <input type="text" class="w-full border rounded-lg px-3 py-2" name="vas_ancho_ojo">
+                            <input type="number" step="0.0001" inputmode="decimal" oninput="limitDecimals(this, 4)" class="w-full border rounded-lg px-3 py-2 text-right" name="vas_ancho_ojo">
                         </div>
                         
                     </div>
@@ -458,13 +544,13 @@
                     </div>
 
                     <!-- CHECK LIST ERRORES COMUNES - VÁSTAGO Y ACCESORIOS -->
-                    <div class="border-t border-gray-200 pt-4 mt-2">
+                    <div class="border-t border-gray-200 pt-3 mt-2">
                         <h3 class="font-semibold text-gray-800 text-base mb-3">Check list de errores comunes - Vástago y accesorios</h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                             <!-- Cojinete y rótula -->
                             <div class="space-y-3">
-                                <div>
-                                    <h4 class="font-semibold text-gray-700 mb-1 text-[11px]">COJINETE</h4>
+                                <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 space-y-2">
+                                    <h4 class="font-semibold text-gray-700 mb-1 text-[11px] tracking-wide">COJINETE</h4>
                                     <div class="space-y-1">
                                         <div class="flex items-center gap-2">
                                             <span>1. Presenta en exterior de cojinete:</span>
@@ -486,14 +572,14 @@
                                         </div>
                                         <div class="flex items-center gap-2">
                                             <label class="flex items-center gap-2 flex-1"><input type="checkbox" class="text-blue-600"><span>4. Cojinete presenta forma ovoide</span></label>
-                                            <span class="text-[11px]">X:</span><input class="border rounded px-1 py-0.5 text-[11px] w-10">
-                                            <span class="text-[11px]">Y:</span><input class="border rounded px-1 py-0.5 text-[11px] w-10">
+                                            <span class="text-[11px]">X:</span><input type="number" step="0.0001" inputmode="decimal" oninput="limitDecimals(this, 4)" class="border rounded px-1 py-0.5 text-[11px] w-10 text-right">
+                                            <span class="text-[11px]">Y:</span><input type="number" step="0.0001" inputmode="decimal" oninput="limitDecimals(this, 4)" class="border rounded px-1 py-0.5 text-[11px] w-10 text-right">
                                         </div>
                                         <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>5. Llegó sin sellos limpiadores</span></label>
                                     </div>
                                 </div>
-                                <div>
-                                    <h4 class="font-semibold text-gray-700 mb-1 text-[11px]">RÓTULA</h4>
+                                <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 space-y-2">
+                                    <h4 class="font-semibold text-gray-700 mb-1 text-[11px] tracking-wide">RÓTULA</h4>
                                     <div class="space-y-1">
                                         <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>1. Presenta corrosión en interior de rótula</span></label>
                                         <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>2. Presenta picaduras en interior de rótula</span></label>
@@ -507,32 +593,32 @@
 
                             <!-- Cáncamo y vástago barra -->
                             <div class="space-y-3">
-                                <div>
-                                    <h4 class="font-semibold text-gray-700 mb-1 text-[11px]">CÁNCAMO</h4>
+                                <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 space-y-2">
+                                    <h4 class="font-semibold text-gray-700 mb-1 text-[11px] tracking-wide">CÁNCAMO</h4>
                                     <div class="space-y-1">
                                         <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>1. Presenta desgaste en alojamiento</span></label>
                                         <div class="flex items-center gap-2">
                                             <label class="flex items-center gap-2 flex-1"><input type="checkbox" class="text-blue-600"><span>2. Presenta forma ovoide</span></label>
-                                            <span class="text-[11px]">X:</span><input class="border rounded px-1 py-0.5 text-[11px] w-10">
-                                            <span class="text-[11px]">Y:</span><input class="border rounded px-1 py-0.5 text-[11px] w-10">
+                                            <span class="text-[11px]">X:</span><input type="number" step="0.0001" inputmode="decimal" oninput="limitDecimals(this, 4)" class="border rounded px-1 py-0.5 text-[11px] w-10 text-right">
+                                            <span class="text-[11px]">Y:</span><input type="number" step="0.0001" inputmode="decimal" oninput="limitDecimals(this, 4)" class="border rounded px-1 py-0.5 text-[11px] w-10 text-right">
                                         </div>
                                         <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>3. Presenta corrosión en alojamiento</span></label>
                                         <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>4. Presenta fisura en alojamiento</span></label>
                                     </div>
                                 </div>
-                                <div>
-                                    <h4 class="font-semibold text-gray-700 mb-1 text-[11px]">VÁSTAGO (barra)</h4>
+                                <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 space-y-2">
+                                    <h4 class="font-semibold text-gray-700 mb-1 text-[11px] tracking-wide">VÁSTAGO (barra)</h4>
                                     <div class="space-y-1">
                                         <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>1. Presenta desgaste en superficie cromada</span></label>
                                         <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>2. Presenta picaduras en superficie cromada</span></label>
                                         <div class="flex items-center gap-2">
                                             <label class="flex items-center gap-2 flex-1"><input type="checkbox" class="text-blue-600"><span>3. Barra presenta flexión de</span></label>
-                                            <input class="border rounded px-1 py-0.5 text-[11px] w-12" placeholder="mm">
+                                            <input type="number" step="0.0001" inputmode="decimal" oninput="limitDecimals(this, 4)" class="border rounded px-1 py-0.5 text-[11px] w-12 text-right" placeholder="mm">
                                         </div>
                                         <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>4. Presenta flexión de espiga</span></label>
                                         <div class="flex items-center gap-2">
                                             <label class="flex items-center gap-2 flex-1"><input type="checkbox" class="text-blue-600"><span>5. Presenta poco espesor de cromo</span></label>
-                                            <input class="border rounded px-1 py-0.5 text-[11px] w-12" placeholder="mm">
+                                            <input type="number" step="0.0001" inputmode="decimal" oninput="limitDecimals(this, 4)" class="border rounded px-1 py-0.5 text-[11px] w-12 text-right" placeholder="mm">
                                         </div>
                                         <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>6. Presenta desprendimiento de capa de cromo</span></label>
                                         <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>7. Presenta excesiva capa de cromo</span></label>
@@ -585,7 +671,7 @@
                         <span class="bg-white text-gray-800 font-bold rounded-full w-7 h-7 flex items-center justify-center text-sm">4</span>
                         <h2 class="text-lg font-bold">Tapa</h2>
                     </div>
-                    <div class="p-6 space-y-4 text-sm">
+                    <div class="p-6 space-y-3 text-sm">
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div class="space-y-2 md:col-span-1">
                                 <div>
@@ -600,19 +686,19 @@
                             <div class="grid grid-cols-2 gap-3 md:col-span-2">
                                 <div>
                                     <label class="block font-semibold text-gray-700 mb-1">Diámetro Exterior</label>
-                                    <input type="text" class="w-full border rounded-lg px-3 py-2" name="tapa_dext">
+                                    <input type="number" step="0.0001" inputmode="decimal" oninput="limitDecimals(this, 4)" class="w-full border rounded-lg px-3 py-2 text-right" name="tapa_dext">
                                 </div>
                                 <div>
                                     <label class="block font-semibold text-gray-700 mb-1">Diámetro Interior</label>
-                                    <input type="text" class="w-full border rounded-lg px-3 py-2" name="tapa_dint">
+                                    <input type="number" step="0.0001" inputmode="decimal" oninput="limitDecimals(this, 4)" class="w-full border rounded-lg px-3 py-2 text-right" name="tapa_dint">
                                 </div>
                                 <div>
                                     <label class="block font-semibold text-gray-700 mb-1">Diámetro Sellado</label>
-                                    <input type="text" class="w-full border rounded-lg px-3 py-2" name="tapa_dsellado">
+                                    <input type="number" step="0.0001" inputmode="decimal" oninput="limitDecimals(this, 4)" class="w-full border rounded-lg px-3 py-2 text-right" name="tapa_dsellado">
                                 </div>
                                 <div>
                                     <label class="block font-semibold text-gray-700 mb-1">Longitud Total</label>
-                                    <input type="text" class="w-full border rounded-lg px-3 py-2" name="tapa_ltot">
+                                    <input type="number" step="0.0001" inputmode="decimal" oninput="limitDecimals(this, 4)" class="w-full border rounded-lg px-3 py-2 text-right" name="tapa_ltot">
                                 </div>
                             </div>
                         </div>
@@ -624,9 +710,9 @@
                             </div>
                         </div>
                         <!-- CHECK LIST ERRORES COMUNES - TAPA -->
-                        <div class="border-t border-gray-200 pt-4 mt-2">
+                        <div class="border-t border-gray-200 pt-3 mt-2">
                             <h3 class="font-semibold text-gray-800 text-base mb-3">Check list de errores comunes - Tapa</h3>
-                            <div class="space-y-1 text-sm">
+                            <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 space-y-1 text-sm">
                                 <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>1. Desgaste en alojamientos de sellos</span></label>
                                 <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>2. Corrosión en superficie exterior</span></label>
                                 <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>3. Corrosión en superficie interior</span></label>
@@ -668,7 +754,7 @@
                         <span class="bg-white text-gray-800 font-bold rounded-full w-7 h-7 flex items-center justify-center text-sm">5</span>
                         <h2 class="text-lg font-bold">Pistón</h2>
                     </div>
-                    <div class="p-6 space-y-4 text-sm">
+                    <div class="p-6 space-y-3 text-sm">
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                             <div class="space-y-2 md:col-span-1">
                                 <div>
@@ -683,15 +769,15 @@
                             <div class="grid grid-cols-2 gap-3 md:col-span-2">
                                 <div>
                                     <label class="block font-semibold text-gray-700 mb-1">Diámetro Exterior</label>
-                                    <input type="text" class="w-full border rounded-lg px-3 py-2" name="piston_dext">
+                                    <input type="number" step="0.0001" inputmode="decimal" oninput="limitDecimals(this, 4)" class="w-full border rounded-lg px-3 py-2 text-right" name="piston_dext">
                                 </div>
                                 <div>
                                     <label class="block font-semibold text-gray-700 mb-1">Diámetro Interior</label>
-                                    <input type="text" class="w-full border rounded-lg px-3 py-2" name="piston_dint">
+                                    <input type="number" step="0.0001" inputmode="decimal" oninput="limitDecimals(this, 4)" class="w-full border rounded-lg px-3 py-2 text-right" name="piston_dint">
                                 </div>
                                 <div>
                                     <label class="block font-semibold text-gray-700 mb-1">Longitud Total</label>
-                                    <input type="text" class="w-full border rounded-lg px-3 py-2" name="piston_ltot">
+                                    <input type="number" step="0.0001" inputmode="decimal" oninput="limitDecimals(this, 4)" class="w-full border rounded-lg px-3 py-2 text-right" name="piston_ltot">
                                 </div>
                             </div>
                         </div>
@@ -703,9 +789,9 @@
                             </div>
                         </div>
                         <!-- CHECK LIST ERRORES COMUNES - PISTÓN -->
-                        <div class="border-t border-gray-200 pt-4 mt-2">
+                        <div class="border-t border-gray-200 pt-3 mt-2">
                             <h3 class="font-semibold text-gray-800 text-base mb-3">Check list de errores comunes - Pistón</h3>
-                            <div class="space-y-1 text-sm">
+                            <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 space-y-1 text-sm">
                                 <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>1. Desgaste excesivo en diámetro exterior</span></label>
                                 <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>2. Desgaste en alojamientos de sellos</span></label>
                                 <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>3. Corrosión en superficie del pistón</span></label>
@@ -763,6 +849,25 @@
             }`;
             t.classList.remove('hidden');
             setTimeout(() => t.classList.add('hidden'), 3000);
+        }
+
+        // Restringe un input numérico a un máximo de "decimals" decimales
+        function limitDecimals(input, decimals) {
+            if (!input || !input.value) return;
+            let value = input.value.replace(',', '.');
+            // Permitir solo dígitos y un punto decimal
+            value = value.replace(/[^0-9.\-]/g, '');
+            const parts = value.split('.');
+            if (parts.length > 2) {
+                // Si hay más de un punto, conservar solo el primero
+                value = parts[0] + '.' + parts.slice(1).join('');
+            }
+            const [intPart, decPart] = value.split('.');
+            if (decPart && decPart.length > decimals) {
+                input.value = intPart + '.' + decPart.slice(0, decimals);
+            } else {
+                input.value = value;
+            }
         }
 
         function setInputValue(name, value) {
