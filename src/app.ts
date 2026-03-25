@@ -523,6 +523,7 @@ const startServer = async () => {
     await sequelize.query(`ALTER TABLE orden_trabajo ADD COLUMN IF NOT EXISTS reparacion_vas VARCHAR(10);`);
     await sequelize.query(`ALTER TABLE orden_trabajo ADD COLUMN IF NOT EXISTS reparacion_tapa VARCHAR(10);`);
     await sequelize.query(`ALTER TABLE orden_trabajo ADD COLUMN IF NOT EXISTS reparacion_piston VARCHAR(10);`);
+    await sequelize.query(`ALTER TABLE orden_trabajo ADD COLUMN IF NOT EXISTS fecha_reprogramada TIMESTAMP;`);
 
     // Tabla de planificación de operaciones por OT
     await sequelize.query(`

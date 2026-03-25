@@ -37,6 +37,7 @@ interface OrdenTrabajoAttributes {
   base_metalica_codigo?: string;
   comentarios?: string;
   fecha_requerimiento_cliente?: Date;
+  fecha_reprogramada?: Date;
   ot_status_codigo?: string;
   recursos_status_codigo?: string;
   taller_status_codigo?: string;
@@ -121,6 +122,7 @@ class OrdenTrabajo extends Model<OrdenTrabajoAttributes, OrdenTrabajoCreationAtt
   public base_metalica_codigo?: string;
   public comentarios?: string;
   public fecha_requerimiento_cliente?: Date;
+  public fecha_reprogramada?: Date;
   public ot_status_codigo?: string;
   public recursos_status_codigo?: string;
   public taller_status_codigo?: string;
@@ -341,6 +343,11 @@ OrdenTrabajo.init(
       type: DataTypes.DATE,
       allowNull: true,
       comment: 'Manual - Fecha requerimiento cliente',
+    },
+    fecha_reprogramada: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      comment: 'Fecha reprogramada de requerimiento cliente',
     },
     ot_status_codigo: {
       type: DataTypes.STRING(20),

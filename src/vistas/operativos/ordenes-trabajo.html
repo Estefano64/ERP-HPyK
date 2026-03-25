@@ -628,17 +628,22 @@
             <div class="p-6 overflow-y-auto flex-1">
                 <!-- Tab 1: Resumen de la OT -->
                 <div id="content-resumen" class="tab-content active">
-                    <!-- Estados (editable) -->
+                    <!-- Barra superior: Estados + Fecha Req + Botón Editar -->
                     <div class="mb-5">
                         <div class="flex items-center justify-between border-b pb-2 mb-3">
                             <h4 class="text-md font-semibold text-gray-700">
-                                <i class="fas fa-tasks text-purple-600 mr-2"></i>Estados
+                                <i class="fas fa-tasks text-purple-600 mr-2"></i>Estados y Fecha Requerimiento
                             </h4>
-                            <button onclick="guardarEstados()" class="bg-purple-600 hover:bg-purple-700 text-white text-xs px-3 py-1.5 rounded-lg transition">
-                                <i class="fas fa-save mr-1"></i> Guardar Estados
-                            </button>
+                            <div class="flex gap-2">
+                                <button onclick="guardarEstados()" class="bg-purple-600 hover:bg-purple-700 text-white text-xs px-3 py-1.5 rounded-lg transition">
+                                    <i class="fas fa-save mr-1"></i> Guardar Estados
+                                </button>
+                                <button onclick="toggleEditarResumen()" id="btn-editar-resumen" class="bg-cyan-600 hover:bg-cyan-700 text-white text-xs px-3 py-1.5 rounded-lg transition">
+                                    <i class="fas fa-edit mr-1"></i> Editar
+                                </button>
+                            </div>
                         </div>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">
                             <div class="bg-purple-50 p-3 rounded-lg">
                                 <label class="text-xs text-gray-500 uppercase block mb-1">Estado OT</label>
                                 <select id="r-estado-ot" class="w-full border border-purple-200 rounded px-2 py-1.5 text-sm font-semibold text-gray-800 bg-white focus:ring-2 focus:ring-purple-400 focus:outline-none"></select>
@@ -651,339 +656,396 @@
                                 <label class="text-xs text-gray-500 uppercase block mb-1">Estado Taller</label>
                                 <select id="r-estado-taller" class="w-full border border-purple-200 rounded px-2 py-1.5 text-sm font-semibold text-gray-800 bg-white focus:ring-2 focus:ring-purple-400 focus:outline-none"></select>
                             </div>
+                            <!-- Fecha Requerimiento + Reprogramación -->
+                            <div class="bg-orange-50 p-3 rounded-lg">
+                                <p class="text-xs text-gray-500 uppercase mb-1">Fecha Req. Cliente</p>
+                                <p class="font-semibold text-gray-800" id="r-fecha-req-vigente">-</p>
+                                <p class="text-xs text-gray-400 mt-1 italic" id="r-fecha-req-anterior" style="display:none"></p>
+                                <div id="r-reprogram-input-container" style="display:none" class="mt-2">
+                                    <div class="flex gap-1">
+                                        <input type="date" id="r-fecha-reprogramada" class="flex-1 border border-orange-200 rounded px-1.5 py-1 text-xs bg-white focus:ring-2 focus:ring-orange-400 focus:outline-none">
+                                        <button onclick="guardarReprogramacion()" class="bg-orange-500 hover:bg-orange-600 text-white text-xs px-1.5 py-1 rounded transition" title="Guardar"><i class="fas fa-check"></i></button>
+                                        <button onclick="cancelarReprogramar()" class="bg-gray-300 hover:bg-gray-400 text-gray-700 text-xs px-1.5 py-1 rounded transition" title="Cancelar"><i class="fas fa-times"></i></button>
+                                    </div>
+                                </div>
+                                <button onclick="mostrarInputReprogramar()" id="r-reprogram-btn" class="text-orange-600 hover:text-orange-800 text-xs mt-1 underline">
+                                    <i class="fas fa-calendar-alt mr-1"></i>Reprogramar
+                                </button>
+                            </div>
                         </div>
                     </div>
 
+                    <!-- ===== MODO VISTA (por defecto) ===== -->
+                    <div id="resumen-vista">
                     <!-- Identificación -->
                     <div class="mb-5">
-                        <h4 class="text-md font-semibold text-gray-700 mb-3 border-b pb-2">
-                            <i class="fas fa-id-card text-cyan-600 mr-2"></i>Identificación
-                        </h4>
+                        <h4 class="text-md font-semibold text-gray-700 mb-3 border-b pb-2"><i class="fas fa-id-card text-cyan-600 mr-2"></i>Identificación</h4>
                         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                            <div class="bg-gray-50 p-3 rounded-lg">
-                                <p class="text-xs text-gray-500 uppercase">Nro OT</p>
-                                <p class="font-semibold text-gray-800" id="r-ot">-</p>
-                            </div>
-                            <div class="bg-gray-50 p-3 rounded-lg">
-                                <p class="text-xs text-gray-500 uppercase">Cliente</p>
-                                <p class="font-semibold text-gray-800" id="r-cliente">-</p>
-                            </div>
-                            <div class="bg-gray-50 p-3 rounded-lg">
-                                <p class="text-xs text-gray-500 uppercase">Descripción</p>
-                                <p class="font-semibold text-gray-800" id="r-descripcion">-</p>
-                            </div>
-                            <div class="bg-gray-50 p-3 rounded-lg">
-                                <p class="text-xs text-gray-500 uppercase">Estrategia</p>
-                                <p class="font-semibold text-gray-800" id="r-estrategia">-</p>
-                            </div>
+                            <div class="bg-gray-50 p-3 rounded-lg"><p class="text-xs text-gray-500 uppercase">Nro OT</p><p class="font-semibold text-gray-800" id="r-ot">-</p></div>
+                            <div class="bg-gray-50 p-3 rounded-lg"><p class="text-xs text-gray-500 uppercase">Cliente</p><p class="font-semibold text-gray-800" id="r-cliente">-</p></div>
+                            <div class="bg-gray-50 p-3 rounded-lg"><p class="text-xs text-gray-500 uppercase">Descripción</p><p class="font-semibold text-gray-800" id="r-descripcion">-</p></div>
+                            <div class="bg-gray-50 p-3 rounded-lg"><p class="text-xs text-gray-500 uppercase">Estrategia</p><p class="font-semibold text-gray-800" id="r-estrategia">-</p></div>
                         </div>
                     </div>
-
                     <!-- Equipo / Componente -->
                     <div class="mb-5">
-                        <h4 class="text-md font-semibold text-gray-700 mb-3 border-b pb-2">
-                            <i class="fas fa-cogs text-indigo-600 mr-2"></i>Equipo / Componente
-                        </h4>
+                        <h4 class="text-md font-semibold text-gray-700 mb-3 border-b pb-2"><i class="fas fa-cogs text-indigo-600 mr-2"></i>Equipo / Componente</h4>
                         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                            <div class="bg-gray-50 p-3 rounded-lg">
-                                <p class="text-xs text-gray-500 uppercase">Código Reparación</p>
-                                <p class="font-semibold text-gray-800" id="r-cod-rep">-</p>
-                            </div>
-                            <div class="bg-gray-50 p-3 rounded-lg">
-                                <p class="text-xs text-gray-500 uppercase">Tipo</p>
-                                <p class="font-semibold text-gray-800" id="r-tipo">-</p>
-                            </div>
-                            <div class="bg-gray-50 p-3 rounded-lg">
-                                <p class="text-xs text-gray-500 uppercase">Equipo</p>
-                                <p class="font-semibold text-gray-800" id="r-equipo">-</p>
-                            </div>
-                            <div class="bg-gray-50 p-3 rounded-lg">
-                                <p class="text-xs text-gray-500 uppercase">N/P</p>
-                                <p class="font-semibold text-gray-800" id="r-np">-</p>
-                            </div>
-                            <div class="bg-gray-50 p-3 rounded-lg">
-                                <p class="text-xs text-gray-500 uppercase">N/S</p>
-                                <p class="font-semibold text-gray-800" id="r-ns">-</p>
-                            </div>
-                            <div class="bg-gray-50 p-3 rounded-lg">
-                                <p class="text-xs text-gray-500 uppercase">Fabricante</p>
-                                <p class="font-semibold text-gray-800" id="r-fabricante">-</p>
-                            </div>
-                            <div class="bg-gray-50 p-3 rounded-lg">
-                                <p class="text-xs text-gray-500 uppercase">Flota</p>
-                                <p class="font-semibold text-gray-800" id="r-flota">-</p>
-                            </div>
-                            <div class="bg-gray-50 p-3 rounded-lg">
-                                <p class="text-xs text-gray-500 uppercase">Posición</p>
-                                <p class="font-semibold text-gray-800" id="r-posicion">-</p>
-                            </div>
+                            <div class="bg-gray-50 p-3 rounded-lg"><p class="text-xs text-gray-500 uppercase">Código Reparación</p><p class="font-semibold text-gray-800" id="r-cod-rep">-</p></div>
+                            <div class="bg-gray-50 p-3 rounded-lg"><p class="text-xs text-gray-500 uppercase">Tipo</p><p class="font-semibold text-gray-800" id="r-tipo">-</p></div>
+                            <div class="bg-gray-50 p-3 rounded-lg"><p class="text-xs text-gray-500 uppercase">Equipo</p><p class="font-semibold text-gray-800" id="r-equipo">-</p></div>
+                            <div class="bg-gray-50 p-3 rounded-lg"><p class="text-xs text-gray-500 uppercase">N/P</p><p class="font-semibold text-gray-800" id="r-np">-</p></div>
+                            <div class="bg-gray-50 p-3 rounded-lg"><p class="text-xs text-gray-500 uppercase">N/S</p><p class="font-semibold text-gray-800" id="r-ns">-</p></div>
+                            <div class="bg-gray-50 p-3 rounded-lg"><p class="text-xs text-gray-500 uppercase">Fabricante</p><p class="font-semibold text-gray-800" id="r-fabricante">-</p></div>
+                            <div class="bg-gray-50 p-3 rounded-lg"><p class="text-xs text-gray-500 uppercase">Flota</p><p class="font-semibold text-gray-800" id="r-flota">-</p></div>
+                            <div class="bg-gray-50 p-3 rounded-lg"><p class="text-xs text-gray-500 uppercase">Posición</p><p class="font-semibold text-gray-800" id="r-posicion">-</p></div>
                         </div>
                     </div>
-
                     <!-- Documentos del Cliente -->
                     <div class="mb-5">
-                        <h4 class="text-md font-semibold text-gray-700 mb-3 border-b pb-2">
-                            <i class="fas fa-file-alt text-green-600 mr-2"></i>Documentos del Cliente
-                        </h4>
+                        <h4 class="text-md font-semibold text-gray-700 mb-3 border-b pb-2"><i class="fas fa-file-alt text-green-600 mr-2"></i>Documentos del Cliente</h4>
                         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                            <div class="bg-gray-50 p-3 rounded-lg">
-                                <p class="text-xs text-gray-500 uppercase">Plaqueteo</p>
-                                <p class="font-semibold text-gray-800" id="r-plaqueteo">-</p>
-                            </div>
-                            <div class="bg-gray-50 p-3 rounded-lg">
-                                <p class="text-xs text-gray-500 uppercase">WO Cliente</p>
-                                <p class="font-semibold text-gray-800" id="r-wo-cliente">-</p>
-                            </div>
-                            <div class="bg-gray-50 p-3 rounded-lg">
-                                <p class="text-xs text-gray-500 uppercase">PO Cliente</p>
-                                <p class="font-semibold text-gray-800" id="r-po-cliente">-</p>
-                            </div>
-                            <div class="bg-gray-50 p-3 rounded-lg">
-                                <p class="text-xs text-gray-500 uppercase">ID Viajero</p>
-                                <p class="font-semibold text-gray-800" id="r-id-viajero">-</p>
-                            </div>
-                            <div class="bg-gray-50 p-3 rounded-lg">
-                                <p class="text-xs text-gray-500 uppercase">Guía Remisión (llegada)</p>
-                                <p class="font-semibold text-gray-800" id="r-guia-remision">-</p>
-                            </div>
-                            <div class="bg-gray-50 p-3 rounded-lg">
-                                <p class="text-xs text-gray-500 uppercase">Empresa Entrega</p>
-                                <p class="font-semibold text-gray-800" id="r-empresa-entrega">-</p>
-                            </div>
+                            <div class="bg-gray-50 p-3 rounded-lg"><p class="text-xs text-gray-500 uppercase">Plaqueteo</p><p class="font-semibold text-gray-800" id="r-plaqueteo">-</p></div>
+                            <div class="bg-gray-50 p-3 rounded-lg"><p class="text-xs text-gray-500 uppercase">WO Cliente</p><p class="font-semibold text-gray-800" id="r-wo-cliente">-</p></div>
+                            <div class="bg-gray-50 p-3 rounded-lg"><p class="text-xs text-gray-500 uppercase">PO Cliente</p><p class="font-semibold text-gray-800" id="r-po-cliente">-</p></div>
+                            <div class="bg-gray-50 p-3 rounded-lg"><p class="text-xs text-gray-500 uppercase">ID Viajero</p><p class="font-semibold text-gray-800" id="r-id-viajero">-</p></div>
+                            <div class="bg-gray-50 p-3 rounded-lg"><p class="text-xs text-gray-500 uppercase">Guía Remisión (llegada)</p><p class="font-semibold text-gray-800" id="r-guia-remision">-</p></div>
+                            <div class="bg-gray-50 p-3 rounded-lg"><p class="text-xs text-gray-500 uppercase">Empresa Entrega</p><p class="font-semibold text-gray-800" id="r-empresa-entrega">-</p></div>
                         </div>
                     </div>
-
                     <!-- Fechas -->
                     <div class="mb-5">
-                        <h4 class="text-md font-semibold text-gray-700 mb-3 border-b pb-2">
-                            <i class="fas fa-calendar-alt text-orange-600 mr-2"></i>Fechas
-                        </h4>
+                        <h4 class="text-md font-semibold text-gray-700 mb-3 border-b pb-2"><i class="fas fa-calendar-alt text-orange-600 mr-2"></i>Fechas</h4>
                         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                            <div class="bg-gray-50 p-3 rounded-lg">
-                                <p class="text-xs text-gray-500 uppercase">Fecha Recepción</p>
-                                <p class="font-semibold text-gray-800" id="r-fecha-recepcion">-</p>
-                            </div>
+                            <div class="bg-gray-50 p-3 rounded-lg"><p class="text-xs text-gray-500 uppercase">Fecha Recepción</p><p class="font-semibold text-gray-800" id="r-fecha-recepcion">-</p></div>
                             <div class="bg-gray-50 p-3 rounded-lg">
                                 <p class="text-xs text-gray-500 uppercase">Fecha Req. Cliente</p>
                                 <p class="font-semibold text-gray-800" id="r-fecha-req-cliente">-</p>
+                                <p class="text-xs text-gray-400 italic" id="r-fecha-req-cliente-orig" style="display:none"></p>
                             </div>
-                            <div class="bg-gray-50 p-3 rounded-lg">
-                                <p class="text-xs text-gray-500 uppercase">Fecha Evaluación</p>
-                                <p class="font-semibold text-gray-800" id="r-fecha-evaluacion">-</p>
-                            </div>
-                            <div class="bg-gray-50 p-3 rounded-lg">
-                                <p class="text-xs text-gray-500 uppercase">Fecha Cotización</p>
-                                <p class="font-semibold text-gray-800" id="r-fecha-cotizacion">-</p>
-                            </div>
-                            <div class="bg-gray-50 p-3 rounded-lg">
-                                <p class="text-xs text-gray-500 uppercase">Fecha Aprobación</p>
-                                <p class="font-semibold text-gray-800" id="r-fecha-aprobacion">-</p>
-                            </div>
-                            <div class="bg-gray-50 p-3 rounded-lg">
-                                <p class="text-xs text-gray-500 uppercase">Fecha Entrega</p>
-                                <p class="font-semibold text-gray-800" id="r-fecha-entrega">-</p>
-                            </div>
-                            <div class="bg-gray-50 p-3 rounded-lg">
-                                <p class="text-xs text-gray-500 uppercase">Fecha Facturación</p>
-                                <p class="font-semibold text-gray-800" id="r-fecha-facturacion">-</p>
-                            </div>
+                            <div class="bg-gray-50 p-3 rounded-lg"><p class="text-xs text-gray-500 uppercase">Fecha Evaluación</p><p class="font-semibold text-gray-800" id="r-fecha-evaluacion">-</p></div>
+                            <div class="bg-gray-50 p-3 rounded-lg"><p class="text-xs text-gray-500 uppercase">Fecha Cotización</p><p class="font-semibold text-gray-800" id="r-fecha-cotizacion">-</p></div>
+                            <div class="bg-gray-50 p-3 rounded-lg"><p class="text-xs text-gray-500 uppercase">Fecha Aprobación</p><p class="font-semibold text-gray-800" id="r-fecha-aprobacion">-</p></div>
+                            <div class="bg-gray-50 p-3 rounded-lg"><p class="text-xs text-gray-500 uppercase">Fecha Entrega</p><p class="font-semibold text-gray-800" id="r-fecha-entrega">-</p></div>
+                            <div class="bg-gray-50 p-3 rounded-lg"><p class="text-xs text-gray-500 uppercase">Fecha Facturación</p><p class="font-semibold text-gray-800" id="r-fecha-facturacion">-</p></div>
                         </div>
                     </div>
-
                     <!-- Tipo Reparación y Garantía -->
                     <div class="mb-5">
-                        <h4 class="text-md font-semibold text-gray-700 mb-3 border-b pb-2">
-                            <i class="fas fa-shield-alt text-red-600 mr-2"></i>Tipo Reparación y Garantía
-                        </h4>
+                        <h4 class="text-md font-semibold text-gray-700 mb-3 border-b pb-2"><i class="fas fa-shield-alt text-red-600 mr-2"></i>Tipo Reparación y Garantía</h4>
                         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                            <div class="bg-gray-50 p-3 rounded-lg">
-                                <p class="text-xs text-gray-500 uppercase">Garantía</p>
-                                <p class="font-semibold text-gray-800" id="r-garantia">-</p>
-                            </div>
-                            <div class="bg-gray-50 p-3 rounded-lg">
-                                <p class="text-xs text-gray-500 uppercase">Tipo Garantía</p>
-                                <p class="font-semibold text-gray-800" id="r-tipo-garantia">-</p>
-                            </div>
-                            <div class="bg-gray-50 p-3 rounded-lg">
-                                <p class="text-xs text-gray-500 uppercase">Atención Reparación</p>
-                                <p class="font-semibold text-gray-800" id="r-atencion-rep">-</p>
-                            </div>
-                            <div class="bg-gray-50 p-3 rounded-lg">
-                                <p class="text-xs text-gray-500 uppercase">Tipo Reparación</p>
-                                <p class="font-semibold text-gray-800" id="r-tipo-rep">-</p>
-                            </div>
-                            <div class="bg-gray-50 p-3 rounded-lg">
-                                <p class="text-xs text-gray-500 uppercase">Prioridad</p>
-                                <p class="font-semibold text-gray-800" id="r-prioridad">-</p>
-                            </div>
-                            <div class="bg-gray-50 p-3 rounded-lg">
-                                <p class="text-xs text-gray-500 uppercase">Contrato (días)</p>
-                                <p class="font-semibold text-gray-800" id="r-contrato-dias">-</p>
-                            </div>
-                            <div class="bg-gray-50 p-3 rounded-lg">
-                                <p class="text-xs text-gray-500 uppercase">Base Metálica</p>
-                                <p class="font-semibold text-gray-800" id="r-base-metalica">-</p>
-                            </div>
+                            <div class="bg-gray-50 p-3 rounded-lg"><p class="text-xs text-gray-500 uppercase">Garantía</p><p class="font-semibold text-gray-800" id="r-garantia">-</p></div>
+                            <div class="bg-gray-50 p-3 rounded-lg"><p class="text-xs text-gray-500 uppercase">Tipo Garantía</p><p class="font-semibold text-gray-800" id="r-tipo-garantia">-</p></div>
+                            <div class="bg-gray-50 p-3 rounded-lg"><p class="text-xs text-gray-500 uppercase">Atención Reparación</p><p class="font-semibold text-gray-800" id="r-atencion-rep">-</p></div>
+                            <div class="bg-gray-50 p-3 rounded-lg"><p class="text-xs text-gray-500 uppercase">Tipo Reparación</p><p class="font-semibold text-gray-800" id="r-tipo-rep">-</p></div>
+                            <div class="bg-gray-50 p-3 rounded-lg"><p class="text-xs text-gray-500 uppercase">Prioridad</p><p class="font-semibold text-gray-800" id="r-prioridad">-</p></div>
+                            <div class="bg-gray-50 p-3 rounded-lg"><p class="text-xs text-gray-500 uppercase">Contrato (días)</p><p class="font-semibold text-gray-800" id="r-contrato-dias">-</p></div>
+                            <div class="bg-gray-50 p-3 rounded-lg"><p class="text-xs text-gray-500 uppercase">Base Metálica</p><p class="font-semibold text-gray-800" id="r-base-metalica">-</p></div>
                         </div>
                     </div>
-
                     <!-- Control / Horas -->
                     <div class="mb-5">
-                        <h4 class="text-md font-semibold text-gray-700 mb-3 border-b pb-2">
-                            <i class="fas fa-tachometer-alt text-blue-600 mr-2"></i>Control
-                        </h4>
+                        <h4 class="text-md font-semibold text-gray-700 mb-3 border-b pb-2"><i class="fas fa-tachometer-alt text-blue-600 mr-2"></i>Control</h4>
                         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                            <div class="bg-gray-50 p-3 rounded-lg">
-                                <p class="text-xs text-gray-500 uppercase">PCR</p>
-                                <p class="font-semibold text-gray-800" id="r-pcr">-</p>
-                            </div>
-                            <div class="bg-gray-50 p-3 rounded-lg">
-                                <p class="text-xs text-gray-500 uppercase">Horas</p>
-                                <p class="font-semibold text-gray-800" id="r-horas">-</p>
-                            </div>
-                            <div class="bg-gray-50 p-3 rounded-lg">
-                                <p class="text-xs text-gray-500 uppercase">% PCR</p>
-                                <p class="font-semibold text-gray-800" id="r-pct-pcr">-</p>
-                            </div>
-                            <div class="bg-gray-50 p-3 rounded-lg">
-                                <p class="text-xs text-gray-500 uppercase">Días en Taller</p>
-                                <p class="font-semibold text-gray-800" id="r-dias-taller">-</p>
-                            </div>
+                            <div class="bg-gray-50 p-3 rounded-lg"><p class="text-xs text-gray-500 uppercase">PCR</p><p class="font-semibold text-gray-800" id="r-pcr">-</p></div>
+                            <div class="bg-gray-50 p-3 rounded-lg"><p class="text-xs text-gray-500 uppercase">Horas</p><p class="font-semibold text-gray-800" id="r-horas">-</p></div>
+                            <div class="bg-gray-50 p-3 rounded-lg"><p class="text-xs text-gray-500 uppercase">% PCR</p><p class="font-semibold text-gray-800" id="r-pct-pcr">-</p></div>
+                            <div class="bg-gray-50 p-3 rounded-lg"><p class="text-xs text-gray-500 uppercase">Días en Taller</p><p class="font-semibold text-gray-800" id="r-dias-taller">-</p></div>
                         </div>
                     </div>
-
                     <!-- Comentarios -->
                     <div class="mb-5" id="r-comentarios-section" style="display:none">
-                        <h4 class="text-md font-semibold text-gray-700 mb-3 border-b pb-2">
-                            <i class="fas fa-comment text-yellow-600 mr-2"></i>Comentarios
-                        </h4>
-                        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded">
-                            <p class="text-gray-700" id="r-comentarios">-</p>
-                        </div>
+                        <h4 class="text-md font-semibold text-gray-700 mb-3 border-b pb-2"><i class="fas fa-comment text-yellow-600 mr-2"></i>Comentarios</h4>
+                        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 rounded"><p class="text-gray-700" id="r-comentarios">-</p></div>
                     </div>
-
                     <!-- Auditoría -->
                     <div class="mb-5">
-                        <h4 class="text-md font-semibold text-gray-700 mb-3 border-b pb-2">
-                            <i class="fas fa-user-clock text-gray-500 mr-2"></i>Auditoría
-                        </h4>
+                        <h4 class="text-md font-semibold text-gray-700 mb-3 border-b pb-2"><i class="fas fa-user-clock text-gray-500 mr-2"></i>Auditoría</h4>
                         <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-                            <div class="bg-gray-50 p-3 rounded-lg">
-                                <p class="text-xs text-gray-500 uppercase">Creado por</p>
-                                <p class="font-semibold text-gray-800" id="r-usuario-crea">-</p>
-                            </div>
-                            <div class="bg-gray-50 p-3 rounded-lg">
-                                <p class="text-xs text-gray-500 uppercase">Fecha Creación</p>
-                                <p class="font-semibold text-gray-800" id="r-fecha-creacion">-</p>
-                            </div>
-                            <div class="bg-gray-50 p-3 rounded-lg">
-                                <p class="text-xs text-gray-500 uppercase">Actualizado por</p>
-                                <p class="font-semibold text-gray-800" id="r-usuario-actualiza">-</p>
-                            </div>
-                            <div class="bg-gray-50 p-3 rounded-lg">
-                                <p class="text-xs text-gray-500 uppercase">Fecha Actualización</p>
-                                <p class="font-semibold text-gray-800" id="r-fecha-actualiza">-</p>
-                            </div>
+                            <div class="bg-gray-50 p-3 rounded-lg"><p class="text-xs text-gray-500 uppercase">Creado por</p><p class="font-semibold text-gray-800" id="r-usuario-crea">-</p></div>
+                            <div class="bg-gray-50 p-3 rounded-lg"><p class="text-xs text-gray-500 uppercase">Fecha Creación</p><p class="font-semibold text-gray-800" id="r-fecha-creacion">-</p></div>
+                            <div class="bg-gray-50 p-3 rounded-lg"><p class="text-xs text-gray-500 uppercase">Actualizado por</p><p class="font-semibold text-gray-800" id="r-usuario-actualiza">-</p></div>
+                            <div class="bg-gray-50 p-3 rounded-lg"><p class="text-xs text-gray-500 uppercase">Fecha Actualización</p><p class="font-semibold text-gray-800" id="r-fecha-actualiza">-</p></div>
                         </div>
                     </div>
+                    </div><!-- fin resumen-vista -->
+
+                    <!-- ===== MODO EDICIÓN (oculto por defecto) ===== -->
+                    <div id="resumen-edicion" style="display:none">
+                        <div class="flex gap-2 mb-4">
+                            <button onclick="guardarResumenCompleto()" class="bg-green-600 hover:bg-green-700 text-white text-sm px-4 py-2 rounded-lg transition"><i class="fas fa-save mr-1"></i> Guardar Cambios</button>
+                            <button onclick="toggleEditarResumen()" class="bg-gray-400 hover:bg-gray-500 text-white text-sm px-4 py-2 rounded-lg transition"><i class="fas fa-times mr-1"></i> Cancelar</button>
+                        </div>
+                        <!-- Identificación -->
+                        <div class="mb-5">
+                            <h4 class="text-md font-semibold text-gray-700 mb-3 border-b pb-2"><i class="fas fa-id-card text-cyan-600 mr-2"></i>Identificación</h4>
+                            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                                <div class="bg-cyan-50 p-3 rounded-lg"><label class="text-xs text-gray-500 uppercase block mb-1">Cliente</label><select id="e-cliente" class="w-full border rounded px-2 py-1.5 text-sm bg-white"></select></div>
+                                <div class="bg-cyan-50 p-3 rounded-lg"><label class="text-xs text-gray-500 uppercase block mb-1">Descripción</label><input type="text" id="e-descripcion" class="w-full border rounded px-2 py-1.5 text-sm"></div>
+                                <div class="bg-cyan-50 p-3 rounded-lg"><label class="text-xs text-gray-500 uppercase block mb-1">Estrategia</label><input type="checkbox" id="e-estrategia" class="mt-1"></div>
+                            </div>
+                        </div>
+                        <!-- Equipo -->
+                        <div class="mb-5">
+                            <h4 class="text-md font-semibold text-gray-700 mb-3 border-b pb-2"><i class="fas fa-cogs text-indigo-600 mr-2"></i>Equipo / Componente</h4>
+                            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                                <div class="bg-cyan-50 p-3 rounded-lg"><label class="text-xs text-gray-500 uppercase block mb-1">Equipo</label><input type="text" id="e-equipo" class="w-full border rounded px-2 py-1.5 text-sm"></div>
+                                <div class="bg-cyan-50 p-3 rounded-lg"><label class="text-xs text-gray-500 uppercase block mb-1">N/P</label><input type="text" id="e-np" class="w-full border rounded px-2 py-1.5 text-sm"></div>
+                                <div class="bg-cyan-50 p-3 rounded-lg"><label class="text-xs text-gray-500 uppercase block mb-1">N/S</label><input type="text" id="e-ns" class="w-full border rounded px-2 py-1.5 text-sm"></div>
+                                <div class="bg-cyan-50 p-3 rounded-lg"><label class="text-xs text-gray-500 uppercase block mb-1">Tipo</label><input type="text" id="e-tipo" class="w-full border rounded px-2 py-1.5 text-sm"></div>
+                            </div>
+                        </div>
+                        <!-- Documentos del Cliente -->
+                        <div class="mb-5">
+                            <h4 class="text-md font-semibold text-gray-700 mb-3 border-b pb-2"><i class="fas fa-file-alt text-green-600 mr-2"></i>Documentos del Cliente</h4>
+                            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                                <div class="bg-cyan-50 p-3 rounded-lg"><label class="text-xs text-gray-500 uppercase block mb-1">Plaqueteo</label><input type="text" id="e-plaqueteo" class="w-full border rounded px-2 py-1.5 text-sm"></div>
+                                <div class="bg-cyan-50 p-3 rounded-lg"><label class="text-xs text-gray-500 uppercase block mb-1">WO Cliente</label><input type="text" id="e-wo-cliente" class="w-full border rounded px-2 py-1.5 text-sm"></div>
+                                <div class="bg-cyan-50 p-3 rounded-lg"><label class="text-xs text-gray-500 uppercase block mb-1">PO Cliente</label><input type="text" id="e-po-cliente" class="w-full border rounded px-2 py-1.5 text-sm"></div>
+                                <div class="bg-cyan-50 p-3 rounded-lg"><label class="text-xs text-gray-500 uppercase block mb-1">ID Viajero</label><input type="text" id="e-id-viajero" class="w-full border rounded px-2 py-1.5 text-sm"></div>
+                                <div class="bg-cyan-50 p-3 rounded-lg"><label class="text-xs text-gray-500 uppercase block mb-1">Guía Remisión</label><input type="text" id="e-guia-remision" class="w-full border rounded px-2 py-1.5 text-sm"></div>
+                                <div class="bg-cyan-50 p-3 rounded-lg"><label class="text-xs text-gray-500 uppercase block mb-1">Empresa Entrega</label><input type="text" id="e-empresa-entrega" class="w-full border rounded px-2 py-1.5 text-sm"></div>
+                            </div>
+                        </div>
+                        <!-- Fechas -->
+                        <div class="mb-5">
+                            <h4 class="text-md font-semibold text-gray-700 mb-3 border-b pb-2"><i class="fas fa-calendar-alt text-orange-600 mr-2"></i>Fechas</h4>
+                            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                                <div class="bg-cyan-50 p-3 rounded-lg"><label class="text-xs text-gray-500 uppercase block mb-1">Fecha Recepción</label><input type="date" id="e-fecha-recepcion" class="w-full border rounded px-2 py-1.5 text-sm"></div>
+                                <div class="bg-cyan-50 p-3 rounded-lg"><label class="text-xs text-gray-500 uppercase block mb-1">Fecha Req. Cliente</label><input type="date" id="e-fecha-req-cliente" class="w-full border rounded px-2 py-1.5 text-sm"></div>
+                                <div class="bg-cyan-50 p-3 rounded-lg"><label class="text-xs text-gray-500 uppercase block mb-1">Fecha Evaluación</label><input type="date" id="e-fecha-evaluacion" class="w-full border rounded px-2 py-1.5 text-sm"></div>
+                                <div class="bg-cyan-50 p-3 rounded-lg"><label class="text-xs text-gray-500 uppercase block mb-1">Fecha Cotización</label><input type="date" id="e-fecha-cotizacion" class="w-full border rounded px-2 py-1.5 text-sm"></div>
+                                <div class="bg-cyan-50 p-3 rounded-lg"><label class="text-xs text-gray-500 uppercase block mb-1">Fecha Aprobación</label><input type="date" id="e-fecha-aprobacion" class="w-full border rounded px-2 py-1.5 text-sm"></div>
+                                <div class="bg-cyan-50 p-3 rounded-lg"><label class="text-xs text-gray-500 uppercase block mb-1">Fecha Entrega</label><input type="date" id="e-fecha-entrega" class="w-full border rounded px-2 py-1.5 text-sm"></div>
+                                <div class="bg-cyan-50 p-3 rounded-lg"><label class="text-xs text-gray-500 uppercase block mb-1">Fecha Facturación</label><input type="date" id="e-fecha-facturacion" class="w-full border rounded px-2 py-1.5 text-sm"></div>
+                            </div>
+                        </div>
+                        <!-- Tipo Reparación y Garantía -->
+                        <div class="mb-5">
+                            <h4 class="text-md font-semibold text-gray-700 mb-3 border-b pb-2"><i class="fas fa-shield-alt text-red-600 mr-2"></i>Tipo Reparación y Garantía</h4>
+                            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                                <div class="bg-cyan-50 p-3 rounded-lg"><label class="text-xs text-gray-500 uppercase block mb-1">Garantía</label><input type="checkbox" id="e-garantia" class="mt-1"></div>
+                                <div class="bg-cyan-50 p-3 rounded-lg"><label class="text-xs text-gray-500 uppercase block mb-1">Tipo Garantía</label><select id="e-tipo-garantia" class="w-full border rounded px-2 py-1.5 text-sm bg-white"></select></div>
+                                <div class="bg-cyan-50 p-3 rounded-lg"><label class="text-xs text-gray-500 uppercase block mb-1">Atención Reparación</label><select id="e-atencion-rep" class="w-full border rounded px-2 py-1.5 text-sm bg-white"></select></div>
+                                <div class="bg-cyan-50 p-3 rounded-lg"><label class="text-xs text-gray-500 uppercase block mb-1">Tipo Reparación</label><select id="e-tipo-rep" class="w-full border rounded px-2 py-1.5 text-sm bg-white"></select></div>
+                                <div class="bg-cyan-50 p-3 rounded-lg"><label class="text-xs text-gray-500 uppercase block mb-1">Prioridad</label><select id="e-prioridad" class="w-full border rounded px-2 py-1.5 text-sm bg-white"></select></div>
+                                <div class="bg-cyan-50 p-3 rounded-lg"><label class="text-xs text-gray-500 uppercase block mb-1">Contrato (días)</label><input type="number" id="e-contrato-dias" class="w-full border rounded px-2 py-1.5 text-sm"></div>
+                                <div class="bg-cyan-50 p-3 rounded-lg"><label class="text-xs text-gray-500 uppercase block mb-1">Base Metálica</label><input type="checkbox" id="e-base-metalica" class="mt-1"></div>
+                            </div>
+                        </div>
+                        <!-- Control -->
+                        <div class="mb-5">
+                            <h4 class="text-md font-semibold text-gray-700 mb-3 border-b pb-2"><i class="fas fa-tachometer-alt text-blue-600 mr-2"></i>Control</h4>
+                            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                                <div class="bg-cyan-50 p-3 rounded-lg"><label class="text-xs text-gray-500 uppercase block mb-1">PCR</label><input type="number" step="0.01" id="e-pcr" class="w-full border rounded px-2 py-1.5 text-sm"></div>
+                                <div class="bg-cyan-50 p-3 rounded-lg"><label class="text-xs text-gray-500 uppercase block mb-1">Horas</label><input type="number" step="0.01" id="e-horas" class="w-full border rounded px-2 py-1.5 text-sm"></div>
+                            </div>
+                        </div>
+                        <!-- Comentarios -->
+                        <div class="mb-5">
+                            <h4 class="text-md font-semibold text-gray-700 mb-3 border-b pb-2"><i class="fas fa-comment text-yellow-600 mr-2"></i>Comentarios</h4>
+                            <textarea id="e-comentarios" rows="3" class="w-full border rounded px-3 py-2 text-sm"></textarea>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="guardarResumenCompleto()" class="bg-green-600 hover:bg-green-700 text-white text-sm px-4 py-2 rounded-lg transition"><i class="fas fa-save mr-1"></i> Guardar Cambios</button>
+                            <button onclick="toggleEditarResumen()" class="bg-gray-400 hover:bg-gray-500 text-white text-sm px-4 py-2 rounded-lg transition"><i class="fas fa-times mr-1"></i> Cancelar</button>
+                        </div>
+                    </div><!-- fin resumen-edicion -->
                 </div>
 
-                <!-- Tab 2: Gestión de Tareas -->
+                <!-- Tab 2: Gestión de Tareas (Planeamiento de operaciones) -->
                 <div id="content-tareas" class="tab-content">
                     <div class="mb-6">
-                        <div class="flex justify-between items-center mb-4">
-                            <h4 class="text-xl font-bold text-gray-800">Tareas de la Orden de Trabajo</h4>
-                            <button onclick="showTareaForm()" class="bg-cyan-500 hover:bg-cyan-600 text-white px-4 py-2 rounded-lg transition flex items-center">
-                                <i class="fas fa-plus mr-2"></i> Nueva Tarea
-                            </button>
+                        <div class="flex flex-wrap justify-between items-center mb-4 gap-2">
+                            <h4 class="text-xl font-bold text-gray-800">Planeamiento de Operaciones</h4>
+                            <div class="flex gap-2">
+                                <button onclick="showTareaForm()" class="bg-cyan-500 hover:bg-cyan-600 text-white px-3 py-2 rounded-lg transition text-sm">
+                                    <i class="fas fa-plus mr-1"></i> Nueva Tarea
+                                </button>
+                            </div>
                         </div>
 
-                        <!-- Progreso General de Tareas -->
-                        <div class="bg-gradient-to-r from-cyan-50 to-blue-50 border border-cyan-200 rounded-lg p-4 mb-6">
+                        <!-- Progreso General -->
+                        <div class="bg-gradient-to-r from-cyan-50 to-blue-50 border border-cyan-200 rounded-lg p-4 mb-5">
                             <div class="flex items-center justify-between mb-2">
                                 <span class="text-sm font-medium text-gray-700">Progreso General</span>
                                 <span class="text-sm font-bold text-cyan-700" id="progreso-porcentaje">0%</span>
                             </div>
                             <div class="w-full bg-gray-200 rounded-full h-4">
-                                <div class="bg-gradient-to-r from-cyan-500 to-blue-500 h-4 rounded-full transition-all duration-500 flex items-center justify-end pr-2" 
+                                <div class="bg-gradient-to-r from-cyan-500 to-blue-500 h-4 rounded-full transition-all duration-500 flex items-center justify-end pr-2"
                                      id="progreso-barra" style="width: 0%">
                                     <span class="text-xs text-white font-semibold" id="progreso-tareas">0/0</span>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Formulario de Nueva Tarea (oculto por defecto) -->
-                        <div id="tareaFormSection" class="hidden bg-white border-2 border-cyan-200 rounded-lg p-6 mb-6">
-                            <h5 class="text-lg font-semibold text-gray-800 mb-4">
-                                <span id="tarea-form-title">Nueva Tarea</span>
-                            </h5>
+                        <!-- Formulario Nueva Tarea (oculto) -->
+                        <div id="tareaFormSection" class="hidden bg-white border-2 border-cyan-200 rounded-lg p-5 mb-5">
+                            <h5 class="text-lg font-semibold text-gray-800 mb-4"><span id="tarea-form-title">Nueva Tarea</span></h5>
                             <form id="tareaForm" class="space-y-4">
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">Descripción*</label>
-                                        <input type="text" id="tarea-descripcion" required 
-                                            class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-cyan-500"
-                                            placeholder="Ej: Inspeccionar rodamientos">
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">Responsable</label>
-                                        <input type="text" id="tarea-responsable" 
-                                            class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-cyan-500"
-                                            placeholder="Nombre del técnico">
-                                    </div>
-                                    <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">Prioridad</label>
-                                        <select id="tarea-prioridad" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-cyan-500">
-                                            <option value="Baja">Baja</option>
-                                            <option value="Media" selected>Media</option>
-                                            <option value="Alta">Alta</option>
+                                        <label class="block text-xs font-medium text-gray-600 mb-1">Parte*</label>
+                                        <select id="tarea-parte" required class="w-full px-2 py-2 border rounded text-sm focus:ring-2 focus:ring-cyan-500" onchange="onParteTareaChange()">
+                                            <option value="">Seleccione...</option>
+                                            <option value="Cilindro">Cilindro</option>
+                                            <option value="Vastago">Vástago</option>
+                                            <option value="Tapa">Tapa</option>
+                                            <option value="Piston">Pistón</option>
                                         </select>
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">Tiempo Estimado (horas)</label>
-                                        <input type="number" id="tarea-tiempo-estimado" min="0" step="0.5" 
-                                            class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-cyan-500"
-                                            placeholder="0.0">
+                                        <label class="block text-xs font-medium text-gray-600 mb-1">Tipo Tarea*</label>
+                                        <select id="tarea-tipo" required disabled class="w-full px-2 py-2 border rounded text-sm focus:ring-2 focus:ring-cyan-500 disabled:bg-gray-100 disabled:text-gray-400" onchange="actualizarTareasDisponibles()">
+                                            <option value="">Seleccione parte primero...</option>
+                                            <option value="Estandar">Estándar</option>
+                                            <option value="No estandar">No Estándar</option>
+                                        </select>
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">Fecha Límite</label>
-                                        <input type="date" id="tarea-fecha-limite" 
-                                            class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-cyan-500">
+                                        <label class="block text-xs font-medium text-gray-600 mb-1">Tarea*</label>
+                                        <select id="tarea-descripcion" required disabled class="w-full px-2 py-2 border rounded text-sm focus:ring-2 focus:ring-cyan-500 disabled:bg-gray-100 disabled:text-gray-400">
+                                            <option value="">Seleccione parte y tipo primero...</option>
+                                        </select>
                                     </div>
                                     <div>
-                                        <label class="block text-sm font-medium text-gray-700 mb-1">Estado</label>
-                                        <select id="tarea-estado" class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-cyan-500">
-                                            <option value="Pendiente">Pendiente</option>
-                                            <option value="En Progreso">En Progreso</option>
-                                            <option value="Completada">Completada</option>
-                                            <option value="Bloqueada">Bloqueada</option>
+                                        <label class="block text-xs font-medium text-gray-600 mb-1">Equipo Asignado</label>
+                                        <select id="tarea-equipo" class="w-full px-2 py-2 border rounded text-sm focus:ring-2 focus:ring-cyan-500">
+                                            <option value="">Seleccione...</option>
+                                            <option value="TORNO 1">Torno 1</option>
+                                            <option value="TORNO 2">Torno 2</option>
+                                            <option value="TORNO 3">Torno 3</option>
+                                            <option value="TORNO 4">Torno 4</option>
+                                            <option value="FRESADORA">Fresadora</option>
+                                            <option value="MANDRINADORA">Mandrinadora</option>
+                                            <option value="BRUÑIDORA">Bruñidora</option>
+                                            <option value="BARRENADOR 1">Barrenador 1</option>
+                                            <option value="BARRENADOR 2">Barrenador 2</option>
+                                            <option value="SOLDADURA 1">Soldadura 1</option>
+                                            <option value="SOLDADURA 2">Soldadura 2</option>
+                                            <option value="SOLDADURA 3">Soldadura 3</option>
+                                            <option value="SOLDADURA 4">Soldadura 4</option>
+                                            <option value="SOLDADURA 5">Soldadura 5</option>
+                                            <option value="PRENSA HIDRAULICA">Prensa Hidráulica</option>
+                                            <option value="BANCO PRUEBAS 1">Banco Pruebas 1</option>
+                                            <option value="BANCO PRUEBAS 2">Banco Pruebas 2</option>
+                                            <option value="EVALUACION">Evaluación</option>
+                                            <option value="ARMADO">Armado</option>
                                         </select>
                                     </div>
                                 </div>
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1">Notas</label>
-                                    <textarea id="tarea-notas" rows="2" 
-                                        class="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-cyan-500"
-                                        placeholder="Notas adicionales sobre la tarea..."></textarea>
+                                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                    <div>
+                                        <label class="block text-xs font-medium text-gray-600 mb-1">Operario</label>
+                                        <select id="tarea-responsable" class="w-full px-2 py-2 border rounded text-sm focus:ring-2 focus:ring-cyan-500">
+                                            <option value="">Seleccione...</option>
+                                            <option>Armando Ramos</option>
+                                            <option>Rolando Llayque</option>
+                                            <option>Gabriel Anco</option>
+                                            <option>Jose Huamani</option>
+                                            <option>Justo Arocutipa</option>
+                                            <option>Giancarlo Ibarra</option>
+                                            <option>Gabriel Gallegos</option>
+                                            <option>Erick Cardenas</option>
+                                            <option>Ricardo Yana</option>
+                                            <option>Tomas Vilca</option>
+                                            <option>Carlos Hernani</option>
+                                            <option>Yampier Braulio</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-medium text-gray-600 mb-1">Qty Personal</label>
+                                        <input type="number" id="tarea-qty-personal" min="1" value="1" class="w-full px-2 py-2 border rounded text-sm focus:ring-2 focus:ring-cyan-500">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-medium text-gray-600 mb-1">Duración (hrs)</label>
+                                        <input type="number" id="tarea-duracion" min="0" step="0.5" class="w-full px-2 py-2 border rounded text-sm focus:ring-2 focus:ring-cyan-500" placeholder="0">
+                                    </div>
+                                    <div class="flex items-end pb-1">
+                                        <label class="flex items-center gap-2 text-sm text-gray-700 cursor-pointer">
+                                            <input type="checkbox" id="tarea-horas-extras" class="rounded">
+                                            Horas Extras
+                                        </label>
+                                    </div>
                                 </div>
-                                <div class="flex gap-3">
-                                    <button type="submit" class="flex-1 bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition">
-                                        <i class="fas fa-save mr-2"></i> Guardar Tarea
-                                    </button>
-                                    <button type="button" onclick="cancelTareaForm()" class="flex-1 bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded-lg transition">
-                                        <i class="fas fa-times mr-2"></i> Cancelar
-                                    </button>
+                                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                    <div>
+                                        <label class="block text-xs font-medium text-gray-600 mb-1">Inicio Estimado</label>
+                                        <input type="datetime-local" id="tarea-inicio-estimado" class="w-full px-2 py-2 border rounded text-sm focus:ring-2 focus:ring-cyan-500">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-medium text-gray-600 mb-1">Fin Estimado</label>
+                                        <input type="datetime-local" id="tarea-fin-estimado" class="w-full px-2 py-2 border rounded text-sm focus:ring-2 focus:ring-cyan-500">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-medium text-gray-600 mb-1">Estado</label>
+                                        <select id="tarea-estado" class="w-full px-2 py-2 border rounded text-sm focus:ring-2 focus:ring-cyan-500">
+                                            <option value="Abierto">Abierto</option>
+                                            <option value="En proceso">En proceso</option>
+                                            <option value="Realizado">Realizado</option>
+                                            <option value="Cancelado">Cancelado</option>
+                                        </select>
+                                    </div>
+                                    <div class="flex items-end gap-2">
+                                        <button type="submit" class="flex-1 bg-green-500 hover:bg-green-600 text-white px-3 py-2 rounded-lg transition text-sm">
+                                            <i class="fas fa-save mr-1"></i> Guardar
+                                        </button>
+                                        <button type="button" onclick="cancelTareaForm()" class="bg-gray-400 hover:bg-gray-500 text-white px-3 py-2 rounded-lg transition text-sm">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                    <div>
+                                        <label class="block text-xs font-medium text-gray-600 mb-1">Inicio Real</label>
+                                        <input type="datetime-local" id="tarea-inicio-real" onchange="calcularDuracionReal()" class="w-full px-2 py-2 border rounded text-sm focus:ring-2 focus:ring-cyan-500">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-medium text-gray-600 mb-1">Fin Real</label>
+                                        <input type="datetime-local" id="tarea-fin-real" onchange="calcularDuracionReal()" class="w-full px-2 py-2 border rounded text-sm focus:ring-2 focus:ring-cyan-500">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-medium text-gray-600 mb-1">Duración Real (hrs)</label>
+                                        <input type="number" id="tarea-duracion-real" readonly class="w-full px-2 py-2 border rounded text-sm bg-gray-100 text-gray-700" placeholder="0.00">
+                                    </div>
                                 </div>
                             </form>
                         </div>
 
-                        <!-- Lista de Tareas -->
-                        <div id="tareas-list" class="space-y-3">
-                            <div class="text-center text-gray-400 py-8">
-                                <i class="fas fa-tasks text-4xl mb-2"></i>
-                                <p>No hay tareas registradas para esta OT</p>
-                                <p class="text-sm mt-1">Haz clic en "Nueva Tarea" para comenzar</p>
-                            </div>
+                        <!-- Tabla de Tareas -->
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full text-xs border border-gray-200" id="tareas-table">
+                                <thead class="bg-gray-100">
+                                    <tr>
+                                        <th class="px-2 py-2 text-left font-semibold text-gray-600 border-b">N°</th>
+                                        <th class="px-2 py-2 text-left font-semibold text-gray-600 border-b">Parte</th>
+                                        <th class="px-2 py-2 text-left font-semibold text-gray-600 border-b">Tarea</th>
+                                        <th class="px-2 py-2 text-left font-semibold text-gray-600 border-b">Tipo</th>
+                                        <th class="px-2 py-2 text-center font-semibold text-gray-600 border-b">Qty</th>
+                                        <th class="px-2 py-2 text-center font-semibold text-gray-600 border-b">HH.EE</th>
+                                        <th class="px-2 py-2 text-center font-semibold text-gray-600 border-b">Dur.(hrs)</th>
+                                        <th class="px-2 py-2 text-center font-semibold text-gray-600 border-b">HH</th>
+                                        <th class="px-2 py-2 text-left font-semibold text-gray-600 border-b">Inicio Est.</th>
+                                        <th class="px-2 py-2 text-left font-semibold text-gray-600 border-b">Fin Est.</th>
+                                        <th class="px-2 py-2 text-left font-semibold text-gray-600 border-b">Equipo</th>
+                                        <th class="px-2 py-2 text-left font-semibold text-gray-600 border-b">Operario</th>
+                                        <th class="px-2 py-2 text-left font-semibold text-gray-600 border-b">Inicio Real</th>
+                                        <th class="px-2 py-2 text-left font-semibold text-gray-600 border-b">Fin Real</th>
+                                        <th class="px-2 py-2 text-center font-semibold text-gray-600 border-b">Dur. Real</th>
+                                        <th class="px-2 py-2 text-center font-semibold text-gray-600 border-b">Estado</th>
+                                        <th class="px-2 py-2 text-center font-semibold text-gray-600 border-b">Acc.</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tareas-tbody">
+                                    <tr>
+                                        <td colspan="17" class="text-center text-gray-400 py-8">
+                                            <i class="fas fa-tasks text-3xl mb-2 block"></i>
+                                            <p>No hay tareas registradas para esta OT</p>
+                                            <p class="text-xs mt-1">Haz clic en "Nueva Tarea" para comenzar</p>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -1212,50 +1274,117 @@
 
                 <!-- Tab 4: Documentos y Adjuntos -->
                 <div id="content-documentos" class="tab-content">
-                    <div class="mb-6">
+                    <!-- Sub-tabs de secciones -->
+                    <div class="flex border-b mb-5 overflow-x-auto">
+                        <button onclick="switchAdjuntosSec('recepcion')" id="adj-tab-recepcion" class="adj-tab-btn flex-1 py-3 px-4 text-center text-sm font-medium whitespace-nowrap border-b-2 border-cyan-500 text-cyan-700">
+                            <i class="fas fa-truck-loading mr-1"></i> Recepción
+                        </button>
+                        <button onclick="switchAdjuntosSec('evaluacion')" id="adj-tab-evaluacion" class="adj-tab-btn flex-1 py-3 px-4 text-center text-sm font-medium whitespace-nowrap border-b-2 border-transparent text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-microscope mr-1"></i> Evaluación
+                        </button>
+                        <button onclick="switchAdjuntosSec('termino')" id="adj-tab-termino" class="adj-tab-btn flex-1 py-3 px-4 text-center text-sm font-medium whitespace-nowrap border-b-2 border-transparent text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-check-double mr-1"></i> Término de Reparación
+                        </button>
+                        <button onclick="switchAdjuntosSec('despacho')" id="adj-tab-despacho" class="adj-tab-btn flex-1 py-3 px-4 text-center text-sm font-medium whitespace-nowrap border-b-2 border-transparent text-gray-500 hover:text-gray-700">
+                            <i class="fas fa-shipping-fast mr-1"></i> Despacho
+                        </button>
+                    </div>
+
+                    <!-- === Sección: Recepción === -->
+                    <div id="adj-sec-recepcion" class="adj-section">
                         <div class="flex justify-between items-center mb-4">
-                            <h4 class="text-xl font-bold text-gray-800">Documentos y Evidencias</h4>
-                            <button onclick="triggerFileUpload()" class="bg-cyan-500 hover:bg-cyan-600 text-white px-4 py-2 rounded-lg transition flex items-center">
-                                <i class="fas fa-upload mr-2"></i> Subir Archivo
+                            <h4 class="text-lg font-bold text-gray-800"><i class="fas fa-truck-loading text-cyan-600 mr-2"></i>Recepción</h4>
+                            <button onclick="triggerFileUpload('recepcion')" class="bg-cyan-500 hover:bg-cyan-600 text-white px-3 py-1.5 rounded-lg transition text-sm">
+                                <i class="fas fa-upload mr-1"></i> Subir Archivo
                             </button>
                         </div>
-
-                        <!-- Input file oculto -->
-                        <input type="file" id="file-input" multiple accept="image/*,.pdf,.doc,.docx,.xls,.xlsx" 
-                            onchange="handleFileSelection()" class="hidden">
-
-                        <!-- Área de drag & drop -->
-                        <div id="drop-zone" class="border-4 border-dashed border-gray-300 rounded-lg p-8 mb-6 text-center hover:border-cyan-500 transition">
-                            <i class="fas fa-cloud-upload-alt text-5xl text-gray-400 mb-3"></i>
-                            <p class="text-gray-600 mb-2">Arrastra archivos aquí o haz clic para seleccionar</p>
-                            <p class="text-sm text-gray-500">Imágenes, PDFs, Word, Excel (máx. 10MB por archivo)</p>
+                        <p class="text-sm text-gray-500 mb-4">Fotos y documentos de la llegada del cilindro al taller</p>
+                        <input type="file" id="file-input-recepcion" multiple accept="image/*,.pdf,.doc,.docx,.xls,.xlsx" onchange="handleFileSelection('recepcion')" class="hidden">
+                        <div id="drop-zone-recepcion" class="border-4 border-dashed border-gray-300 rounded-lg p-6 mb-4 text-center hover:border-cyan-400 transition cursor-pointer" onclick="triggerFileUpload('recepcion')">
+                            <i class="fas fa-cloud-upload-alt text-3xl text-gray-400 mb-2"></i>
+                            <p class="text-gray-500 text-sm">Arrastra archivos aquí o haz clic</p>
                         </div>
-
-                        <!-- Filtros -->
-                        <div class="flex gap-3 mb-4">
-                            <button onclick="filterDocuments('all')" class="doc-filter-btn active px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition text-sm">
-                                <i class="fas fa-th-large mr-2"></i> Todos
-                            </button>
-                            <button onclick="filterDocuments('image')" class="doc-filter-btn px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition text-sm">
-                                <i class="fas fa-image mr-2"></i> Fotos
-                            </button>
-                            <button onclick="filterDocuments('pdf')" class="doc-filter-btn px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition text-sm">
-                                <i class="fas fa-file-pdf mr-2"></i> PDFs
-                            </button>
-                            <button onclick="filterDocuments('document')" class="doc-filter-btn px-4 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition text-sm">
-                                <i class="fas fa-file-word mr-2"></i> Documentos
-                            </button>
-                        </div>
-
-                        <!-- Grid de documentos -->
-                        <div id="documents-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                            <div class="col-span-full text-center text-gray-400 py-8">
-                                <i class="fas fa-folder-open text-5xl mb-3"></i>
-                                <p>No hay documentos adjuntos</p>
-                                <p class="text-sm mt-1">Sube archivos para comenzar</p>
+                        <div id="documents-grid-recepcion" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                            <div class="col-span-full text-center text-gray-400 py-6">
+                                <i class="fas fa-folder-open text-3xl mb-2"></i>
+                                <p class="text-sm">Sin archivos de recepción</p>
                             </div>
                         </div>
                     </div>
+
+                    <!-- === Sección: Evaluación === -->
+                    <div id="adj-sec-evaluacion" class="adj-section" style="display:none">
+                        <div class="flex justify-between items-center mb-4">
+                            <h4 class="text-lg font-bold text-gray-800"><i class="fas fa-microscope text-indigo-600 mr-2"></i>Evaluación</h4>
+                            <div class="flex gap-2">
+                                <button onclick="irAEvaluacion()" class="bg-indigo-500 hover:bg-indigo-600 text-white px-3 py-1.5 rounded-lg transition text-sm">
+                                    <i class="fas fa-clipboard-check mr-1"></i> Hoja de Evaluación
+                                </button>
+                                <button onclick="triggerFileUpload('evaluacion')" class="bg-cyan-500 hover:bg-cyan-600 text-white px-3 py-1.5 rounded-lg transition text-sm">
+                                    <i class="fas fa-upload mr-1"></i> Subir Archivo
+                                </button>
+                            </div>
+                        </div>
+                        <p class="text-sm text-gray-500 mb-4">Fotos de evaluación, informes técnicos y hoja de evaluación del componente</p>
+                        <input type="file" id="file-input-evaluacion" multiple accept="image/*,.pdf,.doc,.docx,.xls,.xlsx" onchange="handleFileSelection('evaluacion')" class="hidden">
+                        <div id="drop-zone-evaluacion" class="border-4 border-dashed border-gray-300 rounded-lg p-6 mb-4 text-center hover:border-indigo-400 transition cursor-pointer" onclick="triggerFileUpload('evaluacion')">
+                            <i class="fas fa-cloud-upload-alt text-3xl text-gray-400 mb-2"></i>
+                            <p class="text-gray-500 text-sm">Arrastra archivos aquí o haz clic</p>
+                        </div>
+                        <div id="documents-grid-evaluacion" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                            <div class="col-span-full text-center text-gray-400 py-6">
+                                <i class="fas fa-folder-open text-3xl mb-2"></i>
+                                <p class="text-sm">Sin archivos de evaluación</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- === Sección: Término de Reparación === -->
+                    <div id="adj-sec-termino" class="adj-section" style="display:none">
+                        <div class="flex justify-between items-center mb-4">
+                            <h4 class="text-lg font-bold text-gray-800"><i class="fas fa-check-double text-green-600 mr-2"></i>Término de Reparación</h4>
+                            <button onclick="triggerFileUpload('termino')" class="bg-cyan-500 hover:bg-cyan-600 text-white px-3 py-1.5 rounded-lg transition text-sm">
+                                <i class="fas fa-upload mr-1"></i> Subir Archivo
+                            </button>
+                        </div>
+                        <p class="text-sm text-gray-500 mb-4">Fotos del cilindro reparado, informes de prueba y certificados</p>
+                        <input type="file" id="file-input-termino" multiple accept="image/*,.pdf,.doc,.docx,.xls,.xlsx" onchange="handleFileSelection('termino')" class="hidden">
+                        <div id="drop-zone-termino" class="border-4 border-dashed border-gray-300 rounded-lg p-6 mb-4 text-center hover:border-green-400 transition cursor-pointer" onclick="triggerFileUpload('termino')">
+                            <i class="fas fa-cloud-upload-alt text-3xl text-gray-400 mb-2"></i>
+                            <p class="text-gray-500 text-sm">Arrastra archivos aquí o haz clic</p>
+                        </div>
+                        <div id="documents-grid-termino" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                            <div class="col-span-full text-center text-gray-400 py-6">
+                                <i class="fas fa-folder-open text-3xl mb-2"></i>
+                                <p class="text-sm">Sin archivos de término</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- === Sección: Despacho === -->
+                    <div id="adj-sec-despacho" class="adj-section" style="display:none">
+                        <div class="flex justify-between items-center mb-4">
+                            <h4 class="text-lg font-bold text-gray-800"><i class="fas fa-shipping-fast text-orange-600 mr-2"></i>Despacho</h4>
+                            <button onclick="triggerFileUpload('despacho')" class="bg-cyan-500 hover:bg-cyan-600 text-white px-3 py-1.5 rounded-lg transition text-sm">
+                                <i class="fas fa-upload mr-1"></i> Subir Archivo
+                            </button>
+                        </div>
+                        <p class="text-sm text-gray-500 mb-4">Fotos del embalaje, guías de remisión de salida y documentos de despacho</p>
+                        <input type="file" id="file-input-despacho" multiple accept="image/*,.pdf,.doc,.docx,.xls,.xlsx" onchange="handleFileSelection('despacho')" class="hidden">
+                        <div id="drop-zone-despacho" class="border-4 border-dashed border-gray-300 rounded-lg p-6 mb-4 text-center hover:border-orange-400 transition cursor-pointer" onclick="triggerFileUpload('despacho')">
+                            <i class="fas fa-cloud-upload-alt text-3xl text-gray-400 mb-2"></i>
+                            <p class="text-gray-500 text-sm">Arrastra archivos aquí o haz clic</p>
+                        </div>
+                        <div id="documents-grid-despacho" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                            <div class="col-span-full text-center text-gray-400 py-6">
+                                <i class="fas fa-folder-open text-3xl mb-2"></i>
+                                <p class="text-sm">Sin archivos de despacho</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Input file legacy (mantener compatibilidad) -->
+                    <input type="file" id="file-input" multiple accept="image/*,.pdf,.doc,.docx,.xls,.xlsx" onchange="handleFileSelection('recepcion')" class="hidden">
                 </div>
 
                 <!-- Tab 5: Requerimientos de la OT -->
@@ -1617,6 +1746,11 @@
         let _otStatusCache = [];
         let _recursosStatusCache = [];
         let _tallerStatusCache = [];
+        let _atencionRepCache = [];
+        let _tipoRepCache = [];
+        let _tipoGarantiaCache = [];
+        let _prioridadCache = [];
+        let _resumenEditando = false;
 
         async function loadMaterialesList() {
             if (_materialesLoaded) return;
@@ -1689,6 +1823,7 @@
                 const atencionSelect = document.getElementById('atencion_reparacion_codigo');
                 atencionSelect.innerHTML = '<option value="">Seleccione...</option>';
                 const atencionArray = Array.isArray(atencionReparacion) ? atencionReparacion : [];
+                _atencionRepCache = atencionArray;
                 atencionArray.forEach(ar => {
                     atencionSelect.innerHTML += `<option value="${ar.codigo}">${ar.nombre}</option>`;
                 });
@@ -1697,22 +1832,25 @@
                 const tipoRepSelect = document.getElementById('tipo_reparacion_codigo');
                 tipoRepSelect.innerHTML = '<option value="">Seleccione...</option>';
                 const tipoRepArray = Array.isArray(tipoReparacion) ? tipoReparacion : [];
+                _tipoRepCache = tipoRepArray;
                 tipoRepArray.forEach(tr => {
                     tipoRepSelect.innerHTML += `<option value="${tr.codigo}">${tr.nombre}</option>`;
                 });
-                
+
                 // Cargar tipo garantía
                 const tipoGarSelect = document.getElementById('tipo_garantia_codigo');
                 tipoGarSelect.innerHTML = '<option value="">Seleccione...</option>';
                 const tipoGarArray = Array.isArray(tipoGarantia) ? tipoGarantia : [];
+                _tipoGarantiaCache = tipoGarArray;
                 tipoGarArray.forEach(tg => {
                     tipoGarSelect.innerHTML += `<option value="${tg.codigo}">${tg.nombre}</option>`;
                 });
-                
+
                 // Cargar prioridades
                 const prioridadSelect = document.getElementById('prioridad_atencion_codigo');
                 prioridadSelect.innerHTML = '<option value="">Seleccione prioridad...</option>';
                 const prioridadArray = Array.isArray(prioridades) ? prioridades : [];
+                _prioridadCache = prioridadArray;
                 prioridadArray.forEach(p => {
                     prioridadSelect.innerHTML += `<option value="${p.codigo}">${p.nombre}</option>`;
                 });
@@ -1940,7 +2078,6 @@
             document.getElementById('fecha_creacion').value = new Date().toISOString().slice(0, 16);
             editingId = null;
             document.getElementById('fecha_requerimiento_cliente').value = '';
-            fechaReqInput.classList.add('bg-gray-100', 'text-gray-400', 'cursor-not-allowed');
         }
 
         // Load orders
@@ -3110,16 +3247,22 @@
                 if (response.ok) {
                     const resultado = await response.json();
                     showToast(editingId ? 'Orden actualizada exitosamente' : 'Orden creada exitosamente', 'success');
-                    limpiarFormulario();
+                    editingId = null;
+                    document.getElementById('ordenForm').reset();
                     cancelForm();
                     await loadOrdenes();
                 } else {
-                    const error = await response.json();
-                    showToast(error.error || 'Error al guardar la orden', 'error');
+                    const errData = await response.json().catch(() => ({}));
+                    const detalle = errData.details
+                        ? (Array.isArray(errData.details) ? errData.details.map(d => d.message || d).join(', ') : errData.details)
+                        : '';
+                    const msg = errData.error || 'Error al guardar la orden';
+                    showToast(detalle ? `${msg}: ${detalle}` : msg, 'error');
+                    console.error('Server error:', errData);
                 }
             } catch (error) {
-                console.error('Error saving ordre:', error);
-                showToast('Error al guardar la orden', 'error');
+                console.error('Error saving order:', error);
+                showToast('Error de conexión al guardar', 'error');
             }
         }
 
@@ -3197,17 +3340,19 @@
             const clienteObj = _clientesCache.find(c => c.cliente_id == orden.id_cliente);
             document.getElementById('r-cliente').textContent = fmt(clienteObj?.razon_social || orden.id_cliente);
             document.getElementById('r-descripcion').textContent = fmt(orden.descripcion);
-            document.getElementById('r-estrategia').textContent = orden.tiene_estrategia ? 'Sí' : 'No';
+            document.getElementById('r-estrategia').textContent = orden.estrategia ? 'Sí' : 'No';
 
             // Equipo / Componente
-            document.getElementById('r-cod-rep').textContent = fmt(orden.codigo_reparacion_codigo);
-            document.getElementById('r-tipo').textContent = fmt(orden.tipo_componente_codigo);
+            const codRepObj = _codRepCache.find(c => c.cod_rep_id == orden.id_cod_rep);
+            document.getElementById('r-cod-rep').textContent = fmt(codRepObj?.codigo || orden.id_cod_rep);
+            document.getElementById('r-tipo').textContent = fmt(orden.tipo);
             document.getElementById('r-equipo').textContent = fmt(orden.equipo_codigo);
             document.getElementById('r-np').textContent = fmt(orden.np);
             document.getElementById('r-ns').textContent = fmt(orden.ns);
-            document.getElementById('r-fabricante').textContent = fmt(orden.fabricante_codigo);
-            document.getElementById('r-flota').textContent = fmt(orden.flota_equipo_codigo);
-            document.getElementById('r-posicion').textContent = fmt(orden.posicion_codigo);
+            const fabObj = _fabricantesCache.find(f => f.fabricante_id == orden.id_fabricante);
+            document.getElementById('r-fabricante').textContent = fmt(fabObj?.nombre || fabObj?.codigo || orden.id_fabricante);
+            document.getElementById('r-flota').textContent = fmt(orden.cod_rep_flota);
+            document.getElementById('r-posicion').textContent = fmt(orden.cod_rep_posicion);
 
             // Documentos del Cliente
             document.getElementById('r-plaqueteo').textContent = fmt(orden.plaqueteo);
@@ -3219,7 +3364,38 @@
 
             // Fechas
             document.getElementById('r-fecha-recepcion').textContent = fmtDate(orden.fecha_recepcion);
-            document.getElementById('r-fecha-req-cliente').textContent = fmtDate(orden.fecha_requerimiento_cliente);
+
+            // Fecha req cliente — mostrar la vigente (reprogramada si existe, sino original)
+            const tieneReprog = !!orden.fecha_reprogramada;
+            const fechaVigente = tieneReprog ? orden.fecha_reprogramada : orden.fecha_requerimiento_cliente;
+            // En sección Fechas
+            document.getElementById('r-fecha-req-cliente').textContent = fmtDate(fechaVigente);
+            const origFechas = document.getElementById('r-fecha-req-cliente-orig');
+            if (tieneReprog && orden.fecha_requerimiento_cliente) {
+                origFechas.textContent = 'Original: ' + fmtDate(orden.fecha_requerimiento_cliente);
+                origFechas.style.display = '';
+            } else {
+                origFechas.style.display = 'none';
+            }
+            // En sección superior Estados
+            document.getElementById('r-fecha-req-vigente').textContent = fmtDate(fechaVigente);
+            const anteriorEl = document.getElementById('r-fecha-req-anterior');
+            if (tieneReprog && orden.fecha_requerimiento_cliente) {
+                anteriorEl.textContent = 'Original: ' + fmtDate(orden.fecha_requerimiento_cliente);
+                anteriorEl.style.display = '';
+            } else {
+                anteriorEl.style.display = 'none';
+            }
+            // Reset reprogramar UI
+            document.getElementById('r-reprogram-btn').style.display = '';
+            document.getElementById('r-reprogram-input-container').style.display = 'none';
+            document.getElementById('r-fecha-reprogramada').value = '';
+            // Reset modo edición
+            document.getElementById('resumen-vista').style.display = '';
+            document.getElementById('resumen-edicion').style.display = 'none';
+            _resumenEditando = false;
+            document.getElementById('btn-editar-resumen').innerHTML = '<i class="fas fa-edit mr-1"></i> Editar';
+
             document.getElementById('r-fecha-evaluacion').textContent = fmtDate(orden.fecha_evaluacion);
             document.getElementById('r-fecha-cotizacion').textContent = fmtDate(orden.fecha_cotizacion);
             document.getElementById('r-fecha-aprobacion').textContent = fmtDate(orden.fecha_aprobacion);
@@ -3248,9 +3424,9 @@
 
             // Control
             document.getElementById('r-pcr').textContent = fmt(orden.pcr);
-            document.getElementById('r-horas').textContent = fmt(orden.horas_hombre);
-            document.getElementById('r-pct-pcr').textContent = orden.pct_pcr != null ? orden.pct_pcr + '%' : '-';
-            document.getElementById('r-dias-taller').textContent = fmt(orden.dias_taller);
+            document.getElementById('r-horas').textContent = fmt(orden.horas);
+            document.getElementById('r-pct-pcr').textContent = orden.porcentaje_pcr != null ? orden.porcentaje_pcr + '%' : '-';
+            document.getElementById('r-dias-taller').textContent = fmt(orden.dias_en_taller);
 
             // Comentarios
             const comentariosSection = document.getElementById('r-comentarios-section');
@@ -3322,6 +3498,170 @@
                 loadOrdenes();
             } catch (e) {
                 showToast('Error al guardar estados: ' + e.message, 'error');
+            }
+        }
+
+        // ── Editar Resumen completo ──────────────────────────────────────────
+        function toggleEditarResumen() {
+            _resumenEditando = !_resumenEditando;
+            document.getElementById('resumen-vista').style.display = _resumenEditando ? 'none' : '';
+            document.getElementById('resumen-edicion').style.display = _resumenEditando ? '' : 'none';
+            document.getElementById('btn-editar-resumen').innerHTML = _resumenEditando
+                ? '<i class="fas fa-eye mr-1"></i> Ver'
+                : '<i class="fas fa-edit mr-1"></i> Editar';
+
+            if (_resumenEditando && currentOTData) {
+                const o = currentOTData;
+                const dVal = d => d ? d.split('T')[0] : '';
+                const fillSel = (id, cache, val) => {
+                    const s = document.getElementById(id);
+                    s.innerHTML = '<option value="">Seleccione...</option>' + cache.map(c =>
+                        `<option value="${c.codigo}" ${c.codigo === val ? 'selected' : ''}>${c.nombre}</option>`
+                    ).join('');
+                };
+                // Identificación
+                const cSel = document.getElementById('e-cliente');
+                cSel.innerHTML = '<option value="">Seleccione...</option>' + _clientesCache.map(c =>
+                    `<option value="${c.cliente_id}" ${c.cliente_id == o.id_cliente ? 'selected' : ''}>${c.razon_social}</option>`
+                ).join('');
+                document.getElementById('e-descripcion').value = o.descripcion || '';
+                document.getElementById('e-estrategia').checked = !!o.estrategia;
+                // Equipo
+                document.getElementById('e-equipo').value = o.equipo_codigo || '';
+                document.getElementById('e-np').value = o.np || '';
+                document.getElementById('e-ns').value = o.ns || '';
+                document.getElementById('e-tipo').value = o.tipo || '';
+                // Documentos
+                document.getElementById('e-plaqueteo').value = o.plaqueteo || '';
+                document.getElementById('e-wo-cliente').value = o.wo_cliente || '';
+                document.getElementById('e-po-cliente').value = o.po_cliente || '';
+                document.getElementById('e-id-viajero').value = o.id_viajero || '';
+                document.getElementById('e-guia-remision').value = o.guia_remision || '';
+                document.getElementById('e-empresa-entrega').value = o.empresa_entrega || '';
+                // Fechas
+                document.getElementById('e-fecha-recepcion').value = dVal(o.fecha_recepcion);
+                document.getElementById('e-fecha-req-cliente').value = dVal(o.fecha_requerimiento_cliente);
+                document.getElementById('e-fecha-evaluacion').value = dVal(o.fecha_evaluacion);
+                document.getElementById('e-fecha-cotizacion').value = dVal(o.fecha_cotizacion);
+                document.getElementById('e-fecha-aprobacion').value = dVal(o.fecha_aprobacion);
+                document.getElementById('e-fecha-entrega').value = dVal(o.fecha_entrega);
+                document.getElementById('e-fecha-facturacion').value = dVal(o.fecha_facturacion);
+                // Garantía y reparación
+                document.getElementById('e-garantia').checked = o.garantia_codigo === 'Si';
+                fillSel('e-tipo-garantia', _tipoGarantiaCache, o.tipo_garantia_codigo);
+                fillSel('e-atencion-rep', _atencionRepCache, o.atencion_reparacion_codigo);
+                fillSel('e-tipo-rep', _tipoRepCache, o.tipo_reparacion_codigo);
+                fillSel('e-prioridad', _prioridadCache, o.prioridad_atencion_codigo);
+                document.getElementById('e-contrato-dias').value = o.contrato_dias || '';
+                document.getElementById('e-base-metalica').checked = o.base_metalica_codigo === 'Si';
+                // Control
+                document.getElementById('e-pcr').value = o.pcr || '';
+                document.getElementById('e-horas').value = o.horas || '';
+                // Comentarios
+                document.getElementById('e-comentarios').value = o.comentarios || '';
+            }
+        }
+
+        async function guardarResumenCompleto() {
+            if (!currentOTId) return;
+            const body = {
+                id_cliente: document.getElementById('e-cliente').value || null,
+                descripcion: document.getElementById('e-descripcion').value || null,
+                estrategia: document.getElementById('e-estrategia').checked,
+                equipo_codigo: document.getElementById('e-equipo').value || null,
+                np: document.getElementById('e-np').value || null,
+                ns: document.getElementById('e-ns').value || null,
+                tipo: document.getElementById('e-tipo').value || null,
+                plaqueteo: document.getElementById('e-plaqueteo').value || null,
+                wo_cliente: document.getElementById('e-wo-cliente').value || null,
+                po_cliente: document.getElementById('e-po-cliente').value || null,
+                id_viajero: document.getElementById('e-id-viajero').value || null,
+                guia_remision: document.getElementById('e-guia-remision').value || null,
+                empresa_entrega: document.getElementById('e-empresa-entrega').value || null,
+                fecha_recepcion: document.getElementById('e-fecha-recepcion').value || null,
+                fecha_requerimiento_cliente: document.getElementById('e-fecha-req-cliente').value || null,
+                fecha_evaluacion: document.getElementById('e-fecha-evaluacion').value || null,
+                fecha_cotizacion: document.getElementById('e-fecha-cotizacion').value || null,
+                fecha_aprobacion: document.getElementById('e-fecha-aprobacion').value || null,
+                fecha_entrega: document.getElementById('e-fecha-entrega').value || null,
+                fecha_facturacion: document.getElementById('e-fecha-facturacion').value || null,
+                garantia_codigo: document.getElementById('e-garantia').checked ? 'Si' : 'No',
+                tipo_garantia_codigo: document.getElementById('e-tipo-garantia').value || null,
+                atencion_reparacion_codigo: document.getElementById('e-atencion-rep').value || null,
+                tipo_reparacion_codigo: document.getElementById('e-tipo-rep').value || null,
+                prioridad_atencion_codigo: document.getElementById('e-prioridad').value || null,
+                contrato_dias: parseInt(document.getElementById('e-contrato-dias').value) || null,
+                base_metalica_codigo: document.getElementById('e-base-metalica').checked ? 'Si' : 'No',
+                pcr: parseFloat(document.getElementById('e-pcr').value) || null,
+                horas: parseFloat(document.getElementById('e-horas').value) || 0,
+                comentarios: document.getElementById('e-comentarios').value || null
+            };
+            try {
+                const res = await fetch(`/api/ot/${currentOTId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                if (!res.ok) throw new Error('Error al guardar');
+                const data = await res.json();
+                showToast('OT actualizada correctamente', 'success');
+                // Refrescar datos
+                await loadOrdenes();
+                const ordenActualizada = ordenes.find(o => o.id === currentOTId);
+                if (ordenActualizada) {
+                    currentOTData = ordenActualizada;
+                    openDetails(ordenActualizada);
+                }
+            } catch (e) {
+                showToast('Error al guardar: ' + e.message, 'error');
+            }
+        }
+
+        // Reprogramar fecha de requerimiento
+        function mostrarInputReprogramar() {
+            document.getElementById('r-reprogram-btn').style.display = 'none';
+            document.getElementById('r-reprogram-input-container').style.display = '';
+        }
+        function cancelarReprogramar() {
+            document.getElementById('r-reprogram-btn').style.display = '';
+            document.getElementById('r-reprogram-input-container').style.display = 'none';
+            document.getElementById('r-fecha-reprogramada').value = '';
+        }
+        async function guardarReprogramacion() {
+            if (!currentOTId) return;
+            const fecha = document.getElementById('r-fecha-reprogramada').value;
+            if (!fecha) {
+                showToast('Seleccione una fecha', 'error');
+                return;
+            }
+            try {
+                const res = await fetch(`/api/ot/${currentOTId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ fecha_reprogramada: fecha })
+                });
+                if (!res.ok) throw new Error('Error al guardar');
+                showToast('Fecha reprogramada guardada', 'success');
+                const nuevaFechaStr = new Date(fecha).toLocaleDateString('es-ES');
+                // Actualizar sección superior
+                const origReq = document.getElementById('r-fecha-req-vigente').textContent;
+                document.getElementById('r-fecha-req-vigente').textContent = nuevaFechaStr;
+                const antEl = document.getElementById('r-fecha-req-anterior');
+                if (currentOTData?.fecha_requerimiento_cliente) {
+                    antEl.textContent = 'Original: ' + new Date(currentOTData.fecha_requerimiento_cliente).toLocaleDateString('es-ES');
+                    antEl.style.display = '';
+                }
+                // Actualizar sección Fechas
+                document.getElementById('r-fecha-req-cliente').textContent = nuevaFechaStr;
+                const origFechas = document.getElementById('r-fecha-req-cliente-orig');
+                if (currentOTData?.fecha_requerimiento_cliente) {
+                    origFechas.textContent = 'Original: ' + new Date(currentOTData.fecha_requerimiento_cliente).toLocaleDateString('es-ES');
+                    origFechas.style.display = '';
+                }
+                cancelarReprogramar();
+                loadOrdenes();
+            } catch (e) {
+                showToast('Error al reprogramar: ' + e.message, 'error');
             }
         }
 
@@ -4218,11 +4558,120 @@
         let tareasList = [];
         let editingTareaId = null;
 
+        function getTareasStorageKey() {
+            return `ot_tareas_${currentOTId || 'sin_ot'}`;
+        }
+
+        function loadTareasFromStorage() {
+            try {
+                const raw = localStorage.getItem(getTareasStorageKey());
+                return raw ? JSON.parse(raw) : [];
+            } catch (error) {
+                console.warn('No se pudieron leer tareas de localStorage:', error);
+                return [];
+            }
+        }
+
+        function saveTareasToStorage() {
+            try {
+                localStorage.setItem(getTareasStorageKey(), JSON.stringify(tareasList));
+            } catch (error) {
+                console.warn('No se pudieron guardar tareas en localStorage:', error);
+            }
+        }
+
+        const tareasDisponiblesPorTipoYParte = {
+            'Estandar': {
+                'Cilindro': ['Desarme', 'Inspección dimensional', 'Bruñido', 'Soldadura', 'Mecanizado', 'Limpieza final', 'Armado', 'Prueba hidráulica'],
+                'Vastago': ['Desarme', 'Inspección visual', 'Rectificado', 'Cromado', 'Pulido', 'Inspección final', 'Armado'],
+                'Tapa': ['Desarme', 'Inspección visual', 'Mecanizado', 'Limpieza', 'Armado'],
+                'Piston': ['Desarme', 'Inspección dimensional', 'Mecanizado', 'Limpieza', 'Armado']
+            },
+            'No estandar': {
+                'Cilindro': ['Recuperación especial', 'Mecanizado fuera de plan', 'Soldadura especial', 'Prueba especial'],
+                'Vastago': ['Rectificado especial', 'Cromado especial', 'Recuperación de rosca', 'Ajuste especial'],
+                'Tapa': ['Mecanizado especial', 'Reparación especial', 'Ajuste especial'],
+                'Piston': ['Reparación especial', 'Mecanizado especial', 'Ajuste especial']
+            }
+        };
+
+        function onParteTareaChange() {
+            const parteSelect = document.getElementById('tarea-parte');
+            const tipoSelect = document.getElementById('tarea-tipo');
+            const tareaSelect = document.getElementById('tarea-descripcion');
+
+            tipoSelect.value = '';
+            tareaSelect.innerHTML = '<option value="">Seleccione parte y tipo primero...</option>';
+            tareaSelect.disabled = true;
+
+            if (!parteSelect.value) {
+                tipoSelect.disabled = true;
+                return;
+            }
+
+            tipoSelect.disabled = false;
+        }
+
+        function actualizarTareasDisponibles() {
+            const parte = document.getElementById('tarea-parte').value;
+            const tipo = document.getElementById('tarea-tipo').value;
+            const tareaSelect = document.getElementById('tarea-descripcion');
+
+            if (!parte) {
+                tareaSelect.innerHTML = '<option value="">Seleccione parte primero...</option>';
+                tareaSelect.disabled = true;
+                return;
+            }
+
+            if (!tipo) {
+                tareaSelect.innerHTML = '<option value="">Seleccione tipo de tarea...</option>';
+                tareaSelect.disabled = true;
+                return;
+            }
+
+            const tareas = tareasDisponiblesPorTipoYParte[tipo]?.[parte] || [];
+            tareaSelect.innerHTML = '<option value="">Seleccione tarea...</option>';
+
+            if (tareas.length === 0) {
+                tareaSelect.innerHTML = '<option value="">No hay tareas disponibles para esta selección</option>';
+                tareaSelect.disabled = true;
+                return;
+            }
+
+            tareas.forEach((tarea) => {
+                tareaSelect.innerHTML += `<option value="${tarea}">${tarea}</option>`;
+            });
+            tareaSelect.disabled = false;
+        }
+
+        function calcularDuracionReal() {
+            const inicioReal = document.getElementById('tarea-inicio-real').value;
+            const finReal = document.getElementById('tarea-fin-real').value;
+            const duracionRealInput = document.getElementById('tarea-duracion-real');
+
+            if (!inicioReal || !finReal) {
+                duracionRealInput.value = '';
+                return;
+            }
+
+            const inicio = new Date(inicioReal);
+            const fin = new Date(finReal);
+
+            if (fin <= inicio) {
+                duracionRealInput.value = '';
+                return;
+            }
+
+            const duracionHoras = (fin.getTime() - inicio.getTime()) / (1000 * 60 * 60);
+            duracionRealInput.value = duracionHoras.toFixed(2);
+        }
+
         // Mostrar formulario de tarea
         function showTareaForm() {
             document.getElementById('tareaFormSection').classList.remove('hidden');
             document.getElementById('tarea-form-title').textContent = 'Nueva Tarea';
             document.getElementById('tareaForm').reset();
+            onParteTareaChange();
             editingTareaId = null;
             
             // Scroll al formulario
@@ -4239,131 +4688,95 @@
         // Cargar tareas de la OT
         async function loadTareas() {
             if (!currentOTId) return;
+
+            const tareasLocales = loadTareasFromStorage();
             
             try {
                 const response = await fetch(`/api/ot/${currentOTId}/tareas`);
                 if (response.ok) {
-                    tareasList = await response.json();
+                    const tareasApi = await response.json();
+                    if (Array.isArray(tareasApi) && tareasApi.length > 0) {
+                        tareasList = tareasApi;
+                        saveTareasToStorage();
+                    } else {
+                        tareasList = tareasLocales;
+                    }
                 } else {
-                    // Si el endpoint no existe aún, usar datos de ejemplo
-                    tareasList = [];
+                    tareasList = tareasLocales;
                 }
                 renderTareasList();
                 updateProgresoBarra();
             } catch (error) {
                 console.error('Error loading tareas:', error);
-                tareasList = [];
+                tareasList = tareasLocales;
                 renderTareasList();
+                updateProgresoBarra();
             }
         }
 
         // Renderizar lista de tareas
         function renderTareasList() {
-            const container = document.getElementById('tareas-list');
+            const tbody = document.getElementById('tareas-tbody');
+            if (!tbody) return;
             
             if (tareasList.length === 0) {
-                container.innerHTML = `
-                    <div class="text-center text-gray-400 py-8">
-                        <i class="fas fa-tasks text-4xl mb-2"></i>
-                        <p>No hay tareas registradas para esta OT</p>
-                        <p class="text-sm mt-1">Haz clic en "Nueva Tarea" para comenzar</p>
-                    </div>
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="17" class="text-center text-gray-400 py-8">
+                            <i class="fas fa-tasks text-3xl mb-2 block"></i>
+                            <p>No hay tareas registradas para esta OT</p>
+                            <p class="text-xs mt-1">Haz clic en "Nueva Tarea" para comenzar</p>
+                        </td>
+                    </tr>
                 `;
                 return;
             }
-            
-            // Ordenar: Pendientes y En Progreso primero, luego Completadas
-            const tareasOrdenadas = [...tareasList].sort((a, b) => {
-                const ordenEstado = { 'Pendiente': 1, 'En Progreso': 2, 'Bloqueada': 3, 'Completada': 4 };
-                return (ordenEstado[a.estado] || 5) - (ordenEstado[b.estado] || 5);
-            });
-            
-            container.innerHTML = tareasOrdenadas.map(tarea => {
-                const prioridadClass = {
-                    'Alta': 'bg-red-100 text-red-800 border-red-300',
-                    'Media': 'bg-yellow-100 text-yellow-800 border-yellow-300',
-                    'Baja': 'bg-green-100 text-green-800 border-green-300'
-                }[tarea.prioridad] || 'bg-gray-100 text-gray-800 border-gray-300';
-                
+
+            const formatDateTime = (value) => value ? new Date(value).toLocaleString('es-ES') : '-';
+
+            tbody.innerHTML = tareasList.map((tarea, index) => {
+                const qtyPersonal = parseFloat(tarea.qty_personal || 1);
+                const duracion = parseFloat(tarea.duracion || tarea.tiempo_estimado || 0);
+                const hh = qtyPersonal * duracion;
                 const estadoClass = {
+                    'Abierto': 'bg-yellow-100 text-yellow-800',
+                    'En proceso': 'bg-blue-100 text-blue-800',
+                    'Realizado': 'bg-green-100 text-green-800',
+                    'Cancelado': 'bg-red-100 text-red-800',
                     'Pendiente': 'bg-yellow-100 text-yellow-800',
                     'En Progreso': 'bg-blue-100 text-blue-800',
-                    'Completada': 'bg-green-100 text-green-800',
-                    'Bloqueada': 'bg-red-100 text-red-800'
+                    'Completada': 'bg-green-100 text-green-800'
                 }[tarea.estado] || 'bg-gray-100 text-gray-800';
-                
-                const iconoEstado = {
-                    'Pendiente': 'fa-clock',
-                    'En Progreso': 'fa-spinner fa-spin',
-                    'Completada': 'fa-check-circle',
-                    'Bloqueada': 'fa-lock'
-                }[tarea.estado] || 'fa-question-circle';
-                
-                const esCompletada = tarea.estado === 'Completada';
-                
+
                 return `
-                    <div class="bg-white border-2 ${prioridadClass} rounded-lg p-4 ${esCompletada ? 'opacity-70' : ''}">
-                        <div class="flex items-start justify-between">
-                            <div class="flex-1">
-                                <div class="flex items-center gap-3 mb-2">
-                                    <input type="checkbox" 
-                                        ${esCompletada ? 'checked' : ''} 
-                                        onchange="toggleTareaEstado(${tarea.id})"
-                                        class="w-5 h-5 text-green-600 rounded focus:ring-2 focus:ring-green-500">
-                                    <h5 class="font-semibold text-gray-800 ${esCompletada ? 'line-through' : ''}">
-                                        ${tarea.descripcion}
-                                    </h5>
-                                    <span class="px-2 py-1 text-xs font-semibold rounded ${estadoClass}">
-                                        <i class="fas ${iconoEstado} mr-1"></i> ${tarea.estado}
-                                    </span>
-                                </div>
-                                
-                                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm text-gray-600 mb-2">
-                                    ${tarea.responsable ? `
-                                        <div class="flex items-center">
-                                            <i class="fas fa-user text-gray-400 mr-2"></i>
-                                            <span>${tarea.responsable}</span>
-                                        </div>
-                                    ` : ''}
-                                    ${tarea.tiempo_estimado ? `
-                                        <div class="flex items-center">
-                                            <i class="fas fa-clock text-gray-400 mr-2"></i>
-                                            <span>${tarea.tiempo_estimado}h estimadas</span>
-                                        </div>
-                                    ` : ''}
-                                    ${tarea.fecha_limite ? `
-                                        <div class="flex items-center">
-                                            <i class="fas fa-calendar text-gray-400 mr-2"></i>
-                                            <span>${new Date(tarea.fecha_limite).toLocaleDateString('es-ES')}</span>
-                                        </div>
-                                    ` : ''}
-                                    <div class="flex items-center">
-                                        <i class="fas fa-flag text-gray-400 mr-2"></i>
-                                        <span>Prioridad ${tarea.prioridad}</span>
-                                    </div>
-                                </div>
-                                
-                                ${tarea.notas ? `
-                                    <p class="text-sm text-gray-600 italic bg-gray-50 p-2 rounded mt-2">
-                                        <i class="fas fa-sticky-note text-gray-400 mr-1"></i> ${tarea.notas}
-                                    </p>
-                                ` : ''}
-                            </div>
-                            
-                            <div class="flex gap-2 ml-4">
-                                ${!esCompletada ? `
-                                    <button onclick="editTarea(${tarea.id})" 
-                                        class="text-blue-600 hover:text-blue-800 p-2" title="Editar">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                ` : ''}
-                                <button onclick="deleteTarea(${tarea.id})" 
-                                    class="text-red-600 hover:text-red-800 p-2" title="Eliminar">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                    <tr class="hover:bg-gray-50 border-b">
+                        <td class="px-2 py-2">${index + 1}</td>
+                        <td class="px-2 py-2">${tarea.parte || '-'}</td>
+                        <td class="px-2 py-2">${tarea.descripcion || '-'}</td>
+                        <td class="px-2 py-2">${tarea.tipo_tarea || '-'}</td>
+                        <td class="px-2 py-2 text-center">${qtyPersonal}</td>
+                        <td class="px-2 py-2 text-center">${tarea.horas_extras ? 'Sí' : 'No'}</td>
+                        <td class="px-2 py-2 text-center">${duracion}</td>
+                        <td class="px-2 py-2 text-center font-semibold">${hh.toFixed(2)}</td>
+                        <td class="px-2 py-2">${formatDateTime(tarea.inicio_estimado)}</td>
+                        <td class="px-2 py-2">${formatDateTime(tarea.fin_estimado)}</td>
+                        <td class="px-2 py-2">${tarea.equipo || '-'}</td>
+                        <td class="px-2 py-2">${tarea.responsable || '-'}</td>
+                        <td class="px-2 py-2">${formatDateTime(tarea.inicio_real)}</td>
+                        <td class="px-2 py-2">${formatDateTime(tarea.fin_real)}</td>
+                        <td class="px-2 py-2 text-center">${tarea.duracion_real || '-'}</td>
+                        <td class="px-2 py-2 text-center">
+                            <span class="px-2 py-1 text-xs rounded ${estadoClass}">${tarea.estado || '-'}</span>
+                        </td>
+                        <td class="px-2 py-2 text-center">
+                            <button onclick="editTarea(${tarea.id})" class="text-blue-600 hover:text-blue-800 mr-2" title="Editar">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button onclick="deleteTarea(${tarea.id})" class="text-red-600 hover:text-red-800" title="Eliminar">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
                 `;
             }).join('');
         }
@@ -4377,7 +4790,7 @@
                 return;
             }
             
-            const completadas = tareasList.filter(t => t.estado === 'Completada').length;
+            const completadas = tareasList.filter(t => t.estado === 'Completada' || t.estado === 'Realizado').length;
             const total = tareasList.length;
             const porcentaje = Math.round((completadas / total) * 100);
             
@@ -4390,15 +4803,29 @@
         document.getElementById('tareaForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
+            const qtyPersonal = parseFloat(document.getElementById('tarea-qty-personal').value) || 1;
+            const duracion = parseFloat(document.getElementById('tarea-duracion').value) || 0;
             const tareaData = {
                 ot_id: currentOTId,
+                parte: document.getElementById('tarea-parte').value,
+                tipo_tarea: document.getElementById('tarea-tipo').value,
                 descripcion: document.getElementById('tarea-descripcion').value,
+                equipo: document.getElementById('tarea-equipo').value || null,
                 responsable: document.getElementById('tarea-responsable').value || null,
-                prioridad: document.getElementById('tarea-prioridad').value,
-                tiempo_estimado: parseFloat(document.getElementById('tarea-tiempo-estimado').value) || null,
-                fecha_limite: document.getElementById('tarea-fecha-limite').value || null,
+                qty_personal: qtyPersonal,
+                horas_extras: document.getElementById('tarea-horas-extras').checked,
+                duracion,
+                horas_hombre: qtyPersonal * duracion,
+                tiempo_estimado: duracion,
+                inicio_estimado: document.getElementById('tarea-inicio-estimado').value || null,
+                fin_estimado: document.getElementById('tarea-fin-estimado').value || null,
+                inicio_real: document.getElementById('tarea-inicio-real').value || null,
+                fin_real: document.getElementById('tarea-fin-real').value || null,
+                duracion_real: parseFloat(document.getElementById('tarea-duracion-real').value) || null,
                 estado: document.getElementById('tarea-estado').value,
-                notas: document.getElementById('tarea-notas').value || null
+                prioridad: 'Media',
+                fecha_limite: document.getElementById('tarea-fin-estimado').value || null,
+                notas: null
             };
             
             try {
@@ -4432,6 +4859,7 @@
                     } else {
                         tareasList.push({ ...tareaData, id: savedTarea.id || Date.now() });
                     }
+                    saveTareasToStorage();
                     
                     cancelTareaForm();
                     renderTareasList();
@@ -4453,6 +4881,7 @@
                     tareasList.push({ ...tareaData, id: Date.now() });
                     showToast('Tarea creada (local)', 'success');
                 }
+                saveTareasToStorage();
                 
                 cancelTareaForm();
                 renderTareasList();
@@ -4467,13 +4896,22 @@
             
             editingTareaId = tareaId;
             document.getElementById('tarea-form-title').textContent = 'Editar Tarea';
+            document.getElementById('tarea-parte').value = tarea.parte || '';
+            onParteTareaChange();
+            document.getElementById('tarea-tipo').value = tarea.tipo_tarea || '';
+            actualizarTareasDisponibles();
             document.getElementById('tarea-descripcion').value = tarea.descripcion;
+            document.getElementById('tarea-equipo').value = tarea.equipo || '';
             document.getElementById('tarea-responsable').value = tarea.responsable || '';
-            document.getElementById('tarea-prioridad').value = tarea.prioridad;
-            document.getElementById('tarea-tiempo-estimado').value = tarea.tiempo_estimado || '';
-            document.getElementById('tarea-fecha-limite').value = tarea.fecha_limite || '';
+            document.getElementById('tarea-qty-personal').value = tarea.qty_personal || 1;
+            document.getElementById('tarea-duracion').value = tarea.duracion || tarea.tiempo_estimado || '';
+            document.getElementById('tarea-horas-extras').checked = !!tarea.horas_extras;
+            document.getElementById('tarea-inicio-estimado').value = tarea.inicio_estimado || '';
+            document.getElementById('tarea-fin-estimado').value = tarea.fin_estimado || '';
+            document.getElementById('tarea-inicio-real').value = tarea.inicio_real || '';
+            document.getElementById('tarea-fin-real').value = tarea.fin_real || '';
+            document.getElementById('tarea-duracion-real').value = tarea.duracion_real || '';
             document.getElementById('tarea-estado').value = tarea.estado;
-            document.getElementById('tarea-notas').value = tarea.notas || '';
             
             document.getElementById('tareaFormSection').classList.remove('hidden');
             document.getElementById('tareaFormSection').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -4499,6 +4937,7 @@
                 tareasList = tareasList.filter(t => t.id !== tareaId);
                 showToast('Tarea eliminada (local)', 'success');
             }
+            saveTareasToStorage();
             
             renderTareasList();
             updateProgresoBarra();
@@ -4527,6 +4966,7 @@
                 console.warn('Backend no disponible, actualizando localmente:', error);
                 tarea.estado = nuevoEstado;
             }
+            saveTareasToStorage();
             
             renderTareasList();
             updateProgresoBarra();
@@ -4542,54 +4982,51 @@
         let currentDocFilter = 'all';
 
         // Trigger file upload
-        function triggerFileUpload() {
-            document.getElementById('file-input').click();
+        // ── Adjuntos: sub-tabs por sección ──────────────────────────────────
+        let _adjuntosSeccionActual = 'recepcion';
+
+        function switchAdjuntosSec(sec) {
+            _adjuntosSeccionActual = sec;
+            document.querySelectorAll('.adj-section').forEach(el => el.style.display = 'none');
+            document.getElementById('adj-sec-' + sec).style.display = '';
+            document.querySelectorAll('.adj-tab-btn').forEach(btn => {
+                btn.classList.remove('border-cyan-500', 'text-cyan-700');
+                btn.classList.add('border-transparent', 'text-gray-500');
+            });
+            const activeBtn = document.getElementById('adj-tab-' + sec);
+            activeBtn.classList.add('border-cyan-500', 'text-cyan-700');
+            activeBtn.classList.remove('border-transparent', 'text-gray-500');
         }
 
-        // Configurar drag & drop cuando el DOM esté listo
-        window.addEventListener('DOMContentLoaded', () => {
-            const dropZone = document.getElementById('drop-zone');
-            
-            if (dropZone) {
-                dropZone.addEventListener('click', () => {
-                    document.getElementById('file-input').click();
-                });
-                
-                dropZone.addEventListener('dragover', (e) => {
-                    e.preventDefault();
-                    dropZone.classList.add('border-cyan-500', 'bg-cyan-50');
-                });
-                
-                dropZone.addEventListener('dragleave', (e) => {
-                    e.preventDefault();
-                    dropZone.classList.remove('border-cyan-500', 'bg-cyan-50');
-                });
-                
-                dropZone.addEventListener('drop', (e) => {
-                    e.preventDefault();
-                    dropZone.classList.remove('border-cyan-500', 'bg-cyan-50');
-                    
-                    const files = e.dataTransfer.files;
-                    uploadFiles(files);
-                });
-            }
-        });
+        function irAEvaluacion() {
+            if (!currentOTId) return;
+            window.location.href = `/produccion/evaluacion.html?id=${currentOTId}`;
+        }
+
+        function triggerFileUpload(seccion) {
+            const sec = seccion || _adjuntosSeccionActual;
+            const input = document.getElementById('file-input-' + sec);
+            if (input) input.click();
+            else document.getElementById('file-input').click();
+        }
 
         // Handle file selection
-        function handleFileSelection() {
-            const files = document.getElementById('file-input').files;
-            uploadFiles(files);
+        function handleFileSelection(seccion) {
+            const sec = seccion || _adjuntosSeccionActual;
+            const input = document.getElementById('file-input-' + sec);
+            const files = input ? input.files : document.getElementById('file-input').files;
+            uploadFiles(files, sec);
         }
 
         // Upload files
-        async function uploadFiles(files) {
+        async function uploadFiles(files, seccion) {
             if (!currentOTId) {
                 showToast('Error: No hay OT seleccionada', 'error');
                 return;
             }
-            
+            const sec = seccion || _adjuntosSeccionActual;
             if (files.length === 0) return;
-            
+
             // Validar tamaño
             const maxSize = 10 * 1024 * 1024; // 10MB
             for (let file of files) {
@@ -4598,12 +5035,12 @@
                     return;
                 }
             }
-            
+
             // Simular carga (backend no implementado aún)
             for (let file of files) {
                 const tipo = getFileType(file.name);
                 const url = URL.createObjectURL(file);
-                
+
                 documentsList.push({
                     id: Date.now() + Math.random(),
                     ot_id: currentOTId,
@@ -4612,16 +5049,17 @@
                     tamano: file.size,
                     url: url,
                     fecha_subida: new Date().toISOString(),
-                    usuario: 'Admin'
+                    usuario: 'Admin',
+                    seccion: sec
                 });
             }
-            
+
             showToast(`${files.length} archivo(s) agregado(s)`, 'success');
-            addNotification('info', 'Documentos Agregados', `Se ${files.length === 1 ? 'ha agregado 1 documento' : `han agregado ${files.length} documentos`} a la OT`);
             renderDocuments();
-            
+
             // Limpiar input
-            document.getElementById('file-input').value = '';
+            const input = document.getElementById('file-input-' + sec);
+            if (input) input.value = '';
         }
 
         // Get file type
@@ -4659,61 +5097,50 @@
 
         // Render documents
         function renderDocuments() {
-            const grid = document.getElementById('documents-grid');
-            
-            const filtered = currentDocFilter === 'all' 
-                ? documentsList 
-                : documentsList.filter(d => d.tipo === currentDocFilter);
-            
-            if (filtered.length === 0) {
-                grid.innerHTML = `
-                    <div class="col-span-full text-center text-gray-400 py-8">
-                        <i class="fas fa-folder-open text-5xl mb-3"></i>
-                        <p>No hay documentos ${currentDocFilter !== 'all' ? 'de este tipo' : 'adjuntos'}</p>
-                        <p class="text-sm mt-1">Sube archivos para comenzar</p>
-                    </div>
-                `;
-                return;
-            }
-            
-            grid.innerHTML = filtered.map(doc => {
-                const iconClass = {
-                    'image': 'fa-image text-blue-500',
-                    'pdf': 'fa-file-pdf text-red-500',
-                    'document': 'fa-file-word text-blue-600',
-                    'spreadsheet': 'fa-file-excel text-green-600',
-                    'other': 'fa-file text-gray-500'
-                }[doc.tipo] || 'fa-file text-gray-500';
-                
-                const sizeKB = (doc.tamano / 1024).toFixed(2);
-                const fecha = new Date(doc.fecha_subida).toLocaleDateString('es-ES');
-                
-                const thumbnail = doc.tipo === 'image' 
-                    ? `<img src="${doc.url}" alt="${doc.nombre}" class="w-full h-32 object-cover rounded-t-lg">`
-                    : `<div class="w-full h-32 bg-gray-100 rounded-t-lg flex items-center justify-center">
-                        <i class="fas ${iconClass} text-4xl"></i>
-                       </div>`;
-                
-                return `
-                    <div class="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition">
+            // Renderizar cada sección por separado
+            ['recepcion', 'evaluacion', 'termino', 'despacho'].forEach(sec => {
+                const grid = document.getElementById('documents-grid-' + sec);
+                if (!grid) return;
+                const docs = documentsList.filter(d => d.seccion === sec);
+
+                if (docs.length === 0) {
+                    const labels = { recepcion: 'recepción', evaluacion: 'evaluación', termino: 'término', despacho: 'despacho' };
+                    grid.innerHTML = `<div class="col-span-full text-center text-gray-400 py-6">
+                        <i class="fas fa-folder-open text-3xl mb-2"></i>
+                        <p class="text-sm">Sin archivos de ${labels[sec]}</p>
+                    </div>`;
+                    return;
+                }
+
+                grid.innerHTML = docs.map(doc => {
+                    const iconClass = {
+                        'image': 'fa-image text-blue-500',
+                        'pdf': 'fa-file-pdf text-red-500',
+                        'document': 'fa-file-word text-blue-600',
+                        'spreadsheet': 'fa-file-excel text-green-600',
+                        'other': 'fa-file text-gray-500'
+                    }[doc.tipo] || 'fa-file text-gray-500';
+
+                    const sizeKB = (doc.tamano / 1024).toFixed(2);
+                    const fecha = new Date(doc.fecha_subida).toLocaleDateString('es-ES');
+
+                    const thumbnail = doc.tipo === 'image'
+                        ? `<img src="${doc.url}" alt="${doc.nombre}" class="w-full h-32 object-cover rounded-t-lg">`
+                        : `<div class="w-full h-32 bg-gray-100 rounded-t-lg flex items-center justify-center"><i class="fas ${iconClass} text-4xl"></i></div>`;
+
+                    return `<div class="bg-white border border-gray-200 rounded-lg overflow-hidden hover:shadow-lg transition">
                         ${thumbnail}
                         <div class="p-3">
                             <p class="text-sm font-semibold text-gray-800 truncate" title="${doc.nombre}">${doc.nombre}</p>
                             <p class="text-xs text-gray-500 mt-1">${sizeKB} KB • ${fecha}</p>
                             <div class="flex gap-2 mt-3">
-                                <button onclick="viewDocument(${doc.id})" 
-                                    class="flex-1 text-xs bg-cyan-500 hover:bg-cyan-600 text-white px-2 py-1 rounded">
-                                    <i class="fas fa-eye mr-1"></i> Ver
-                                </button>
-                                <button onclick="deleteDocument(${doc.id})" 
-                                    class="text-xs bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded">
-                                    <i class="fas fa-trash"></i>
-                                </button>
+                                <button onclick="viewDocument(${doc.id})" class="flex-1 text-xs bg-cyan-500 hover:bg-cyan-600 text-white px-2 py-1 rounded"><i class="fas fa-eye mr-1"></i> Ver</button>
+                                <button onclick="deleteDocument(${doc.id})" class="text-xs bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded"><i class="fas fa-trash"></i></button>
                             </div>
                         </div>
-                    </div>
-                `;
-            }).join('');
+                    </div>`;
+                }).join('');
+            });
         }
 
         // Filter documents
@@ -5098,11 +5525,11 @@
                 notifElement.classList.remove('translate-x-full');
             }, 10);
             
-            // Auto-cerrar después de 5 segundos
+            // Auto-cerrar después de 2 segundos
             if (autoClose) {
                 setTimeout(() => {
                     closeFloatingNotif(notif.id);
-                }, 5000);
+                }, 2000);
             }
         }
 
@@ -5225,10 +5652,10 @@
             });
             
             if (vencidas.length > 0) {
-                addNotification('warning', `${vencidas.length} OT${vencidas.length > 1 ? 's' : ''} Vencida${vencidas.length > 1 ? 's' : ''}`, 
-                    `Tienes ${vencidas.length} orden${vencidas.length > 1 ? 'es' : ''} de trabajo vencida${vencidas.length > 1 ? 's' : ''} que requieren atención.`, false);
+                addNotification('warning', `${vencidas.length} OT${vencidas.length > 1 ? 's' : ''} Vencida${vencidas.length > 1 ? 's' : ''}`,
+                    `Tienes ${vencidas.length} orden${vencidas.length > 1 ? 'es' : ''} de trabajo vencida${vencidas.length > 1 ? 's' : ''} que requieren atención.`, true);
             }
-            
+
             // Notificaciones de OTs próximas a vencer (3 días)
             const proximasVencer = ordenes.filter(o => {
                 if (matchEstado(o.ot_status_codigo, 'completado', 'completada', 'cancelado', 'cancelada')) return false;
@@ -5238,10 +5665,10 @@
                 const diasRestantes = Math.ceil((fechaLimite - hoy) / (1000 * 60 * 60 * 24));
                 return diasRestantes > 0 && diasRestantes <= 3;
             });
-            
+
             if (proximasVencer.length > 0) {
-                addNotification('info', `${proximasVencer.length} OT${proximasVencer.length > 1 ? 's' : ''} por Vencer`, 
-                    `${proximasVencer.length} orden${proximasVencer.length > 1 ? 'es' : ''} vence${proximasVencer.length > 1 ? 'n' : ''} en los próximos 3 días.`, false);
+                addNotification('info', `${proximasVencer.length} OT${proximasVencer.length > 1 ? 's' : ''} por Vencer`,
+                    `${proximasVencer.length} orden${proximasVencer.length > 1 ? 'es' : ''} vence${proximasVencer.length > 1 ? 'n' : ''} en los próximos 3 días.`, true);
             }
         }
     </script>
