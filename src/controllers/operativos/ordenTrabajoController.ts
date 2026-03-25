@@ -139,13 +139,7 @@ export const createOrdenTrabajo = async (req: Request, res: Response) => {
       taller_status_codigo
     } = req.body;
 
-    // Validaciones básicas
-    if (!ot_status_codigo) {
-      return res.status(400).json({ error: 'El estado de la OT es requerido' });
-    }
-    if (!fecha_requerimiento_cliente) {
-      return res.status(400).json({ error: 'La fecha de requerimiento del cliente es requerida' });
-    }
+    // Validaciones básicas — ot_status_codigo tiene default 'Abierta' en el frontend
 
     // Generar número de OT automáticamente si no viene del cliente
     const numeroOT = (ot && ot.trim()) ? ot.trim() : await generarNumeroOT();
