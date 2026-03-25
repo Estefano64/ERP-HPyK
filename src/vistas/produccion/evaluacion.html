@@ -44,12 +44,8 @@
                 </div>
                 <div class="p-6 grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                     <div>
-                        <label class="block font-semibold text-gray-700 mb-1">Fecha Apertura</label>
-                        <input type="date" class="w-full border rounded-lg px-3 py-2 bg-gray-100" name="fecha_apertura" readonly>
-                    </div>
-                    <div>
-                        <label class="block font-semibold text-gray-700 mb-1">Fecha Prog. Entrega</label>
-                        <input type="date" class="w-full border rounded-lg px-3 py-2" name="fecha_prog_entrega">
+                        <label class="block font-semibold text-gray-700 mb-1">Fecha de Ingreso</label>
+                        <input type="date" class="w-full border rounded-lg px-3 py-2 bg-gray-100" name="fecha_ingreso" readonly>
                     </div>
                     <div>
                         <label class="block font-semibold text-gray-700 mb-1">Guía Cliente</label>
@@ -138,83 +134,105 @@
                         </div>
                         <div class="md:col-span-2">
                             <label class="block font-semibold text-gray-700 mb-2">Mediciones (mm)</label>
-                            <div class="overflow-x-auto">
-                                <table class="min-w-full text-xs border border-gray-200 rounded">
-                                    <thead class="bg-gray-100">
-                                        <tr>
-                                            <th class="px-2 py-1 border">Parámetro</th>
-                                            <th class="px-2 py-1 border">A1</th>
-                                            <th class="px-2 py-1 border">A2</th>
-                                            <th class="px-2 py-1 border">A3</th>
-                                            <th class="px-2 py-1 border">A4</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td class="px-2 py-1 border text-gray-700">Diámetro Interior</td>
-                                            <td class="px-1 py-1 border">
-                                                <div class="flex gap-1">
-                                                    <input name="cil_dint_a1_x" placeholder="X" class="w-1/2 px-1 py-0.5 border rounded text-[10px]">
-                                                    <input name="cil_dint_a1_y" placeholder="Y" class="w-1/2 px-1 py-0.5 border rounded text-[10px]">
-                                                </div>
-                                            </td>
-                                            <td class="px-1 py-1 border">
-                                                <div class="flex gap-1">
-                                                    <input name="cil_dint_a2_x" placeholder="X" class="w-1/2 px-1 py-0.5 border rounded text-[10px]">
-                                                    <input name="cil_dint_a2_y" placeholder="Y" class="w-1/2 px-1 py-0.5 border rounded text-[10px]">
-                                                </div>
-                                            </td>
-                                            <td class="px-1 py-1 border">
-                                                <div class="flex gap-1">
-                                                    <input name="cil_dint_a3_x" placeholder="X" class="w-1/2 px-1 py-0.5 border rounded text-[10px]">
-                                                    <input name="cil_dint_a3_y" placeholder="Y" class="w-1/2 px-1 py-0.5 border rounded text-[10px]">
-                                                </div>
-                                            </td>
-                                            <td class="px-1 py-1 border">
-                                                <div class="flex gap-1">
-                                                    <input name="cil_dint_a4_x" placeholder="X" class="w-1/2 px-1 py-0.5 border rounded text-[10px]">
-                                                    <input name="cil_dint_a4_y" placeholder="Y" class="w-1/2 px-1 py-0.5 border rounded text-[10px]">
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td class="px-2 py-1 border text-gray-700">Diámetro de Salida</td>
-                                            <td class="px-1 py-1 border" colspan="2"><input name="cil_dsal_1" class="w-full px-1 py-0.5 border rounded text-xs"></td>
-                                            <td class="px-1 py-1 border" colspan="2"><input name="cil_dsal_2" class="w-full px-1 py-0.5 border rounded text-xs"></td>
-                                        </tr>
-                                        <tr>
-                                            <td class="px-2 py-1 border text-gray-700">Diámetro Exterior</td>
-                                            <td class="px-1 py-1 border" colspan="2"><input name="cil_dext_1" class="w-full px-1 py-0.5 border rounded text-xs"></td>
-                                            <td class="px-1 py-1 border" colspan="2"><input name="cil_dext_2" class="w-full px-1 py-0.5 border rounded text-xs"></td>
-                                        </tr>
-                                        <tr>
-                                            <td class="px-2 py-1 border text-gray-700">Longitud Bruñido</td>
-                                            <td class="px-1 border" colspan="4"><input name="cil_lbru" class="w-full px-1 py-0.5 border rounded text-xs"></td>
-                                        </tr>
-                                        <tr>
-                                            <td class="px-2 py-1 border text-gray-700">Longitud Total</td>
-                                            <td class="px-1 border" colspan="4"><input name="cil_ltot" class="w-full px-1 py-0.5 border rounded text-xs"></td>
-                                        </tr>
-                                        <tr>
-                                            <td class="px-2 py-1 border text-gray-700">Diámetro Ojo</td>
-                                            <td class="px-1 py-1 border" colspan="4">
-                                                <div class="flex gap-2 justify-start">
-                                                    <input name="cil_dojo_x" placeholder="X" class="w-20 px-1 py-0.5 border rounded text-[10px]">
-                                                    <input name="cil_dojo_y" placeholder="Y" class="w-20 px-1 py-0.5 border rounded text-[10px]">
-                                                </div>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td class="px-2 py-1 border text-gray-700">Diám. Int. Cojinete</td>
-                                            <td class="px-1 py-1 border" colspan="4">
-                                                <div class="flex gap-2 justify-start">
-                                                    <input name="cil_dcoj_x" placeholder="X" class="w-20 px-1 py-0.5 border rounded text-[10px]">
-                                                    <input name="cil_dcoj_y" placeholder="Y" class="w-20 px-1 py-0.5 border rounded text-[10px]">
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-start">
+                                <!-- Columna izquierda: Medida ejemplo -->
+                                <div class="md:col-span-1 bg-gray-50 border border-dashed border-gray-300 rounded-lg p-3 text-xs text-gray-600">
+                                    <p class="font-semibold text-gray-700 mb-1">Medida ejemplo</p>
+                                    <p>Use este recuadro para anotar la medida de referencia tomada de la hoja física (diseño/nominal) antes de registrar las lecturas A1-A4.</p>
+                                    <div class="mt-2 space-y-1">
+                                        <div class="flex items-center justify-between gap-2">
+                                            <span class="text-[11px] text-gray-700">Diám. interior</span>
+                                            <input class="w-20 border rounded px-1 py-0.5 text-[11px]" placeholder="Ej: 180.00">
+                                        </div>
+                                        <div class="flex items-center justify-between gap-2">
+                                            <span class="text-[11px] text-gray-700">Diám. salida</span>
+                                            <input class="w-20 border rounded px-1 py-0.5 text-[11px]" placeholder="Ej: 90.00">
+                                        </div>
+                                        <div class="flex items-center justify-between gap-2">
+                                            <span class="text-[11px] text-gray-700">Diám. exterior</span>
+                                            <input class="w-20 border rounded px-1 py-0.5 text-[11px]" placeholder="Ej: 220.00">
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Columna derecha: tabla de mediciones -->
+                                <div class="md:col-span-3 overflow-x-auto">
+                                    <table class="min-w-full text-xs border border-gray-200 rounded">
+                                        <thead class="bg-gray-100">
+                                            <tr>
+                                                <th class="px-2 py-1 border">Parámetro</th>
+                                                <th class="px-2 py-1 border">A1</th>
+                                                <th class="px-2 py-1 border">A2</th>
+                                                <th class="px-2 py-1 border">A3</th>
+                                                <th class="px-2 py-1 border">A4</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td class="px-2 py-1 border text-gray-700">Diámetro Interior</td>
+                                                <td class="px-1 py-1 border">
+                                                    <div class="flex gap-1">
+                                                        <input name="cil_dint_a1_x" placeholder="X" class="w-1/2 px-1 py-0.5 border rounded text-[10px]">
+                                                        <input name="cil_dint_a1_y" placeholder="Y" class="w-1/2 px-1 py-0.5 border rounded text-[10px]">
+                                                    </div>
+                                                </td>
+                                                <td class="px-1 py-1 border">
+                                                    <div class="flex gap-1">
+                                                        <input name="cil_dint_a2_x" placeholder="X" class="w-1/2 px-1 py-0.5 border rounded text-[10px]">
+                                                        <input name="cil_dint_a2_y" placeholder="Y" class="w-1/2 px-1 py-0.5 border rounded text-[10px]">
+                                                    </div>
+                                                </td>
+                                                <td class="px-1 py-1 border">
+                                                    <div class="flex gap-1">
+                                                        <input name="cil_dint_a3_x" placeholder="X" class="w-1/2 px-1 py-0.5 border rounded text-[10px]">
+                                                        <input name="cil_dint_a3_y" placeholder="Y" class="w-1/2 px-1 py-0.5 border rounded text-[10px]">
+                                                    </div>
+                                                </td>
+                                                <td class="px-1 py-1 border">
+                                                    <div class="flex gap-1">
+                                                        <input name="cil_dint_a4_x" placeholder="X" class="w-1/2 px-1 py-0.5 border rounded text-[10px]">
+                                                        <input name="cil_dint_a4_y" placeholder="Y" class="w-1/2 px-1 py-0.5 border rounded text-[10px]">
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="px-2 py-1 border text-gray-700">Diámetro de Salida</td>
+                                                <td class="px-1 py-1 border" colspan="2"><input name="cil_dsal_1" class="w-full px-1 py-0.5 border rounded text-xs"></td>
+                                                <td class="px-1 py-1 border" colspan="2"><input name="cil_dsal_2" class="w-full px-1 py-0.5 border rounded text-xs"></td>
+                                            </tr>
+                                            <tr>
+                                                <td class="px-2 py-1 border text-gray-700">Diámetro Exterior</td>
+                                                <td class="px-1 py-1 border" colspan="2"><input name="cil_dext_1" class="w-full px-1 py-0.5 border rounded text-xs"></td>
+                                                <td class="px-1 py-1 border" colspan="2"><input name="cil_dext_2" class="w-full px-1 py-0.5 border rounded text-xs"></td>
+                                            </tr>
+                                            <tr>
+                                                <td class="px-2 py-1 border text-gray-700">Longitud Bruñido</td>
+                                                <td class="px-1 border" colspan="4"><input name="cil_lbru" class="w-full px-1 py-0.5 border rounded text-xs"></td>
+                                            </tr>
+                                            <tr>
+                                                <td class="px-2 py-1 border text-gray-700">Longitud Total</td>
+                                                <td class="px-1 border" colspan="4"><input name="cil_ltot" class="w-full px-1 py-0.5 border rounded text-xs"></td>
+                                            </tr>
+                                            <tr>
+                                                <td class="px-2 py-1 border text-gray-700">Diámetro Ojo</td>
+                                                <td class="px-1 py-1 border" colspan="4">
+                                                    <div class="flex gap-2 justify-start">
+                                                        <input name="cil_dojo_x" placeholder="X" class="w-20 px-1 py-0.5 border rounded text-[10px]">
+                                                        <input name="cil_dojo_y" placeholder="Y" class="w-20 px-1 py-0.5 border rounded text-[10px]">
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="px-2 py-1 border text-gray-700">Diám. Int. Cojinete</td>
+                                                <td class="px-1 py-1 border" colspan="4">
+                                                    <div class="flex gap-2 justify-start">
+                                                        <input name="cil_dcoj_x" placeholder="X" class="w-20 px-1 py-0.5 border rounded text-[10px]">
+                                                        <input name="cil_dcoj_y" placeholder="Y" class="w-20 px-1 py-0.5 border rounded text-[10px]">
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -273,8 +291,8 @@
 
                     <!-- CHECK LIST ERRORES COMUNES - CILINDRO -->
                     <div class="border-t border-gray-200 pt-4 mt-2">
-                        <h3 class="font-semibold text-gray-800 text-sm mb-2">Check list de errores comunes - Cilindro</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                        <h3 class="font-semibold text-gray-800 text-base mb-3">Check list de errores comunes - Cilindro</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                             <!-- Cilindro interior -->
                             <div>
                                 <h4 class="font-semibold text-gray-700 mb-1 text-[11px]">CILINDRO INTERIOR</h4>
@@ -320,8 +338,8 @@
                             </div>
                         </div>
                         <div class="mt-3">
-                            <label class="block text-[11px] font-semibold text-gray-700 mb-1">Comentarios - Cilindro</label>
-                            <textarea class="w-full border rounded px-2 py-1 text-[11px]" rows="2" placeholder="Observaciones adicionales del cilindro (interior / exterior)..."></textarea>
+                            <label class="block text-xs font-semibold text-gray-700 mb-1">Comentarios - Cilindro</label>
+                            <textarea class="w-full border rounded px-2 py-2 text-xs" rows="3" placeholder="Observaciones adicionales del cilindro (interior / exterior)..."></textarea>
                         </div>
                     </div>
 
@@ -441,8 +459,8 @@
 
                     <!-- CHECK LIST ERRORES COMUNES - VÁSTAGO Y ACCESORIOS -->
                     <div class="border-t border-gray-200 pt-4 mt-2">
-                        <h3 class="font-semibold text-gray-800 text-sm mb-2">Check list de errores comunes - Vástago y accesorios</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                        <h3 class="font-semibold text-gray-800 text-base mb-3">Check list de errores comunes - Vástago y accesorios</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                             <!-- Cojinete y rótula -->
                             <div class="space-y-3">
                                 <div>
@@ -531,8 +549,8 @@
                             </div>
                         </div>
                         <div class="mt-3">
-                            <label class="block text-[11px] font-semibold text-gray-700 mb-1">Comentarios - Vástago y accesorios</label>
-                            <textarea class="w-full border rounded px-2 py-1 text-[11px]" rows="2" placeholder="Observaciones adicionales de vástago, cojinete, rótula y cáncamo..."></textarea>
+                            <label class="block text-xs font-semibold text-gray-700 mb-1">Comentarios - Vástago y accesorios</label>
+                            <textarea class="w-full border rounded px-2 py-2 text-xs" rows="3" placeholder="Observaciones adicionales de vástago, cojinete, rótula y cáncamo..."></textarea>
                         </div>
                     </div>
 
@@ -607,8 +625,8 @@
                         </div>
                         <!-- CHECK LIST ERRORES COMUNES - TAPA -->
                         <div class="border-t border-gray-200 pt-4 mt-2">
-                            <h3 class="font-semibold text-gray-800 text-sm mb-2">Check list de errores comunes - Tapa</h3>
-                            <div class="space-y-1 text-xs">
+                            <h3 class="font-semibold text-gray-800 text-base mb-3">Check list de errores comunes - Tapa</h3>
+                            <div class="space-y-1 text-sm">
                                 <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>1. Desgaste en alojamientos de sellos</span></label>
                                 <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>2. Corrosión en superficie exterior</span></label>
                                 <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>3. Corrosión en superficie interior</span></label>
@@ -617,8 +635,8 @@
                                 <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>6. Ovalización en alojamiento de vástago</span></label>
                             </div>
                             <div class="mt-2">
-                                <label class="block text-[11px] font-semibold text-gray-700 mb-1">Comentarios - Tapa</label>
-                                <textarea class="w-full border rounded px-2 py-1 text-[11px]" rows="2" placeholder="Observaciones adicionales de la tapa..."></textarea>
+                                <label class="block text-xs font-semibold text-gray-700 mb-1">Comentarios - Tapa</label>
+                                <textarea class="w-full border rounded px-2 py-2 text-xs" rows="3" placeholder="Observaciones adicionales de la tapa..."></textarea>
                             </div>
                         </div>
                         <div>
@@ -686,8 +704,8 @@
                         </div>
                         <!-- CHECK LIST ERRORES COMUNES - PISTÓN -->
                         <div class="border-t border-gray-200 pt-4 mt-2">
-                            <h3 class="font-semibold text-gray-800 text-sm mb-2">Check list de errores comunes - Pistón</h3>
-                            <div class="space-y-1 text-xs">
+                            <h3 class="font-semibold text-gray-800 text-base mb-3">Check list de errores comunes - Pistón</h3>
+                            <div class="space-y-1 text-sm">
                                 <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>1. Desgaste excesivo en diámetro exterior</span></label>
                                 <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>2. Desgaste en alojamientos de sellos</span></label>
                                 <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>3. Corrosión en superficie del pistón</span></label>
@@ -696,8 +714,8 @@
                                 <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>6. Fisuras visibles en cuerpo del pistón</span></label>
                             </div>
                             <div class="mt-2">
-                                <label class="block text-[11px] font-semibold text-gray-700 mb-1">Comentarios - Pistón</label>
-                                <textarea class="w-full border rounded px-2 py-1 text-[11px]" rows="2" placeholder="Observaciones adicionales del pistón..."></textarea>
+                                <label class="block text-xs font-semibold text-gray-700 mb-1">Comentarios - Pistón</label>
+                                <textarea class="w-full border rounded px-2 py-2 text-xs" rows="3" placeholder="Observaciones adicionales del pistón..."></textarea>
                             </div>
                         </div>
                         <div>
@@ -794,7 +812,7 @@
                 }
 
                 // Campos directos desde la OT
-                setDateValue('fecha_apertura', ot.fecha_recepcion || ot.fecha_creacion);
+                setDateValue('fecha_ingreso', ot.fecha_recepcion || ot.fecha_creacion);
                 setInputValue('guia_cliente', ot.guia_remision || '');
                 setInputValue('tipo', ot.tipo || '');
                 setInputValue('flota', ot.cod_rep_flota || '');
