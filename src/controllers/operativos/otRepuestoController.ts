@@ -1,7 +1,3 @@
-/**
- * Controlador para Repuestos de Órdenes de Trabajo
- * Maneja las solicitudes de repuestos vinculadas a OTs
- */
 
 import { Request, Response } from 'express';
 import { Op, QueryTypes } from 'sequelize';
@@ -13,12 +9,9 @@ import Tarea from '../../models/Tarea';
 import Material from '../../models/Material';
 import sequelize from '../../config/database';
 
-// Helper para asegurar que el parámetro sea string
 const ensureString = (param: string | string[]): string => {
   return Array.isArray(param) ? param[0] : param;
 };
-
-// Obtener todos los repuestos de una OT
 export const getRepuestosByOT = async (req: Request, res: Response) => {
   try {
     const otId = ensureString(req.params.otId);
@@ -59,11 +52,9 @@ export const createRepuestos = async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Debe proporcionar al menos un repuesto' });
     }
     
-    // Iniciar transacción
     const transaction = await sequelize.transaction();
     
     try {
-      // Generar nro_req si no viene (auto-incremental por OT)
       let nro_req = repuestos[0]?.nro_req;
       if (!nro_req) {
         const [lastRow]: any = await sequelize.query(
@@ -74,7 +65,6 @@ export const createRepuestos = async (req: Request, res: Response) => {
         nro_req = `${otId}-REQ-${String(lastSeq + 1).padStart(3, '0')}`;
       }
 
-      // Crear los ítems del requerimiento
       const repuestosCreados = await Promise.all(
         repuestos.map((rep: any, idx: number) =>
           OTRepuesto.create({
@@ -97,7 +87,6 @@ export const createRepuestos = async (req: Request, res: Response) => {
         )
       );
 
-      // Registrar en el historial
       await OTHistorial.create({
         ot_id: parseInt(otId),
         tipo_operacion: 'Solicitud Repuestos',
