@@ -131,6 +131,55 @@ export const generatePlanificacion = async (req: Request, res: Response) => {
   }
 };
 
+// POST /api/ot/:otId/planificacion
+// Crear operación manual desde UI de tareas OT
+export const createOperacion = async (req: Request, res: Response) => {
+  try {
+    const otId = parseInt(req.params.otId as string);
+    const {
+      componente,
+      operacion_codigo,
+      descripcion,
+      tipo_reparacion,
+      orden,
+      horas_estimadas,
+      fecha_inicio,
+      fecha_fin,
+      tecnico,
+      maquina,
+      estado,
+      observaciones,
+    } = req.body;
+
+    if (!otId || !componente || !descripcion) {
+      return res.status(400).json({ error: 'Faltan datos requeridos: otId, componente, descripcion' });
+    }
+
+    const maxOrden = await PlanificacionOT.max('orden', { where: { ot_id: otId } });
+    const siguienteOrden = typeof maxOrden === 'number' && Number.isFinite(maxOrden) ? maxOrden + 1 : 1;
+
+    const nuevaOperacion = await PlanificacionOT.create({
+      ot_id: otId,
+      componente,
+      operacion_codigo: operacion_codigo || `MAN-${Date.now().toString().slice(-6)}`,
+      descripcion,
+      tipo_reparacion,
+      orden: orden || siguienteOrden,
+      horas_estimadas,
+      fecha_inicio,
+      fecha_fin,
+      tecnico,
+      maquina,
+      estado: estado || 'Pendiente',
+      observaciones,
+    });
+
+    res.status(201).json(nuevaOperacion);
+  } catch (error: any) {
+    res.status(500).json({ error: 'Error al crear operación de planificación', details: error.message });
+  }
+};
+
 // PUT /api/planificacion/:id
 export const updateOperacion = async (req: Request, res: Response) => {
   try {

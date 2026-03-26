@@ -64,21 +64,22 @@ router.get('/autocomplete-descripcion', async (req: Request, res: Response) => {
       res.json(rows.map(r => ({ value: r.texto })));
     } else {
       // MAC: UNION tarea.ref_descripcion + material.descripcion
-      const rows = await sequelize.query<{ descripcion: string; np: string }>(
-        `SELECT descripcion, np FROM (
-           SELECT DISTINCT ref_descripcion AS descripcion, np
-           FROM tarea
-           WHERE tipo_codigo = 'MAC'
-             AND ref_descripcion IS NOT NULL AND ref_descripcion <> ''
+      const rows = await sequelize.query<{ descripcion: string; np: string; codigo: string }>(
+        `SELECT descripcion, np, codigo FROM (
+           SELECT DISTINCT m.descripcion, m.np, m.codigo
+           FROM material m
+           WHERE m.descripcion IS NOT NULL AND m.descripcion <> ''
            UNION
-           SELECT DISTINCT descripcion, np
-           FROM material
-           WHERE descripcion IS NOT NULL AND descripcion <> ''
+           SELECT DISTINCT t.ref_descripcion AS descripcion, t.np, t.material_codigo AS codigo
+           FROM tarea t
+           WHERE t.tipo_codigo = 'MAC'
+             AND t.ref_descripcion IS NOT NULL AND t.ref_descripcion <> ''
+             AND NOT EXISTS (SELECT 1 FROM material m2 WHERE m2.np = t.np)
          ) combined
          ORDER BY descripcion`,
         { type: QueryTypes.SELECT }
       );
-      res.json(rows.map(r => ({ value: r.descripcion, np: r.np || '' })));
+      res.json(rows.map(r => ({ value: r.descripcion, np: r.np || '', codigo: r.codigo || '' })));
     }
   } catch (e: any) {
     res.json([]);

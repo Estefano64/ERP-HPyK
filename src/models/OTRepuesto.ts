@@ -10,6 +10,7 @@ interface OTRepuestoAttributes {
   id: number;
   ot_id: number;
   material_id?: number;        // Nulo para ítems SER/CAD sin material catalogado
+  material_codigo?: string;   // Código del material (ej: "SELL-0001")
   nro_req?: string;           // Número de requerimiento (ej: "363525-1")
   item_req?: number;          // Ítem dentro del requerimiento
   tipo_codigo?: string;       // MAC / CAD / SER (del task list)
@@ -62,7 +63,7 @@ interface OTRepuestoAttributes {
 }
 
 interface OTRepuestoCreationAttributes extends Optional<OTRepuestoAttributes,
-  'id' | 'nro_req' | 'item_req' | 'tipo_codigo' | 'descripcion' | 'texto' |
+  'id' | 'material_codigo' | 'nro_req' | 'item_req' | 'tipo_codigo' | 'descripcion' | 'texto' |
   'fabricante_codigo' | 'fecha_requerida' | 'estado_cot' | 'po_id' | 'nro_oc' |
   'item_oc' | 'proveedor_id' | 'precio_unitario' | 'precio_venta' | 'moneda' |
   't_req' | 't_oc' | 't_total' | 't_almacenaje' | 't_armado' | 't_fact' |
@@ -76,6 +77,7 @@ class OTRepuesto extends Model<OTRepuestoAttributes, OTRepuestoCreationAttribute
   public id!: number;
   public ot_id!: number;
   public material_id?: number;
+  public material_codigo?: string;
   public nro_req?: string;
   public item_req?: number;
   public tipo_codigo?: string;
@@ -133,6 +135,10 @@ OTRepuesto.init(
     material_id: {
       type: DataTypes.INTEGER, allowNull: true,
       comment: 'ID del Material/Repuesto (nulo para ítems SER/CAD)'
+    },
+    material_codigo: {
+      type: DataTypes.STRING(20), allowNull: true,
+      comment: 'Código del material (ej: SELL-0001)'
     },
     nro_req: {
       type: DataTypes.STRING(50), allowNull: true,

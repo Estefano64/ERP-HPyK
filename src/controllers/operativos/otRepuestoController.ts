@@ -27,7 +27,7 @@ export const getRepuestosByOT = async (req: Request, res: Response) => {
       `SELECT
         otr.*,
         m.descripcion as material_nombre,
-        m.codigo as material_codigo,
+        COALESCE(otr.material_codigo, m.codigo) as material_codigo,
         p."razonSocial" as proveedor_nombre,
         po.numero_po as po_numero
       FROM ot_repuestos otr
@@ -85,7 +85,8 @@ export const createRepuestos = async (req: Request, res: Response) => {
             tipo_codigo:       rep.tipo_codigo       || 'MAC',
             descripcion:       rep.descripcion       || undefined,
             fabricante_codigo: rep.fabricante_codigo || rep.modelo_marca || undefined,
-            texto:             rep.nro_parte         || rep.texto        || undefined,
+            material_codigo:   rep.material_codigo   || undefined,
+            texto:             rep.texto             || undefined,
             cantidad:          rep.cantidad,
             unidad_medida:     rep.unidad_medida     || 'UNIDAD',
             fecha_requerida:   rep.fecha_requerida   || undefined,
@@ -130,7 +131,7 @@ export const updateRepuesto = async (req: Request, res: Response) => {
     const {
       estado, usuario_aprueba, po_id,
       // Descripción / parte
-      descripcion, texto,
+      descripcion, texto, material_codigo,
       // Cotización
       proveedor_id, precio_unitario, precio_venta, moneda, estado_cot,
       fecha_entrega_esperada, fecha_requerida, observaciones,
@@ -160,6 +161,7 @@ export const updateRepuesto = async (req: Request, res: Response) => {
     // Descripción / parte
     if (descripcion !== undefined) updates.descripcion = descripcion;
     if (texto !== undefined) updates.texto = texto;
+    if (material_codigo !== undefined) updates.material_codigo = material_codigo;
 
     // Cotización
     if (proveedor_id !== undefined) updates.proveedor_id = proveedor_id;

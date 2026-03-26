@@ -436,6 +436,7 @@ const startServer = async () => {
     `);
 
     // ot_repuestos: nuevas columnas de logística (todas opcionales)
+    await sequelize.query(`ALTER TABLE ot_repuestos ADD COLUMN IF NOT EXISTS material_codigo VARCHAR(20);`);
     await sequelize.query(`ALTER TABLE ot_repuestos ADD COLUMN IF NOT EXISTS nro_req VARCHAR(50);`);
     await sequelize.query(`ALTER TABLE ot_repuestos ADD COLUMN IF NOT EXISTS item_req INTEGER;`);
     await sequelize.query(`ALTER TABLE ot_repuestos ADD COLUMN IF NOT EXISTS tipo_codigo VARCHAR(10);`);
@@ -524,6 +525,12 @@ const startServer = async () => {
     await sequelize.query(`ALTER TABLE orden_trabajo ADD COLUMN IF NOT EXISTS reparacion_tapa VARCHAR(10);`);
     await sequelize.query(`ALTER TABLE orden_trabajo ADD COLUMN IF NOT EXISTS reparacion_piston VARCHAR(10);`);
     await sequelize.query(`ALTER TABLE orden_trabajo ADD COLUMN IF NOT EXISTS fecha_reprogramada TIMESTAMP;`);
+
+    // Ampliar clasificacion.codigo de VARCHAR(4) a VARCHAR(10) y agregar activo
+    await sequelize.query(`ALTER TABLE clasificacion ALTER COLUMN codigo TYPE VARCHAR(10);`).catch(() => {});
+    await sequelize.query(`ALTER TABLE clasificacion ADD COLUMN IF NOT EXISTS activo BOOLEAN DEFAULT true;`).catch(() => {});
+    // Ampliar material.clasificacion_codigo para que acepte los nuevos códigos de 5 chars
+    await sequelize.query(`ALTER TABLE material ALTER COLUMN clasificacion_codigo TYPE VARCHAR(10);`).catch(() => {});
 
     // Tabla de planificación de operaciones por OT
     await sequelize.query(`

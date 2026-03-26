@@ -65,6 +65,9 @@ router.post('/:otId/historial', otHistorialController.createHistorialEntry);
 // Obtener operaciones planificadas de una OT
 router.get('/:otId/planificacion', planificacionOTController.getPlanificacionByOT);
 
+// Crear operación manual de planificación para una OT
+router.post('/:otId/planificacion', planificacionOTController.createOperacion);
+
 // Auto-generar plan desde clasificación STD/NOSTD de la evaluación
 router.post('/:otId/planificacion/generar', planificacionOTController.generatePlanificacion);
 

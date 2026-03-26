@@ -1,4 +1,5 @@
 import * as path from 'path';
+import { QueryTypes } from 'sequelize';
 import sequelize from '../config/database';
 import Material from '../models/Material';
 import CodigoReparacion from '../models/CodigoReparacion';
@@ -25,42 +26,133 @@ const COD_REP_PATH    = path.join(ROOT, '5. Cod Rep.xlsx');
 const TASK_LIST_PATH  = path.join(ROOT, '4. Log prod - Task list materiales.xlsx');
 
 // ── Mapa fabricante Excel → codigo catalogo ─────────────────────
+// Acepta tanto nombres completos (CATERPILLAR) como códigos cortos (CAT)
 const FABRICANTE_MAP: Record<string, string> = {
-  // Códigos largos (INVENTARIO anterior)
-  'KOM':                 'KOMATSU',
-  'KOM ':                'KOMATSU',
-  'KOMATSU':             'KOMATSU',
-  'CAT':                 'CAT',
-  'CAT.':                'CAT',
-  'CAT ':                'CAT',
-  'cat':                 'CAT',
-  '4 CAT':               'CAT',
-  'CAT.ALTERNATIVO':     'CAT',
-  'SEAL SOURCE CAT':     'CAT',
-  'KOM SEAL SOURCE':     'KOMATSU',
+  // Nombres completos → código corto del catálogo fabricante
+  'CATERPILLAR':         'CAT',
+  'KOMATSU':             'KOM',
   'ALTERNATIVO':         'ALT',
-  'SEAL SOURCE':         'SEAL_SRC',
-  '2 SEAL SOURCE Y CAT': 'SEAL_SRC',
-  'PARKER':              'PARKER',
+  'MACHEN':              'MAC',
+  'BOHLER':              'BOH',
+  'VISTONY':             'VIS',
+  'CANTESCO':            'CAN',
+  'TEKBOND':             'TEK',
+  'SOLPACK':             'SOL',
+  'TRUPER':              'TRU',
+  'SHURTAPE':            'SHU',
+  'NORTON':              'NOR',
+  'UYUSTOOLS':           'UYU',
+  'SILICONI':            'SIL',
+  'ANYPSA':              'ANY',
+  'CLUTE':               'CLU',
+  'FERRAWYY':            'FER',
+  'PROTEC':              'PRO',
+  'BAHCO':               'BAH',
+  'ABRALIT':             'ABR',
+  'SEGPRO':              'SEG',
+  'HENKEL':              'HEN',
+  'KLINGSPOR':           'KLI',
+  'STEELPRO':            'STE',
+  'ELITE':               'ELI',
+  'SOLDIMIX':            'SDM',
+  'ESAB':                'ESA',
+  'OERLIKON':            'OER',
+  'NACHO':               'NAC',
+  'TRAPEX':              'TRA',
+  'ALICORP':             'ALI',
+  'ANSELL':              'ANS',
+  'XIADAL':              'XIA',
+  'ARAGCU':              'ARA',
+  'LINDE':               'LIN',
+  'ALDISE':              'ALD',
+  'SUNNEN':              'SUN',
+  'ZCC-CT':              'ZCC',
+  'LINCOLN':             'LIN',
+  'MILLER':              'MIL',
+  'PARKER':              'PAR',
+  'BOSCH':               'BOC',
+  'MAKITA':              'MAK',
+  'METABO':              'MET',
+  'SNAPON':              'SNP',
+  'COLUMBIA':            'COL',
+  'SARO':                'SAR',
+  'NILES':               'NIL',
+  'ZAYER':               'ZAY',
+  'UNION':               'UNI',
+  'EPIROC':              'EPI',
   'IKO':                 'IKO',
-  'EPIROC':              'EPIROC',
-  // Códigos 3 chars del nuevo catálogo 1 Log - material.xlsx
-  'ALT':  'ALT',
-  'MAC':  'MACHEN',
-  'BOH':  'ALT',      // BOHLER → ALT (alternativo)
-  'LIN':  'LINCOLN',
-  'MIL':  'MILLER',
-  'PAR':  'PARKER',
-  'BOC':  'BOSCH',
-  'MAK':  'MAKITA',
-  'MET':  'METABO',
-  'SNP':  'SNAPON',
-  'COL':  'COLUMBIA',
-  'SAR':  'SARO',
-  'NIL':  'NILES',
-  'ZAY':  'ZAYER',
-  'UNI':  'UNION',
+  'SEAL SOURCE':         'ALT',
+  // Códigos cortos (ya son el valor final)
+  'ALT': 'ALT', 'MAC': 'MAC', 'BOH': 'BOH', 'CAT': 'CAT', 'KOM': 'KOM',
+  'VIS': 'VIS', 'CAN': 'CAN', 'TEK': 'TEK', 'SOL': 'SOL', 'TRU': 'TRU',
+  'SHU': 'SHU', 'C&A': 'C&A', 'NOR': 'NOR', 'UYU': 'UYU', 'SIL': 'SIL',
+  'ANY': 'ANY', 'CLU': 'CLU', 'FER': 'FER', 'PRO': 'PRO', 'BAH': 'BAH',
+  'ABR': 'ABR', 'SEG': 'SEG', 'HEN': 'HEN', 'KLI': 'KLI', 'STE': 'STE',
+  'ELI': 'ELI', 'SDM': 'SDM', 'ESA': 'ESA', 'OER': 'OER', 'NAC': 'NAC',
+  'TRA': 'TRA', 'ALI': 'ALI', '3M': '3M', 'ANS': 'ANS', 'XIA': 'XIA',
+  'ARA': 'ARA', 'ALD': 'ALD', 'SUN': 'SUN', 'ZCC': 'ZCC',
+  'GEN': 'ALT', 'TAE': 'ALT', 'EPS': 'ALT',
+  // Variantes con espacios / puntos
+  'KOM ':  'KOM', 'CAT.': 'CAT', 'CAT ': 'CAT', 'cat': 'CAT',
+  '4 CAT': 'CAT', 'CAT.ALTERNATIVO': 'CAT', 'SEAL SOURCE CAT': 'CAT',
+  'KOM SEAL SOURCE': 'KOM', '2 SEAL SOURCE Y CAT': 'ALT',
 };
+
+// ── Mapa clasificación nombre → código (del Excel Clasificacion sheet) ──
+const CLASIFICACION_MAP: Record<string, string> = {
+  'Aceite': 'ACEI', 'Acero': 'ACER', 'Adaptador': 'ADAP', 'Anillo': 'ANIL',
+  'Anillo de desgaste': 'ADES', 'Anillo metalico': 'AMET', 'Anillo de respaldo': 'ARES',
+  'Anillo de retencion': 'ARET', 'Arandela': 'ARAN', 'Arandela de goma': 'AGOM',
+  'Back Up': 'BACK', 'Barras': 'BARR', 'Billa': 'BILL', 'Buffer': 'BUFF',
+  'Calce': 'CALC', 'Carrier Seal': 'CASE', 'Casquillo': 'CASQ', 'Cojinete': 'COJI',
+  'Conjunto amortiguador': 'CAMO', 'Conjunto de enchufe': 'CENC', 'Conjunto de iman': 'CIMA',
+  'Conjunto de resorte': 'CRES', 'Conjunto de sello': 'CSEL', 'Conjunto de tapon': 'CTAP',
+  'Conjunto de valvula': 'CVAL', 'Cone Roller': 'CONR', 'Contratuerca': 'CONT',
+  'Cup Roller': 'CUPR', 'Damper': 'DAMP', 'Discos': 'DISC', 'Disco de friccion': 'DFRI',
+  'Dowel Spring': 'DOWS', 'Duo cone': 'DUOC', 'Embolo': 'EMB',
+  'Equipo de seguridad': 'EPPS', 'Espaciador': 'ESPA', 'Espiga': 'ESPI',
+  'Guia': 'GUIA', 'Iman': 'IMAN', 'Insert': 'INSE', 'Iron Cast': 'IRONC',
+  'Juego de receptaculo': 'JUREC', 'Kit de bladder': 'KITB', 'Kit de sellos': 'KITS',
+  'Limpiadores': 'LIMP', 'Manguito': 'MANG', 'Sello anular': 'ORIN',
+  'Pasador': 'PASA', 'Perno': 'PERN', 'Pista': 'PISTA', 'Placa': 'PLCA',
+  'Plate': 'PLTE', 'Plug': 'PLUG', 'Prisionero de bola': 'PRIB',
+  'Prisionero': 'PRIS', 'Protector': 'PROT', 'Protector de valvula': 'PROV',
+  'Resorte': 'RESO', 'Reten': 'RETE', 'Ring Cushion': 'RINC',
+  'Rodamiento': 'RODA', 'Rod Bushing': 'RODB', 'Rotulas': 'ROTU',
+  'Seguro seager': 'SEGS', 'Seguros': 'SEGU', 'Sello anillo': 'SELA',
+  'Sello de culata': 'SELC', 'Sello de funda': 'SELF', 'Sellos': 'SELL',
+  'Sello principal': 'SELP', 'Sensores': 'SENS', 'Grupo de sensor': 'SENS',
+  'Sensor de velocidad': 'SENSV', 'Shim': 'SHIM', 'Suministros': 'SUMI',
+  'Tapa': 'TAPA', 'Tapon': 'TAPO', 'Tornillo': 'TORN', 'Trabador': 'TRAB',
+  'Tubos': 'TUBO', 'Tuerca': 'TUER', 'Uniformes': 'UNIF', 'Valvula': 'VALV',
+};
+
+// ── Mapa categoría nombre → código ──
+const CATEGORIA_MAP: Record<string, string> = {
+  'Consumible': 'CON', 'Critico': 'CRI', 'Repuesto': 'REP',
+  'Capital': 'CAP', 'Obsoleto': 'OBS', 'Fabricado': 'FAB',
+};
+
+// ── Mapa unidad de medida Excel → codigo catalogo ──────────────
+function mapUnidad(raw: string | null): string {
+  if (!raw) return 'und';
+  const u = raw.trim().toLowerCase();
+  const UNIDAD_MAP: Record<string, string> = {
+    'unidad': 'und', 'und': 'und', 'pza': 'und', 'pieza': 'und', 'pz': 'und',
+    'metro': 'm', 'metros': 'm', 'mt': 'm', 'm': 'm',
+    'milimetro': 'mm', 'mm': 'mm',
+    'centimetro': 'cm', 'cm': 'cm',
+    'pulgada': 'in', 'pulg': 'in', 'in': 'in', '"': 'in',
+    'kilogramo': 'kg', 'kg': 'kg', 'kilo': 'kg',
+    'tonelada': 't', 'ton': 't', 't': 't',
+    'hora': 'h', 'hr': 'h', 'h': 'h',
+    'litro': 'lt', 'lt': 'lt', 'l': 'lt',
+    'galon': 'gl', 'gal': 'gl', 'gl': 'gl',
+    'juego': 'und', 'jgo': 'und', 'set': 'und', 'kit': 'und',
+    'par': 'und', 'rollo': 'und', 'balde': 'und',
+  };
+  return UNIDAD_MAP[u] || 'und';
+}
 
 // ── Mapa flota Excel → codigo catalogo (≤10 chars) ─────────────
 // Los flotas numéricos se convierten a string primero
@@ -113,52 +205,10 @@ const FLOTA_MAP: Record<string, string> = {
   'WA900':        'WA900',
 };
 
-// ── Clasificación automática de materiales por descripción ──────
-interface Clasificacion {
-  categoria: string;
-  clasificacion: string;
-}
-
-function clasificarMaterial(desc: string): Clasificacion {
-  const d = desc.toUpperCase();
-
-  if (d.includes('KIT'))                                return { categoria: 'CRI', clasificacion: 'KITS' };
-  if (d.includes('ROTULA') || d.includes('RÓTULA'))    return { categoria: 'CRI', clasificacion: 'ROTU' };
-  if (d.includes('VASTAGO') || d.includes('VÁSTAGO'))  return { categoria: 'CRI', clasificacion: 'BARR' };
-  if (d.includes('BARRA'))                              return { categoria: 'CRI', clasificacion: 'BARR' };
-  if (d.includes('SELLO') || d.includes('SEAL') ||
-      d.includes('ORING') || d.includes('O-RING') ||
-      d.includes('SEAGER'))                             return { categoria: 'CRI', clasificacion: 'SELL' };
-  if (d.includes('ANILLO') || (d.includes('RING') && !d.includes('ORING') && !d.includes('O-RING')))
-                                                        return { categoria: 'CRI', clasificacion: 'SELL' };
-  if (d.includes('SENSOR'))                             return { categoria: 'CRI', clasificacion: 'SENS' };
-  if (d.includes('BLADDER') || d.includes('BLAD'))     return { categoria: 'CRI', clasificacion: 'BLAD' };
-  if (d.includes('BEARING') || d.includes('RODAMIENTO') ||
-      d.includes('ROLUTAS') || d.includes('BUSHING') ||
-      d.includes('COJIN'))                              return { categoria: 'REP', clasificacion: 'COJI' };
-  if (d.includes('GUIA') || d.includes('GUÍA'))        return { categoria: 'REP', clasificacion: 'GUIA' };
-  if (d.includes('TAPON') || d.includes('TAPÓN'))      return { categoria: 'REP', clasificacion: 'TAPO' };
-  if (d.includes('TAPA'))                               return { categoria: 'REP', clasificacion: 'TAPA' };
-  if (d.includes('INSERTO') || d.includes('INSERT'))   return { categoria: 'REP', clasificacion: 'INSE' };
-  if (d.includes('DISCO'))                              return { categoria: 'REP', clasificacion: 'DISC' };
-  if (d.includes('PERNO') || d.includes('BOLT'))       return { categoria: 'CON', clasificacion: 'PERN' };
-  if (d.includes('TUERCA') || d.includes('NUT ') || d.endsWith('NUT'))
-                                                        return { categoria: 'CON', clasificacion: 'TUER' };
-  if (d.includes('ARANDELA') || d.includes('WASHER'))  return { categoria: 'CON', clasificacion: 'ARAN' };
-  if (d.includes('ACEITE') || d.includes('OIL'))       return { categoria: 'CON', clasificacion: 'ACEI' };
-  if (d.includes('TUBO') || d.includes('TUBERIA'))     return { categoria: 'REP', clasificacion: 'TUBO' };
-  if (d.includes('DISCO') || d.includes('DISC'))       return { categoria: 'REP', clasificacion: 'DISC' };
-  if (d.includes('CILINDRO'))                           return { categoria: 'CRI', clasificacion: 'SUMI' };
-  if (d.includes('SEGUROS') || d.includes('SEGURO'))   return { categoria: 'REP', clasificacion: 'SEGU' };
-  if (d.includes('ACERO'))                              return { categoria: 'REP', clasificacion: 'ACER' };
-  if (d.includes('SPACER') || d.includes('PLATE'))     return { categoria: 'REP', clasificacion: 'SUMI' };
-  // default
-  return { categoria: 'REP', clasificacion: 'SUMI' };
-}
 
 // ── Leer materiales del 1 Log - material.xlsx ────────────────────
 // 2 filas de encabezado, datos desde fila índice 2
-// [0]=Usuario, [1]=Material(vacío), [2]=Descripción, [3]=Planta,
+// [0]=Usuario, [1]=CodigoMaterial(Software/vacío), [2]=Descripción, [3]=Planta,
 // [4]=Area, [5]=Categoría, [6]=Clasificación, [7]=Pto.Rep,
 // [8]=Stock Máx, [9]=Und Med, [10]=Plazo, [11]=Precio,
 // [12]=Moneda, [13]=Fabricante, [14]=NP
@@ -168,9 +218,16 @@ interface MaterialRow {
   descripcion: string;
   np: string | null;
   fabricante: string | null;
+  fabricante_codigo: string | null;
   precio: number | null;
   moneda: string | null;
   unidad: string | null;
+  area: string | null;
+  categoria: string | null;
+  clasificacion: string | null;
+  punto_reposicion: number | null;
+  stock_maximo: number | null;
+  plazo_entrega: number | null;
 }
 
 function leerMaterial(): MaterialRow[] {
@@ -179,6 +236,8 @@ function leerMaterial(): MaterialRow[] {
   const data: any[][] = xlsx.utils.sheet_to_json(ws, { header: 1 });
 
   const rows: MaterialRow[] = [];
+  // Contadores por clasificación para generar código secuencial
+  const seqPorClasificacion: Record<string, number> = {};
   const usedCodigos = new Set<string>();
 
   for (let i = 2; i < data.length; i++) {  // datos desde fila 2 (skip 2 headers)
@@ -189,22 +248,48 @@ function leerMaterial(): MaterialRow[] {
     if (!descripcion) continue;
 
     const npRaw = row[14] ? String(row[14]).trim() : '';
+    const fabRaw = row[13] ? String(row[13]).trim() : null;
+    const clasificacionNombre = row[6] ? String(row[6]).trim() : '';
+    const categoriaNombre = row[5] ? String(row[5]).trim() : '';
 
-    // Generar codigo único: usar NP si existe, sino indice
-    let codigo = (npRaw || `MAT-${i}`).substring(0, 50);
+    // Resolver clasificación: nombre → código (ej: "Sellos" → "SELL")
+    const clasCodigo = CLASIFICACION_MAP[clasificacionNombre] || 'SUMI';
+
+    // Resolver categoría: nombre → código (ej: "Repuesto" → "REP")
+    const catCodigo = CATEGORIA_MAP[categoriaNombre] || 'REP';
+
+    // Resolver fabricante: nombre completo o código corto → código catálogo
+    let fabCodigo: string | null = null;
+    if (fabRaw) {
+      fabCodigo = FABRICANTE_MAP[fabRaw] || FABRICANTE_MAP[fabRaw.toUpperCase()] || null;
+    }
+
+    // Generar código: {CLAS}-{SEQ:4}  → ej: SELL-0001, ACEI-0003
+    if (!seqPorClasificacion[clasCodigo]) seqPorClasificacion[clasCodigo] = 0;
+    seqPorClasificacion[clasCodigo]++;
+    let codigo = `${clasCodigo}-${String(seqPorClasificacion[clasCodigo]).padStart(4, '0')}`;
+
+    // Asegurar unicidad
     if (usedCodigos.has(codigo)) {
-      codigo = `${codigo.substring(0, 44)}-${i}`.substring(0, 50);
+      codigo = `${clasCodigo}-${String(seqPorClasificacion[clasCodigo]).padStart(4, '0')}-${i}`;
     }
     usedCodigos.add(codigo);
 
     rows.push({
       codigo,
       descripcion,
-      np:        npRaw || null,
-      fabricante: row[13] ? String(row[13]).trim() : null,
-      precio:    row[11] ? Number(row[11]) || null : null,
-      moneda:    row[12] ? String(row[12]).trim() : null,
-      unidad:    row[9]  ? String(row[9]).trim()  : null,
+      np:                npRaw || null,
+      fabricante:        fabRaw,
+      fabricante_codigo: fabCodigo,
+      precio:            row[11] != null ? Number(row[11]) || null : null,
+      moneda:            row[12] ? String(row[12]).trim() : null,
+      unidad:            row[9]  ? String(row[9]).trim()  : null,
+      area:              row[4]  ? String(row[4]).trim()  : null,
+      categoria:         catCodigo,
+      clasificacion:     clasCodigo,
+      punto_reposicion:  row[7]  != null ? Number(row[7]) || null : null,
+      stock_maximo:      row[8]  != null ? Number(row[8]) || null : null,
+      plazo_entrega:     row[10] != null ? Number(row[10]) || null : null,
     });
   }
   return rows;
@@ -355,6 +440,53 @@ async function seedTaskList() {
     creados += Math.min(BATCH, tareas.length - i);
   }
   console.log(`   ✓ ${creados} tareas importadas`);
+
+  // ── LINKEO AUTOMÁTICO: resolver columnas "Software" vacías ──────
+  // 1. cod_rep_codigo: tarea.np_cod1 → codigo_reparacion.np
+  //    Un mismo np puede tener varios CodRep (LH/RH/NA), tomamos el primero
+  const linkCodRep = await sequelize.query(`
+    UPDATE tarea t
+    SET cod_rep_codigo = sub.codigo
+    FROM (
+      SELECT DISTINCT ON (np) np, codigo
+      FROM codigo_reparacion
+      WHERE np IS NOT NULL AND np <> ''
+      ORDER BY np, codigo
+    ) sub
+    WHERE t.np_cod1 IS NOT NULL
+      AND t.np_cod1 = sub.np
+      AND (t.cod_rep_codigo IS NULL OR t.cod_rep_codigo = '')
+  `, { type: QueryTypes.UPDATE }) as any;
+  const codRepLinked = Array.isArray(linkCodRep) ? (linkCodRep[1] ?? 0) : 0;
+  console.log(`   ✓ ${codRepLinked} tareas vinculadas a código de reparación (via np_cod1 → cod_rep.np)`);
+
+  // 2. material_codigo: tarea.np → material.np (solo tipo MAC)
+  //    Un mismo np puede tener varios materiales, tomamos el primero
+  const linkMat = await sequelize.query(`
+    UPDATE tarea t
+    SET material_codigo = sub.codigo
+    FROM (
+      SELECT DISTINCT ON (np) np, codigo
+      FROM material
+      WHERE np IS NOT NULL AND np <> ''
+      ORDER BY np, codigo
+    ) sub
+    WHERE t.np IS NOT NULL
+      AND t.np = sub.np
+      AND t.tipo_codigo = 'MAC'
+      AND (t.material_codigo IS NULL OR t.material_codigo = '')
+  `, { type: QueryTypes.UPDATE }) as any;
+  const matLinked = Array.isArray(linkMat) ? (linkMat[1] ?? 0) : 0;
+  console.log(`   ✓ ${matLinked} tareas vinculadas a material (via tarea.np → material.np)`);
+
+  // 3. actividad_codigo: generar código automático TL-{NP_COD1}-{ITEM}
+  await sequelize.query(`
+    UPDATE tarea
+    SET actividad_codigo = 'TL-' || COALESCE(SUBSTRING(np_cod1, 1, 20), 'X') || '-' || LPAD(item_numero::text, 3, '0')
+    WHERE actividad_codigo LIKE 'TL-%'
+  `, { type: QueryTypes.UPDATE });
+  console.log(`   ✓ Códigos de actividad generados`);
+
   return creados;
 }
 
@@ -477,30 +609,26 @@ async function seedReal() {
     console.log(`   Filas leídas del Excel: ${materialRows.length}`);
 
     const materialesData = materialRows.map(row => {
-      const { categoria, clasificacion } = clasificarMaterial(row.descripcion);
-
-      // Mapear fabricante
-      let fabricante_codigo: string | null = null;
-      if (row.fabricante) {
-        fabricante_codigo = FABRICANTE_MAP[row.fabricante.trim()] || null;
-      }
-
       // Normalizar moneda
       const monedaRaw = (row.moneda || '').toUpperCase();
       const moneda_codigo = monedaRaw === 'USD' ? 'USD' : monedaRaw === 'SOL' ? 'PEN' : (row.precio ? 'USD' : undefined);
+
+      // Mapear area: Produccion→PR, Logistica→LG
+      const areaMap: Record<string, string> = { 'Produccion': 'PR', 'Logistica': 'LG' };
+      const area_codigo = row.area ? (areaMap[row.area] || 'LG') : 'LG';
 
       return {
         codigo:               row.codigo,
         descripcion:          row.descripcion,
         descripcion_compuesta: row.descripcion,
         planta_codigo:        'AQPTA01',
-        area_codigo:          'LG',
-        categoria_codigo:     categoria,
-        clasificacion_codigo: clasificacion,
-        unidad_medida_codigo: 'und',
+        area_codigo,
+        categoria_codigo:     row.categoria || 'REP',
+        clasificacion_codigo: row.clasificacion || 'SUMI',
+        unidad_medida_codigo: mapUnidad(row.unidad) || 'und',
         precio:               row.precio || undefined,
         moneda_codigo:        moneda_codigo as string | undefined,
-        fabricante_codigo:    fabricante_codigo || undefined,
+        fabricante_codigo:    row.fabricante_codigo || undefined,
         np:                   row.np || row.codigo,
         stock_actual:         0,
         activo:               true,
@@ -536,13 +664,11 @@ async function seedReal() {
       const flotaKey = row.flota;
       const flota_codigo = FLOTA_MAP[flotaKey] || flotaKey.substring(0, 10) || 'GEN';
 
-      // Mapear fabricante
+      // Mapear fabricante (CAT→CAT, KOM→KOM, EPIROC→EPI)
       const fab = row.fabricante;
       let fabricante_codigo: string | null = null;
       if (fab) {
-        fabricante_codigo = FABRICANTE_MAP[fab] || null;
-        // Si es KOM → KOMATSU
-        if (!fabricante_codigo && fab.toUpperCase() === 'KOM') fabricante_codigo = 'KOMATSU';
+        fabricante_codigo = FABRICANTE_MAP[fab] || FABRICANTE_MAP[fab.toUpperCase()] || fab.substring(0, 10);
       }
 
       // Mapear posición
