@@ -212,6 +212,41 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Notificación de próximos mantenimientos desde módulo Mantenimiento -->
+                <div class="mt-6 bg-white rounded-lg shadow-lg p-6">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="font-bold text-lg flex items-center">
+                            <i class="fas fa-bell text-amber-500 mr-2"></i>
+                            Próximos mantenimientos (Mantenimiento)
+                        </h3>
+                        <span id="mant-notif-count" class="text-xs text-gray-500"></span>
+                    </div>
+                    <p class="text-sm text-gray-500 mb-3">
+                        Equipos con mantenimiento programado en los próximos días según las estrategias definidas en el módulo de Mantenimiento.
+                    </p>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-xs">
+                            <thead class="bg-gray-100 text-gray-600">
+                                <tr>
+                                    <th class="px-3 py-2 text-left font-semibold uppercase tracking-wider">Equipo</th>
+                                    <th class="px-3 py-2 text-left font-semibold uppercase tracking-wider">Planta</th>
+                                    <th class="px-3 py-2 text-left font-semibold uppercase tracking-wider">Área</th>
+                                    <th class="px-3 py-2 text-left font-semibold uppercase tracking-wider">Criticidad</th>
+                                    <th class="px-3 py-2 text-left font-semibold uppercase tracking-wider">F. Próxima</th>
+                                    <th class="px-3 py-2 text-left font-semibold uppercase tracking-wider">Frecuencia</th>
+                                </tr>
+                            </thead>
+                            <tbody id="mant-notif-body" class="divide-y divide-gray-200">
+                                <tr>
+                                    <td colspan="6" class="px-3 py-4 text-center text-gray-400 text-sm">
+                                        <i class="fas fa-info-circle mr-1"></i>Los próximos mantenimientos se cargarán al abrir el Dashboard.
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
 
             <!-- BASE DE DATOS Content -->
@@ -630,6 +665,56 @@
                     <span class="font-semibold text-red-600">${falla.ocurrencias}</span>
                 </div>
             `).join('');
+
+            // Próximos mantenimientos desde módulo Mantenimiento
+            const mantBody = document.getElementById('mant-notif-body');
+            const mantCount = document.getElementById('mant-notif-count');
+            if (mantBody && mantCount) {
+                mantBody.innerHTML = '<tr><td colspan="6" class="px-3 py-4 text-center text-gray-400 text-sm"><i class="fas fa-spinner fa-spin mr-1"></i>Cargando próximos mantenimientos...</td></tr>';
+                mantCount.textContent = '';
+
+                fetch('/api/mantenimiento/equipos-proximos?diasAviso=7')
+                    .then(r => r.json())
+                    .then(data => {
+                        if (!data || !Array.isArray(data.estrategias)) {
+                            throw new Error('Respuesta inválida');
+                        }
+
+                        const lista = data.estrategias;
+                        mantCount.textContent = `${data.total || lista.length} equipo(s)`;
+
+                        if (lista.length === 0) {
+                            mantBody.innerHTML = '<tr><td colspan="6" class="px-3 py-4 text-center text-gray-500 text-sm"><i class="fas fa-info-circle mr-1"></i>No hay mantenimientos programados dentro del rango establecido.</td></tr>';
+                            return;
+                        }
+
+                        mantBody.innerHTML = '';
+                        lista.forEach(e => {
+                            const eq = e.equipo || {};
+                            const planta = (eq.planta && (eq.planta.codigo || eq.planta.nombre)) || '-';
+                            const area = (eq.area && (eq.area.codigo || eq.area.nombre)) || '-';
+                            const crit = (eq.criticidad && (eq.criticidad.codigo || eq.criticidad.nombre)) || '-';
+                            const fecha = e.fecha_proxima_ejecucion ? new Date(e.fecha_proxima_ejecucion).toISOString().slice(0, 10) : '-';
+                            const um = (e.unidad_medida && (e.unidad_medida.codigo || e.unidad_medida.nombre)) || e.unidad_medida_codigo || '';
+                            const freqLabel = e.frecuencia != null ? `${e.frecuencia} ${um}`.trim() : um;
+
+                            mantBody.innerHTML += `
+                                <tr class="hover:bg-gray-50">
+                                    <td class="px-3 py-2 text-xs text-gray-800 font-medium">${eq.codigo || ''} - ${eq.descripcion || ''}</td>
+                                    <td class="px-3 py-2 text-xs text-gray-700">${planta}</td>
+                                    <td class="px-3 py-2 text-xs text-gray-700">${area}</td>
+                                    <td class="px-3 py-2 text-xs text-gray-700">${crit}</td>
+                                    <td class="px-3 py-2 text-xs text-gray-700">${fecha}</td>
+                                    <td class="px-3 py-2 text-xs text-gray-700">${freqLabel}</td>
+                                </tr>
+                            `;
+                        });
+                    })
+                    .catch(() => {
+                        mantBody.innerHTML = '<tr><td colspan="6" class="px-3 py-4 text-center text-red-500 text-sm">No se pudo cargar la información de próximos mantenimientos.</td></tr>';
+                        mantCount.textContent = '';
+                    });
+            }
         }
 
         // ========== REQUERIMIENTOS PRODUCCIÓN ==========

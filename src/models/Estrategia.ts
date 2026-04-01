@@ -14,6 +14,8 @@ interface EstrategiaAttributes {
   descripcion: string;
   tipo_estrategia_codigo: string;
   status_codigo: string;
+  fecha_ultima_ejecucion?: Date;
+  fecha_proxima_ejecucion?: Date;
 }
 
 interface EstrategiaCreationAttributes extends Optional<EstrategiaAttributes, 'estrategia_id'> {}
@@ -29,6 +31,8 @@ class Estrategia extends Model<EstrategiaAttributes, EstrategiaCreationAttribute
   public descripcion!: string;
   public tipo_estrategia_codigo!: string;
   public status_codigo!: string;
+  public fecha_ultima_ejecucion?: Date;
+  public fecha_proxima_ejecucion?: Date;
 }
 
 Estrategia.init(
@@ -84,6 +88,16 @@ Estrategia.init(
       type: DataTypes.STRING(10),
       allowNull: false,
       references: { model: 'status_estrategia', key: 'codigo' },
+    },
+    fecha_ultima_ejecucion: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      comment: 'Última fecha en que se ejecutó esta estrategia',
+    },
+    fecha_proxima_ejecucion: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      comment: 'Próxima fecha programada según frecuencia',
     },
   },
   {
