@@ -3,21 +3,23 @@ import sequelize from '../config/database';
 
 interface ContratoAttributes {
   id: number;
-  codigo: string;              // Cod reparable (ej: "xx11")
+  codigo: string;              // Código del contrato (ej: "LB-CIL-001")
   cliente_id: number;           // FK a cliente
+  cod_rep_id: number | null;    // FK a codigo_reparacion (vínculo directo)
   fecha_inicio: Date;
   fecha_termino: Date;
   dias_reparacion: number;      // Días máximos de reparación
-  precio: number;               // Precio del contrato
+  precio: number;               // Precio del contrato (USD)
   activo: boolean;
 }
 
-interface ContratoCreationAttributes extends Optional<ContratoAttributes, 'id' | 'activo'> {}
+interface ContratoCreationAttributes extends Optional<ContratoAttributes, 'id' | 'activo' | 'cod_rep_id'> {}
 
 class Contrato extends Model<ContratoAttributes, ContratoCreationAttributes> implements ContratoAttributes {
   public id!: number;
   public codigo!: string;
   public cliente_id!: number;
+  public cod_rep_id!: number | null;
   public fecha_inicio!: Date;
   public fecha_termino!: Date;
   public dias_reparacion!: number;
@@ -38,6 +40,11 @@ Contrato.init(
       type: DataTypes.INTEGER, allowNull: false,
       references: { model: 'cliente', key: 'cliente_id' },
       comment: 'Cliente del contrato',
+    },
+    cod_rep_id: {
+      type: DataTypes.INTEGER, allowNull: true,
+      references: { model: 'codigo_reparacion', key: 'cod_rep_id' },
+      comment: 'Código de reparación vinculado al contrato',
     },
     fecha_inicio: {
       type: DataTypes.DATEONLY, allowNull: false,
@@ -66,6 +73,8 @@ Contrato.init(
     indexes: [
       { fields: ['cliente_id'] },
       { fields: ['codigo'] },
+      { fields: ['cod_rep_id'] },
+      { fields: ['cliente_id', 'cod_rep_id'] },
     ],
   }
 );

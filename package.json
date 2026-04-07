@@ -10,7 +10,8 @@
     "dev:watch": "ts-node-dev --respawn --transpile-only src/index.ts",
     "seed": "ts-node src/seeds/catalogs.seed.ts",
     "seed:all": "ts-node src/seeds/seed-all.ts",
-    "seed:real": "ts-node src/seeds/seed-real.ts"
+    "seed:real": "ts-node src/seeds/seed-real.ts",
+    "seed:test-plan": "ts-node src/seeds/seed-test-planificacion.ts"
   },
   "keywords": [],
   "author": "",
@@ -27,6 +28,7 @@
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.0",
     "@types/node": "^20.0.0",
+    "pdfkit": "^0.18.0",
     "ts-node": "^10.9.0",
     "typescript": "^5.0.0",
     "xlsx": "^0.18.5"

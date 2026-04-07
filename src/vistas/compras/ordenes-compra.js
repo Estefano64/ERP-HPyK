@@ -209,14 +209,7 @@ function renderOrdenes() {
     if (totalEl) totalEl.textContent = ordenes.length;
 }
 
-function formatDate(dateStr) {
-    if (!dateStr) return '-';
-    try {
-        return new Date(dateStr).toLocaleDateString('es-PE');
-    } catch {
-        return dateStr;
-    }
-}
+// formatDate is now a global function from navigation.js (DD/MM/YYYY)
 
 // Get estado badge
 function getEstadoBadge(estado) {

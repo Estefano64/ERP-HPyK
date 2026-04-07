@@ -737,7 +737,7 @@
                 
                 return `
                     <tr class="hover:bg-gray-50">
-                        <td class="px-4 py-3 text-sm">${fecha.toLocaleDateString('es-ES')}</td>
+                        <td class="px-4 py-3 text-sm">${formatDate(fecha)}</td>
                         <td class="px-4 py-3">
                             <span class="${tipoColor} font-semibold text-sm">
                                 ${tipoIcon} ${m.tipo.charAt(0).toUpperCase() + m.tipo.slice(1)}
@@ -942,7 +942,7 @@
                     
                     return `
                         <tr class="hover:bg-gray-50">
-                            <td class="px-4 py-2 border text-sm">${fecha.toLocaleDateString('es-ES')}</td>
+                            <td class="px-4 py-2 border text-sm">${formatDate(fecha)}</td>
                             <td class="px-4 py-2 border text-sm">${k.tipo}</td>
                             <td class="px-4 py-2 border text-sm">${k.referencia || '-'}</td>
                             <td class="px-4 py-2 border text-right text-sm ${cantidadEntrada > 0 ? 'font-semibold text-green-700' : ''}">${cantidadEntrada > 0 ? cantidadEntrada.toFixed(2) : '-'}</td>
@@ -1050,7 +1050,7 @@
 📋 DETALLE DEL MOVIMIENTO
 
 🔹 Tipo: ${mov.tipo.toUpperCase()}
-📅 Fecha: ${new Date(mov.fecha).toLocaleDateString('es-ES')}
+📅 Fecha: ${formatDate(mov.fecha)}
 📦 Material: ${mov.material_nombre}
 🔢 Cantidad: ${mov.cantidad} ${mov.unidad_medida}
 💰 Precio Unit.: $${parseFloat(mov.precio_unitario).toFixed(2)}
@@ -1070,7 +1070,7 @@ ${mov.observaciones ? '📝 Obs: ' + mov.observaciones : ''}
                 return;
             }
             
-            const fecha = new Date().toLocaleDateString('es-PE');
+            const fecha = formatDate(new Date());
             const totalValor = movimientos.reduce((sum, m) => sum + (parseFloat(m.valor_total) || 0), 0);
             
             const workbook = new ExcelJS.Workbook();
@@ -1102,7 +1102,7 @@ ${mov.observaciones ? '📝 Obs: ' + mov.observaciones : ''}
             // Datos
             movimientos.forEach((m, idx) => {
                 const row = worksheet.addRow([
-                    m.fecha ? new Date(m.fecha + 'T00:00:00').toLocaleDateString('es-ES') : '',
+                    m.fecha ? formatDate(m.fecha) : '',
                     m.tipo, m.subtipo || '-', m.material_nombre || '-', m.cantidad,
                     m.unidad_medida || 'UN', m.precio_unitario, m.valor_total,
                     m.referencia || '-', m.usuario || 'Admin', m.observaciones || '-'
@@ -1155,7 +1155,7 @@ ${mov.observaciones ? '📝 Obs: ' + mov.observaciones : ''}
                 return;
             }
             
-            const fecha = new Date().toLocaleDateString('es-PE');
+            const fecha = formatDate(new Date());
             let saldo = material ? parseFloat(material.stock_actual || 0) : 0;
             
             const workbook = new ExcelJS.Workbook();
@@ -1194,7 +1194,7 @@ ${mov.observaciones ? '📝 Obs: ' + mov.observaciones : ''}
                 saldo += cantEntrada - cantSalida;
                 
                 const row = worksheet.addRow([
-                    k.fecha ? new Date(k.fecha + 'T00:00:00').toLocaleDateString('es-ES') : '',
+                    k.fecha ? formatDate(k.fecha) : '',
                     k.tipo, k.referencia || '-', cantEntrada || '', valEntrada || '',
                     cantSalida || '', valSalida || '', saldo.toFixed(2)
                 ]);

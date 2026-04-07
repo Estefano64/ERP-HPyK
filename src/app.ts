@@ -55,6 +55,7 @@ import Almacen from './models/Almacen';
 import MovimientoInventario from './models/MovimientoInventario';
 import Proveedor from './models/Proveedor';
 import OTHistorial from './models/OTHistorial';
+import Contrato from './models/Contrato';
 import OTRepuesto from './models/OTRepuesto';
 import PlanificacionOT from './models/PlanificacionOT';
 import Herramienta from './models/Herramienta';
@@ -189,6 +190,12 @@ app.get('/produccion/perdidas.html', (req: Request, res: Response) => {
 app.get('/produccion/tareas.html', (req: Request, res: Response) => {
   res.sendFile(path.join(__dirname, 'vistas', 'produccion', 'tareas.html'));
 });
+app.get('/produccion/planificacion-programacion.html', (req: Request, res: Response) => {
+  res.sendFile(path.join(__dirname, 'vistas', 'produccion', 'planificacion-programacion.html'));
+});
+app.get('/produccion/programacion-semanal.html', (req: Request, res: Response) => {
+  res.sendFile(path.join(__dirname, 'vistas', 'produccion', 'programacion-semanal.html'));
+});
 
 // OPERATIVOS
 app.get('/operativos/index.html', (req: Request, res: Response) => {
@@ -284,6 +291,10 @@ app.get('/catalogo/areas', (req: Request, res: Response) => {
 
 app.get('/maestros/equipos', (req: Request, res: Response) => {
   res.sendFile(path.join(__dirname, 'vistas', 'maestros', 'equipos.html'));
+});
+
+app.get('/maestros/contratos', (req: Request, res: Response) => {
+  res.sendFile(path.join(__dirname, 'vistas', 'maestros', 'contratos.html'));
 });
 
 app.get('/operativos/ordenes-trabajo', (req: Request, res: Response) => {
@@ -526,6 +537,29 @@ const startServer = async () => {
     await sequelize.query(`ALTER TABLE orden_trabajo ADD COLUMN IF NOT EXISTS reparacion_piston VARCHAR(10);`);
     await sequelize.query(`ALTER TABLE orden_trabajo ADD COLUMN IF NOT EXISTS fecha_reprogramada TIMESTAMP;`);
 
+    // Agregar cod_rep_id a contrato (vínculo directo con código de reparación)
+    await sequelize.query(`ALTER TABLE contrato ADD COLUMN IF NOT EXISTS cod_rep_id INTEGER REFERENCES codigo_reparacion(cod_rep_id);`);
+
+    // Asignar cod_rep_id aleatorio a contratos existentes que no tengan uno
+    await sequelize.query(`
+      UPDATE contrato SET cod_rep_id = sub.cod_rep_id
+      FROM (
+        SELECT c.id, cr.cod_rep_id,
+               ROW_NUMBER() OVER (PARTITION BY c.id ORDER BY RANDOM()) as rn
+        FROM contrato c
+        CROSS JOIN codigo_reparacion cr
+        WHERE c.cod_rep_id IS NULL
+      ) sub
+      WHERE contrato.id = sub.id AND sub.rn = 1;
+    `).catch(() => {});
+
+    // Migrar códigos viejos a formato CONTR-XXX-YY
+    await sequelize.query(`
+      UPDATE contrato
+      SET codigo = 'CONTR-' || LPAD(id::text, 3, '0') || '-' || TO_CHAR(CURRENT_DATE, 'YY')
+      WHERE codigo NOT LIKE 'CONTR-%';
+    `).catch(() => {});
+
     // Ampliar clasificacion.codigo de VARCHAR(4) a VARCHAR(10) y agregar activo
     await sequelize.query(`ALTER TABLE clasificacion ALTER COLUMN codigo TYPE VARCHAR(10);`).catch(() => {});
     await sequelize.query(`ALTER TABLE clasificacion ADD COLUMN IF NOT EXISTS activo BOOLEAN DEFAULT true;`).catch(() => {});
@@ -554,6 +588,17 @@ const startServer = async () => {
       )
     `);
 
+    // Migrar planificacion_ot fecha_inicio/fecha_fin de DATE a TIMESTAMPTZ (para guardar hora)
+    await sequelize.query(`ALTER TABLE planificacion_ot ALTER COLUMN fecha_inicio TYPE TIMESTAMPTZ USING fecha_inicio::TIMESTAMPTZ;`).catch(() => {});
+    await sequelize.query(`ALTER TABLE planificacion_ot ALTER COLUMN fecha_fin TYPE TIMESTAMPTZ USING fecha_fin::TIMESTAMPTZ;`).catch(() => {});
+    // Nuevos campos planificacion_ot
+    await sequelize.query(`ALTER TABLE planificacion_ot ADD COLUMN IF NOT EXISTS semana_plan VARCHAR(10);`);
+    await sequelize.query(`ALTER TABLE planificacion_ot ADD COLUMN IF NOT EXISTS qty_personal INTEGER DEFAULT 1;`);
+    await sequelize.query(`ALTER TABLE planificacion_ot ADD COLUMN IF NOT EXISTS horas_extras BOOLEAN DEFAULT FALSE;`).catch(() => {});
+    await sequelize.query(`ALTER TABLE planificacion_ot ADD COLUMN IF NOT EXISTS horas_extras_qty DECIMAL(5,1);`).catch(() => {});
+    // Convertir ot_historial.tipo_operacion de ENUM a VARCHAR(50) para soportar nuevos tipos
+    await sequelize.query(`ALTER TABLE ot_historial ALTER COLUMN tipo_operacion TYPE VARCHAR(50);`).catch(() => {});
+
     console.log('   3/4 Creando tablas principales...');
     // NIVEL 3: Tablas principales
     await Material.sync({ force: false });
@@ -579,6 +624,7 @@ const startServer = async () => {
     await OTHistorial.sync({ force: false });
     await OTRepuesto.sync({ force: false });
     await PlanificacionOT.sync({ force: false });
+    await Contrato.sync({ force: false });
     
     console.log('✓ ¡TABLAS CREADAS CON NUEVA ESTRUCTURA!');
 

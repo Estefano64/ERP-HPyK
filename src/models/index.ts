@@ -141,7 +141,8 @@ export function setupAssociations() {
   OrdenTrabajo.belongsTo(Cliente, { foreignKey: 'id_cliente', as: 'cliente' });
   // OrdenTrabajo.belongsTo(Estrategia, { foreignKey: 'estrategia_codigo', targetKey: 'codigo', as: 'estrategia' });
   OrdenTrabajo.belongsTo(CodigoReparacion, { foreignKey: 'id_cod_rep', as: 'codigo_reparacion' });
-  OrdenTrabajo.belongsTo(Equipo, { foreignKey: 'equipo_codigo', targetKey: 'codigo', as: 'equipo' });
+  // equipo_codigo es texto libre, NO FK a tabla equipo
+  // OrdenTrabajo.belongsTo(Equipo, { foreignKey: 'equipo_codigo', targetKey: 'codigo', as: 'equipo' });
   OrdenTrabajo.belongsTo(Garantia, { foreignKey: 'garantia_codigo', targetKey: 'codigo', as: 'garantia' });
   OrdenTrabajo.belongsTo(AtencionReparacion, { foreignKey: 'atencion_reparacion_codigo', targetKey: 'codigo', as: 'atencion_reparacion' });
   OrdenTrabajo.belongsTo(TipoReparacion, { foreignKey: 'tipo_reparacion_codigo', targetKey: 'codigo', as: 'tipo_reparacion' });
@@ -168,7 +169,8 @@ export function setupAssociations() {
   Area.hasMany(SubArea, { foreignKey: 'area_codigo', sourceKey: 'codigo', as: 'sub_areas' });
   
   Equipo.hasMany(Estrategia, { foreignKey: 'equipo_codigo', sourceKey: 'codigo', as: 'estrategias' });
-  Equipo.hasMany(OrdenTrabajo, { foreignKey: 'equipo_codigo', sourceKey: 'codigo', as: 'ordenes_trabajo' });
+  // equipo_codigo es texto libre, NO FK
+  // Equipo.hasMany(OrdenTrabajo, { foreignKey: 'equipo_codigo', sourceKey: 'codigo', as: 'ordenes_trabajo' });
   
   // Estrategia.hasMany(OrdenTrabajo, { foreignKey: 'estrategia_codigo', sourceKey: 'codigo', as: 'ordenes_trabajo' });
 

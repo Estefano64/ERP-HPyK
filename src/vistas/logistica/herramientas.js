@@ -87,8 +87,8 @@ function renderHerramientas() {
     
     tbody.innerHTML = herramientas.map(h => {
         const estadoBadge = getEstadoBadge(h.estado);
-        const ultimoUso = h.ultimo_uso ? new Date(h.ultimo_uso).toLocaleDateString('es-ES') : '-';
-        const proxMant = h.proximo_mantenimiento ? new Date(h.proximo_mantenimiento).toLocaleDateString('es-ES') : '-';
+        const ultimoUso = h.ultimo_uso ? formatDate(h.ultimo_uso) : '-';
+        const proxMant = h.proximo_mantenimiento ? formatDate(h.proximo_mantenimiento) : '-';
         const categoriaLabel = h.categoria ? getCategoryLabel(h.categoria) : '-';
         const marca = h.marca || '-';
         const modelo = h.modelo || '';
@@ -382,8 +382,8 @@ function renderPrestamos() {
                 <td class="px-4 py-3 text-sm">${p.herramienta_nombre}</td>
                 <td class="px-4 py-3 text-sm font-semibold">${p.responsable}</td>
                 <td class="px-4 py-3 text-sm">${p.proyecto || '-'}</td>
-                <td class="px-4 py-3 text-center text-sm">${new Date(p.fecha_inicio).toLocaleDateString('es-ES')}</td>
-                <td class="px-4 py-3 text-center text-sm">${p.fecha_devolucion ? new Date(p.fecha_devolucion).toLocaleDateString('es-ES') : new Date(p.fecha_fin_estimada).toLocaleDateString('es-ES')}</td>
+                <td class="px-4 py-3 text-center text-sm">${formatDate(p.fecha_inicio)}</td>
+                <td class="px-4 py-3 text-center text-sm">${p.fecha_devolucion ? formatDate(p.fecha_devolucion) : formatDate(p.fecha_fin_estimada)}</td>
                 <td class="px-4 py-3 text-center">${estadoBadge}</td>
                 <td class="px-4 py-3 text-center text-sm font-semibold">${dias}</td>
                 <td class="px-4 py-3 text-center">
@@ -487,9 +487,9 @@ function viewPrestamo(id) {
 🔧 Herramienta: ${prest.herramienta_nombre}
 👤 Responsable: ${prest.responsable}
 📂 Proyecto/OT: ${prest.proyecto || 'N/A'}
-📅 Fecha Préstamo: ${new Date(prest.fecha_inicio).toLocaleDateString('es-ES')}
-📆 Fecha Estimada: ${new Date(prest.fecha_fin_estimada).toLocaleDateString('es-ES')}
-${prest.fecha_devolucion ? '✅ Devuelto: ' + new Date(prest.fecha_devolucion).toLocaleDateString('es-ES') : ''}
+📅 Fecha Préstamo: ${formatDate(prest.fecha_inicio)}
+📆 Fecha Estimada: ${formatDate(prest.fecha_fin_estimada)}
+${prest.fecha_devolucion ? '✅ Devuelto: ' + formatDate(prest.fecha_devolucion) : ''}
 🟢 Estado: ${prest.estado}
 ⏱️ Días: ${calculateDays(prest.fecha_inicio, prest.fecha_devolucion || new Date().toISOString().split('T')[0])}
 ${prest.observaciones ? '💬 Obs: ' + prest.observaciones : ''}
@@ -552,8 +552,8 @@ function renderMantenimientos() {
             <tr class="hover:bg-gray-50">
                 <td class="px-4 py-3 text-sm">${m.herramienta_nombre}</td>
                 <td class="px-4 py-3 text-sm">${m.tipo}</td>
-                <td class="px-4 py-3 text-center text-sm">${new Date(m.fecha_programada).toLocaleDateString('es-ES')}</td>
-                <td class="px-4 py-3 text-center text-sm">${m.ultima_realizacion ? new Date(m.ultima_realizacion).toLocaleDateString('es-ES') : '-'}</td>
+                <td class="px-4 py-3 text-center text-sm">${formatDate(m.fecha_programada)}</td>
+                <td class="px-4 py-3 text-center text-sm">${m.ultima_realizacion ? formatDate(m.ultima_realizacion) : '-'}</td>
                 <td class="px-4 py-3 text-sm">${m.responsable}</td>
                 <td class="px-4 py-3 text-center">${estadoBadge}</td>
                 <td class="px-4 py-3 text-sm">${m.observaciones || '-'}</td>
@@ -651,8 +651,8 @@ function viewMantenimiento(id) {
 
 🛠️ Herramienta: ${mant.herramienta_nombre}
 📋 Tipo: ${mant.tipo}
-📅 Fecha Programada: ${new Date(mant.fecha_programada).toLocaleDateString('es-ES')}
-${mant.ultima_realizacion ? '✅ Última Realización: ' + new Date(mant.ultima_realizacion).toLocaleDateString('es-ES') : ''}
+📅 Fecha Programada: ${formatDate(mant.fecha_programada)}
+${mant.ultima_realizacion ? '✅ Última Realización: ' + formatDate(mant.ultima_realizacion) : ''}
 👤 Responsable: ${mant.responsable}
 🟡 Estado: ${mant.estado}
 ${mant.observaciones ? '💬 Observaciones: ' + mant.observaciones : ''}

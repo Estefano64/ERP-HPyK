@@ -17,6 +17,7 @@ import * as ordenTrabajoController from '../../controllers/operativos/ordenTraba
 import * as otRepuestoController from '../../controllers/operativos/otRepuestoController';
 import * as otHistorialController from '../../controllers/operativos/otHistorialController';
 import * as planificacionOTController from '../../controllers/operativos/planificacionOTController';
+import * as contratoController from '../../controllers/operativos/contratoController';
 
 const router = Router();
 
@@ -27,6 +28,15 @@ router.get('/estadisticas', ordenTrabajoController.getEstadisticasOrdenesTrabajo
 router.get('/produccion-tracking', ordenTrabajoController.getProduccionTracking);
 // Siguiente número de OT disponible (para preview en formulario)
 router.get('/next-number', ordenTrabajoController.getNextOtNumber);
+
+// === CONTRATOS (antes de /:id para evitar conflicto) ===
+router.get('/contratos', contratoController.getAllContratos);
+router.get('/contratos/match', contratoController.getContratoMatch);
+router.get('/contratos/cliente/:clienteId', contratoController.getContratosByCliente);
+router.post('/contratos', contratoController.createContrato);
+router.put('/contratos/:id', contratoController.updateContrato);
+router.delete('/contratos/:id', contratoController.deleteContrato);
+
 router.get('/:id', ordenTrabajoController.getOrdenTrabajoById);
 router.post('/', ordenTrabajoController.createOrdenTrabajo);
 router.put('/:id', ordenTrabajoController.updateOrdenTrabajo);

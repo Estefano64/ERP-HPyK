@@ -547,9 +547,8 @@
             tbody.innerHTML = '';
             
             datosCompletos.compras.forEach(compra => {
-                const fechaSolicitud = new Date(compra.fecha_solicitud).toLocaleDateString('es-ES');
-                const fechaEntrega = compra.fecha_entrega_esperada ? 
-                    new Date(compra.fecha_entrega_esperada).toLocaleDateString('es-ES') : '-';
+                const fechaSolicitud = formatDate(compra.fecha_solicitud);
+                const fechaEntrega = formatDate(compra.fecha_entrega_esperada);
                 
                 tbody.innerHTML += `
                     <tr class="hover:bg-gray-50">
@@ -588,8 +587,8 @@
                             <tr class="hover:bg-gray-50">
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${compra.numero_po}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Orden de Compra</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${esperada.toLocaleDateString('es-ES')}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${real.toLocaleDateString('es-ES')}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formatDate(esperada)}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${formatDate(real)}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-right font-bold ${
                                     diasDemora > 0 ? 'text-red-600' : 'text-green-600'
                                 }">${diasDemora > 0 ? '+' : ''}${diasDemora}</td>
@@ -615,8 +614,7 @@
             datosCompletos.repuestos.forEach(rep => {
                 const precio = parseFloat(rep.precio_unitario) || 0;
                 const subtotal = precio * rep.cantidad;
-                const fechaEntrega = rep.fecha_entrega_esperada ? 
-                    new Date(rep.fecha_entrega_esperada).toLocaleDateString('es-ES') : '-';
+                const fechaEntrega = formatDate(rep.fecha_entrega_esperada);
                 
                 tbody.innerHTML += `
                     <tr class="hover:bg-gray-50">

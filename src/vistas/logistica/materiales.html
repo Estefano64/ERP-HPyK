@@ -1247,13 +1247,13 @@
                     'Valor Total Stock': (stockActual * precio).toFixed(2),
                     'Ubicación': material.ubicacion || '',
                     'Estado': material.activo ? 'Activo' : 'Inactivo',
-                    'Fecha Creación': material.created_at ? new Date(material.created_at).toLocaleDateString('es-ES') : '',
-                    'Fecha Actualización': material.updated_at ? new Date(material.updated_at).toLocaleDateString('es-ES') : ''
+                    'Fecha Creación': formatDate(material.created_at, ''),
+                    'Fecha Actualización': formatDate(material.updated_at, '')
                 };
             });
 
             // Crear workbook con ExcelJS
-            const fecha = new Date().toLocaleDateString('es-PE');
+            const fecha = formatDate(new Date());
             const valorTotalStock = materialesFiltrados.reduce((sum, m) => sum + ((parseFloat(m.stock_actual) || 0) * (parseFloat(m.precio) || 0)), 0);
             
             const workbook = new ExcelJS.Workbook();
@@ -1660,12 +1660,7 @@
                     'info': 'fa-info-circle text-blue-500'
                 }[notif.tipo] || 'fa-bell text-gray-500';
                 
-                const fecha = new Date(notif.fecha).toLocaleString('es-ES', { 
-                    day: '2-digit', 
-                    month: 'short', 
-                    hour: '2-digit', 
-                    minute: '2-digit' 
-                });
+                const fecha = formatDateTimeShort(notif.fecha);
                 
                 return `
                     <div class="bg-white border ${notif.leida ? 'border-gray-200' : 'border-green-300 bg-green-50'} rounded-lg p-3 cursor-pointer hover:shadow-md transition"

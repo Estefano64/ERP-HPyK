@@ -290,8 +290,8 @@
 
             tbody.innerHTML = inventarioFiltrado.map((item, index) => {
                 const stockFinalClass = item.stockFinal > 0 ? 'stock-positive' : 'stock-zero';
-                const fecha1 = item.fecha1 ? new Date(item.fecha1).toLocaleDateString('es-ES') : '-';
-                const fecha2 = item.fecha2 ? new Date(item.fecha2).toLocaleDateString('es-ES') : '-';
+                const fecha1 = formatDate(item.fecha1);
+                const fecha2 = formatDate(item.fecha2);
 
                 return `
                     <tr class="table-row">

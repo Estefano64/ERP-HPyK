@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contratos - HP&K ERP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="/vistas/shared/navigation.js"></script>
+    <style>.modal { display: none; } .modal.active { display: flex; }</style>
+</head>
+<body class="bg-gray-50">
+    <div id="navigation-container"></div>
+    <div class="container mx-auto px-4 py-8">
+        <div class="mb-6 flex justify-between items-center">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-800 flex items-center">
+                    <i class="fas fa-file-contract text-indigo-600 mr-3"></i> Contratos
+                </h1>
+                <p class="text-gray-600 mt-1">Administrar contratos por cliente y codigo reparable</p>
+            </div>
+            <button onclick="openModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-lg font-semibold transition flex items-center">
+                <i class="fas fa-plus mr-2"></i> Nuevo Contrato
+            </button>
+        </div>
+
+        <!-- Filtros -->
+        <div class="mb-4 flex gap-3 items-center flex-wrap">
+            <input type="text" id="searchInput" placeholder="Buscar por codigo, cliente, cod.rep..." onkeyup="filterTable()"
+                class="border border-gray-300 rounded-lg px-4 py-2 w-72 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <select id="filterEstado" onchange="filterTable()" class="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500">
+                <option value="">Todos</option>
+                <option value="vigente">Vigentes</option>
+                <option value="vencido">Vencidos</option>
+                <option value="inactivo">Inactivos</option>
+            </select>
+            <span id="totalCount" class="text-sm text-gray-500 ml-2"></span>
+        </div>
+
+        <!-- Tabla -->
+        <div class="bg-white rounded-lg shadow overflow-x-auto">
+            <table class="w-full">
+                <thead class="bg-indigo-700 text-white">
+                    <tr>
+                        <th class="px-4 py-3 text-left text-xs uppercase">Codigo Contrato</th>
+                        <th class="px-4 py-3 text-left text-xs uppercase">Cliente</th>
+                        <th class="px-4 py-3 text-left text-xs uppercase">Cod. Reparacion</th>
+                        <th class="px-4 py-3 text-center text-xs uppercase">Dias Rep.</th>
+                        <th class="px-4 py-3 text-right text-xs uppercase">Precio (USD)</th>
+                        <th class="px-4 py-3 text-center text-xs uppercase">Inicio</th>
+                        <th class="px-4 py-3 text-center text-xs uppercase">Termino</th>
+                        <th class="px-4 py-3 text-center text-xs uppercase">Estado</th>
+                        <th class="px-4 py-3 text-center text-xs uppercase">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody" class="divide-y divide-gray-200">
+                    <tr><td colspan="9" class="text-center py-8 text-gray-500">Cargando...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="catalogModal" class="modal fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl max-h-screen overflow-y-auto">
+            <div class="bg-indigo-700 text-white px-6 py-4 flex justify-between items-center">
+                <h2 class="text-xl font-bold"><i class="fas fa-file-contract mr-2"></i><span id="modalTitle">Nuevo Contrato</span></h2>
+                <button onclick="closeModal()" class="text-white hover:text-gray-200"><i class="fas fa-times text-2xl"></i></button>
+            </div>
+            <form id="catalogForm" class="p-6 grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Codigo Contrato</label>
+                    <input type="text" name="codigo" readonly maxlength="50" placeholder="Se genera automaticamente"
+                        class="w-full border border-gray-300 rounded-lg px-3 py-2 bg-gray-100 text-gray-600">
+                    <p class="text-xs text-gray-400 mt-1">Formato: CONTR-001-26 (auto)</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Cliente *</label>
+                    <select name="cliente_id" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500">
+                        <option value="">Seleccione...</option>
+                    </select>
+                </div>
+                <div class="col-span-2">
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Codigo Reparacion *</label>
+                    <select name="cod_rep_id" required class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500">
+                        <option value="">Seleccione...</option>
+                    </select>
+                    <p class="text-xs text-gray-400 mt-1">El contrato se vincula a un codigo reparable especifico</p>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Dias Reparacion *</label>
+                    <input type="number" name="dias_reparacion" required min="1" max="365" placeholder="15"
+                        class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Precio (USD) *</label>
+                    <input type="number" name="precio" required min="0" step="0.01" placeholder="18000.00"
+                        class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Fecha Inicio *</label>
+                    <input type="date" name="fecha_inicio" required
+                        class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Fecha Termino *</label>
+                    <input type="date" name="fecha_termino" required
+                        class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500">
+                </div>
+                <div class="flex items-center">
+                    <input type="checkbox" name="activo" checked class="w-4 h-4 text-indigo-600 border-gray-300 rounded">
+                    <label class="ml-2 text-sm font-semibold text-gray-700">Activo</label>
+                </div>
+                <div class="col-span-2 flex justify-end space-x-3 pt-2">
+                    <button type="button" onclick="closeModal()" class="px-6 py-2 border border-gray-300 rounded-lg hover:bg-gray-100">Cancelar</button>
+                    <button type="submit" class="px-6 py-2 bg-indigo-700 text-white rounded-lg hover:bg-indigo-800"><i class="fas fa-save mr-2"></i>Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API = '/api/ot/contratos';
+        let records = [], editId = null;
+        let clientesCache = [], codRepsCache = [];
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadSelects();
+            await loadRecords();
+            document.getElementById('catalogForm').addEventListener('submit', saveRecord);
+        });
+
+        async function loadSelects() {
+            try {
+                const [cliRes, crRes] = await Promise.all([
+                    fetch('/api/catalogos/clientes'),
+                    fetch('/api/cod-rep')
+                ]);
+                clientesCache = await cliRes.json();
+                codRepsCache = await crRes.json();
+
+                const cliSelect = document.querySelector('[name="cliente_id"]');
+                cliSelect.innerHTML = '<option value="">Seleccione cliente...</option>';
+                clientesCache.forEach(c => {
+                    cliSelect.innerHTML += `<option value="${c.cliente_id}">${c.razon_social} (${c.codigo})</option>`;
+                });
+
+                const crSelect = document.querySelector('[name="cod_rep_id"]');
+                crSelect.innerHTML = '<option value="">Seleccione codigo reparacion...</option>';
+                (Array.isArray(codRepsCache) ? codRepsCache : []).forEach(cr => {
+                    crSelect.innerHTML += `<option value="${cr.cod_rep_id}">${cr.codigo} — ${cr.descripcion}</option>`;
+                });
+            } catch (e) {
+                console.error('Error cargando selects:', e);
+            }
+        }
+
+        async function loadRecords() {
+            try {
+                const res = await fetch(API);
+                records = await res.json();
+                renderTable();
+            } catch (e) {
+                console.error('Error cargando contratos:', e);
+            }
+        }
+
+        function getEstadoContrato(r) {
+            if (!r.activo) return { label: 'Inactivo', css: 'bg-gray-100 text-gray-800', key: 'inactivo' };
+            const hoy = new Date().toISOString().split('T')[0];
+            if (r.fecha_termino < hoy) return { label: 'Vencido', css: 'bg-red-100 text-red-800', key: 'vencido' };
+            if (r.fecha_inicio > hoy) return { label: 'Futuro', css: 'bg-yellow-100 text-yellow-800', key: 'vigente' };
+            return { label: 'Vigente', css: 'bg-green-100 text-green-800', key: 'vigente' };
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('tableBody');
+            const filtro = document.getElementById('filterEstado').value;
+            const q = (document.getElementById('searchInput').value || '').toLowerCase();
+
+            let filtered = records;
+            if (filtro) {
+                filtered = filtered.filter(r => getEstadoContrato(r).key === filtro);
+            }
+            if (q) {
+                filtered = filtered.filter(r =>
+                    (r.codigo || '').toLowerCase().includes(q) ||
+                    (r.cliente_nombre || '').toLowerCase().includes(q) ||
+                    (r.cod_rep_codigo || '').toLowerCase().includes(q) ||
+                    (r.cod_rep_descripcion || '').toLowerCase().includes(q)
+                );
+            }
+
+            document.getElementById('totalCount').textContent = `${filtered.length} de ${records.length} contratos`;
+
+            if (!filtered.length) {
+                tbody.innerHTML = '<tr><td colspan="9" class="text-center py-8 text-gray-500">No hay contratos</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(r => {
+                const estado = getEstadoContrato(r);
+                return `
+                <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-3 font-semibold text-sm">${r.codigo}</td>
+                    <td class="px-4 py-3 text-sm">${r.cliente_nombre || '-'}</td>
+                    <td class="px-4 py-3 text-sm">
+                        <span class="font-mono text-xs bg-gray-100 px-2 py-1 rounded">${r.cod_rep_codigo || '-'}</span>
+                        <span class="text-gray-400 text-xs block mt-0.5">${r.cod_rep_descripcion || ''}</span>
+                    </td>
+                    <td class="px-4 py-3 text-center font-bold text-sm">${r.dias_reparacion}</td>
+                    <td class="px-4 py-3 text-right text-sm font-semibold text-green-700">$${parseFloat(r.precio).toLocaleString('en-US', {minimumFractionDigits:2})}</td>
+                    <td class="px-4 py-3 text-center text-sm">${formatDate(r.fecha_inicio)}</td>
+                    <td class="px-4 py-3 text-center text-sm">${formatDate(r.fecha_termino)}</td>
+                    <td class="px-4 py-3 text-center"><span class="px-2 py-1 rounded-full text-xs ${estado.css}">${estado.label}</span></td>
+                    <td class="px-4 py-3 text-center space-x-2">
+                        <button onclick="editRecord(${r.id})" class="text-blue-600 hover:text-blue-800" title="Editar"><i class="fas fa-edit"></i></button>
+                        <button onclick="deleteRecord(${r.id})" class="text-red-600 hover:text-red-800" title="Eliminar"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>`;
+            }).join('');
+        }
+
+        function filterTable() {
+            renderTable();
+        }
+
+        function getNextCodigo() {
+            const year = String(new Date().getFullYear()).slice(-2);
+            // Buscar el mayor número existente con formato CONTR-XXX-YY
+            let maxNum = 0;
+            records.forEach(r => {
+                const match = (r.codigo || '').match(/^CONTR-(\d+)/);
+                if (match) maxNum = Math.max(maxNum, parseInt(match[1]));
+            });
+            const next = String(maxNum + 1).padStart(3, '0');
+            return `CONTR-${next}-${year}`;
+        }
+
+        function openModal() {
+            editId = null;
+            document.getElementById('modalTitle').textContent = 'Nuevo Contrato';
+            document.getElementById('catalogForm').reset();
+            document.querySelector('[name="activo"]').checked = true;
+            document.querySelector('[name="codigo"]').value = getNextCodigo();
+            document.getElementById('catalogModal').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('catalogModal').classList.remove('active');
+            editId = null;
+        }
+
+        function editRecord(id) {
+            const r = records.find(x => x.id === id);
+            if (!r) return;
+            editId = id;
+            document.getElementById('modalTitle').textContent = 'Editar Contrato';
+            const form = document.getElementById('catalogForm');
+            form.codigo.value = r.codigo;
+            form.cliente_id.value = r.cliente_id;
+            form.cod_rep_id.value = r.cod_rep_id || '';
+            form.dias_reparacion.value = r.dias_reparacion;
+            form.precio.value = r.precio;
+            form.fecha_inicio.value = (r.fecha_inicio || '').split('T')[0];
+            form.fecha_termino.value = (r.fecha_termino || '').split('T')[0];
+            form.activo.checked = r.activo;
+            document.getElementById('catalogModal').classList.add('active');
+        }
+
+        async function saveRecord(e) {
+            e.preventDefault();
+            const form = e.target;
+            const data = {
+                codigo: form.codigo.value,
+                cliente_id: parseInt(form.cliente_id.value),
+                cod_rep_id: parseInt(form.cod_rep_id.value) || null,
+                dias_reparacion: parseInt(form.dias_reparacion.value),
+                precio: parseFloat(form.precio.value),
+                fecha_inicio: form.fecha_inicio.value,
+                fecha_termino: form.fecha_termino.value,
+                activo: form.activo.checked
+            };
+
+            const url = editId ? `${API}/${editId}` : API;
+            const method = editId ? 'PUT' : 'POST';
+
+            try {
+                const res = await fetch(url, { method, headers: {'Content-Type':'application/json'}, body: JSON.stringify(data) });
+                if (res.ok) {
+                    closeModal();
+                    await loadRecords();
+                } else {
+                    const err = await res.json().catch(() => ({}));
+                    alert('Error al guardar: ' + (err.error || 'Error desconocido'));
+                }
+            } catch (e) {
+                alert('Error de conexion');
+            }
+        }
+
+        async function deleteRecord(id) {
+            if (!confirm('Eliminar este contrato?')) return;
+            try {
+                const res = await fetch(`${API}/${id}`, { method: 'DELETE' });
+                if (res.ok) await loadRecords();
+                else alert('Error al eliminar');
+            } catch (e) {
+                alert('Error de conexion');
+            }
+        }
+    </script>
+</body>
+</html>

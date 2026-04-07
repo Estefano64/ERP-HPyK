@@ -151,7 +151,7 @@ function renderConsumibles() {
     tbody.innerHTML = consumibles.map(c => {
         const nivel = getStockNivel(c);
         const nivelBadge = getStockNivelBadge(nivel);
-        const ultimoMov = c.ultimo_movimiento ? new Date(c.ultimo_movimiento).toLocaleDateString('es-ES') : '-';
+        const ultimoMov = c.ultimo_movimiento ? formatDate(c.ultimo_movimiento) : '-';
         
         return `
             <tr class="hover:bg-gray-50">
@@ -521,7 +521,7 @@ function renderMovimientos() {
         .sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
         .map(m => `
             <tr class="hover:bg-gray-50">
-                <td class="px-4 py-3 text-sm">${new Date(m.fecha).toLocaleDateString('es-ES')}</td>
+                <td class="px-4 py-3 text-sm">${formatDate(m.fecha)}</td>
                 <td class="px-4 py-3 text-sm font-semibold">${m.consumible_nombre}</td>
                 <td class="px-4 py-3 text-center text-sm font-bold text-red-600">-${m.cantidad}</td>
                 <td class="px-4 py-3 text-sm">${m.responsable}</td>
@@ -600,7 +600,7 @@ function viewMovimiento(id) {
 
 📦 Consumible: ${mov.consumible_nombre}
 📊 Cantidad: ${mov.cantidad}
-📅 Fecha: ${new Date(mov.fecha).toLocaleDateString('es-ES')}
+📅 Fecha: ${formatDate(mov.fecha)}
 👤 Responsable: ${mov.responsable}
 📍 Destino: ${mov.destino || 'N/A'}
 💬 Motivo: ${mov.motivo}

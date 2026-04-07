@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planificación - HP&K ERP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="/vistas/shared/navigation.js"></script>
+    <style>
+        .editable-cell input, .editable-cell select {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+        }
+        .editable-cell input:focus, .editable-cell select:focus {
+            background: #fff;
+            border-color: #22c55e;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(34,197,94,0.2);
+        }
+        .auto-cell {
+            background: #f9fafb;
+        }
+        table th { position: sticky; top: 0; z-index: 10; }
+        .fade-in { animation: fadeIn 0.3s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation Menu -->
+    <div id="nav-menu"></div>
+
+    <div class="max-w-[98vw] mx-auto px-4 py-6">
+        <!-- Header -->
+        <div class="bg-gradient-to-r from-green-600 to-purple-700 rounded-lg shadow-lg p-6 mb-6">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h1 class="text-2xl font-bold text-white flex items-center">
+                        <i class="fas fa-tasks mr-3"></i>Planificación
+                    </h1>
+                    <p class="text-green-100 text-sm mt-1">Tareas programadas de OTs abiertas — Horario: L-V 8:00–18:00 (almuerzo 12:30–13:30)</p>
+                </div>
+                <div class="flex gap-3">
+                    <button onclick="guardarTodo()" id="btn-guardar" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition text-sm font-semibold hidden">
+                        <i class="fas fa-save mr-2"></i>Guardar Cambios (<span id="cambios-count">0</span>)
+                    </button>
+                    <button onclick="exportarExcel()" class="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg transition text-sm">
+                        <i class="fas fa-file-excel mr-2"></i>Exportar Excel
+                    </button>
+                    <a href="/produccion/index.html" class="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg transition text-sm">
+                        <i class="fas fa-arrow-left mr-2"></i>Volver
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filtros -->
+        <div class="bg-white rounded-lg shadow p-4 mb-4">
+            <div class="flex gap-3 flex-wrap items-center">
+                <div>
+                    <label class="text-xs text-gray-500 block mb-1">Semana</label>
+                    <select id="filtro-semana" class="px-3 py-2 border rounded text-sm" onchange="filtrar()">
+                        <option value="">Todas</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-xs text-gray-500 block mb-1">Cliente</label>
+                    <select id="filtro-cliente" class="px-3 py-2 border rounded text-sm" onchange="filtrar()">
+                        <option value="">Todos</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-xs text-gray-500 block mb-1">Operario</label>
+                    <select id="filtro-operario" class="px-3 py-2 border rounded text-sm" onchange="filtrar()">
+                        <option value="">Todos</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-xs text-gray-500 block mb-1">Equipo</label>
+                    <select id="filtro-equipo" class="px-3 py-2 border rounded text-sm" onchange="filtrar()">
+                        <option value="">Todos</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-xs text-gray-500 block mb-1">Taller Status</label>
+                    <select id="filtro-taller" class="px-3 py-2 border rounded text-sm" onchange="filtrar()">
+                        <option value="">Todos</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="text-xs text-gray-500 block mb-1">Estado</label>
+                    <select id="filtro-estado" class="px-3 py-2 border rounded text-sm" onchange="filtrar()">
+                        <option value="">Todos</option>
+                    </select>
+                </div>
+                <div class="flex-1">
+                    <label class="text-xs text-gray-500 block mb-1">Buscar</label>
+                    <input type="text" id="filtro-busqueda" class="w-full px-3 py-2 border rounded text-sm" placeholder="OT, cliente, tarea..." oninput="filtrar()">
+                </div>
+                <div class="flex items-end gap-2">
+                    <button onclick="limpiarFiltros()" class="px-3 py-2 bg-gray-200 hover:bg-gray-300 rounded text-sm text-gray-700 transition" title="Limpiar filtros">
+                        <i class="fas fa-eraser mr-1"></i>Limpiar
+                    </button>
+                    <span id="contador" class="text-sm text-gray-500 bg-gray-100 px-3 py-2 rounded">0 tareas</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabla -->
+        <div class="bg-white rounded-lg shadow overflow-x-auto">
+            <table class="w-full text-xs border-collapse" id="tabla-plan">
+                <thead>
+                    <tr class="bg-gray-800 text-white">
+                        <th class="px-2 py-2.5 text-left font-medium whitespace-nowrap cursor-pointer select-none" onclick="sortTabla('ot')">OT <i class="fas fa-sort text-white/50 ml-1"></i></th>
+                        <th class="px-2 py-2.5 text-left font-medium whitespace-nowrap cursor-pointer select-none" onclick="sortTabla('cliente')">Cliente <i class="fas fa-sort text-white/50 ml-1"></i></th>
+                        <th class="px-2 py-2.5 text-left font-medium whitespace-nowrap cursor-pointer select-none" onclick="sortTabla('flota')">Flota <i class="fas fa-sort text-white/50 ml-1"></i></th>
+                        <th class="px-2 py-2.5 text-left font-medium whitespace-nowrap cursor-pointer select-none" onclick="sortTabla('descripcion')">Descripción <i class="fas fa-sort text-white/50 ml-1"></i></th>
+                        <th class="px-2 py-2.5 text-left font-medium whitespace-nowrap cursor-pointer select-none" onclick="sortTabla('fecha_recepcion')">F. Recepción <i class="fas fa-sort text-white/50 ml-1"></i></th>
+                        <th class="px-2 py-2.5 text-center font-medium whitespace-nowrap cursor-pointer select-none" onclick="sortTabla('prioridad')">Prioridad <i class="fas fa-sort text-white/50 ml-1"></i></th>
+                        <th class="px-2 py-2.5 text-left font-medium whitespace-nowrap cursor-pointer select-none" onclick="sortTabla('fecha_requerimiento_cliente')">F. Req. Cliente <i class="fas fa-sort text-white/50 ml-1"></i></th>
+                        <th class="px-2 py-2.5 text-left font-medium whitespace-nowrap cursor-pointer select-none" onclick="sortTabla('taller_status')">Taller Status <i class="fas fa-sort text-white/50 ml-1"></i></th>
+                        <th class="px-2 py-2.5 text-center font-medium whitespace-nowrap cursor-pointer select-none" onclick="sortTabla('nro_tarea')">N° Tarea <i class="fas fa-sort text-white/50 ml-1"></i></th>
+                        <th class="px-2 py-2.5 text-left font-medium whitespace-nowrap cursor-pointer select-none" onclick="sortTabla('parte')">Parte <i class="fas fa-sort text-white/50 ml-1"></i></th>
+                        <th class="px-2 py-2.5 text-left font-medium whitespace-nowrap cursor-pointer select-none" onclick="sortTabla('tarea')">Tarea <i class="fas fa-sort text-white/50 ml-1"></i></th>
+                        <th class="px-2 py-2.5 text-left font-medium whitespace-nowrap bg-yellow-600 cursor-pointer select-none" onclick="sortTabla('semana_plan')">Semana Plan <i class="fas fa-sort text-white/50 ml-1"></i></th>
+                        <th class="px-2 py-2.5 text-left font-medium whitespace-nowrap bg-yellow-600 cursor-pointer select-none" onclick="sortTabla('operario')">Operario <i class="fas fa-sort text-white/50 ml-1"></i></th>
+                        <th class="px-2 py-2.5 text-left font-medium whitespace-nowrap bg-green-700 cursor-pointer select-none" onclick="sortTabla('equipo')">Equipo <i class="fas fa-sort text-white/50 ml-1"></i></th>
+                        <th class="px-2 py-2.5 text-left font-medium whitespace-nowrap bg-green-700">Inicio Estimado</th>
+                        <th class="px-2 py-2.5 text-center font-medium whitespace-nowrap bg-green-700 cursor-pointer select-none" onclick="sortTabla('duracion')">Duración (hrs) <i class="fas fa-sort text-white/50 ml-1"></i></th>
+                        <th class="px-2 py-2.5 text-center font-medium whitespace-nowrap bg-green-700">HE</th>
+                        <th class="px-2 py-2.5 text-center font-medium whitespace-nowrap bg-green-700">Qty HE</th>
+                        <th class="px-2 py-2.5 text-left font-medium whitespace-nowrap bg-green-700">Fin Estimado</th>
+                        <th class="px-2 py-2.5 text-center font-medium whitespace-nowrap bg-yellow-600">Qty</th>
+                        <th class="px-2 py-2.5 text-center font-medium whitespace-nowrap bg-gray-600">HH</th>
+                        <th class="px-2 py-2.5 text-center font-medium whitespace-nowrap bg-blue-700 cursor-pointer select-none" onclick="sortTabla('estado')">Estado Tarea <i class="fas fa-sort text-white/50 ml-1"></i></th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-body">
+                    <tr><td colspan="22" class="px-4 py-10 text-center text-gray-400"><i class="fas fa-spinner fa-spin mr-2"></i>Cargando...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script>
+        let allData = [];
+        let filteredData = [];
+
+        const OPERARIOS = [
+            'Armando Ramos', 'Rolando Llayque', 'Gabriel Anco', 'Jose Huamani',
+            'Justo Arocutipa', 'Giancarlo Ibarra', 'Gabriel Gallegos', 'Erick Cardenas',
+            'Ricardo Yana', 'Tomas Vilca', 'Carlos Hernani', 'Yampier Braulio'
+        ];
+
+        const EQUIPOS = [
+            'TORNO 1', 'TORNO 2', 'TORNO 3', 'TORNO 4',
+            'FRESADORA', 'MANDRINADORA', 'BRUÑIDORA',
+            'BARRENADOR 1', 'BARRENADOR 2',
+            'SOLDADURA 1', 'SOLDADURA 2', 'SOLDADURA 3', 'SOLDADURA 4', 'SOLDADURA 5',
+            'PRENSA HIDRAULICA', 'BANCO PRUEBAS 1', 'BANCO PRUEBAS 2',
+            'EVALUACION', 'ARMADO'
+        ];
+
+        const ESTADOS_TAREA = ['Abierto', 'Programado', 'Realizado', 'Correctivo', 'Cancelado'];
+
+        // Horario laboral: L-V 8:00–18:00, almuerzo 12:30–13:30 = 9 hrs/día
+        const JORNADA_INICIO = 8;      // 8:00
+        const JORNADA_FIN = 18;        // 18:00
+        const ALMUERZO_INICIO = 12.5;  // 12:30
+        const ALMUERZO_FIN = 13.5;     // 13:30
+        const HRS_DIA = (JORNADA_FIN - JORNADA_INICIO) - (ALMUERZO_FIN - ALMUERZO_INICIO); // 9 hrs
+
+        // Generar semanas ISO del año actual
+        function generarSemanas() {
+            const anio = new Date().getFullYear();
+            const semanas = [];
+            for (let w = 1; w <= 53; w++) {
+                semanas.push(`${anio}W${String(w).padStart(2, '0')}`);
+            }
+            return semanas;
+        }
+        const SEMANAS = generarSemanas();
+
+        function fmtDate(val) {
+            return formatDate(val, '');
+        }
+
+        function fmtDateTime(val) {
+            return formatDateTime(val, '');
+        }
+
+        function toDatetimeLocal(val) {
+            if (!val) return '';
+            const d = new Date(val);
+            const offset = d.getTimezoneOffset();
+            const local = new Date(d.getTime() - offset * 60000);
+            return local.toISOString().slice(0, 16);
+        }
+
+        // Calcular semana ISO de una fecha
+        function getISOWeek(date) {
+            const d = new Date(date);
+            d.setHours(0, 0, 0, 0);
+            d.setDate(d.getDate() + 3 - (d.getDay() + 6) % 7);
+            const week1 = new Date(d.getFullYear(), 0, 4);
+            const weekNum = 1 + Math.round(((d - week1) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
+            return `${d.getFullYear()}W${String(weekNum).padStart(2, '0')}`;
+        }
+
+        // Calcula horas laborales regulares entre dos fechas
+        // Horario: L-V 8:00-18:00, almuerzo 12:30-13:30 (9 hrs/día)
+        function calcularHorasLaborales(inicio, fin) {
+            if (!inicio || !fin || fin <= inicio) return 0;
+            let total = 0;
+            const cur = new Date(inicio);
+            while (cur < fin) {
+                const dia = cur.getDay();
+                if (dia >= 1 && dia <= 5) { // L-V
+                    const horaDecimal = cur.getHours() + cur.getMinutes() / 60;
+                    const horaInicio = Math.max(horaDecimal, JORNADA_INICIO);
+                    const finDia = new Date(cur);
+                    finDia.setHours(JORNADA_FIN, 0, 0, 0);
+                    const limFin = fin < finDia ? fin : finDia;
+                    const horaFin = Math.min(limFin.getHours() + limFin.getMinutes() / 60, JORNADA_FIN);
+                    if (horaFin > horaInicio) {
+                        let hrs = horaFin - horaInicio;
+                        // Descontar almuerzo si el rango cruza 12:30-13:30
+                        if (horaInicio < ALMUERZO_FIN && horaFin > ALMUERZO_INICIO) {
+                            const overlapStart = Math.max(horaInicio, ALMUERZO_INICIO);
+                            const overlapEnd = Math.min(horaFin, ALMUERZO_FIN);
+                            if (overlapEnd > overlapStart) {
+                                hrs -= (overlapEnd - overlapStart);
+                            }
+                        }
+                        if (hrs > 0) total += hrs;
+                    }
+                }
+                // Siguiente día a las 8:00
+                cur.setDate(cur.getDate() + 1);
+                cur.setHours(8, 0, 0, 0);
+            }
+            return Math.round(total * 100) / 100;
+        }
+
+        // Calcula fin estimado a partir de inicio + duración (horas laborales regulares)
+        // Respeta: L-V 8:00-18:00, almuerzo 12:30-13:30
+        function calcularFinEstimado(inicio, duracionHrs) {
+            if (!inicio || !duracionHrs || duracionHrs <= 0) return null;
+            let restante = duracionHrs;
+            const cur = new Date(inicio);
+
+            // Ajustar si cae fuera de horario laboral
+            if (cur.getDay() === 0) { cur.setDate(cur.getDate() + 1); cur.setHours(8, 0, 0, 0); }
+            else if (cur.getDay() === 6) { cur.setDate(cur.getDate() + 2); cur.setHours(8, 0, 0, 0); }
+            else {
+                const h = cur.getHours() + cur.getMinutes() / 60;
+                if (h < JORNADA_INICIO) cur.setHours(8, 0, 0, 0);
+                else if (h >= JORNADA_FIN) { cur.setDate(cur.getDate() + 1); cur.setHours(8, 0, 0, 0); skipWeekend(cur); }
+            }
+
+            while (restante > 0) {
+                skipWeekend(cur);
+                const h = cur.getHours() + cur.getMinutes() / 60;
+
+                // Bloque mañana: desde h actual hasta 12:30
+                if (h < ALMUERZO_INICIO) {
+                    const disponible = ALMUERZO_INICIO - h;
+                    if (restante <= disponible) {
+                        cur.setMinutes(cur.getMinutes() + restante * 60);
+                        restante = 0;
+                    } else {
+                        restante -= disponible;
+                        cur.setHours(13, 30, 0, 0); // saltar almuerzo
+                    }
+                }
+                // Bloque almuerzo: saltar a 13:30
+                else if (h >= ALMUERZO_INICIO && h < ALMUERZO_FIN) {
+                    cur.setHours(13, 30, 0, 0);
+                }
+                // Bloque tarde: desde h actual (o 13:30) hasta 18:00
+                else if (h >= ALMUERZO_FIN && h < JORNADA_FIN) {
+                    const disponible = JORNADA_FIN - h;
+                    if (restante <= disponible) {
+                        cur.setMinutes(cur.getMinutes() + restante * 60);
+                        restante = 0;
+                    } else {
+                        restante -= disponible;
+                        cur.setDate(cur.getDate() + 1);
+                        cur.setHours(8, 0, 0, 0);
+                    }
+                }
+                // Fuera de horario
+                else {
+                    cur.setDate(cur.getDate() + 1);
+                    cur.setHours(8, 0, 0, 0);
+                }
+            }
+            return cur;
+        }
+
+        function skipWeekend(d) {
+            while (d.getDay() === 0 || d.getDay() === 6) {
+                d.setDate(d.getDate() + 1);
+                d.setHours(8, 0, 0, 0);
+            }
+        }
+
+        async function cargarDatos() {
+            try {
+                const res = await fetch('/api/produccion/plan-programacion');
+                if (!res.ok) throw new Error('Error al cargar datos');
+                allData = await res.json();
+                llenarFiltros();
+                filtrar();
+            } catch (e) {
+                console.error(e);
+                document.getElementById('tabla-body').innerHTML =
+                    '<tr><td colspan="22" class="px-4 py-10 text-center text-red-400"><i class="fas fa-exclamation-triangle mr-2"></i>Error al cargar datos</td></tr>';
+            }
+        }
+
+        function llenarFiltros() {
+            const semanas = [...new Set(allData.map(r => r.semana_plan).filter(Boolean))].sort();
+            const clientes = [...new Set(allData.map(r => r.cliente).filter(Boolean))].sort();
+            const operarios = [...new Set(allData.map(r => r.operario).filter(Boolean))].sort();
+            const equipos = [...new Set(allData.map(r => r.equipo).filter(Boolean))].sort();
+            const talleres = [...new Set(allData.map(r => r.taller_status).filter(Boolean))].sort();
+            const estados = [...new Set(allData.map(r => r.estado).filter(Boolean))].sort();
+
+            fillSelect('filtro-semana', semanas);
+            fillSelect('filtro-cliente', clientes);
+            fillSelect('filtro-operario', operarios);
+            fillSelect('filtro-equipo', equipos);
+            fillSelect('filtro-taller', talleres);
+            fillSelect('filtro-estado', estados);
+        }
+
+        function fillSelect(id, values) {
+            const sel = document.getElementById(id);
+            const current = sel.value;
+            const first = sel.options[0].outerHTML;
+            sel.innerHTML = first + values.map(v => `<option value="${v}" ${v === current ? 'selected' : ''}>${v}</option>`).join('');
+        }
+
+        function filtrar() {
+            const semana = document.getElementById('filtro-semana').value;
+            const cliente = document.getElementById('filtro-cliente').value;
+            const operario = document.getElementById('filtro-operario').value;
+            const equipo = document.getElementById('filtro-equipo').value;
+            const taller = document.getElementById('filtro-taller').value;
+            const estado = document.getElementById('filtro-estado').value;
+            const busq = document.getElementById('filtro-busqueda').value.toLowerCase();
+
+            filteredData = allData.filter(r => {
+                if (semana && r.semana_plan !== semana) return false;
+                if (cliente && r.cliente !== cliente) return false;
+                if (operario && r.operario !== operario) return false;
+                if (equipo && r.equipo !== equipo) return false;
+                if (taller && r.taller_status !== taller) return false;
+                if (estado && r.estado !== estado) return false;
+                if (busq) {
+                    const txt = [r.ot, r.cliente, r.flota, r.descripcion, r.tarea, r.operario, r.equipo]
+                        .filter(Boolean).join(' ').toLowerCase();
+                    if (!txt.includes(busq)) return false;
+                }
+                return true;
+            });
+
+            document.getElementById('contador').textContent = `${filteredData.length} tareas`;
+            renderTabla();
+        }
+
+        function renderTabla() {
+            const tbody = document.getElementById('tabla-body');
+            if (filteredData.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="22" class="px-4 py-10 text-center text-gray-400">No hay tareas programadas</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = filteredData.map(r => {
+                const duracion = r.duracion ? parseFloat(r.duracion) : '';
+                const qty = r.qty_personal || '';
+                const hh = (duracion && qty) ? (parseFloat(duracion) * qty).toFixed(2) : '-';
+                const isHE = !!r.he;
+                const heQty = r.horas_extras_qty ? parseFloat(r.horas_extras_qty) : '';
+
+                const prioridadMap = { '1': 'Alta', '2': 'Media', '3': 'Baja', 'E': 'Emergencia' };
+                const prioridadLabel = prioridadMap[r.prioridad] || r.prioridad || '-';
+                const prioridadBadge = {
+                    '1': 'bg-red-100 text-red-800',
+                    '2': 'bg-orange-100 text-orange-800',
+                    '3': 'bg-yellow-100 text-yellow-800',
+                    'E': 'bg-purple-100 text-purple-800',
+                }[r.prioridad] || 'bg-gray-100 text-gray-800';
+
+                const estadoClass = {
+                    'Abierto': 'bg-yellow-100 text-yellow-800',
+                    'Pendiente': 'bg-yellow-100 text-yellow-800',
+                    'Programado': 'bg-blue-100 text-blue-800',
+                    'Realizado': 'bg-green-100 text-green-800',
+                    'Completado': 'bg-green-100 text-green-800',
+                    'Correctivo': 'bg-orange-100 text-orange-800',
+                    'Cancelado': 'bg-red-100 text-red-800',
+                }[r.estado] || 'bg-gray-100 text-gray-800';
+
+                return `<tr class="border-t border-gray-100 hover:bg-gray-50" data-id="${r.tarea_id}">
+                    <td class="px-2 py-1.5 font-mono font-bold text-cyan-700 whitespace-nowrap">${r.ot || ''}</td>
+                    <td class="px-2 py-1.5 whitespace-nowrap">${r.cliente || '-'}</td>
+                    <td class="px-2 py-1.5 whitespace-nowrap">${r.flota || '-'}</td>
+                    <td class="px-2 py-1.5 max-w-[200px] truncate" title="${r.descripcion || ''}">${r.descripcion || '-'}</td>
+                    <td class="px-2 py-1.5 whitespace-nowrap">${fmtDate(r.fecha_recepcion)}</td>
+                    <td class="px-2 py-1.5 text-center"><span class="px-1.5 py-0.5 rounded text-[10px] font-bold ${prioridadBadge}">${prioridadLabel}</span></td>
+                    <td class="px-2 py-1.5 whitespace-nowrap">${fmtDate(r.fecha_requerimiento_cliente)}</td>
+                    <td class="px-2 py-1.5 whitespace-nowrap">${r.taller_status || '-'}</td>
+                    <td class="px-2 py-1.5 text-center font-mono">${r.nro_tarea || ''}</td>
+                    <td class="px-2 py-1.5 whitespace-nowrap">${r.parte || '-'}</td>
+                    <td class="px-2 py-1.5 max-w-[180px] truncate" title="${r.tarea || ''}">${r.tarea || '-'}</td>
+                    <td class="editable-cell px-1 py-1">
+                        <select onchange="guardarCampo(${r.tarea_id}, 'semana_plan', this.value)" class="w-full px-1 py-1 rounded text-xs">
+                            <option value="">--</option>
+                            ${SEMANAS.map(s => `<option value="${s}" ${r.semana_plan === s ? 'selected' : ''}>${s}</option>`).join('')}
+                        </select>
+                    </td>
+                    <td class="editable-cell px-1 py-1">
+                        <select onchange="guardarCampo(${r.tarea_id}, 'tecnico', this.value)" class="w-full px-1 py-1 rounded text-xs">
+                            <option value="">--</option>
+                            ${OPERARIOS.map(o => `<option value="${o}" ${r.operario === o ? 'selected' : ''}>${o}</option>`).join('')}
+                        </select>
+                    </td>
+                    <td class="editable-cell px-1 py-1">
+                        <select onchange="guardarCampo(${r.tarea_id}, 'maquina', this.value)" class="w-full px-1 py-1 rounded text-xs">
+                            <option value="">--</option>
+                            ${EQUIPOS.map(e => `<option value="${e}" ${r.equipo === e ? 'selected' : ''}>${e}</option>`).join('')}
+                        </select>
+                    </td>
+                    <td class="editable-cell px-1 py-1">
+                        <input type="datetime-local" value="${toDatetimeLocal(r.inicio_estimado)}" id="inicio-${r.tarea_id}"
+                            onchange="onInicioChange(${r.tarea_id})" class="w-full px-1 py-1 rounded text-xs">
+                    </td>
+                    <td class="editable-cell px-1 py-1">
+                        <input type="number" value="${duracion}" min="0.5" step="0.5" style="width:70px" id="dur-${r.tarea_id}"
+                            onchange="onDuracionChange(${r.tarea_id})" class="px-1 py-1 rounded text-xs text-center">
+                    </td>
+                    <td class="editable-cell px-1 py-1 text-center">
+                        <input type="checkbox" ${isHE ? 'checked' : ''} id="he-${r.tarea_id}"
+                            onchange="onHEChange(${r.tarea_id})" class="rounded">
+                    </td>
+                    <td class="editable-cell px-1 py-1">
+                        <input type="number" value="${heQty}" min="0.5" step="0.5" style="width:60px" id="heqty-${r.tarea_id}"
+                            ${isHE ? '' : 'disabled'} placeholder="-"
+                            onchange="onHEQtyChange(${r.tarea_id})" class="px-1 py-1 rounded text-xs text-center disabled:bg-gray-100 disabled:text-gray-400">
+                    </td>
+                    <td class="px-1 py-1" id="fin-cell-${r.tarea_id}">
+                        ${isHE
+                            ? `<input type="datetime-local" value="${toDatetimeLocal(r.fin_estimado)}" id="fin-${r.tarea_id}"
+                                onchange="onFinManualChange(${r.tarea_id})" class="editable-cell w-full px-1 py-1 rounded text-xs">`
+                            : `<span class="auto-cell px-2 py-1.5 text-xs whitespace-nowrap block" id="fin-${r.tarea_id}">${fmtDateTime(r.fin_estimado)}</span>`
+                        }
+                    </td>
+                    <td class="editable-cell px-1 py-1">
+                        <input type="number" value="${qty}" min="1" style="width:50px" id="qty-${r.tarea_id}"
+                            onchange="onQtyChange(${r.tarea_id})" class="px-1 py-1 rounded text-xs text-center" placeholder="-">
+                    </td>
+                    <td class="auto-cell px-2 py-1.5 text-center font-mono font-bold text-blue-700" id="hh-${r.tarea_id}">${hh}</td>
+                    <td class="editable-cell px-1 py-1">
+                        <select onchange="onEstadoChange(${r.tarea_id}, this.value)" class="w-full px-1 py-1 rounded text-xs">
+                            ${ESTADOS_TAREA.map(e => `<option value="${e}" ${r.estado === e ? 'selected' : ''}>${e}</option>`).join('')}
+                        </select>
+                    </td>
+                </tr>`;
+            }).join('');
+        }
+
+        // Cambios pendientes: { tareaId: { campo: valor, ... } }
+        const cambiosPendientes = {};
+
+        function guardarCampo(tareaId, campo, valor) {
+            if (!cambiosPendientes[tareaId]) cambiosPendientes[tareaId] = {};
+            cambiosPendientes[tareaId][campo] = valor;
+
+            // Actualizar dato local
+            const item = allData.find(r => r.tarea_id === tareaId);
+            if (item) {
+                const fieldMap = {
+                    tecnico: 'operario', maquina: 'equipo', horas_extras: 'he',
+                    fecha_inicio: 'inicio_estimado', fecha_fin: 'fin_estimado',
+                    horas_estimadas: 'duracion', horas_extras_qty: 'horas_extras_qty'
+                };
+                const key = fieldMap[campo] || campo;
+                item[key] = valor;
+            }
+
+            // Marcar fila como modificada
+            const row = document.querySelector(`tr[data-id="${tareaId}"]`);
+            if (row) row.classList.add('bg-yellow-50');
+
+            // Mostrar botón guardar
+            const total = Object.keys(cambiosPendientes).length;
+            document.getElementById('cambios-count').textContent = total;
+            document.getElementById('btn-guardar').classList.remove('hidden');
+        }
+
+        // Cuando cambia inicio estimado → recalcular fin estimado
+        function onInicioChange(tareaId) {
+            const inicioEl = document.getElementById('inicio-' + tareaId);
+            guardarCampo(tareaId, 'fecha_inicio', inicioEl.value);
+            recalcularFinEstimado(tareaId);
+        }
+
+        // Cuando cambia duración → recalcular fin estimado
+        function onDuracionChange(tareaId) {
+            const durEl = document.getElementById('dur-' + tareaId);
+            const dur = parseFloat(durEl.value) || 0;
+            guardarCampo(tareaId, 'horas_estimadas', dur);
+            recalcularFinEstimado(tareaId);
+            recalcularHH(tareaId);
+        }
+
+        // Recalcula fin estimado a partir de inicio + duración (solo horas regulares)
+        function recalcularFinEstimado(tareaId) {
+            const heEl = document.getElementById('he-' + tareaId);
+            if (heEl && heEl.checked) return; // Si tiene HE, fin es manual
+
+            const inicioEl = document.getElementById('inicio-' + tareaId);
+            const durEl = document.getElementById('dur-' + tareaId);
+            const finEl = document.getElementById('fin-' + tareaId);
+            if (!inicioEl || !durEl || !finEl) return;
+
+            const inicioVal = inicioEl.value;
+            const dur = parseFloat(durEl.value) || 0;
+
+            if (!inicioVal || dur <= 0) {
+                if (finEl.tagName === 'SPAN') finEl.textContent = '-';
+                guardarCampo(tareaId, 'fecha_fin', null);
+                return;
+            }
+
+            const fin = calcularFinEstimado(new Date(inicioVal), dur);
+            if (fin) {
+                const finStr = toDatetimeLocal(fin);
+                if (finEl.tagName === 'SPAN') {
+                    finEl.textContent = fmtDateTime(fin);
+                } else {
+                    finEl.value = finStr;
+                }
+                guardarCampo(tareaId, 'fecha_fin', finStr);
+            }
+        }
+
+        // Cuando cambia checkbox HE
+        function onHEChange(tareaId) {
+            const heEl = document.getElementById('he-' + tareaId);
+            const isHE = heEl.checked;
+            guardarCampo(tareaId, 'horas_extras', isHE);
+
+            const heQtyEl = document.getElementById('heqty-' + tareaId);
+            heQtyEl.disabled = !isHE;
+            if (!isHE) {
+                heQtyEl.value = '';
+                guardarCampo(tareaId, 'horas_extras_qty', null);
+            }
+
+            // Cambiar fin estimado entre editable (input) y auto (span)
+            const finCell = document.getElementById('fin-cell-' + tareaId);
+            const item = allData.find(r => r.tarea_id === tareaId);
+            const finVal = item ? toDatetimeLocal(item.fin_estimado) : '';
+
+            if (isHE) {
+                // Fin se vuelve editable (input)
+                finCell.innerHTML = `<input type="datetime-local" value="${finVal}" id="fin-${tareaId}"
+                    onchange="onFinManualChange(${tareaId})" class="editable-cell w-full px-1 py-1 rounded text-xs">`;
+                // Recalcular duración basado en horario regular (inicio→fin en horas regulares)
+                recalcularDuracionDesdeRango(tareaId);
+            } else {
+                // Fin vuelve a ser auto (span)
+                finCell.innerHTML = `<span class="auto-cell px-2 py-1.5 text-xs whitespace-nowrap block" id="fin-${tareaId}">${fmtDateTime(item?.fin_estimado)}</span>`;
+                // Recalcular fin desde inicio + duración
+                recalcularFinEstimado(tareaId);
+            }
+        }
+
+        // Cuando cambia cantidad HE manualmente
+        function onHEQtyChange(tareaId) {
+            const heQtyEl = document.getElementById('heqty-' + tareaId);
+            const val = parseFloat(heQtyEl.value) || 0;
+            guardarCampo(tareaId, 'horas_extras_qty', val || null);
+        }
+
+        // Cuando el usuario edita fin estimado manualmente (solo con HE activo)
+        function onFinManualChange(tareaId) {
+            const finEl = document.getElementById('fin-' + tareaId);
+            guardarCampo(tareaId, 'fecha_fin', finEl.value);
+            // Recalcular duración = horas regulares entre inicio y fin
+            recalcularDuracionDesdeRango(tareaId);
+        }
+
+        // Calcula duración = horas laborales regulares entre inicio y fin
+        // (usado cuando HE está activo y el usuario pone fin manual)
+        function recalcularDuracionDesdeRango(tareaId) {
+            const inicioEl = document.getElementById('inicio-' + tareaId);
+            const finEl = document.getElementById('fin-' + tareaId);
+            const durEl = document.getElementById('dur-' + tareaId);
+            if (!inicioEl || !finEl || !durEl) return;
+
+            const inicioVal = inicioEl.value;
+            const finVal = finEl.tagName === 'INPUT' ? finEl.value : null;
+            if (!inicioVal || !finVal) return;
+
+            const dur = calcularHorasLaborales(new Date(inicioVal), new Date(finVal));
+            durEl.value = dur > 0 ? dur : '';
+            if (dur > 0) {
+                guardarCampo(tareaId, 'horas_estimadas', dur);
+            }
+            recalcularHH(tareaId);
+        }
+
+        function onQtyChange(tareaId, valor) {
+            const qtyEl = document.getElementById('qty-' + tareaId);
+            const val = parseInt(qtyEl.value) || null;
+            guardarCampo(tareaId, 'qty_personal', val);
+            recalcularHH(tareaId);
+        }
+
+        function recalcularHH(tareaId) {
+            const durEl = document.getElementById('dur-' + tareaId);
+            const qtyEl = document.getElementById('qty-' + tareaId);
+            const hhEl = document.getElementById('hh-' + tareaId);
+            if (!durEl || !qtyEl || !hhEl) return;
+            const dur = parseFloat(durEl.value) || 0;
+            const qty = parseInt(qtyEl.value) || 0;
+            hhEl.textContent = (dur && qty) ? (dur * qty).toFixed(2) : '-';
+        }
+
+        function onEstadoChange(tareaId, valor) {
+            guardarCampo(tareaId, 'estado', valor);
+        }
+
+        // Ordenamiento por columna
+        let sortCol = null;
+        let sortAsc = true;
+
+        function sortTabla(campo) {
+            if (sortCol === campo) {
+                sortAsc = !sortAsc;
+            } else {
+                sortCol = campo;
+                sortAsc = true;
+            }
+            filteredData.sort((a, b) => {
+                let va = a[campo], vb = b[campo];
+                // Nulls al final
+                if (va == null && vb == null) return 0;
+                if (va == null) return 1;
+                if (vb == null) return -1;
+                // Numéricos
+                if (typeof va === 'number' || !isNaN(parseFloat(va))) {
+                    va = parseFloat(va) || 0;
+                    vb = parseFloat(vb) || 0;
+                    return sortAsc ? va - vb : vb - va;
+                }
+                // Strings
+                va = String(va).toLowerCase();
+                vb = String(vb).toLowerCase();
+                return sortAsc ? va.localeCompare(vb) : vb.localeCompare(va);
+            });
+            renderTabla();
+        }
+
+        async function guardarTodo() {
+            const ids = Object.keys(cambiosPendientes);
+            if (ids.length === 0) return;
+
+            const btn = document.getElementById('btn-guardar');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Guardando...';
+
+            let ok = 0, fail = 0;
+            for (const id of ids) {
+                try {
+                    const res = await fetch(`/api/produccion/plan-programacion/${id}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(cambiosPendientes[id]),
+                    });
+                    if (res.ok) {
+                        ok++;
+                        delete cambiosPendientes[id];
+                        const row = document.querySelector(`tr[data-id="${id}"]`);
+                        if (row) {
+                            row.classList.remove('bg-yellow-50');
+                            row.classList.add('bg-green-50');
+                            setTimeout(() => row.classList.remove('bg-green-50'), 1500);
+                        }
+                    } else { fail++; }
+                } catch (e) { fail++; }
+            }
+
+            btn.disabled = false;
+            if (Object.keys(cambiosPendientes).length === 0) {
+                btn.classList.add('hidden');
+            } else {
+                btn.innerHTML = `<i class="fas fa-save mr-2"></i>Guardar Cambios (<span id="cambios-count">${Object.keys(cambiosPendientes).length}</span>)`;
+            }
+
+            showToast(`${ok} cambio${ok !== 1 ? 's' : ''} guardado${ok !== 1 ? 's' : ''}${fail ? `, ${fail} error${fail !== 1 ? 'es' : ''}` : ''}`, fail ? 'error' : 'success');
+        }
+
+        function limpiarFiltros() {
+            document.getElementById('filtro-semana').value = '';
+            document.getElementById('filtro-cliente').value = '';
+            document.getElementById('filtro-operario').value = '';
+            document.getElementById('filtro-equipo').value = '';
+            document.getElementById('filtro-taller').value = '';
+            document.getElementById('filtro-estado').value = '';
+            document.getElementById('filtro-busqueda').value = '';
+            filtrar();
+        }
+
+        function showToast(msg, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `fixed bottom-4 right-4 px-4 py-3 rounded-lg shadow-lg text-white text-sm z-50 fade-in ${type === 'error' ? 'bg-red-600' : 'bg-green-600'}`;
+            toast.textContent = msg;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        function exportarExcel() {
+            const data = filteredData.map(r => ({
+                'OT': r.ot,
+                'Cliente': r.cliente,
+                'Flota': r.flota,
+                'Descripción': r.descripcion,
+                'F. Recepción': fmtDate(r.fecha_recepcion),
+                'Prioridad': r.prioridad,
+                'F. Req. Cliente': fmtDate(r.fecha_requerimiento_cliente),
+                'Taller Status': r.taller_status,
+                'N° Tarea': r.nro_tarea,
+                'Parte': r.parte,
+                'Tarea': r.tarea,
+                'Semana Plan': r.semana_plan,
+                'Operario': r.operario,
+                'Equipo': r.equipo,
+                'Inicio Estimado': fmtDateTime(r.inicio_estimado),
+                'Duración (hrs)': r.duracion,
+                'HE': r.he ? 'Sí' : 'No',
+                'Qty HE': r.horas_extras_qty || '',
+                'Fin Estimado': fmtDateTime(r.fin_estimado),
+                'Qty': r.qty_personal || '',
+                'HH': r.duracion ? (parseFloat(r.duracion) * (r.qty_personal || 1)).toFixed(2) : '',
+                'Estado Tarea': r.estado || '',
+            }));
+
+            const ws = XLSX.utils.json_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Planificación');
+            XLSX.writeFile(wb, `Planificacion_${new Date().toISOString().slice(0,10)}.xlsx`);
+        }
+
+        // Init
+        cargarDatos();
+    </script>
+</body>
+</html>

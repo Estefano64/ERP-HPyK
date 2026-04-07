@@ -562,14 +562,7 @@
             tbody.insertAdjacentHTML('afterbegin', newRow);
         }
 
-        function formatDate(dateString) {
-            const date = new Date(dateString);
-            return date.toLocaleDateString('es-ES', {
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric'
-            }).replace(/\//g, '.');
-        }
+        // formatDate is now a global function from navigation.js (DD/MM/YYYY)
 
         // Close modal when clicking outside
         document.getElementById('modalNuevaOrden').addEventListener('click', function(e) {

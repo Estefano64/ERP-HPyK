@@ -2,6 +2,8 @@ import { Router } from 'express';
 import * as recetaController from '../controllers/produccion/recetaController';
 import * as registroProduccionController from '../controllers/produccion/registroProduccionController';
 import * as perdidaController from '../controllers/produccion/perdidaController';
+import * as planProgramacionController from '../controllers/produccion/planProgramacionController';
+import * as programacionSemanalController from '../controllers/produccion/programacionSemanalController';
 
 const router = Router();
 
@@ -25,5 +27,13 @@ router.get('/perdidas/:id', perdidaController.getPerdidaById);
 router.post('/perdidas', perdidaController.createPerdida);
 router.put('/perdidas/:id', perdidaController.updatePerdida);
 router.delete('/perdidas/:id', perdidaController.deletePerdida);
+
+// Planificación
+router.get('/plan-programacion', planProgramacionController.getAllTareasProgramadas);
+router.put('/plan-programacion/:id', planProgramacionController.updateTareaProgramada);
+
+// Programación Semanal
+router.get('/programacion-semanal', programacionSemanalController.getTasksBySemana);
+router.put('/programacion-semanal/bulk', programacionSemanalController.bulkUpdateTasks);
 
 export default router;

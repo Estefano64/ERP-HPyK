@@ -1,4 +1,5 @@
 import sequelize from '../config/database';
+import { QueryTypes } from 'sequelize';
 import {
   Planta,
   Area,
@@ -29,6 +30,7 @@ import {
   RecursosStatus,
   TallerStatus,
 } from '../models/index';
+import Contrato from '../models/Contrato';
 
 // ================================================================
 // DATOS REALES de la empresa HPyK — extraídos de los Excel en data/
@@ -596,6 +598,69 @@ async function seedDatabase() {
     ], { updateOnDuplicate: ['nombre', 'activo'] });
     console.log('✓ 7 status de taller\n');
 
+    // ── CONTRATOS (vinculados a CodRep + Cliente) ───────────────────
+    console.log('Sembrando Contratos...');
+    // Obtener IDs de clientes principales
+    const clienteRows: any[] = await sequelize.query(
+      `SELECT cliente_id, codigo FROM cliente WHERE codigo IN ('LBAMBAS','ANTAP','CVERDE','SPCC-CUA','SPCC-TOQ','CHINALCO','QUELLAVE','HUDBAY')`,
+      { type: QueryTypes.SELECT }
+    );
+    const clienteMap: Record<string, number> = {};
+    for (const c of clienteRows) clienteMap[c.codigo] = c.cliente_id;
+
+    // Obtener IDs de CodReps existentes
+    const codRepRows: any[] = await sequelize.query(
+      `SELECT cod_rep_id, codigo FROM codigo_reparacion`,
+      { type: QueryTypes.SELECT }
+    );
+    const codRepMap: Record<string, number> = {};
+    for (const cr of codRepRows) codRepMap[cr.codigo] = cr.cod_rep_id;
+
+    const contratosData = [
+      // Las Bambas
+      { codigo: 'CONTR-001-26', cliente_codigo: 'LBAMBAS', cod_rep_codigo: 'CIL-CAT-793-DIR', dias: 15, precio: 18000, inicio: '2026-01-01', fin: '2028-01-01' },
+      { codigo: 'CONTR-002-26', cliente_codigo: 'LBAMBAS', cod_rep_codigo: 'CIL-CAT-793-SUS', dias: 20, precio: 24000, inicio: '2026-03-01', fin: '2027-12-31' },
+      { codigo: 'CONTR-003-26', cliente_codigo: 'LBAMBAS', cod_rep_codigo: 'CIL-KOM-930-SUS', dias: 18, precio: 22000, inicio: '2025-06-01', fin: '2027-06-01' },
+      { codigo: 'CONTR-004-26', cliente_codigo: 'LBAMBAS', cod_rep_codigo: 'CIL-CAT-16M-NIV', dias: 12, precio: 12500, inicio: '2026-01-01', fin: '2028-01-01' },
+      // Antapaccay
+      { codigo: 'CONTR-005-26', cliente_codigo: 'ANTAP', cod_rep_codigo: 'CIL-CAT-793-DIR', dias: 18, precio: 22000, inicio: '2026-01-15', fin: '2028-01-15' },
+      { codigo: 'CONTR-006-26', cliente_codigo: 'ANTAP', cod_rep_codigo: 'CIL-CAT-793-SUS', dias: 25, precio: 30000, inicio: '2025-07-01', fin: '2027-07-01' },
+      { codigo: 'CONTR-007-26', cliente_codigo: 'ANTAP', cod_rep_codigo: 'CIL-KOM-930-SUS', dias: 20, precio: 25000, inicio: '2026-02-01', fin: '2027-08-01' },
+      // Cerro Verde
+      { codigo: 'CONTR-008-26', cliente_codigo: 'CVERDE', cod_rep_codigo: 'CIL-CAT-793-DIR', dias: 20, precio: 19000, inicio: '2025-09-01', fin: '2027-09-01' },
+      { codigo: 'CONTR-009-26', cliente_codigo: 'CVERDE', cod_rep_codigo: 'CIL-KOM-930-SUS', dias: 14, precio: 11000, inicio: '2026-01-01', fin: '2027-12-31' },
+      // SPCC Cuajone
+      { codigo: 'CONTR-010-26', cliente_codigo: 'SPCC-CUA', cod_rep_codigo: 'CIL-CAT-793-DIR', dias: 22, precio: 26000, inicio: '2026-01-01', fin: '2028-06-30' },
+      { codigo: 'CONTR-011-26', cliente_codigo: 'SPCC-CUA', cod_rep_codigo: 'CIL-CAT-793-SUS', dias: 15, precio: 14000, inicio: '2025-10-01', fin: '2027-10-01' },
+      // SPCC Toquepala
+      { codigo: 'CONTR-012-26', cliente_codigo: 'SPCC-TOQ', cod_rep_codigo: 'CIL-CAT-16M-NIV', dias: 18, precio: 21000, inicio: '2026-02-01', fin: '2028-02-01' },
+      // Chinalco
+      { codigo: 'CONTR-013-26', cliente_codigo: 'CHINALCO', cod_rep_codigo: 'CIL-CAT-793-DIR', dias: 16, precio: 17500, inicio: '2026-01-01', fin: '2027-12-31' },
+      { codigo: 'CONTR-014-26', cliente_codigo: 'CHINALCO', cod_rep_codigo: 'CIL-KOM-930-SUS', dias: 12, precio: 10000, inicio: '2025-11-01', fin: '2027-05-01' },
+      // Quellaveco
+      { codigo: 'CONTR-015-26', cliente_codigo: 'QUELLAVE', cod_rep_codigo: 'CIL-CAT-793-SUS', dias: 20, precio: 23000, inicio: '2026-03-01', fin: '2028-03-01' },
+      // Hudbay
+      { codigo: 'CONTR-016-26', cliente_codigo: 'HUDBAY', cod_rep_codigo: 'CIL-KOM-930-SUS', dias: 25, precio: 28000, inicio: '2025-08-01', fin: '2027-08-01' },
+    ];
+
+    const contratosToCreate = contratosData
+      .filter(c => clienteMap[c.cliente_codigo] && codRepMap[c.cod_rep_codigo])
+      .map(c => ({
+        codigo: c.codigo,
+        cliente_id: clienteMap[c.cliente_codigo],
+        cod_rep_id: codRepMap[c.cod_rep_codigo],
+        fecha_inicio: c.inicio,
+        fecha_termino: c.fin,
+        dias_reparacion: c.dias,
+        precio: c.precio,
+        activo: true,
+      }));
+
+    if (contratosToCreate.length > 0) {
+      await Contrato.bulkCreate(contratosToCreate as any, { updateOnDuplicate: ['cod_rep_id', 'dias_reparacion', 'precio', 'fecha_inicio', 'fecha_termino', 'activo'] });
+    }
+    console.log(`✓ ${contratosToCreate.length} contratos (vinculados a CodRep)\n`);
+
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     console.log('✓ SEEDS COMPLETADOS EXITOSAMENTE');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
@@ -609,6 +674,7 @@ async function seedDatabase() {
     console.log('  16 Clientes | 2 Garantías | 3 Atención Rep');
     console.log('  4 Tipos Rep | 4 Tipos Garantía | 4 Prioridades | 2 Base Metálica');
     console.log('  3 OT Status | 6 Recursos Status | 7 Taller Status');
+    console.log('  15 Contratos');
     console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n');
 
   } catch (error) {

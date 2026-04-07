@@ -2681,7 +2681,7 @@
             if (proveedoresData.length === 0) { showToastMsg('No hay datos para exportar'); return; }
             
             const catLabels = {materiales: 'Materiales', herramientas: 'Herramientas', consumibles: 'Consumibles', servicios: 'Servicios', equipos: 'Equipos', transporte: 'Transporte'};
-            const fecha = new Date().toLocaleDateString('es-PE');
+            const fecha = formatDate(new Date());
             
             // Crear workbook con ExcelJS
             const workbook = new ExcelJS.Workbook();
@@ -2898,7 +2898,7 @@
                 const estadoBadge = getEstadoBadge(o.estado);
                 const monedaSymbol = o.moneda === 'USD' ? '$' : 'S/';
                 
-                const fmtDate = d => d ? new Date(d).toLocaleDateString('es-PE') : '-';
+                const fmtDate = d => formatDate(d);
                 const total = parseFloat(o.total_final || o.total || 0);
                 return `
                     <tr class="hover:bg-gray-50">
@@ -3162,7 +3162,7 @@
             const total = parseFloat(orden.total_final || orden.total || 0);
             const subtotal = parseFloat(orden.subtotal || 0);
             const igv = total - subtotal;
-            const fmtD = d => d ? new Date(d).toLocaleDateString('es-PE') : '-';
+            const fmtD = d => formatDate(d);
             const detalles = `ORDEN DE COMPRA\n\nNúmero: ${orden.numero_oc || orden.numero || '-'}\nProveedor: ${orden.proveedor_nombre || '-'}\nFecha Orden: ${fmtD(orden.fecha_orden || orden.fecha_emision)}\nFecha Entrega: ${fmtD(orden.fecha_entrega_requerida || orden.fecha_entrega)}\nEstado: ${(orden.estado||'-').toUpperCase().replace('_',' ')}\nForma Pago: ${orden.forma_pago || orden.condicion_pago || '-'}\nMoneda: ${orden.moneda||'PEN'}\n\nPRODUCTOS:\n${productosStr}\n\nTOTALES:\nSubtotal: ${monedaSymbol} ${subtotal.toFixed(2)}\nIGV (18%): ${monedaSymbol} ${igv.toFixed(2)}\nTOTAL: ${monedaSymbol} ${total.toFixed(2)}\n\n${orden.observaciones ? 'Observaciones: ' + orden.observaciones : ''}`.trim();
             alert(detalles);
         }
@@ -3417,7 +3417,7 @@
             yPos += 4;
             doc.setFont(undefined, 'normal');
             doc.text(`Fecha Emisión:`, 130, yPos);
-            doc.text(new Date(orden.fecha_orden || orden.fecha_emision).toLocaleDateString('es-PE'), 165, yPos);
+            doc.text(formatDate(orden.fecha_orden || orden.fecha_emision), 165, yPos);
             
             yPos += 4;
             doc.text(`Ref. Pedido:`, 130, yPos);
@@ -3448,7 +3448,7 @@
                 p.codigo || '-',
                 p.descripcion || '-',
                 p.unidad || 'und',
-                new Date(orden.fecha_entrega_requerida || orden.fecha_entrega || Date.now()).toLocaleDateString('es-PE', { day: '2-digit', month: 'short' }),
+                formatDateShort(orden.fecha_entrega_requerida || orden.fecha_entrega || Date.now()),
                 parseFloat(p.precio_unitario||0).toFixed(2),
                 parseFloat(p.subtotal||0).toFixed(2)
             ]);
@@ -3615,7 +3615,7 @@
                 return;
             }
             
-            const fecha = new Date().toLocaleDateString('es-PE');
+            const fecha = formatDate(new Date());
             const totalSubtotal = ordenes.reduce((sum, o) => sum + (parseFloat(o.subtotal) || 0), 0);
             const totalIGV = ordenes.reduce((sum, o) => sum + (parseFloat(o.igv) || 0), 0);
             const totalGeneral = ordenes.reduce((sum, o) => sum + (parseFloat(o.total) || 0), 0);
@@ -4948,7 +4948,7 @@
                 return;
             }
 
-            const fecha = new Date().toLocaleDateString('es-PE');
+            const fecha = formatDate(new Date());
             
             // Crear workbook con ExcelJS
             const workbook = new ExcelJS.Workbook();

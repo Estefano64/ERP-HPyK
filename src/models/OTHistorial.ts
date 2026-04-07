@@ -4,7 +4,7 @@ import sequelize from '../config/database';
 interface OTHistorialAttributes {
   id: number;
   ot_id: number;
-  tipo_operacion: 'Solicitud Repuestos' | 'Generación PO' | 'Cambio Estado' | 'Asignación' | 'Comentario' | 'Otro';
+  tipo_operacion: string;
   descripcion: string;
   usuario: string;
   fecha: Date;
@@ -18,7 +18,7 @@ interface OTHistorialCreationAttributes extends Optional<OTHistorialAttributes, 
 class OTHistorial extends Model<OTHistorialAttributes, OTHistorialCreationAttributes> implements OTHistorialAttributes {
   public id!: number;
   public ot_id!: number;
-  public tipo_operacion!: 'Solicitud Repuestos' | 'Generación PO' | 'Cambio Estado' | 'Asignación' | 'Comentario' | 'Otro';
+  public tipo_operacion!: string;
   public descripcion!: string;
   public usuario!: string;
   public fecha!: Date;
@@ -44,7 +44,7 @@ OTHistorial.init(
       comment: 'ID de la Orden de Trabajo'
     },
     tipo_operacion: {
-      type: DataTypes.ENUM('Solicitud Repuestos', 'Generación PO', 'Cambio Estado', 'Asignación', 'Comentario', 'Otro'),
+      type: DataTypes.STRING(50),
       allowNull: false,
     },
     descripcion: {
