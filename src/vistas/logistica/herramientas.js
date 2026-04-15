@@ -253,7 +253,7 @@ function viewHerramienta(id) {
         const detalles = `
 🔧 DETALLE DE HERRAMIENTA
 
-📋 Código: ${herr.codigo}
+Código: ${herr.codigo}
 📦 Nombre: ${herr.nombre}
 🏷️ Categoría: ${getCategoryLabel(herr.categoria)}
 🏭 Marca: ${herr.marca || 'N/A'}
@@ -482,7 +482,7 @@ function viewPrestamo(id) {
     const prest = prestamos.find(p => p.id === id);
     if (prest) {
         const detalles = `
-📋 DETALLE DE PRÉSTAMO
+DETALLE DE PRÉSTAMO
 
 🔧 Herramienta: ${prest.herramienta_nombre}
 👤 Responsable: ${prest.responsable}
@@ -650,9 +650,15 @@ function viewMantenimiento(id) {
 🔧 DETALLE DE MANTENIMIENTO
 
 🛠️ Herramienta: ${mant.herramienta_nombre}
+<<<<<<< Updated upstream
 📋 Tipo: ${mant.tipo}
 📅 Fecha Programada: ${formatDate(mant.fecha_programada)}
 ${mant.ultima_realizacion ? '✅ Última Realización: ' + formatDate(mant.ultima_realizacion) : ''}
+=======
+Tipo: ${mant.tipo}
+📅 Fecha Programada: ${new Date(mant.fecha_programada).toLocaleDateString('es-ES')}
+${mant.ultima_realizacion ? '✅ Última Realización: ' + new Date(mant.ultima_realizacion).toLocaleDateString('es-ES') : ''}
+>>>>>>> Stashed changes
 👤 Responsable: ${mant.responsable}
 🟡 Estado: ${mant.estado}
 ${mant.observaciones ? '💬 Observaciones: ' + mant.observaciones : ''}

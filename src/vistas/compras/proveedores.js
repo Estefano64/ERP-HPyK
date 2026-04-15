@@ -538,7 +538,7 @@ function viewProveedor(id) {
         const detalles = `
 🏢 DETALLE DE PROVEEDOR
 
-📋 RUC/NIT: ${prov.ruc}
+RUC/NIT: ${prov.ruc}
 🏭 Razón Social: ${prov.razon_social}
 ${prov.nombre_comercial ? '💼 Nombre Comercial: ' + prov.nombre_comercial : ''}
 🏷️ Categoría: ${getCategoryLabel(prov.categoria)}

@@ -99,6 +99,9 @@ router.post('/compras/from-ot', compraController.createCompraFromOT);
 // Obtener todas las compras con información relacionada (incluye ot_id)
 router.get('/compras-extended', compraController.getAllCompras);
 
+// PDF / vista imprimible de una compra con sus requerimientos
+router.get('/compras-extended/:id/pdf', compraController.getCompraPDF);
+
 // Actualizar una compra usando el nuevo controller
 router.put('/compras-extended/:id', compraController.updateCompra);
 

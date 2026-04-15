@@ -91,6 +91,181 @@ export const getCompraById = async (req: Request, res: Response) => {
   }
 };
 
+// Generar HTML imprimible de una compra (PO) con requerimientos asociados
+export const getCompraPDF = async (req: Request, res: Response) => {
+  try {
+    const id = ensureString(req.params.id);
+
+    const [compra]: any[] = await sequelize.query(
+      `SELECT 
+        c.*, 
+        p."razonSocial" AS proveedor_nombre,
+        p.ruc            AS proveedor_ruc,
+        p.direccion      AS proveedor_direccion,
+        p.telefono       AS proveedor_telefono,
+        p.email          AS proveedor_email,
+        a.nombre         AS almacen_nombre
+      FROM compras c
+      LEFT JOIN proveedores p ON c.proveedor_id = p.id
+      LEFT JOIN almacenes  a ON c.almacen_id = a.id
+      WHERE c.id = :id`,
+      { replacements: { id }, type: QueryTypes.SELECT }
+    );
+
+    if (!compra) {
+      return res.status(404).json({ error: 'Compra no encontrada' });
+    }
+
+    const requerimientos: any[] = await sequelize.query(
+      `SELECT
+        r.*, 
+        ot.ot                 AS numero_ot,
+        ot.equipo_codigo      AS equipo_codigo,
+        c.razon_social        AS cliente_nombre,
+        m.descripcion         AS material_nombre,
+        m.codigo              AS material_codigo
+      FROM ot_repuestos r
+      JOIN orden_trabajo ot ON r.ot_id = ot.id
+      LEFT JOIN cliente c    ON ot.id_cliente = c.cliente_id
+      LEFT JOIN material m   ON r.material_id = m.material_id
+      WHERE r.po_id = :id
+      ORDER BY r.nro_req NULLS LAST, r.item_req NULLS LAST, r.id`,
+      { replacements: { id }, type: QueryTypes.SELECT }
+    ) as any[];
+
+    const po = compra as any;
+    const moneda = po.moneda || 'USD';
+
+    const html = `<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>PO ${po.numero_po || ''} — HP&K ERP</title>
+  <style>
+    * { box-sizing:border-box; }
+    body { font-family: Arial, sans-serif; font-size: 11px; color:#111; padding:16px; }
+    h1 { font-size:20px; margin:0 0 4px 0; }
+    h2 { font-size:14px; margin:16px 0 4px 0; }
+    .header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px; }
+    .empresa { font-size:11px; color:#374151; }
+    .po-box { text-align:right; }
+    .po-num { font-size:18px; font-weight:bold; color:#1d4ed8; }
+    .badge { display:inline-block; padding:2px 8px; border-radius:4px; font-size:10px; font-weight:bold; }
+    .badge-Pendiente { background:#dbeafe; color:#1d4ed8; }
+    .badge-Recibido { background:#dcfce7; color:#166534; }
+    .badge-Cancelado { background:#fee2e2; color:#b91c1c; }
+    table { border-collapse:collapse; width:100%; }
+    .tabla-resumen td { border:1px solid #e5e7eb; padding:4px 6px; font-size:10px; }
+    .tabla-resumen th { border:1px solid #e5e7eb; padding:4px 6px; background:#f3f4f6; font-size:10px; text-align:left; }
+    .tabla-detalle thead th { border:1px solid #9ca3af; background:#e5e7eb; padding:4px 6px; font-size:10px; text-align:center; }
+    .tabla-detalle tbody td { border:1px solid #d1d5db; padding:3px 4px; font-size:10px; }
+    .right { text-align:right; }
+    .center { text-align:center; }
+    .small { font-size:9px; color:#4b5563; }
+    .mt-1 { margin-top:4px; }
+    .mt-2 { margin-top:8px; }
+    .mt-3 { margin-top:12px; }
+    .totales { margin-top:8px; width:260px; margin-left:auto; }
+    .totales td { border:1px solid #e5e7eb; padding:3px 4px; font-size:10px; }
+    .totales tr:last-child td { font-weight:bold; background:#f0f9ff; }
+    @media print { body { padding:8px; } }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="empresa">
+      <h1>HP&K INVERSIONES S.R.L.</h1>
+      <div>Sistema Hidráulico de Gestión</div>
+      <div>Arequipa, Perú</div>
+    </div>
+    <div class="po-box">
+      <div class="small">Orden de Compra (PO)</div>
+      <div class="po-num">${po.numero_po || '-'}</div>
+      <div class="small">Fecha: ${po.fecha_solicitud ? String(po.fecha_solicitud).substring(0,10) : '-'}</div>
+      <div class="small">Estado: <span class="badge badge-${po.estado || 'Pendiente'}">${po.estado || 'Pendiente'}</span></div>
+    </div>
+  </div>
+
+  <h2>Resumen de la PO</h2>
+  <table class="tabla-resumen">
+    <tr>
+      <th>Proveedor</th><td>${po.proveedor_nombre || '-'}</td>
+      <th>RUC</th><td>${po.proveedor_ruc || '-'}</td>
+    </tr>
+    <tr>
+      <th>Almacén Destino</th><td>${po.almacen_nombre || '-'}</td>
+      <th>F. Entrega Esperada</th><td>${po.fecha_entrega_esperada ? String(po.fecha_entrega_esperada).substring(0,10) : '-'}</td>
+    </tr>
+    <tr>
+      <th>Moneda</th><td>${moneda}</td>
+      <th>Usuario Solicita</th><td>${po.usuario_solicita || '-'}</td>
+    </tr>
+    <tr>
+      <th>Observaciones</th><td colspan="3">${po.observaciones || ''}</td>
+    </tr>
+  </table>
+
+  <h2 class="mt-3">Requerimientos vinculados</h2>
+  <table class="tabla-detalle mt-1">
+    <thead>
+      <tr>
+        <th>N° Req</th>
+        <th>Item</th>
+        <th>OT</th>
+        <th>Cliente / Equipo</th>
+        <th>Tipo</th>
+        <th>Código</th>
+        <th>Descripción</th>
+        <th>Cant.</th>
+        <th>UM</th>
+        <th>Precio Unit.</th>
+        <th>Total</th>
+        <th>Estado</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${requerimientos.length === 0
+        ? `<tr><td colspan="12" class="center small">No hay requerimientos vinculados a esta PO</td></tr>`
+        : requerimientos.map(r => {
+            const cant = parseFloat(r.cantidad || 0) || 0;
+            const pu   = parseFloat(r.precio_unitario || 0) || 0;
+            const total = cant * pu;
+            return `<tr>
+              <td class="center">${r.nro_req || ''}</td>
+              <td class="center">${r.item_req || ''}</td>
+              <td class="center">${r.numero_ot || r.ot_id || ''}</td>
+              <td>${(r.cliente_nombre || '') + (r.equipo_codigo ? ' / ' + r.equipo_codigo : '')}</td>
+              <td class="center">${r.tipo_codigo || ''}</td>
+              <td>${r.material_codigo || ''}</td>
+              <td>${r.material_nombre || r.descripcion || r.texto || ''}</td>
+              <td class="right">${cant ? cant.toFixed(2) : ''}</td>
+              <td class="center">${r.unidad_medida || ''}</td>
+              <td class="right">${pu ? moneda + ' ' + pu.toFixed(2) : ''}</td>
+              <td class="right">${total ? moneda + ' ' + total.toFixed(2) : ''}</td>
+              <td class="center">${r.estado || ''}</td>
+            </tr>`;
+          }).join('')}
+    </tbody>
+  </table>
+
+  <table class="totales mt-2">
+    <tr><td>Subtotal</td><td class="right">${moneda} ${(parseFloat(po.subtotal || 0) || 0).toFixed(2)}</td></tr>
+    <tr><td>Impuestos</td><td class="right">${moneda} ${(parseFloat(po.impuesto || 0) || 0).toFixed(2)}</td></tr>
+    <tr><td>Total PO</td><td class="right">${moneda} ${(parseFloat(po.total || 0) || 0).toFixed(2)}</td></tr>
+  </table>
+
+  <script>window.onload = function(){ window.print(); };</script>
+</body>
+</html>`;
+
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.send(html);
+  } catch (error) {
+    console.error('Error al generar PDF de compra:', error);
+    res.status(500).json({ error: 'Error al generar PDF de compra', details: String(error) });
+  }
+};
+
 // Generar PO desde una OT con repuestos
 export const createCompraFromOT = async (req: Request, res: Response) => {
   const transaction = await sequelize.transaction();
@@ -343,9 +518,20 @@ export const createOCFromRequerimientos = async (req: Request, res: Response) =>
     let subtotal = 0;
     const detalles = repuestos.map((r: any) => {
       const precio = parseFloat(r.precio_unitario) || 0;
-      const itemSub = precio * r.cantidad;
+      // Forzar cantidad a entero para coincidir con el tipo INTEGER en la BD
+      const rawCantidad = r.cantidad != null ? String(r.cantidad).replace(',', '.') : '0';
+      const cantidad = parseInt(parseFloat(rawCantidad).toString().split('.')[0], 10) || 0;
+      const itemSub = precio * cantidad;
       subtotal += itemSub;
-      return { material_id: r.material_id, cantidad: r.cantidad, precio_unitario: precio, subtotal: itemSub, descuento: 0, impuesto: itemSub * 0.18, total: itemSub * 1.18 };
+      return {
+        material_id: r.material_id,
+        cantidad,
+        precio_unitario: precio,
+        subtotal: itemSub,
+        descuento: 0,
+        impuesto: itemSub * 0.18,
+        total: itemSub * 1.18,
+      };
     });
     const impuesto = subtotal * 0.18;
     const total = subtotal + impuesto;

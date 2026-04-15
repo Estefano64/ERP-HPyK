@@ -151,6 +151,15 @@
                     <span id="badge-requerimientos" class="hidden absolute top-2 right-2 bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">0</span>
                 </div>
             </a>
+
+            <!-- 8. ÓRDENES DE COMPRA (POs) -->
+            <a href="/compras/ordenes-compra.html" class="module-card bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-lg shadow-lg p-4 md:p-6 text-white fade-in-up delay-6 relative block no-underline">
+                <div class="text-center">
+                    <i class="fas fa-file-excel text-2xl md:text-4xl mb-2 md:mb-3 opacity-90"></i>
+                    <h3 class="text-sm md:text-lg font-bold">ÓRDENES DE COMPRA</h3>
+                    <p class="text-xs text-emerald-100 mt-1 hidden sm:block">Vista tipo Excel de POs</p>
+                </div>
+            </a>
         </div>
 
         <!-- Tabs/Pestañas Area -->
@@ -715,7 +724,7 @@
                         <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
                             <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
                                 <div class="md:col-span-2">
-                                    <input type="text" id="search-proveedor" placeholder="🔍 Buscar por RUC, razón social, nombre comercial..." 
+                                    <input type="text" id="search-proveedor" placeholder="Buscar por RUC, razón social o nombre comercial..." 
                                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
                                            oninput="filterProveedores()">
                                 </div>
@@ -912,7 +921,7 @@
                         <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
                             <div class="grid grid-cols-1 md:grid-cols-6 gap-4">
                                 <div class="md:col-span-2">
-                                    <input type="text" id="search-orden" placeholder="🔍 Buscar por número OC, proveedor..." 
+                                    <input type="text" id="search-orden" placeholder="Buscar por número OC o proveedor..." 
                                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                                            oninput="filterOrdenes()">
                                 </div>
