@@ -521,38 +521,112 @@ function editOrden(id) {
     document.getElementById('modal-orden').classList.remove('hidden');
 }
 
-// ─── VIEW ORDEN ───────────────────────────────────────────────────
+// ─── VIEW ORDEN (Modal con tabla de requerimientos) ──────────────
 function viewOrden(id) {
     const orden = ordenes.find(o => o.id === id);
     if (!orden) return;
 
     const monedaSymbol = orden.moneda === 'USD' ? '$' : 'S/';
     const total = parseFloat(orden.total_final) || 0;
+    const subtotal = parseFloat(orden.subtotal) || 0;
+    const igvPct = orden.igv_porcentaje || 18;
+    const igvMonto = total - subtotal;
 
-    const detalles = `
-ORDEN DE COMPRA
+    const tituloEl = document.getElementById('modal-ver-titulo');
+    if (tituloEl) tituloEl.textContent = `Orden de Compra — ${orden.numero_oc || 'N/D'}`;
 
-Número: ${orden.numero_oc || '-'}
-Proveedor: ${orden.proveedor_nombre || '-'}
-Fecha Orden: ${formatDate(orden.fecha_orden)}
-Fecha Entrega: ${formatDate(orden.fecha_entrega_requerida)}
-Estado: ${(orden.estado || '-').toUpperCase().replace('_', ' ')}
-Forma de Pago: ${orden.forma_pago || '-'}
-Moneda: ${orden.moneda || 'PEN'}
+    // Construir items/productos (puede ser un array o un solo producto)
+    const items = orden.items || orden.productos || [{
+        descripcion: orden.descripcion || orden.material_nombre || '-',
+        cantidad: orden.cantidad || 1,
+        unidad_medida: orden.unidad_medida || 'UND',
+        precio_unitario: parseFloat(orden.precio_unitario) || 0,
+        subtotal: subtotal
+    }];
 
-PRODUCTO:
-${orden.descripcion || orden.material_nombre || '-'}
-Cantidad: ${orden.cantidad || '-'} ${orden.unidad_medida || ''}
-Precio Unitario: ${monedaSymbol} ${parseFloat(orden.precio_unitario || 0).toFixed(2)}
-Subtotal: ${monedaSymbol} ${parseFloat(orden.subtotal || 0).toFixed(2)}
+    let productosHtml = '';
+    items.forEach((item, i) => {
+        const pu = parseFloat(item.precio_unitario) || 0;
+        const cant = parseFloat(item.cantidad) || 1;
+        const sub = parseFloat(item.subtotal) || (pu * cant);
+        productosHtml += `
+            <tr class="hover:bg-gray-50">
+                <td class="px-3 py-2 text-center text-sm text-gray-500">${i + 1}</td>
+                <td class="px-3 py-2 text-sm">${item.descripcion || item.material_nombre || '-'}</td>
+                <td class="px-3 py-2 text-center text-sm">${cant}</td>
+                <td class="px-3 py-2 text-center text-sm">${item.unidad_medida || 'UND'}</td>
+                <td class="px-3 py-2 text-right text-sm">${monedaSymbol} ${pu.toFixed(2)}</td>
+                <td class="px-3 py-2 text-right text-sm font-semibold">${monedaSymbol} ${sub.toFixed(2)}</td>
+            </tr>`;
+    });
 
-IGV (${orden.igv_porcentaje || 18}%): ${monedaSymbol} ${(total - parseFloat(orden.subtotal || 0)).toFixed(2)}
-TOTAL: ${monedaSymbol} ${total.toFixed(2)}
+    const bodyEl = document.getElementById('modal-ver-body');
+    if (bodyEl) bodyEl.innerHTML = `
+        <!-- Datos generales -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+            <div class="bg-gray-50 rounded-lg p-3">
+                <p class="text-[11px] text-gray-500 uppercase">Proveedor</p>
+                <p class="font-semibold text-sm">${orden.proveedor_nombre || '-'}</p>
+            </div>
+            <div class="bg-gray-50 rounded-lg p-3">
+                <p class="text-[11px] text-gray-500 uppercase">Estado</p>
+                <p class="font-semibold text-sm">${getEstadoBadge(orden.estado)}</p>
+            </div>
+            <div class="bg-gray-50 rounded-lg p-3">
+                <p class="text-[11px] text-gray-500 uppercase">Fecha Emisión</p>
+                <p class="font-semibold text-sm">${formatDate(orden.fecha_orden)}</p>
+            </div>
+            <div class="bg-gray-50 rounded-lg p-3">
+                <p class="text-[11px] text-gray-500 uppercase">Fecha Entrega</p>
+                <p class="font-semibold text-sm">${formatDate(orden.fecha_entrega_requerida)}</p>
+            </div>
+            <div class="bg-gray-50 rounded-lg p-3">
+                <p class="text-[11px] text-gray-500 uppercase">Forma de Pago</p>
+                <p class="font-semibold text-sm">${orden.forma_pago || '-'}</p>
+            </div>
+            <div class="bg-gray-50 rounded-lg p-3">
+                <p class="text-[11px] text-gray-500 uppercase">Moneda</p>
+                <p class="font-semibold text-sm">${orden.moneda || 'PEN'}</p>
+            </div>
+            ${orden.observaciones ? `<div class="bg-gray-50 rounded-lg p-3 md:col-span-2">
+                <p class="text-[11px] text-gray-500 uppercase">Observaciones</p>
+                <p class="font-semibold text-sm">${orden.observaciones}</p>
+            </div>` : ''}
+        </div>
 
-${orden.observaciones ? 'Observaciones: ' + orden.observaciones : ''}
-    `.trim();
+        <!-- Tabla de productos / requerimientos -->
+        <h4 class="font-bold text-gray-800 mb-2 flex items-center">
+            <i class="fas fa-boxes text-green-600 mr-2"></i> Productos / Requerimientos
+        </h4>
+        <div class="overflow-x-auto border rounded-lg mb-4">
+            <table class="min-w-full text-sm">
+                <thead class="bg-gray-100">
+                    <tr>
+                        <th class="px-3 py-2 text-center text-xs font-bold text-gray-600">#</th>
+                        <th class="px-3 py-2 text-left text-xs font-bold text-gray-600">Descripción / Material</th>
+                        <th class="px-3 py-2 text-center text-xs font-bold text-gray-600">Cant.</th>
+                        <th class="px-3 py-2 text-center text-xs font-bold text-gray-600">Unidad</th>
+                        <th class="px-3 py-2 text-right text-xs font-bold text-gray-600">P. Unit.</th>
+                        <th class="px-3 py-2 text-right text-xs font-bold text-gray-600">Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    ${productosHtml}
+                </tbody>
+            </table>
+        </div>
 
-    alert(detalles);
+        <!-- Totales -->
+        <div class="flex justify-end">
+            <div class="w-64 space-y-1 text-sm">
+                <div class="flex justify-between"><span class="text-gray-600">Subtotal</span><span>${monedaSymbol} ${subtotal.toFixed(2)}</span></div>
+                <div class="flex justify-between"><span class="text-gray-600">IGV (${igvPct}%)</span><span>${monedaSymbol} ${igvMonto.toFixed(2)}</span></div>
+                <div class="flex justify-between border-t pt-1 font-bold text-base"><span>TOTAL</span><span>${monedaSymbol} ${total.toFixed(2)}</span></div>
+            </div>
+        </div>
+    `;
+
+    document.getElementById('modal-ver-orden').classList.remove('hidden');
 }
 
 // ─── DELETE ORDEN ─────────────────────────────────────────────────

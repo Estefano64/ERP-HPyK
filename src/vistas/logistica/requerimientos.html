@@ -149,64 +149,28 @@
                         <i class="fas fa-times mr-1"></i>Limpiar selección
                     </button>
                 </div>
+
+                <!-- Configuración columnas resumen OT / PO -->
+                <div class="mt-3 pt-3 border-t border-gray-100">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xs text-gray-500">Columnas visibles en el resumen OT / PO:</span>
+                        <button type="button" onclick="toggleResumenConfig()" class="text-xs text-orange-600 hover:text-orange-800 flex items-center">
+                            <i class="fas fa-columns mr-1"></i>Mostrar / ocultar
+                        </button>
+                    </div>
+                    <div id="resumen-config" class="hidden max-h-32 overflow-y-auto text-xs text-gray-700 bg-gray-50 border border-dashed border-gray-200 rounded p-2">
+                        <!-- Se rellena por JS -->
+                    </div>
+                </div>
             </div>
 
             <!-- Tabla pipeline -->
             <div class="bg-white rounded-lg shadow overflow-hidden">
                 <div class="overflow-x-auto">
                     <table class="w-full text-xs border-collapse" style="min-width:1400px">
-                        <thead>
-                            <!-- Section headers -->
-                            <tr class="text-white text-center text-xs font-bold">
-                                <th rowspan="2" class="px-2 py-2 bg-gray-700 w-8 border border-gray-600">
-                                    <input type="checkbox" id="chk-all" onchange="toggleAll(this.checked)" class="rounded">
-                                </th>
-                                <th colspan="8" class="px-3 py-2 sec-req border border-slate-600 tracking-widest">
-                                    <i class="fas fa-clipboard-list mr-1"></i>REQUERIMIENTOS
-                                </th>
-                                <th colspan="5" class="px-3 py-2 sec-cot border border-blue-800 tracking-widest">
-                                    <i class="fas fa-handshake mr-1"></i>COTIZACIÓN
-                                </th>
-                                <th colspan="5" class="px-3 py-2 sec-oc border border-indigo-800 tracking-widest">
-                                    <i class="fas fa-file-invoice mr-1"></i>ORDEN DE COMPRA
-                                </th>
-                                <th colspan="4" class="px-3 py-2 sec-alm border border-orange-900 tracking-widest">
-                                    <i class="fas fa-warehouse mr-1"></i>ALMACÉN
-                                </th>
-                                <th rowspan="2" class="px-2 py-2 bg-gray-700 border border-gray-600">Acc.</th>
-                            </tr>
-                            <!-- Column sub-headers -->
-                            <tr class="text-white text-center" style="font-size:0.65rem">
-                                <!-- REQ (8) -->
-                                <th class="px-2 py-1.5 sub-req border border-slate-500">Prior.</th>
-                                <th class="px-2 py-1.5 sub-req border border-slate-500">OT</th>
-                                <th class="px-2 py-1.5 sub-req border border-slate-500">Cliente / Equipo</th>
-                                <th class="px-2 py-1.5 sub-req border border-slate-500">Material / Descripción</th>
-                                <th class="px-2 py-1.5 sub-req border border-slate-500">Tipo</th>
-                                <th class="px-2 py-1.5 sub-req border border-slate-500">Cant.</th>
-                                <th class="px-2 py-1.5 sub-req border border-slate-500">Stock</th>
-                                <th class="px-2 py-1.5 sub-req border border-slate-500">Estado REQ</th>
-                                <!-- COT (5) -->
-                                <th class="px-2 py-1.5 sub-cot border border-blue-700">Proveedor</th>
-                                <th class="px-2 py-1.5 sub-cot border border-blue-700">Precio Unit.</th>
-                                <th class="px-2 py-1.5 sub-cot border border-blue-700">Mon.</th>
-                                <th class="px-2 py-1.5 sub-cot border border-blue-700">F. Est. Llegada</th>
-                                <th class="px-2 py-1.5 sub-cot border border-blue-700">Estado COT</th>
-                                <!-- OC (5) -->
-                                <th class="px-2 py-1.5 sub-oc border border-indigo-700">Nro OC</th>
-                                <th class="px-2 py-1.5 sub-oc border border-indigo-700">F. OC</th>
-                                <th class="px-2 py-1.5 sub-oc border border-indigo-700">Nro Guía</th>
-                                <th class="px-2 py-1.5 sub-oc border border-indigo-700">Factura Prov.</th>
-                                <th class="px-2 py-1.5 sub-oc border border-indigo-700">F. Recepción</th>
-                                <!-- ALM (4) -->
-                                <th class="px-2 py-1.5 sub-alm border border-orange-800">Ubicación</th>
-                                <th class="px-2 py-1.5 sub-alm border border-orange-800">F. Salida Alm.</th>
-                                <th class="px-2 py-1.5 sub-alm border border-orange-800">F. Envío Mina</th>
-                                <th class="px-2 py-1.5 sub-alm border border-orange-800">Factura Cliente</th>
-                            </tr>
-                        </thead>
+                        <thead id="tabla-head"></thead>
                         <tbody id="tabla-body">
-                            <tr><td colspan="24" class="text-center py-10 text-gray-400">Cargando…</td></tr>
+                            <tr><td colspan="25" class="text-center py-10 text-gray-400">Cargando…</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -216,82 +180,7 @@
             </div>
         </div>
 
-        <!-- ═══ RIGHT PANEL ══════════════════════════════════════════════════ -->
-        <div class="w-72 flex-shrink-0 flex flex-col gap-4 sticky top-4">
-
-            <!-- Cart / Nueva OC -->
-            <div class="bg-white rounded-lg shadow-lg overflow-hidden">
-                <div class="bg-orange-600 text-white px-4 py-3 flex items-center justify-between">
-                    <div class="flex items-center gap-2">
-                        <i class="fas fa-shopping-cart"></i>
-                        <span class="font-semibold text-sm">Nueva Orden de Compra</span>
-                    </div>
-                    <span id="cart-badge" class="bg-white text-orange-600 text-xs font-bold px-2 py-0.5 rounded-full">0</span>
-                </div>
-
-                <div class="p-3 space-y-2">
-                    <div>
-                        <label class="block text-xs font-medium text-gray-600 mb-1">Proveedor *</label>
-                        <select id="oc-proveedor" class="w-full border rounded px-2 py-1.5 text-xs">
-                            <option value="">Cargando…</option>
-                        </select>
-                    </div>
-                    <div class="grid grid-cols-2 gap-2">
-                        <div>
-                            <label class="block text-xs font-medium text-gray-600 mb-1">Moneda</label>
-                            <select id="oc-moneda" class="w-full border rounded px-2 py-1.5 text-xs">
-                                <option value="USD">USD</option>
-                                <option value="PEN">PEN</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-medium text-gray-600 mb-1">Almacén *</label>
-                            <select id="oc-almacen" class="w-full border rounded px-2 py-1.5 text-xs">
-                                <option value="">Cargando…</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div>
-                        <label class="block text-xs font-medium text-gray-600 mb-1">F. Est. Llegada</label>
-                        <input id="oc-fecha" type="date" class="w-full border rounded px-2 py-1.5 text-xs">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-medium text-gray-600 mb-1">Observaciones</label>
-                        <input id="oc-obs" type="text" placeholder="Opcional…" class="w-full border rounded px-2 py-1.5 text-xs">
-                    </div>
-                </div>
-
-                <div class="border-t border-gray-100 px-3 py-2 bg-gray-50">
-                    <p class="text-xs font-semibold text-gray-600 flex justify-between">
-                        <span>Ítems seleccionados</span>
-                        <span id="cart-ot-count" class="text-gray-400"></span>
-                    </p>
-                </div>
-
-                <div id="cart-items" class="px-3 py-2 max-h-48 overflow-y-auto space-y-1">
-                    <p class="text-xs text-gray-400 text-center py-3">Marca ítems en la tabla</p>
-                </div>
-
-                <div class="px-3 pb-3 pt-1 flex gap-2">
-                    <button onclick="clearSelection()" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 py-1.5 rounded text-xs">
-                        <i class="fas fa-times mr-1"></i>Limpiar
-                    </button>
-                    <button onclick="crearOC()" class="flex-2 bg-orange-600 hover:bg-orange-700 text-white py-1.5 px-3 rounded text-xs font-semibold">
-                        <i class="fas fa-file-invoice mr-1"></i>Crear OC
-                    </button>
-                </div>
-            </div>
-
-            <!-- OCs recientes -->
-            <div class="bg-white rounded-lg shadow overflow-hidden">
-                <div class="bg-gray-700 text-white px-4 py-2 text-xs font-semibold">
-                    <i class="fas fa-history mr-2"></i>OCs Recientes
-                </div>
-                <div id="ocs-recientes" class="divide-y divide-gray-100 max-h-52 overflow-y-auto">
-                    <div class="text-xs text-gray-400 text-center py-4">Cargando…</div>
-                </div>
-            </div>
-        </div>
+        <!-- (Se eliminó el panel derecho de Nueva OC / OCs recientes en requerimientos; aquí solo se muestra la tabla de requerimientos) -->
     </div>
 </div>
 
@@ -407,20 +296,84 @@
     </div>
 </div>
 
+<!-- Modal Detalle de Requerimiento -->
+<div id="modal-detalle" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/60">
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-5xl mx-4 max-h-[90vh] overflow-hidden flex flex-col">
+        <div class="bg-gradient-to-r from-slate-700 to-slate-900 text-white px-5 py-3 flex items-center justify-between flex-shrink-0">
+            <div>
+                <h3 class="font-semibold flex items-center"><i class="fas fa-clipboard-list mr-2"></i>Detalle del Requerimiento</h3>
+                <p id="detalle-subtitle" class="text-slate-300 text-xs"></p>
+            </div>
+            <button onclick="cerrarModalDetalle()" class="text-white/70 hover:text-white text-xl leading-none">&times;</button>
+        </div>
+        <div class="p-5 overflow-y-auto flex-1" id="detalle-body">
+            <!-- Contenido dinámico -->
+        </div>
+        <div class="bg-gray-50 px-5 py-3 flex justify-end gap-2 flex-shrink-0 border-t">
+            <button onclick="cerrarModalDetalle()" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded text-sm">Cerrar</button>
+        </div>
+    </div>
+</div>
+
 <!-- Toast -->
 <div id="toast-container" class="fixed bottom-6 right-6 z-50 space-y-2"></div>
 
 <script>
 // ── State ───────────────────────────────────────────────────────────────────
-let allData   = [];
-let carrito   = new Map();
+let allData     = [];
+let carrito     = new Map();
 let proveedores = [];
 let almacenes   = [];
+// expandedId ya no se usa — el detalle se abre en modal
+
+// Mapa de colores para estado de requerimiento (usado en tabla principal y resumen)
+const estReqMap = {
+    'Pendiente': 'pill-yellow', 'SIN APROBACIÓN': 'pill-yellow',
+    'Aprobado':  'pill-green',  'APROBADO':       'pill-green',
+    'En PO':     'pill-indigo',
+    'COM':       'pill-gray',   'ANU': 'pill-red',
+    'REV':       'pill-yellow', 'APR': 'pill-green', 'PRO': 'pill-indigo',
+};
+
+// Configuración de columnas del resumen OT / PO (27 columnas)
+let resumenColumnsConfig = [
+    { id:'ot',           label:'OT (Orden de Trabajo)',                      visible:true },
+    { id:'estado',       label:'Estado',                                     visible:true },
+    { id:'po',           label:'PO (Orden de pedido)',                      visible:true },
+    { id:'nro_parte',    label:'Número de Parte (Cilindro)',                visible:true },
+    { id:'desc_cil',     label:'Descripción (Cilindro)',                    visible:true },
+    { id:'modelo_cil',   label:'Modelo (Cilindro)',                         visible:true },
+    { id:'cliente',      label:'Cliente',                                   visible:true },
+    { id:'f_reg_req',    label:'Fecha de Registro Requerimiento',           visible:true },
+    { id:'f_tent_req',   label:'Fecha de Tentativa Requerimiento',          visible:true },
+    { id:'f_apr_req',    label:'Fecha de Aprobación Requerimiento',         visible:true },
+    { id:'cant_req',     label:'Cantidad de Requerimientos',                visible:true },
+    { id:'cant_items',   label:'Cantidad de items',                         visible:true },
+    { id:'cant_ocs',     label:'Cantidad de Ordenes de Compra',             visible:true },
+    { id:'valor_total',  label:'Valor Total',                               visible:true },
+    { id:'moneda',       label:'Moneda',                                    visible:true },
+    { id:'f_oc',         label:'Fecha de OC',                               visible:true },
+    { id:'f_ot_est',     label:'Fecha estimada de OT completa',             visible:true },
+    { id:'f_ot_comp',    label:'Fecha de OT completa',                      visible:true },
+    { id:'ubicacion',    label:'Ubicación',                                 visible:true },
+    { id:'f_salida',     label:'Fecha de Salida Almacen',                   visible:true },
+    { id:'evaluador',    label:'Evaluador',                                 visible:true },
+    { id:'f_envio',      label:'Fecha de envio a Mina',                    visible:true },
+    { id:'gr_mina',      label:'GR a Mina',                                 visible:true },
+    { id:'f_fact',       label:'Fecha de Facturación',                      visible:true },
+    { id:'factura',      label:'Factura',                                   visible:true },
+    { id:'precio_sinigv',label:'Precio sin IGV',                            visible:true },
+    { id:'obs',          label:'Observaciones',                             visible:true }
+];
 
 // ── Init ────────────────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
     const d = new Date(); d.setDate(d.getDate() + 15);
-    document.getElementById('oc-fecha').value = d.toISOString().split('T')[0];
+    const ocFechaEl = document.getElementById('oc-fecha');
+    if (ocFechaEl) {
+        ocFechaEl.value = d.toISOString().split('T')[0];
+    }
+    initResumenConfig();
     loadData();
     loadProveedores();
     loadAlmacenes();
@@ -442,7 +395,7 @@ async function loadData() {
         renderTabla();
     } catch {
         document.getElementById('tabla-body').innerHTML =
-            '<tr><td colspan="24" class="text-center py-10 text-red-400">Error al cargar datos</td></tr>';
+            '<tr><td colspan="25" class="text-center py-10 text-red-400">Error al cargar datos</td></tr>';
     }
 }
 
@@ -527,50 +480,32 @@ function renderTabla() {
     );
 
     const tbody = document.getElementById('tabla-body');
+    renderTablaHead();
     if (!data.length) {
-        tbody.innerHTML = '<tr><td colspan="24" class="text-center py-10 text-gray-400">Sin registros</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="30" class="text-center py-10 text-gray-400">Sin registros</td></tr>';
         document.getElementById('tabla-footer').querySelector('span').textContent = '0 registros';
         return;
     }
 
-    const tipoBadge = { MAC: 'pill-blue', SER: 'pill-cyan', CAD: 'pill-orange' };
-    const estReqMap = {
-        'Pendiente': 'pill-yellow', 'SIN APROBACIÓN': 'pill-yellow',
-        'Aprobado':  'pill-green',  'APROBADO':       'pill-green',
-        'En PO':     'pill-indigo',
-        'COM':       'pill-gray',   'ANU': 'pill-red',
-        'REV':       'pill-yellow', 'APR': 'pill-green', 'PRO': 'pill-indigo',
-    };
-    const estCotMap = {
-        'PDT_COT':  'pill-yellow', 'PDT_APR': 'pill-orange',
-        'APR':      'pill-green',  'DES':     'pill-red', 'ANU': 'pill-gray',
-    };
-    const prioCls   = { E:'pill-prio-e', '1':'pill-prio-1', '2':'pill-prio-2', '3':'pill-prio-3' };
-    const prioLabel = { E:'EMERG', '1':'Alta', '2':'Media', '3':'Normal' };
-
     tbody.innerHTML = data.map(r => {
         const checked = carrito.has(r.id);
         const rowCls  = checked ? 'row-selected' : '';
-        const stock   = r.stock_actual != null ? parseFloat(r.stock_actual) : null;
-        const isMac   = r.material_id != null;
-
-        const stockPill = !isMac ? '<span class="text-gray-300">—</span>'
-            : stock > 0
-                ? `<span class="pill pill-green" title="Stock disponible">${stock}</span>`
-                : `<span class="pill pill-red">Sin stock</span>`;
-
-        const desc = r.material_nombre
-            ? `<div class="font-medium text-gray-800">${r.material_nombre}</div><div class="text-gray-400 font-mono">${r.material_codigo || ''}</div>`
-            : `<div class="text-gray-500 italic">${r.descripcion || '—'}</div>`;
 
         const estadoReq = r.estado || 'Pendiente';
         const canApprove = ['Pendiente','REV','SIN APROBACIÓN'].includes(estadoReq) || !estadoReq;
         const isInOC     = !!(r.nro_oc);
         const canSelect  = !isInOC && estadoReq !== 'COM';
 
-        // COT cells
-        const precio = r.precio_unitario != null ? `${parseFloat(r.precio_unitario).toFixed(2)} ${r.moneda || ''}` : '—';
-        const cotEstado = r.estado_cot ? `<span class="pill ${estCotMap[r.estado_cot] || 'pill-gray'}">${r.estado_cot}</span>` : '—';
+        const poDisplay = r.nro_oc || (r.numero_po || '—');
+        // Agrupar por OT para métricas agregadas
+        const sameOt = allData.filter(x => x.ot_id === r.ot_id);
+        const cantReq = sameOt.length || 0;
+        const cantItems = sameOt.reduce((sum, it) => sum + (parseFloat(it.cantidad) || 0), 0);
+        const cantOCs = new Set(sameOt.map(it => it.po_id || it.nro_oc).filter(Boolean)).size;
+        const precioNum = r.precio_unitario != null ? parseFloat(r.precio_unitario) : null;
+        const valorTotalNum = precioNum != null && cantItems != null ? precioNum * cantItems : null;
+
+        const resumenCtx = { estadoReq, poDisplay, cantReq, cantItems, cantOCs, valorTotalNum, precioNum };
 
         return `<tr class="border-b ${rowCls}" id="tr-${r.id}">
             <td class="px-2 py-1.5 text-center">
@@ -579,35 +514,11 @@ function renderTabla() {
             </td>
             <!-- REQ section -->
             <td class="px-2 py-1.5 text-center">
-                <span class="pill ${prioCls[r.prioridad_atencion_codigo] || 'pill-gray'}">${prioLabel[r.prioridad_atencion_codigo] || (r.prioridad_atencion_codigo || '—')}</span>
+                <button onclick="toggleDetalle(${r.id})" title="Ver detalle" class="inline-flex items-center px-2 py-0.5 border border-gray-300 rounded-full text-[0.65rem] text-gray-600 hover:bg-gray-100">
+                    <i class="fas fa-chevron-down mr-1 text-[0.55rem]"></i>Detalle
+                </button>
             </td>
-            <td class="px-2 py-1.5 font-mono font-semibold text-gray-700 whitespace-nowrap">${r.numero_ot || r.ot_id}</td>
-            <td class="px-2 py-1.5">
-                <div class="text-gray-700">${r.cliente_nombre || '—'}</div>
-                <div class="text-gray-400 font-mono text-xs">${r.equipo_codigo || ''}</div>
-            </td>
-            <td class="px-2 py-1.5">${desc}</td>
-            <td class="px-2 py-1.5 text-center"><span class="pill ${tipoBadge[r.tipo_codigo] || 'pill-gray'}">${r.tipo_codigo || 'MAC'}</span></td>
-            <td class="px-2 py-1.5 text-center font-semibold">${r.cantidad}</td>
-            <td class="px-2 py-1.5 text-center">${stockPill}</td>
-            <td class="px-2 py-1.5"><span class="pill ${estReqMap[estadoReq] || 'pill-gray'}">${estadoReq}</span></td>
-            <!-- COT section -->
-            <td class="px-2 py-1.5 td-cot text-gray-700">${r.proveedor_nombre || '<span class="text-gray-300">—</span>'}</td>
-            <td class="px-2 py-1.5 td-cot text-right font-mono">${precio}</td>
-            <td class="px-2 py-1.5 td-cot text-center text-gray-600">${r.moneda || '—'}</td>
-            <td class="px-2 py-1.5 td-cot text-center text-gray-600">${fmtDate(r.fecha_entrega_esperada)}</td>
-            <td class="px-2 py-1.5 td-cot text-center">${cotEstado}</td>
-            <!-- OC section -->
-            <td class="px-2 py-1.5 td-oc text-center font-mono font-semibold text-indigo-700">${r.nro_oc || '<span class="text-gray-300">—</span>'}</td>
-            <td class="px-2 py-1.5 td-oc text-center text-gray-600">${fmtDate(r.fecha_oc)}</td>
-            <td class="px-2 py-1.5 td-oc text-center font-mono text-gray-700">${r.nro_guia || '<span class="text-gray-300">—</span>'}</td>
-            <td class="px-2 py-1.5 td-oc text-center font-mono text-gray-700">${r.nro_factura_proveedor || '<span class="text-gray-300">—</span>'}</td>
-            <td class="px-2 py-1.5 td-oc text-center text-gray-600">${fmtDate(r.fecha_entrega_real)}</td>
-            <!-- ALM section -->
-            <td class="px-2 py-1.5 td-alm text-center text-gray-700">${r.ubicacion || '<span class="text-gray-300">—</span>'}</td>
-            <td class="px-2 py-1.5 td-alm text-center text-gray-600">${fmtDate(r.fecha_salida_almacen)}</td>
-            <td class="px-2 py-1.5 td-alm text-center text-gray-600">${fmtDate(r.fecha_envio_mina)}</td>
-            <td class="px-2 py-1.5 td-alm text-center font-mono text-gray-700">${r.factura_cliente || '<span class="text-gray-300">—</span>'}</td>
+            ${buildMainResumenCells(r, sameOt, resumenCtx)}
             <!-- Acciones -->
             <td class="px-2 py-1.5 text-center whitespace-nowrap">
                 ${canApprove ? `<button onclick="aprobarItem(${r.id})" title="Aprobar" class="text-green-600 hover:text-green-800 mr-1"><i class="fas fa-check-circle"></i></button>` : ''}
@@ -681,6 +592,82 @@ function clearSelection() {
     updateFooterSelected();
 }
 
+function toggleDetalle(id) {
+    const r = allData.find(x => x.id === id);
+    if (!r) return;
+
+    const sameOt = allData.filter(x => x.ot_id === r.ot_id);
+    const cantReq = sameOt.length || 0;
+    const cantItems = sameOt.reduce((sum, it) => sum + (parseFloat(it.cantidad) || 0), 0);
+    const cantOCs = new Set(sameOt.map(it => it.po_id || it.nro_oc).filter(Boolean)).size;
+    const precioNum = r.precio_unitario != null ? parseFloat(r.precio_unitario) : null;
+    const valorTotalNum = precioNum != null && cantItems != null ? precioNum * cantItems : null;
+    const estadoReq = r.estado || 'Pendiente';
+    const poDisplay = r.nro_oc || (r.numero_po || '—');
+    const resumenCtx = { estadoReq, poDisplay, cantReq, cantItems, cantOCs, valorTotalNum, precioNum };
+
+    document.getElementById('detalle-subtitle').textContent =
+        `OT: ${r.numero_ot || r.ot_id || '—'}  ·  ${r.material_nombre || r.descripcion || ''}`;
+
+    // Construir tabla de todos los ítems de la misma OT
+    const itemsHeader = `<tr>
+        <th class="px-2 py-1.5 border border-slate-400 text-left">#</th>
+        <th class="px-2 py-1.5 border border-slate-400 text-left">Material / Código</th>
+        <th class="px-2 py-1.5 border border-slate-400 text-left">Descripción</th>
+        <th class="px-2 py-1.5 border border-slate-400 text-center">Cant.</th>
+        <th class="px-2 py-1.5 border border-slate-400 text-center">Estado</th>
+        <th class="px-2 py-1.5 border border-slate-400">Nro OC</th>
+        <th class="px-2 py-1.5 border border-slate-400">Proveedor</th>
+        <th class="px-2 py-1.5 border border-slate-400 text-right">P. Unit.</th>
+        <th class="px-2 py-1.5 border border-slate-400">Moneda</th>
+    </tr>`;
+    const itemsRows = sameOt.map((item, i) => {
+        const est = item.estado || 'Pendiente';
+        const pillCls = estReqMap[est] || 'pill-gray';
+        const pu = item.precio_unitario != null ? parseFloat(item.precio_unitario).toFixed(2) : '—';
+        return `<tr class="hover:bg-gray-50 ${item.id === id ? 'bg-blue-50' : ''}">
+            <td class="px-2 py-1 border border-slate-200 text-center text-gray-500">${i + 1}</td>
+            <td class="px-2 py-1 border border-slate-200 font-mono text-xs">${item.material_codigo || '—'}</td>
+            <td class="px-2 py-1 border border-slate-200">${item.material_nombre || item.descripcion || '—'}</td>
+            <td class="px-2 py-1 border border-slate-200 text-center">${item.cantidad || '—'}</td>
+            <td class="px-2 py-1 border border-slate-200 text-center"><span class="pill ${pillCls}">${est}</span></td>
+            <td class="px-2 py-1 border border-slate-200 font-mono">${item.nro_oc || item.numero_po || '—'}</td>
+            <td class="px-2 py-1 border border-slate-200">${item.proveedor_nombre || '—'}</td>
+            <td class="px-2 py-1 border border-slate-200 text-right">${pu}</td>
+            <td class="px-2 py-1 border border-slate-200 text-center">${item.moneda || '—'}</td>
+        </tr>`;
+    }).join('');
+
+    document.getElementById('detalle-body').innerHTML = `
+        <div class="mb-4">
+            <div class="flex items-center justify-between mb-2">
+                <h4 class="font-semibold text-gray-800 text-sm">Resumen OT / Requerimiento</h4>
+                <button type="button" onclick="toggleResumenConfig(true)" class="text-xs text-orange-600 hover:text-orange-800">
+                    <i class="fas fa-columns mr-1"></i>Configurar columnas
+                </button>
+            </div>
+            <div class="overflow-x-auto">${buildResumenTable(r, sameOt, resumenCtx)}</div>
+        </div>
+        <h4 class="font-semibold text-gray-800 text-sm mb-2">
+            <i class="fas fa-boxes text-indigo-600 mr-1"></i>
+            Ítems del requerimiento (${sameOt.length})
+        </h4>
+        <div class="overflow-x-auto border rounded-lg">
+            <table class="min-w-full text-xs border-collapse">
+                <thead class="bg-slate-700 text-white">${itemsHeader}</thead>
+                <tbody>${itemsRows}</tbody>
+            </table>
+        </div>
+        ${r.po_id ? `<div class="text-right mt-3"><button onclick="verOC(${r.po_id})" class="inline-flex items-center px-3 py-1.5 border border-indigo-500 text-indigo-600 hover:bg-indigo-50 rounded text-xs font-semibold"><i class="fas fa-file-invoice mr-1"></i>Ver PO completa</button></div>` : ''}
+    `;
+
+    document.getElementById('modal-detalle').classList.remove('hidden');
+}
+
+function cerrarModalDetalle() {
+    document.getElementById('modal-detalle').classList.add('hidden');
+}
+
 function renderCart() {
     const items = [...carrito.values()];
     document.getElementById('cart-badge').textContent = items.length;
@@ -709,6 +696,235 @@ function renderCart() {
 function updateFooterSelected() {
     const el = document.getElementById('footer-selected');
     if (el) el.textContent = carrito.size > 0 ? `${carrito.size} seleccionado(s)` : '';
+}
+
+// ── Config columnas resumen OT / PO ─────────────────────────────────────────
+function initResumenConfig() {
+    try {
+        const saved = window.localStorage.getItem('log_req_resumen_cols');
+        if (saved) {
+            const parsed = JSON.parse(saved);
+            if (Array.isArray(parsed)) {
+                resumenColumnsConfig = resumenColumnsConfig.map(col => {
+                    const found = parsed.find(p => p.id === col.id);
+                    return found ? { ...col, visible: !!found.visible } : col;
+                });
+            }
+        }
+    } catch { /* ignore storage errors */ }
+    renderResumenConfig();
+}
+
+function renderResumenConfig() {
+    const wrap = document.getElementById('resumen-config');
+    if (!wrap) return;
+    wrap.innerHTML = resumenColumnsConfig.map(col => `
+        <label class="flex items-center gap-2 mb-1 cursor-pointer">
+            <input type="checkbox" ${col.visible ? 'checked' : ''} onchange="toggleResumenCol('${col.id}', this.checked)" class="rounded">
+            <span>${col.label}</span>
+        </label>
+    `).join('');
+}
+
+function toggleResumenConfig(forceShow) {
+    const wrap = document.getElementById('resumen-config');
+    if (!wrap) return;
+    if (forceShow) {
+        wrap.classList.remove('hidden');
+        return;
+    }
+    wrap.classList.toggle('hidden');
+}
+
+function toggleResumenCol(id, visible) {
+    resumenColumnsConfig = resumenColumnsConfig.map(col => col.id === id ? { ...col, visible } : col);
+    try {
+        window.localStorage.setItem('log_req_resumen_cols', JSON.stringify(resumenColumnsConfig.map(c => ({ id: c.id, visible: c.visible }))));
+    } catch { /* ignore */ }
+    renderTabla();
+}
+
+// Construye el encabezado dinámico de la tabla principal según las columnas visibles de resumen
+function renderTablaHead() {
+    const thead = document.getElementById('tabla-head');
+    if (!thead) return;
+    const cols = resumenColumnsConfig.filter(c => c.visible);
+    const colsHeader = cols.map(col => `
+        <th class="px-2 py-1.5 bg-slate-700 border border-slate-600 text-[0.7rem] whitespace-nowrap">${col.label}</th>
+    `).join('');
+    thead.innerHTML = `
+        <tr class="text-white text-center text-xs font-bold bg-slate-800">
+            <th class="px-2 py-2 bg-gray-700 w-8 border border-gray-600">
+                <input type="checkbox" id="chk-all" onchange="toggleAll(this.checked)" class="rounded">
+            </th>
+            <th class="px-2 py-1.5 bg-gray-700 border border-gray-600 text-[0.7rem]">Detalle</th>
+            ${colsHeader}
+            <th class="px-2 py-1.5 bg-gray-700 border border-gray-600 text-[0.7rem]">Acc.</th>
+        </tr>`;
+}
+
+// Celdas de la fila principal según columnas visibles (mismo orden que el encabezado)
+function buildMainResumenCells(r, sameOt, ctx) {
+    const cols = resumenColumnsConfig.filter(c => c.visible);
+    if (!cols.length) return '';
+
+    const cantReq   = ctx && ctx.cantReq   != null ? ctx.cantReq   : (sameOt ? sameOt.length : null);
+    const cantItems = ctx && ctx.cantItems != null ? ctx.cantItems : null;
+    const cantOCs   = ctx && ctx.cantOCs   != null ? ctx.cantOCs   : null;
+    const valorTot  = ctx && ctx.valorTotalNum != null ? ctx.valorTotalNum : null;
+    const precioNum = ctx && ctx.precioNum != null ? ctx.precioNum : (r.precio_unitario != null ? parseFloat(r.precio_unitario) : null);
+
+    return cols.map(col => {
+        switch (col.id) {
+            case 'ot':
+                return `<td class="px-2 py-1.5 font-mono font-semibold text-gray-700 whitespace-nowrap text-center">${r.numero_ot || r.ot_id || '—'}</td>`;
+            case 'estado': {
+                const estado = ctx && ctx.estadoReq ? ctx.estadoReq : (r.estado || 'Pendiente');
+                return `<td class="px-2 py-1.5 text-center"><span class="pill ${estReqMap[estado] || 'pill-gray'}">${estado}</span></td>`;
+            }
+            case 'po': {
+                const poDisplay = ctx && ctx.poDisplay ? ctx.poDisplay : (r.nro_oc || r.numero_po || '—');
+                return `<td class="px-2 py-1.5 font-mono text-center">${poDisplay}</td>`;
+            }
+            case 'nro_parte':
+                return `<td class="px-2 py-1.5 font-mono text-center">${r.material_codigo || '—'}</td>`;
+            case 'desc_cil': {
+                const desc = (r.material_nombre || r.descripcion || r.texto || '—');
+                return `<td class="px-2 py-1.5 text-left text-gray-700">${desc}</td>`;
+            }
+            case 'modelo_cil':
+                return `<td class="px-2 py-1.5 font-mono text-center">${r.equipo_codigo || '—'}</td>`;
+            case 'cliente':
+                return `<td class="px-2 py-1.5 text-left text-gray-700">${r.cliente_nombre || '—'}</td>`;
+            case 'f_reg_req':
+                return `<td class="px-2 py-1.5 text-center">${fmtDate(r.fecha_solicitud)}</td>`;
+            case 'f_tent_req':
+                return `<td class="px-2 py-1.5 text-center">${fmtDate(r.fecha_requerida)}</td>`;
+            case 'f_apr_req':
+                return `<td class="px-2 py-1.5 text-center">${fmtDate(r.fecha_entrega_real)}</td>`;
+            case 'cant_req':
+                return `<td class="px-2 py-1.5 text-center">${cantReq != null ? cantReq : '—'}</td>`;
+            case 'cant_items':
+                return `<td class="px-2 py-1.5 text-center">${cantItems != null ? cantItems : '—'}</td>`;
+            case 'cant_ocs':
+                return `<td class="px-2 py-1.5 text-center">${cantOCs != null ? cantOCs : '—'}</td>`;
+            case 'valor_total':
+                return `<td class="px-2 py-1.5 text-right">${valorTot != null ? (valorTot.toFixed(2) + ' ' + (r.moneda || '')) : '—'}</td>`;
+            case 'moneda':
+                return `<td class="px-2 py-1.5 text-center">${r.moneda || '—'}</td>`;
+            case 'f_oc':
+                return `<td class="px-2 py-1.5 text-center">${fmtDate(r.fecha_oc)}</td>`;
+            case 'f_ot_est':
+                return `<td class="px-2 py-1.5 text-center">—</td>`;
+            case 'f_ot_comp':
+                return `<td class="px-2 py-1.5 text-center">—</td>`;
+            case 'ubicacion':
+                return `<td class="px-2 py-1.5 text-center">${r.ubicacion || '—'}</td>`;
+            case 'f_salida':
+                return `<td class="px-2 py-1.5 text-center">${fmtDate(r.fecha_salida_almacen)}</td>`;
+            case 'evaluador':
+                return `<td class="px-2 py-1.5 text-center">—</td>`;
+            case 'f_envio':
+                return `<td class="px-2 py-1.5 text-center">${fmtDate(r.fecha_envio_mina)}</td>`;
+            case 'gr_mina':
+                return `<td class="px-2 py-1.5 font-mono text-center">${r.gr_mina || '—'}</td>`;
+            case 'f_fact':
+                return `<td class="px-2 py-1.5 text-center">${fmtDate(r.fecha_facturacion)}</td>`;
+            case 'factura':
+                return `<td class="px-2 py-1.5 font-mono text-center">${r.factura_cliente || '—'}</td>`;
+            case 'precio_sinigv':
+                return `<td class="px-2 py-1.5 text-right">${precioNum != null ? precioNum.toFixed(2) : '—'}</td>`;
+            case 'obs':
+                return `<td class="px-2 py-1.5 text-left">${r.observaciones || '—'}</td>`;
+            default:
+                return `<td class="px-2 py-1.5 text-center">—</td>`;
+        }
+    }).join('');
+}
+
+function buildResumenTable(r, sameOt, ctx) {
+    const cols = resumenColumnsConfig.filter(c => c.visible);
+    if (!cols.length) {
+        return '<div class="text-gray-400 italic text-[0.7rem]">No hay columnas seleccionadas para el resumen.</div>';
+    }
+
+    const header = cols.map(col => `<th class="px-2 py-1 border border-slate-400">${col.label}</th>`).join('');
+
+    const cells = cols.map(col => {
+        switch (col.id) {
+            case 'ot':
+                return `<td class="px-2 py-1 border border-slate-200 font-mono font-semibold">${r.numero_ot || r.ot_id || '—'}</td>`;
+            case 'estado':
+                return `<td class="px-2 py-1 border border-slate-200"><span class="pill ${ctx && ctx.estadoReq ? (estReqMap[ctx.estadoReq] || 'pill-gray') : 'pill-gray'}">${ctx && ctx.estadoReq ? ctx.estadoReq : (r.estado || 'Pendiente')}</span></td>`;
+            case 'po':
+                return `<td class="px-2 py-1 border border-slate-200 font-mono">${ctx && ctx.poDisplay ? ctx.poDisplay : (r.nro_oc || r.numero_po || '—')}</td>`;
+            case 'nro_parte':
+                return `<td class="px-2 py-1 border border-slate-200 font-mono">${r.material_codigo || '—'}</td>`;
+            case 'desc_cil':
+                return `<td class="px-2 py-1 border border-slate-200">${(r.material_nombre || r.descripcion || r.texto || '—')}</td>`;
+            case 'modelo_cil':
+                return `<td class="px-2 py-1 border border-slate-200 font-mono">${r.equipo_codigo || '—'}</td>`;
+            case 'cliente':
+                return `<td class="px-2 py-1 border border-slate-200">${r.cliente_nombre || '—'}</td>`;
+            case 'f_reg_req':
+                return `<td class="px-2 py-1 border border-slate-200">${fmtDate(r.fecha_solicitud)}</td>`;
+            case 'f_tent_req':
+                return `<td class="px-2 py-1 border border-slate-200">${fmtDate(r.fecha_requerida)}</td>`;
+            case 'f_apr_req':
+                return `<td class="px-2 py-1 border border-slate-200">${fmtDate(r.fecha_entrega_real)}</td>`;
+            case 'cant_req':
+                return `<td class="px-2 py-1 border border-slate-200 text-center">${ctx && ctx.cantReq != null ? ctx.cantReq : (sameOt ? sameOt.length : '—')}</td>`;
+            case 'cant_items':
+                return `<td class="px-2 py-1 border border-slate-200 text-right">${ctx && ctx.cantItems != null ? ctx.cantItems : '—'}</td>`;
+            case 'cant_ocs':
+                return `<td class="px-2 py-1 border border-slate-200 text-center">${ctx && ctx.cantOCs != null ? ctx.cantOCs : '—'}</td>`;
+            case 'valor_total': {
+                const val = ctx && ctx.valorTotalNum != null ? ctx.valorTotalNum : null;
+                return `<td class="px-2 py-1 border border-slate-200 text-right">${val != null ? (val.toFixed(2) + ' ' + (r.moneda || '')) : '—'}</td>`;
+            }
+            case 'moneda':
+                return `<td class="px-2 py-1 border border-slate-200 text-center">${r.moneda || '—'}</td>`;
+            case 'f_oc':
+                return `<td class="px-2 py-1 border border-slate-200">${fmtDate(r.fecha_oc)}</td>`;
+            case 'f_ot_est':
+                return `<td class="px-2 py-1 border border-slate-200">—</td>`;
+            case 'f_ot_comp':
+                return `<td class="px-2 py-1 border border-slate-200">—</td>`;
+            case 'ubicacion':
+                return `<td class="px-2 py-1 border border-slate-200">${r.ubicacion || '—'}</td>`;
+            case 'f_salida':
+                return `<td class="px-2 py-1 border border-slate-200">${fmtDate(r.fecha_salida_almacen)}</td>`;
+            case 'evaluador':
+                return `<td class="px-2 py-1 border border-slate-200">—</td>`;
+            case 'f_envio':
+                return `<td class="px-2 py-1 border border-slate-200">${fmtDate(r.fecha_envio_mina)}</td>`;
+            case 'gr_mina':
+                return `<td class="px-2 py-1 border border-slate-200 font-mono">${r.gr_mina || '—'}</td>`;
+            case 'f_fact':
+                return `<td class="px-2 py-1 border border-slate-200">${fmtDate(r.fecha_facturacion)}</td>`;
+            case 'factura':
+                return `<td class="px-2 py-1 border border-slate-200 font-mono">${r.factura_cliente || '—'}</td>`;
+            case 'precio_sinigv': {
+                const p = ctx && ctx.precioNum != null ? ctx.precioNum : (r.precio_unitario != null ? parseFloat(r.precio_unitario) : null);
+                return `<td class="px-2 py-1 border border-slate-200 text-right">${p != null ? p.toFixed(2) : '—'}</td>`;
+            }
+            case 'obs':
+                return `<td class="px-2 py-1 border border-slate-200">${r.observaciones || '—'}</td>`;
+            default:
+                return `<td class="px-2 py-1 border border-slate-200">—</td>`;
+        }
+    }).join('');
+
+    return `
+        <table class="min-w-full border border-slate-300 bg-white">
+            <thead class="bg-slate-700 text-white">
+                <tr>${header}</tr>
+            </thead>
+            <tbody>
+                <tr>${cells}</tr>
+            </tbody>
+        </table>
+    `;
 }
 
 // ── Actions ───────────────────────────────────────────────────────────────────
@@ -883,11 +1099,12 @@ async function guardarDatosOC() {
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function verOT(otId)  { window.open(`/operativos/ordenes-trabajo.html?ot_id=${otId}`, '_blank'); }
-function verOC(id)    { window.open(`/logistica/compras.html?id=${id}`, '_blank'); }
+// Abrir PO en formato tabla tipo Excel: resumen de la OC + requerimientos debajo
+function verOC(id)    { window.open(`/api/logistica/compras-extended/${id}/pdf`, '_blank'); }
 
 function setTableLoading() {
     document.getElementById('tabla-body').innerHTML =
-        '<tr><td colspan="24" class="text-center py-10 text-gray-400"><i class="fas fa-spinner fa-spin mr-2"></i>Cargando…</td></tr>';
+    '<tr><td colspan="25" class="text-center py-10 text-gray-400"><i class="fas fa-spinner fa-spin mr-2"></i>Cargando…</td></tr>';
 }
 
 function fmtDate(d) {

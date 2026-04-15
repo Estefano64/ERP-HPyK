@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LOG REQ - OC &mdash; HP&K ERP</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="/vistas/shared/navigation.js"></script>
+  <style>
+    tr.summary-row:hover td { background:#f8fafc; }
+    tr.summary-row.selected td { background:#eff6ff; }
+    tr.detail-row td { background:#f9fafb; }
+    .pill {
+      display:inline-flex;
+      align-items:center;
+      padding:2px 8px;
+      border-radius:999px;
+      font-size:0.7rem;
+      font-weight:600;
+      white-space:nowrap;
+    }
+    .pill-gray { background:#e5e7eb; color:#374151; }
+    .pill-green { background:#bbf7d0; color:#166534; }
+    .pill-red { background:#fecaca; color:#991b1b; }
+    .pill-blue { background:#bfdbfe; color:#1d4ed8; }
+    .pill-yellow { background:#fef3c7; color:#92400e; }
+  </style>
+</head>
+<body class="bg-gray-100">
+<div id="navigation-container"></div>
+
+<!-- HEADER -->
+<div class="bg-gradient-to-r from-sky-700 to-sky-900 text-white shadow-lg">
+  <div class="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <i class="fas fa-link text-3xl opacity-80"></i>
+      <div>
+        <h1 class="text-2xl font-bold tracking-wide">LOG REQ &mdash; OC</h1>
+        <p class="text-sky-200 text-xs">Conexi&oacute;n entre requerimientos, &oacute;rdenes de compra y OT</p>
+      </div>
+    </div>
+    <a href="/logistica/index.html" class="bg-white/15 hover:bg-white/25 px-4 py-2 rounded-lg text-xs font-medium flex items-center gap-2">
+      <i class="fas fa-arrow-left"></i>
+      Log&iacute;stica
+    </a>
+  </div>
+</div>
+
+<div class="max-w-6xl mx-auto px-4 py-5 space-y-4">
+  <!-- RESUMEN / FILTROS B&Aacute;SICOS -->
+  <div class="bg-white rounded-lg shadow p-3 flex flex-wrap gap-3 items-end">
+    <div>
+      <label class="block text-xs text-gray-500 mb-1">Estado OT</label>
+      <select id="f-estado" class="border rounded px-2 py-1.5 text-xs" onchange="renderResumen()">
+        <option value="">Todos</option>
+        <option value="COMPLETO">COMPLETO</option>
+        <option value="INCOMPLETO">INCOMPLETO</option>
+        <option value="ENTREGADO">ENTREGADO</option>
+        <option value="ANULADO">ANULADO</option>
+      </select>
+    </div>
+    <div>
+      <label class="block text-xs text-gray-500 mb-1">Buscar</label>
+      <input id="f-buscar" type="text" placeholder="OT, cliente, NP, modelo..." class="border rounded px-2 py-1.5 text-xs w-56" oninput="renderResumen()">
+    </div>
+    <button id="btn-refrescar" type="button" onclick="loadResumen()" class="ml-auto bg-sky-600 hover:bg-sky-700 text-white text-xs px-4 py-2 rounded flex items-center gap-2">
+      <i class="fas fa-sync"></i>
+      Actualizar
+    </button>
+  </div>
+
+  <!-- TABLA RESUMEN -->
+  <div class="bg-white rounded-lg shadow overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="min-w-full text-xs border-collapse">
+        <thead class="bg-sky-900 text-[0.7rem] text-white">
+          <tr>
+            <th class="px-2 py-2 text-left w-8"></th>
+            <th class="px-2 py-2 text-left">OT</th>
+            <th class="px-2 py-2 text-left">Estado</th>
+            <th class="px-2 py-2 text-left">Cliente</th>
+            <th class="px-2 py-2 text-left">NP / Descripci&oacute;n</th>
+            <th class="px-2 py-2 text-left">Modelo</th>
+            <th class="px-2 py-2 text-center">Requerim.</th>
+            <th class="px-2 py-2 text-center">&Iacute;tems</th>
+            <th class="px-2 py-2 text-center">OCs</th>
+            <th class="px-2 py-2 text-right">Valor Total</th>
+            <th class="px-2 py-2 text-left">Mon.</th>
+            <th class="px-2 py-2 text-left">F. &Uacute;ltima OC</th>
+            <th class="px-2 py-2 text-left">F. Est. OT</th>
+            <th class="px-2 py-2 text-left">F. OT Compl.</th>
+          </tr>
+        </thead>
+        <tbody id="resumen-body">
+          <tr><td colspan="14" class="text-center py-10 text-gray-400">Cargando datos...</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div id="resumen-footer" class="px-4 py-2 border-t text-[0.7rem] text-gray-500 flex justify-between items-center bg-gray-50">
+      <span id="resumen-info">&nbsp;</span>
+      <span id="resumen-seleccion">&nbsp;</span>
+    </div>
+  </div>
+</div>
+
+<script>
+  let resumenData = [];
+  const estadoColors = {
+    'COMPLETO': 'pill pill-green',
+    'ENTREGADO': 'pill pill-blue',
+    'INCOMPLETO': 'pill pill-yellow',
+    'ANULADO': 'pill pill-red'
+  };
+
+  async function loadResumen() {
+    const body = document.getElementById('resumen-body');
+    body.innerHTML = '<tr><td colspan="14" class="text-center py-6 text-gray-400">Cargando datos...</td></tr>';
+    document.getElementById('resumen-info').textContent = '';
+
+    try {
+      const res = await fetch('/api/req-oc/resumen');
+      if (!res.ok) throw new Error('No se pudo cargar el resumen');
+      resumenData = await res.json();
+      if (!Array.isArray(resumenData)) resumenData = [];
+      renderResumen();
+    } catch (e) {
+      console.error(e);
+      body.innerHTML = '<tr><td colspan="14" class="text-center py-6 text-red-500">Error al cargar el resumen REQ-OC</td></tr>';
+    }
+  }
+
+  function renderResumen() {
+    const tbody = document.getElementById('resumen-body');
+    tbody.innerHTML = '';
+
+    const fEstado = document.getElementById('f-estado').value || '';
+    const q = (document.getElementById('f-buscar').value || '').toLowerCase();
+
+    let data = resumenData.slice();
+    if (fEstado) {
+      data = data.filter(r => (r.estado || '').toUpperCase() === fEstado);
+    }
+    if (q) {
+      data = data.filter(r => {
+        const txt = [r.ot, r.cliente, r.numero_parte, r.descripcion, r.modelo].join(' ').toLowerCase();
+        return txt.includes(q);
+      });
+    }
+
+    if (!data.length) {
+      tbody.innerHTML = '<tr><td colspan="14" class="text-center py-6 text-gray-400">Sin registros para los filtros actuales</td></tr>';
+      document.getElementById('resumen-info').textContent = '0 OTs';
+      return;
+    }
+
+    data.forEach((row, idx) => {
+      const tr = document.createElement('tr');
+      tr.className = 'summary-row border-b border-gray-100';
+      tr.dataset.otId = row.ot_id || row.otId || row.id;
+
+      const estado = (row.estado || '').toUpperCase();
+      const cls = estadoColors[estado] || 'pill pill-gray';
+
+      tr.innerHTML = `
+        <td class="px-2 py-2 text-center align-top">
+          <button type="button" class="text-sky-700 hover:text-sky-900" onclick="toggleDetalle(this)" aria-label="Ver detalle" data-ot="${tr.dataset.otId}">
+            <i class="fas fa-chevron-down text-xs"></i>
+          </button>
+        </td>
+        <td class="px-2 py-2 font-semibold text-sky-800">${row.ot || ''}</td>
+        <td class="px-2 py-2"><span class="${cls}">${estado || 'SIN ESTADO'}</span></td>
+        <td class="px-2 py-2 text-gray-700">${row.cliente || ''}</td>
+        <td class="px-2 py-2 text-gray-700">${row.numero_parte || ''} &mdash; ${row.descripcion || ''}</td>
+        <td class="px-2 py-2 text-gray-600">${row.modelo || ''}</td>
+        <td class="px-2 py-2 text-center">${row.cantidad_requerimientos ?? ''}</td>
+        <td class="px-2 py-2 text-center">${row.cantidad_items ?? ''}</td>
+        <td class="px-2 py-2 text-center">${row.cantidad_ordenes_compra ?? ''}</td>
+        <td class="px-2 py-2 text-right font-semibold">${formatMonto(row.valor_total, row.moneda)}</td>
+        <td class="px-2 py-2">${row.moneda || ''}</td>
+        <td class="px-2 py-2">${formatFecha(row.fecha_oc)}</td>
+        <td class="px-2 py-2">${formatFecha(row.fecha_estimada_ot_completa || row.fecha_estimada_ot)}</td>
+        <td class="px-2 py-2">${formatFecha(row.fecha_ot_completa || row.fecha_entrega)}</td>
+      `;
+
+      tbody.appendChild(tr);
+    });
+
+    document.getElementById('resumen-info').textContent = `${data.length} OTs`;
+  }
+
+  function formatFecha(val) {
+    if (!val) return '';
+    const d = new Date(val);
+    if (isNaN(d.getTime())) return '';
+    return d.toISOString().slice(0, 10);
+  }
+
+  function formatMonto(v, mon) {
+    if (v == null) return '';
+    const num = Number(v);
+    if (isNaN(num)) return '';
+    return num.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  async function toggleDetalle(buttonEl) {
+    const otId = buttonEl.dataset.ot;
+    const tr = buttonEl.closest('tr');
+    const tbody = document.getElementById('resumen-body');
+
+    // Si ya existe la fila de detalle inmediatamente debajo, la eliminamos
+    const next = tr.nextElementSibling;
+    if (next && next.classList.contains('detail-row')) {
+      next.remove();
+      tr.classList.remove('selected');
+      buttonEl.innerHTML = '<i class="fas fa-chevron-down text-xs"></i>';
+      return;
+    }
+
+    // Cerrar cualquier otro detalle abierto
+    Array.from(tbody.querySelectorAll('tr.detail-row')).forEach(r => r.remove());
+    Array.from(tbody.querySelectorAll('tr.summary-row')).forEach(r => r.classList.remove('selected'));
+    Array.from(tbody.querySelectorAll('tr.summary-row button[data-ot]')).forEach(b => {
+      b.innerHTML = '<i class="fas fa-chevron-down text-xs"></i>';
+    });
+
+    tr.classList.add('selected');
+    buttonEl.innerHTML = '<i class="fas fa-chevron-up text-xs"></i>';
+
+    const detailTr = document.createElement('tr');
+    detailTr.className = 'detail-row border-b border-gray-200';
+    detailTr.innerHTML = `<td colspan="14" class="px-4 py-3">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-3">
+        <div class="lg:col-span-2">
+          <h3 class="text-[0.7rem] font-semibold text-gray-700 mb-2 flex items-center gap-2">
+            <i class="fas fa-layer-group text-sky-600"></i>
+            Detalle de l&iacute;neas (REQ &mdash; OC)
+          </h3>
+          <div class="border rounded bg-white overflow-x-auto">
+            <table class="min-w-full text-[0.68rem]">
+              <thead class="bg-gray-100 text-gray-600">
+                <tr>
+                  <th class="px-2 py-1 text-left">Item</th>
+                  <th class="px-2 py-1 text-left">NP / Descripci&oacute;n</th>
+                  <th class="px-2 py-1 text-left">Tipo</th>
+                  <th class="px-2 py-1 text-left">Proveedor</th>
+                  <th class="px-2 py-1 text-left">OC</th>
+                  <th class="px-2 py-1 text-center">Cant.</th>
+                  <th class="px-2 py-1 text-right">PU</th>
+                  <th class="px-2 py-1 text-right">Valor</th>
+                  <th class="px-2 py-1 text-left">Estado OC</th>
+                  <th class="px-2 py-1 text-left">F. OC</th>
+                  <th class="px-2 py-1 text-left">F. Recep.</th>
+                </tr>
+              </thead>
+              <tbody id="detalle-body-${otId}">
+                <tr><td colspan="11" class="text-center py-4 text-gray-400">Cargando detalle...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="space-y-2">
+          <h3 class="text-[0.7rem] font-semibold text-gray-700 mb-1 flex items-center gap-2">
+            <i class="fas fa-clipboard-list text-sky-600"></i>
+            Campos manuales de OT
+          </h3>
+          <form class="space-y-1" onsubmit="guardarResumenManual(event, '${otId}')">
+            <div>
+              <label class="block text-[0.65rem] text-gray-500">Ubicaci&oacute;n</label>
+              <input name="ubicacion" class="w-full border rounded px-2 py-1 text-[0.7rem]" />
+            </div>
+            <div>
+              <label class="block text-[0.65rem] text-gray-500">Fecha salida almac&eacute;n</label>
+              <input type="date" name="fecha_salida_almacen" class="w-full border rounded px-2 py-1 text-[0.7rem]" />
+            </div>
+            <div>
+              <label class="block text-[0.65rem] text-gray-500">Evaluador</label>
+              <input name="evaluador" class="w-full border rounded px-2 py-1 text-[0.7rem]" />
+            </div>
+            <div>
+              <label class="block text-[0.65rem] text-gray-500">Fecha env&iacute;o mina</label>
+              <input type="date" name="fecha_envio_mina" class="w-full border rounded px-2 py-1 text-[0.7rem]" />
+            </div>
+            <div>
+              <label class="block text-[0.65rem] text-gray-500">GR a mina</label>
+              <input name="gr_mina" class="w-full border rounded px-2 py-1 text-[0.7rem]" />
+            </div>
+            <div>
+              <label class="block text-[0.65rem] text-gray-500">Fecha facturaci&oacute;n</label>
+              <input type="date" name="fecha_facturacion" class="w-full border rounded px-2 py-1 text-[0.7rem]" />
+            </div>
+            <div>
+              <label class="block text-[0.65rem] text-gray-500">Factura</label>
+              <input name="factura" class="w-full border rounded px-2 py-1 text-[0.7rem]" />
+            </div>
+            <div>
+              <label class="block text-[0.65rem] text-gray-500">Precio sin IGV</label>
+              <input name="precio_sin_igv" class="w-full border rounded px-2 py-1 text-[0.7rem] text-right" />
+            </div>
+            <div>
+              <label class="block text-[0.65rem] text-gray-500">Observaciones</label>
+              <textarea name="observaciones" rows="2" class="w-full border rounded px-2 py-1 text-[0.7rem]"></textarea>
+            </div>
+            <button type="submit" class="mt-1 w-full bg-sky-600 hover:bg-sky-700 text-white text-[0.7rem] py-1.5 rounded flex items-center justify-center gap-1">
+              <i class="fas fa-save"></i>
+              Guardar manual
+            </button>
+          </form>
+        </div>
+      </div>
+    </td>`;
+
+    tr.after(detailTr);
+
+    // Cargar detalle y campos manuales
+    loadDetalle(otId);
+    loadResumenManual(otId);
+  }
+
+  async function loadDetalle(otId) {
+    const tbody = document.getElementById(`detalle-body-${otId}`);
+    if (!tbody) return;
+    tbody.innerHTML = '<tr><td colspan="11" class="text-center py-4 text-gray-400">Cargando detalle...</td></tr>';
+    try {
+      const res = await fetch(`/api/req-oc/detalle?otId=${encodeURIComponent(otId)}`);
+      if (!res.ok) throw new Error('Error al cargar detalle');
+      const rows = await res.json();
+      if (!Array.isArray(rows) || !rows.length) {
+        tbody.innerHTML = '<tr><td colspan="11" class="text-center py-4 text-gray-400">Sin l&iacute;neas para esta OT</td></tr>';
+        return;
+      }
+      tbody.innerHTML = '';
+      rows.forEach(r => {
+        const tr = document.createElement('tr');
+        tr.className = 'border-t border-gray-100';
+        tr.innerHTML = `
+          <td class="px-2 py-1">${r.item ?? ''}</td>
+          <td class="px-2 py-1">${r.numero_parte || ''} &mdash; ${r.detalle || r.descripcion || ''}</td>
+          <td class="px-2 py-1">${r.tipo_item || ''}</td>
+          <td class="px-2 py-1">${r.vendor || ''}</td>
+          <td class="px-2 py-1">${r.oc_numero || ''}</td>
+          <td class="px-2 py-1 text-center">${r.cantidad ?? ''}</td>
+          <td class="px-2 py-1 text-right">${formatMonto(r.pu_sin_igv)}</td>
+          <td class="px-2 py-1 text-right">${formatMonto(r.valor_sin_igv)}</td>
+          <td class="px-2 py-1">${r.estado_oc || ''}</td>
+          <td class="px-2 py-1">${formatFecha(r.fecha_oc)}</td>
+          <td class="px-2 py-1">${formatFecha(r.fecha_recepcion)}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    } catch (e) {
+      console.error(e);
+      tbody.innerHTML = '<tr><td colspan="11" class="text-center py-4 text-red-500">Error al cargar detalle</td></tr>';
+    }
+  }
+
+  async function loadResumenManual(otId) {
+    const form = document.querySelector(`tr.detail-row form[onsubmit*="'${otId}'"]`);
+    if (!form) return;
+    try {
+      const res = await fetch(`/api/req-oc/resumen-manual/${encodeURIComponent(otId)}`);
+      if (!res.ok) return; // si no existe, dejar vacío
+      const data = await res.json();
+      ['ubicacion','fecha_salida_almacen','evaluador','fecha_envio_mina','gr_mina','fecha_facturacion','factura','precio_sin_igv','observaciones']
+        .forEach(name => {
+          const input = form.querySelector(`[name="${name}"]`);
+          if (!input) return;
+          const val = data[name];
+          if (!val) return;
+          if (input.type === 'date') {
+            input.value = formatFecha(val);
+          } else {
+            input.value = val;
+          }
+        });
+    } catch (_) {}
+  }
+
+  async function guardarResumenManual(ev, otId) {
+    ev.preventDefault();
+    const form = ev.target;
+    const payload = {};
+    new FormData(form).forEach((v, k) => { payload[k] = v; });
+    try {
+      const res = await fetch(`/api/req-oc/resumen-manual/${encodeURIComponent(otId)}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) throw new Error('Error al guardar');
+      alert('Datos manuales guardados.');
+    } catch (e) {
+      console.error(e);
+      alert('No se pudo guardar el registro manual.');
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', loadResumen);
+</script>
+</body>
+</html>

@@ -748,7 +748,7 @@
                 <!-- Panel Principal de Requerimientos -->
                 <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
                     <div class="flex items-center justify-between mb-6">
-                        <h3 class="text-2xl font-bold text-gray-800">📋 Gestión de Requerimientos</h3>
+                        <h3 class="text-2xl font-bold text-gray-800">Gestión de Requerimientos</h3>
                         <div class="flex gap-3">
                             <button onclick="visualizarTodosRequerimientos()" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg text-sm">
                                 <i class="fas fa-eye mr-1"></i>Ver Todos los Req. Pendientes
@@ -875,7 +875,7 @@
                     <div class="bg-white rounded-lg shadow-lg p-6">
                         <div class="flex items-center mb-4">
                             <i class="fas fa-list-check text-2xl text-blue-600 mr-3"></i>
-                            <h3 class="text-xl font-bold text-gray-800">📋 OT's Listas para Despacho</h3>
+                            <h3 class="text-xl font-bold text-gray-800">OT's Listas para Despacho</h3>
                         </div>
                         <div class="space-y-3">
                             <div class="border border-gray-200 rounded-lg p-3 hover:bg-blue-50">
@@ -1317,7 +1317,7 @@
                             <!-- Columna: Por Hacer -->
                             <div class="bg-gray-50 rounded-lg p-4">
                                 <div class="flex justify-between items-center mb-4">
-                                    <h4 class="font-bold text-gray-700">📋 POR HACER</h4>
+                                    <h4 class="font-bold text-gray-700">POR HACER</h4>
                                     <span class="bg-gray-200 text-gray-700 px-2 py-1 rounded-full text-xs font-medium">6</span>
                                 </div>
                                 
@@ -1444,7 +1444,7 @@
                             <!-- Columna: En Revisión -->
                             <div class="bg-yellow-50 rounded-lg p-4">
                                 <div class="flex justify-between items-center mb-4">
-                                    <h4 class="font-bold text-yellow-700">🔍 EN REVISIÓN</h4>
+                                    <h4 class="font-bold text-yellow-700">EN REVISIÓN</h4>
                                     <span class="bg-yellow-200 text-yellow-700 px-2 py-1 rounded-full text-xs font-medium">2</span>
                                 </div>
                                 
@@ -1569,7 +1569,7 @@ let otActual = null;
                             }
 
                             function abrirDetalleOT(otId) {
-                                alert(`📋 Detalles de ${otId}\n\n` +
+                                alert(`Detalles de ${otId}\n\n` +
                                       '• Estado: En progreso\n' +
                                       '• Técnico: Carlos Méndez\n' +
                                       '• Tiempo estimado: 24h\n' +
@@ -1734,7 +1734,7 @@ let otActual = null;
 
                             // FUNCIONES DE COMPRAS
                             function generarOC() {
-                                alert('📋 Generar Nueva Orden de Compra\n\n' +
+                                alert('Generar Nueva Orden de Compra\n\n' +
                                       '🔹 Pasos a seguir:\n' +
                                       '1. Seleccionar proveedor\n' +
                                       '2. Agregar items requeridos\n' +
@@ -1755,7 +1755,7 @@ let otActual = null;
                             }
 
                             function verListadoEstados() {
-                                alert('📋 Listado de Estados de OC\n\n' +
+                                alert('Listado de Estados de OC\n\n' +
                                       '🟠 Pendientes: 12 OC\n' +
                                       '🔵 Aprobadas: 35 OC\n' +
                                       '🟣 En Tránsito: 8 OC\n' +
@@ -1785,7 +1785,7 @@ let otActual = null;
                             }
 
                             function verDetalleOC(ocId) {
-                                alert(`📋 Detalle de ${ocId}\n\n` +
+                                alert(`Detalle de ${ocId}\n\n` +
                                       '• Proveedor: Ferretería Industrial S.A.\n' +
                                       '• Items: 15 productos\n' +
                                       '• Total: $3,250.00\n' +
@@ -1805,7 +1805,7 @@ let otActual = null;
 
                             // FUNCIONES DE RECURSOS SOLICITADOS
                             function visualizarTodosRequerimientos() {
-                                alert('👁️ Visualizar Todos los Requerimientos Pendientes\n\n' +
+                                alert('Visualizar Todos los Requerimientos Pendientes\n\n' +
                                       'Vista consolidada:\n' +
                                       '• Total pendientes: 23\n' +
                                       '• Por área: Mantenimiento (8), Producción (10), Calidad (5)\n' +
@@ -1852,7 +1852,7 @@ let otActual = null;
 
                             function generarGuias() {
                                 alert('Generar Guías de Despacho\n\n' +
-                                      '📋 Tipos disponibles:\n' +
+                                      'Tipos disponibles:\n' +
                                       '• Guía de remisión (local)\n' +
                                       '• Guía de transporte (interprovincial)\n' +
                                       '• Manifiesto de carga (múltiple)\n\n' +
@@ -1869,7 +1869,7 @@ let otActual = null;
                             }
 
                             function generarGuiaRemision() {
-                                alert('📋 Generar Guía de Remisión\n\n' +
+                                alert('Generar Guía de Remisión\n\n' +
                                       '📍 Para despachos locales:\n' +
                                       '• Datos del destinatario\n' +
                                       '• Detalle de productos\n' +
@@ -1908,7 +1908,7 @@ let otActual = null;
                             }
 
                             function generarRequerimientoUrgente(item) {
-                                alert(`🚨 Requerimiento Urgente\n\n` +
+                                alert(`Requerimiento Urgente\n\n` +
                                       `📦 Item: ${item}\n` +
                                       'Proceso acelerado:\n' +
                                       '• Prioridad alta\n' +
@@ -1918,8 +1918,8 @@ let otActual = null;
                             }
 
                             function revisarOC(ocId) {
-                                alert(`🔍 Revisar ${ocId}\n\n` +
-                                      '📋 Pendiente de aprobación:\n' +
+                                alert(`Revisar ${ocId}\n\n` +
+                                      'Pendiente de aprobación:\n' +
                                       '• Monto: $4,200.00\n' +
                                       '• Items: 12 productos\n' +
                                       '• Proveedor verificado\n' +

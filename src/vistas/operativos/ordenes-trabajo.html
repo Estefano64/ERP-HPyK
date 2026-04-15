@@ -1551,14 +1551,35 @@
                 <table class="min-w-full">
                     <thead class="bg-gradient-to-r from-gray-100 to-gray-200">
                         <tr>
-                            <th class="px-4 py-4 text-center text-xs font-bold text-gray-700 uppercase tracking-wider" style="width: 50px;"></th>
-                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">OT</th>
-                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Tipo</th>
-                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Equipo</th>
-                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Estado</th>
-                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Descripción</th>
-                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">Estado Actual</th>
-                            <th class="px-6 py-4 text-center text-xs font-bold text-gray-700 uppercase tracking-wider">Acciones</th>
+                            <th class="px-4 py-3 text-center text-xs font-bold text-gray-700 uppercase" style="width: 50px;"></th>
+                            <th class="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase relative">
+                                OT
+                                <input type="text" data-filter-col="ot" placeholder="Filtrar..." class="ot-col-filter mt-1 block w-full text-xs font-normal border rounded px-2 py-1 bg-white normal-case" oninput="applyColumnFilters()">
+                            </th>
+                            <th class="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase relative">
+                                Tipo
+                                <select data-filter-col="tipo" class="ot-col-filter mt-1 block w-full text-xs font-normal border rounded px-2 py-1 bg-white normal-case" onchange="applyColumnFilters()">
+                                    <option value="">Todos</option>
+                                </select>
+                            </th>
+                            <th class="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase relative">
+                                Equipo
+                                <select data-filter-col="equipo_codigo" class="ot-col-filter mt-1 block w-full text-xs font-normal border rounded px-2 py-1 bg-white normal-case" onchange="applyColumnFilters()">
+                                    <option value="">Todos</option>
+                                </select>
+                            </th>
+                            <th class="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase relative">
+                                Estado
+                                <select data-filter-col="ot_status_codigo" class="ot-col-filter mt-1 block w-full text-xs font-normal border rounded px-2 py-1 bg-white normal-case" onchange="applyColumnFilters()">
+                                    <option value="">Todos</option>
+                                </select>
+                            </th>
+                            <th class="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase relative">
+                                Descripción
+                                <input type="text" data-filter-col="descripcion" placeholder="Filtrar..." class="ot-col-filter mt-1 block w-full text-xs font-normal border rounded px-2 py-1 bg-white normal-case" oninput="applyColumnFilters()">
+                            </th>
+                            <th class="px-4 py-3 text-left text-xs font-bold text-gray-700 uppercase">Estado Actual</th>
+                            <th class="px-4 py-3 text-center text-xs font-bold text-gray-700 uppercase">Acciones</th>
                         </tr>
                     </thead>
                     <tbody id="tableBody" class="divide-y divide-gray-200">
@@ -2187,6 +2208,8 @@
                 const response = await fetch('/api/ot');
                 const data = await response.json();
                 ordenes = data.ordenes || data || [];
+                allOrdenes = [...ordenes];
+                populateColumnFilters();
                 renderTable();
                 updateDashboardStats();
                 checkAndGenerateNotifications();
@@ -2527,6 +2550,69 @@
             
             // Scroll a la tabla
             document.querySelector('.bg-white.rounded-lg.shadow-lg.overflow-hidden').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // ─── Filtros tipo Excel en cabeceras ──────────────────────────
+        let allOrdenes = []; // copia completa sin filtrar
+        const activeColumnFilters = {};
+
+        function populateColumnFilters() {
+            if (!Array.isArray(allOrdenes) || allOrdenes.length === 0) return;
+
+            const selectCols = ['tipo', 'equipo_codigo', 'ot_status_codigo'];
+            selectCols.forEach(col => {
+                const select = document.querySelector(`select[data-filter-col="${col}"]`);
+                if (!select) return;
+                const currentVal = select.value;
+                const values = [...new Set(allOrdenes.map(o => (o[col] || '').toString().trim()).filter(Boolean))].sort();
+                select.innerHTML = '<option value="">Todos</option>';
+                values.forEach(v => {
+                    select.innerHTML += `<option value="${v}" ${v === currentVal ? 'selected' : ''}>${v}</option>`;
+                });
+            });
+        }
+
+        function applyColumnFilters() {
+            // Leer todos los filtros activos
+            document.querySelectorAll('.ot-col-filter').forEach(el => {
+                const col = el.getAttribute('data-filter-col');
+                const val = (el.value || '').trim().toLowerCase();
+                if (val) activeColumnFilters[col] = val;
+                else delete activeColumnFilters[col];
+            });
+
+            // Filtrar ordenes
+            const colKeys = Object.keys(activeColumnFilters);
+            if (colKeys.length === 0) {
+                ordenes = [...allOrdenes];
+            } else {
+                ordenes = allOrdenes.filter(o => {
+                    return colKeys.every(col => {
+                        const cellVal = (o[col] || '').toString().toLowerCase();
+                        const filterVal = activeColumnFilters[col];
+                        // Si es un select (coincidencia exacta) o un input (contiene)
+                        const filterEl = document.querySelector(`[data-filter-col="${col}"]`);
+                        if (filterEl && filterEl.tagName === 'SELECT') {
+                            return cellVal === filterVal;
+                        }
+                        return cellVal.includes(filterVal);
+                    });
+                });
+            }
+
+            renderTable();
+            updateDashboardStats();
+        }
+
+        function clearColumnFilters() {
+            document.querySelectorAll('.ot-col-filter').forEach(el => {
+                if (el.tagName === 'SELECT') el.selectedIndex = 0;
+                else el.value = '';
+            });
+            Object.keys(activeColumnFilters).forEach(k => delete activeColumnFilters[k]);
+            ordenes = [...allOrdenes];
+            renderTable();
+            updateDashboardStats();
         }
 
         // Render table

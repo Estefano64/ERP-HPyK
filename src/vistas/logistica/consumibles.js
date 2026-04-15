@@ -326,7 +326,7 @@ function viewConsumible(id) {
         const detalles = `
 📦 DETALLE DE CONSUMIBLE
 
-📋 Código: ${cons.codigo}
+Código: ${cons.codigo}
 📦 Nombre: ${cons.nombre}
 🏷️ Categoría: ${getCategoryLabel(cons.categoria)}
 📏 Unidad: ${getUnidadLabel(cons.unidad)}
@@ -596,7 +596,7 @@ function viewMovimiento(id) {
     const mov = movimientos.find(m => m.id === id);
     if (mov) {
         const detalles = `
-📋 DETALLE DE MOVIMIENTO
+DETALLE DE MOVIMIENTO
 
 📦 Consumible: ${mov.consumible_nombre}
 📊 Cantidad: ${mov.cantidad}

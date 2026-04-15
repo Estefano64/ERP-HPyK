@@ -8,6 +8,13 @@ import CodigoReparacion from '../models/CodigoReparacion';
 import Estrategia from '../models/Estrategia';
 import Tarea from '../models/Tarea';
 import OrdenTrabajo from '../models/OrdenTrabajo';
+import OTRepuesto from '../models/OTRepuesto';
+import Compra from '../models/Compra';
+import CompraDetalle from '../models/CompraDetalle';
+import OrdenCompra from '../models/OrdenCompra';
+import MovimientoInventario from '../models/MovimientoInventario';
+import Proveedor from '../models/Proveedor';
+import Almacen from '../models/Almacen';
 
 async function seedAll() {
   try {
@@ -457,6 +464,346 @@ async function seedAll() {
 
     const ordenesTrabajo = await OrdenTrabajo.bulkCreate(ordenesTrabajoData, { ignoreDuplicates: true });
     console.log(`✓ ${ordenesTrabajo.length} órdenes de trabajo creadas\n`);
+
+    // 8. Poblar requerimientos, POs y movimientos logísticos de ejemplo
+    console.log('📦 PASO 8: Creando requerimientos, POs y movimientos logísticos de ejemplo...');
+
+    // Solo crear datos de ejemplo si aún no existen requerimientos
+    const existingReps = await OTRepuesto.count();
+    if (existingReps === 0) {
+      // Referencias básicas
+      const [ot1, ot2, ot3] = await Promise.all([
+        OrdenTrabajo.findOne({ where: { ot: 'OT-2024-001' } }),
+        OrdenTrabajo.findOne({ where: { ot: 'OT-2024-002' } }),
+        OrdenTrabajo.findOne({ where: { ot: 'OT-2024-003' } }),
+      ]);
+
+      const [mat1, mat2, mat3] = await Promise.all([
+        Material.findOne({ where: { codigo: 'MAT-001' } }),
+        Material.findOne({ where: { codigo: 'MAT-002' } }),
+        Material.findOne({ where: { codigo: 'MAT-003' } }),
+      ]);
+
+      const [prov1, prov2] = await Promise.all([
+        Proveedor.findOne({ where: { ruc: '20123456789' } }),
+        Proveedor.findOne({ where: { ruc: '20987654321' } }),
+      ]);
+
+      const almacenPrin = await Almacen.findOne({ where: { codigo: 'ALM-PRIN' } });
+
+      if (ot1 && ot2 && ot3 && mat1 && mat2 && mat3 && prov1 && prov2 && almacenPrin) {
+        const hoy = new Date();
+
+        // 8.1 Requerimientos de ejemplo para las OTs
+        const repuestos = await OTRepuesto.bulkCreate([
+          {
+            ot_id: ot1.id,
+            material_id: mat1.material_id,
+            material_codigo: mat1.codigo,
+            nro_req: 'REQ-2024-001',
+            item_req: 1,
+            tipo_codigo: 'MAC',
+            cantidad: 2,
+            descripcion: 'Kit de sellos CAT 793 para dirección',
+            texto: 'Cambio completo de kit de sellos dirección',
+            fabricante_codigo: 'CAT',
+            unidad_medida: 'und',
+            fecha_solicitud: hoy,
+            fecha_requerida: new Date('2024-03-15'),
+            estado: 'Pendiente',
+            usuario_solicita: 'Planificador',
+          },
+          {
+            ot_id: ot1.id,
+            material_id: mat3.material_id,
+            material_codigo: mat3.codigo,
+            nro_req: 'REQ-2024-001',
+            item_req: 2,
+            tipo_codigo: 'MAC',
+            cantidad: 40,
+            descripcion: 'Aceite hidráulico para pruebas',
+            texto: 'Aceite hidráulico ISO VG 46 para pruebas en banco',
+            fabricante_codigo: 'ALT',
+            unidad_medida: 'lt',
+            fecha_solicitud: hoy,
+            fecha_requerida: new Date('2024-03-18'),
+            estado: 'Pendiente',
+            usuario_solicita: 'Planificador',
+          },
+          {
+            ot_id: ot2.id,
+            material_id: mat2.material_id,
+            material_codigo: mat2.codigo,
+            nro_req: 'REQ-2024-002',
+            item_req: 1,
+            tipo_codigo: 'MAC',
+            cantidad: 2,
+            descripcion: 'Kit de sellos Komatsu 930E suspensión',
+            texto: 'Reemplazo de kit de sellos suspensión',
+            fabricante_codigo: 'KOMATSU',
+            unidad_medida: 'und',
+            fecha_solicitud: hoy,
+            fecha_requerida: new Date('2024-04-25'),
+            estado: 'REV',
+            estado_cot: 'PDT_COT',
+            usuario_solicita: 'Planificador',
+          },
+          {
+            ot_id: ot3.id,
+            material_id: mat1.material_id,
+            material_codigo: mat1.codigo,
+            nro_req: 'REQ-2024-003',
+            item_req: 1,
+            tipo_codigo: 'MAC',
+            cantidad: 1,
+            descripcion: 'Kit de sellos CAT 793 repuesto adicional',
+            texto: 'Repuesto adicional para intervención parcial',
+            fabricante_codigo: 'CAT',
+            unidad_medida: 'und',
+            fecha_solicitud: hoy,
+            fecha_requerida: new Date('2024-05-10'),
+            estado: 'Aprobado',
+            estado_cot: 'APR',
+            usuario_solicita: 'Planificador',
+          },
+          {
+            ot_id: ot1.id,
+            material_id: mat2.material_id,
+            material_codigo: mat2.codigo,
+            nro_req: 'REQ-2024-001',
+            item_req: 3,
+            tipo_codigo: 'MAC',
+            cantidad: 1,
+            descripcion: 'Kit de sellos adicional Komatsu 930E',
+            texto: 'Requerimiento adicional para mismo cilindro',
+            fabricante_codigo: 'KOMATSU',
+            unidad_medida: 'und',
+            fecha_solicitud: hoy,
+            fecha_requerida: new Date('2024-03-20'),
+            estado: 'Pendiente',
+            usuario_solicita: 'Planificador',
+          },
+          {
+            ot_id: ot2.id,
+            material_id: mat3.material_id,
+            material_codigo: mat3.codigo,
+            nro_req: 'REQ-2024-002',
+            item_req: 2,
+            tipo_codigo: 'MAC',
+            cantidad: 25,
+            descripcion: 'Aceite hidráulico adicional para pruebas',
+            texto: 'Volumen adicional para pruebas extendidas',
+            fabricante_codigo: 'ALT',
+            unidad_medida: 'lt',
+            fecha_solicitud: hoy,
+            fecha_requerida: new Date('2024-04-28'),
+            estado: 'Pendiente',
+            usuario_solicita: 'Planificador',
+          },
+          {
+            ot_id: ot3.id,
+            material_id: mat2.material_id,
+            material_codigo: mat2.codigo,
+            nro_req: 'REQ-2024-003',
+            item_req: 2,
+            tipo_codigo: 'MAC',
+            cantidad: 2,
+            descripcion: 'Kit de sellos Komatsu para cilindro asociado',
+            texto: 'Requerimiento complementario para OT relacionada',
+            fabricante_codigo: 'KOMATSU',
+            unidad_medida: 'und',
+            fecha_solicitud: hoy,
+            fecha_requerida: new Date('2024-05-12'),
+            estado: 'Pendiente',
+            usuario_solicita: 'Planificador',
+          },
+          {
+            ot_id: ot2.id,
+            material_id: mat1.material_id,
+            material_codigo: mat1.codigo,
+            nro_req: 'REQ-2024-002',
+            item_req: 3,
+            tipo_codigo: 'MAC',
+            cantidad: 1,
+            descripcion: 'Kit de sellos CAT 793 adicional para la misma OT',
+            texto: 'Segundo componente asociado a la OT Komatsu',
+            fabricante_codigo: 'CAT',
+            unidad_medida: 'und',
+            fecha_solicitud: hoy,
+            fecha_requerida: new Date('2024-04-30'),
+            estado: 'Pendiente',
+            usuario_solicita: 'Planificador',
+          },
+          {
+            ot_id: ot3.id,
+            material_id: mat3.material_id,
+            material_codigo: mat3.codigo,
+            nro_req: 'REQ-2024-003',
+            item_req: 3,
+            tipo_codigo: 'MAC',
+            cantidad: 30,
+            descripcion: 'Aceite hidráulico para pruebas finales de OT',
+            texto: 'Consumo estimado para pruebas en banco y campo',
+            fabricante_codigo: 'ALT',
+            unidad_medida: 'lt',
+            fecha_solicitud: hoy,
+            fecha_requerida: new Date('2024-05-15'),
+            estado: 'Pendiente',
+            usuario_solicita: 'Planificador',
+          },
+        ]);
+
+        console.log(`✓ ${repuestos.length} requerimientos (ot_repuestos) creados\n`);
+
+        // 8.2 PO de ejemplo vinculada a requerimientos
+        const existingCompras = await Compra.count();
+        if (existingCompras === 0) {
+          const subtotalPO = 2 * 380 + 40 * 5.8; // MAT-001 y MAT-003
+          const impuestoPO = subtotalPO * 0.18;
+          const totalPO = subtotalPO + impuestoPO;
+
+          const compra = await Compra.create({
+            numero_po: 'D2400001',
+            proveedor_id: prov1.id,
+            almacen_id: almacenPrin.id,
+            fecha_solicitud: hoy,
+            fecha_entrega_esperada: new Date('2024-03-25'),
+            estado: 'Pendiente',
+            subtotal: subtotalPO,
+            impuesto: impuestoPO,
+            total: totalPO,
+            moneda: 'USD',
+            observaciones: 'PO de ejemplo generada para demo de Logística',
+            usuario_solicita: 'Logística Demo',
+          });
+
+          // Detalles
+          await CompraDetalle.bulkCreate([
+            {
+              compra_id: compra.id,
+              material_id: mat1.material_id,
+              cantidad: 2,
+              precio_unitario: 380.0,
+              subtotal: 760.0,
+              descuento: 0,
+              impuesto: 760.0 * 0.18,
+              total: 760.0 * 1.18,
+            },
+            {
+              compra_id: compra.id,
+              material_id: mat3.material_id,
+              cantidad: 40,
+              precio_unitario: 5.8,
+              subtotal: 232.0,
+              descuento: 0,
+              impuesto: 232.0 * 0.18,
+              total: 232.0 * 1.18,
+            },
+          ]);
+
+          // Vincular dos requerimientos a la PO
+          const [req1, req2] = repuestos;
+          await Promise.all([
+            req1.update({ estado: 'En PO', po_id: compra.id, nro_oc: compra.numero_po, fecha_oc: hoy }),
+            req2.update({ estado: 'En PO', po_id: compra.id, nro_oc: compra.numero_po, fecha_oc: hoy }),
+          ]);
+
+          console.log('✓ 1 PO (compras) de ejemplo creada y vinculada a requerimientos\n');
+        }
+
+        // 8.3 Ordenes de compra clásicas para vista tipo Excel
+        const existingOCs = await OrdenCompra.count();
+        if (existingOCs === 0) {
+          await OrdenCompra.bulkCreate([
+            {
+              numero_oc: 'OC-2024-001',
+              fecha_orden: new Date('2024-03-05') as any,
+              fecha_entrega_requerida: new Date('2024-03-20') as any,
+              proveedor_id: prov1.id,
+              contacto_proveedor: prov1.contacto,
+              material_id: mat1.material_id,
+              descripcion: 'Compra directa de kit de sellos CAT 793',
+              cantidad: 2,
+              unidad_medida: 'und',
+              precio_unitario: 380.0,
+              subtotal: 760.0,
+              igv_porcentaje: 18,
+              descuento_porcentaje: 0,
+              total_final: 760.0 * 1.18,
+              forma_pago: '30 días',
+              plazo_pago: 30,
+              moneda: 'USD',
+              almacen_id: almacenPrin.id,
+              direccion_entrega: almacenPrin.ubicacion,
+              estado: 'enviada',
+              prioridad: 'alta',
+              tipo_compra: 'Repuestos',
+              observaciones: 'OC de ejemplo para tablero de órdenes de compra',
+              user_crea: 'Logística Demo',
+              ot_id: ot1.id,
+            },
+            {
+              numero_oc: 'OC-2024-002',
+              fecha_orden: new Date('2024-04-18') as any,
+              fecha_entrega_requerida: new Date('2024-05-05') as any,
+              proveedor_id: prov2.id,
+              contacto_proveedor: prov2.contacto,
+              material_id: mat2.material_id,
+              descripcion: 'OC ejemplo para Komatsu 930E',
+              cantidad: 2,
+              unidad_medida: 'und',
+              precio_unitario: 450.0,
+              subtotal: 900.0,
+              igv_porcentaje: 18,
+              descuento_porcentaje: 0,
+              total_final: 900.0 * 1.18,
+              forma_pago: 'Crédito 45 días',
+              plazo_pago: 45,
+              moneda: 'USD',
+              almacen_id: almacenPrin.id,
+              direccion_entrega: almacenPrin.ubicacion,
+              estado: 'borrador',
+              prioridad: 'media',
+              tipo_compra: 'Repuestos',
+              observaciones: 'OC de prueba para vista Excel',
+              user_crea: 'Logística Demo',
+              ot_id: ot2.id,
+            },
+          ]);
+
+          console.log('✓ 2 órdenes de compra clásicas creadas\n');
+        }
+
+        // 8.4 Movimientos de inventario de ejemplo
+        const existingMovs = await MovimientoInventario.count();
+        if (existingMovs === 0) {
+          await MovimientoInventario.bulkCreate([
+            {
+              material_id: mat3.material_id,
+              tipo_movimiento: 'ENTRADA',
+              cantidad: 200,
+              documento_referencia: 'AJUSTE-INICIAL',
+              observacion: 'Carga inicial de inventario para demo',
+              usuario: 'Logística Demo',
+            },
+            {
+              material_id: mat1.material_id,
+              tipo_movimiento: 'SALIDA',
+              cantidad: 1,
+              documento_referencia: 'OT-2024-001',
+              observacion: 'Salida a taller para reparación cilindro CAT 793',
+              usuario: 'Almacén Demo',
+            },
+          ]);
+
+          console.log('✓ Movimientos de inventario de ejemplo creados\n');
+        }
+      } else {
+        console.warn('⚠️ No se pudieron crear datos de Logística demo: faltan referencias básicas (OT, Material, Proveedor o Almacén)');
+      }
+    } else {
+      console.log('Datos de requerimientos ya existentes, se omite PASO 8 de Logística demo');
+    }
 
     console.log('\n═══════════════════════════════════════════════════════════════');
     console.log('         ✓ BASE DE DATOS POBLADA EXITOSAMENTE                  ');

@@ -6,7 +6,20 @@
     <title>Hoja de Evaluación - Producción - HP&K ERP</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Modo de reporte impreso para el PDF */
+        #form-evaluacion.pdf-mode {
+            background-color: #ffffff;
+        }
+
+        #form-evaluacion.pdf-mode .acciones-form {
+            display: none;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="/vistas/shared/navigation.js"></script>
+    <script src="/vistas/produccion/evaluacion.js"></script>
 </head>
 <body class="bg-gray-50">
     <!-- Navegación principal -->
@@ -111,14 +124,49 @@
                 </div>
             </div>
 
+            <!-- MODELO DE HOJA DE EVALUACIÓN -->
+            <div class="bg-white rounded-lg shadow-md">
+                <div class="bg-gray-100 px-6 py-3 rounded-t-lg border-b flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <i class="fas fa-layer-group text-gray-600"></i>
+                        <h2 class="text-lg font-bold text-gray-800">Modelo de hoja de evaluación</h2>
+                    </div>
+                    <p class="text-xs text-gray-500">Seleccione el formato según el componente</p>
+                </div>
+                <div class="p-6 text-sm">
+                    <label class="block font-semibold text-gray-700 mb-2">Modelo / Tipo de componente</label>
+                    <select id="modelo-evaluacion" name="modelo_evaluacion" class="w-full max-w-sm border rounded-lg px-3 py-2 bg-white">
+                        <optgroup label="Cilindros y acumuladores">
+                            <option value="cil_vastago_simple" selected>Cilindro hidráulico vástago simple</option>
+                            <option value="cil_pivotado">Cilindro hidráulico pivotado</option>
+                            <option value="cil_doble_vastago">Cilindro hidráulico de pistón de doble vástago</option>
+                            <option value="cil_telescopico">Cilindro hidráulico telescópico</option>
+                            <option value="acum_embolo">Acumulador de émbolo</option>
+                            <option value="acum_vejiga">Acumulador de vejiga</option>
+                        </optgroup>
+                        <optgroup label="Otros componentes">
+                            <option value="rueda_delantera">Rueda delantera</option>
+                            <option value="suspension_delantera">Suspensión delantera</option>
+                        </optgroup>
+                    </select>
+                    <p class="text-xs text-gray-500 mt-2">El contenido de la hoja se adaptará al tipo seleccionado (cilindros, acumuladores, rueda delantera o suspensión delantera).</p>
+                </div>
+            </div>
+
+            <!-- CONTENIDO DINÁMICO SEGÚN TIPO DE EVALUACIÓN -->
+            <div id="dynamic-eval-content" class="space-y-6">
+            </div>
+
+            <!-- SECCIONES ESTÁTICAS REMOVIDAS — ahora generadas por evaluacion.js -->
+            <!-- BLOQUE OBSOLETO INICIO (no renderizar) --><div style="display:none">
             <!-- CILINDRO (BOTELLA) -->
             <div class="bg-white rounded-lg shadow-md">
                 <div class="bg-gray-800 text-white px-6 py-3 rounded-t-lg flex items-center justify-between">
                     <div class="flex items-center space-x-3">
                         <span class="bg-white text-gray-800 font-bold rounded-full w-7 h-7 flex items-center justify-center text-sm">2</span>
-                        <h2 class="text-lg font-bold">Cilindro (Botella)</h2>
+                        <h2 class="text-lg font-bold"><span id="titulo-cilindro-principal">Cilindro (Botella)</span></h2>
                     </div>
-                    <div class="text-xs text-gray-300">REF. CILINDRO / Medidas</div>
+                    <div class="text-xs text-gray-300" id="subtitulo-cilindro-principal">REF. CILINDRO / Medidas</div>
                 </div>
                 <div class="p-6 space-y-3 text-sm">
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -133,7 +181,7 @@
                             </div>
                         </div>
                         <div class="md:col-span-2">
-                            <label class="block font-semibold text-gray-700 mb-2">Mediciones (mm)</label>
+                            <label class="block font-semibold text-gray-700 mb-2">Mediciones (<span id="unidad-mediciones">mm</span>)</label>
                             <div class="grid grid-cols-1 md:grid-cols-4 gap-3 items-start">
                                 <!-- Columna izquierda: Medida ejemplo -->
                                 <div class="md:col-span-1 bg-gray-50 border border-dashed border-gray-300 rounded-lg p-3 text-xs text-gray-600 w-full max-w-xs">
@@ -318,22 +366,22 @@
                                             <input type="number" name="cil_dcoj_y" step="0.0001" inputmode="decimal" oninput="limitDecimals(this, 4)" placeholder="Y" class="w-20 px-1 py-0.5 border rounded text-[10px] text-right">
                                         </div>
                                     </div>
+                                    
+                                    <!-- Ancho de ojo (junto al resto de mediciones) -->
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-28 text-gray-700">Ancho de Ojo</div>
+                                        <div class="flex-1 flex justify-end">
+                                            <input type="number" name="cil_ancho_ojo" step="0.0001" inputmode="decimal" oninput="limitDecimals(this, 4)" class="w-28 px-1 py-0.5 border rounded text-xs text-right">
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-
+                    
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <!-- Columna izquierda: Ancho de ojo -->
-                        <div class="space-y-3">
-                            <div>
-                                <label class="block font-semibold text-gray-700 mb-1">Ancho de Ojo</label>
-                                <input type="number" step="0.0001" inputmode="decimal" oninput="limitDecimals(this, 4)" class="w-full border rounded-lg px-3 py-2 text-right" name="cil_ancho_ojo">
-                            </div>
-                        </div>
-
                         <!-- Columna derecha: recuadro Buena / Mala y NDT -->
-                        <div class="md:col-span-2">
+                        <div class="md:col-span-3 md:col-start-1">
                             <div class="border border-gray-300 rounded-lg overflow-hidden text-xs">
                                 <table class="w-full">
                                     <thead class="bg-gray-50">
@@ -404,7 +452,8 @@
                                     <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>3. Diámetro interior presenta deformación</span></label>
                                     <div class="flex items-center gap-2">
                                         <label class="flex items-center gap-2 flex-1"><input type="checkbox" class="text-blue-600"><span>4. Medida interna fuera de tolerancia por</span></label>
-                                        <input type="number" step="0.0001" inputmode="decimal" oninput="limitDecimals(this, 4)" class="border rounded px-1 py-0.5 text-[11px] w-16 text-right" placeholder="mm">
+                                        <input type="number" name="cil_tolerancia_fuera" step="0.0001" inputmode="decimal" oninput="limitDecimals(this, 4)" class="border rounded px-1 py-0.5 text-[11px] w-16 text-right input-unidad-medicion" placeholder="mm">
+                                        <span id="unidad-tolerancia-cilindro" class="text-[11px] text-gray-600 ml-1">mm</span>
                                     </div>
                                     <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>5. Diámetro interior muestra desgaste</span></label>
                                     <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>6. Diámetro de sellado muestra desgaste</span></label>
@@ -419,7 +468,6 @@
                                     <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>2. Presenta desgaste en exterior del cilindro</span></label>
                                     <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>3. Presenta deformación en exterior de cilindro</span></label>
                                     <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>4. Presenta depósitos de soldadura ajenos al diseño original</span></label>
-                                    <p class="text-[11px] text-gray-700 bg-gray-100 rounded px-2 py-1 mt-1">Nota: Preguntar si lleva cojinete o rótula.</p>
                                 </div>
                             </div>
                         </div>
@@ -442,18 +490,139 @@
                         <label class="block font-semibold text-gray-700 mb-2 text-sm">Imágenes del cilindro</label>
                         <div class="space-y-2">
                             <div id="preview-cilindro" class="h-40 border-2 border-dashed border-gray-300 rounded flex items-center justify-center text-xs text-gray-500 bg-white/40 relative overflow-hidden">
-                                <span id="preview-cilindro-text" class="px-2 text-center">Añadir fotos de la condición del cilindro</span>
-                                <img id="preview-cilindro-img" class="absolute inset-0 w-full h-full object-contain hidden" alt="Imagen cilindro">
+                                <span id="preview-cilindro-text" class="px-2 text-center">Añadir fotos de la condición del cilindro (máx. 6)</span>
+                                <div id="preview-cilindro-grid" class="grid grid-cols-2 md:grid-cols-3 gap-2 w-full h-full p-2 overflow-auto"></div>
                             </div>
                             <button type="button" class="px-3 py-1 text-xs border rounded bg-white hover:bg-gray-100" onclick="document.getElementById('file-cilindro').click()">Subir imagen de cilindro</button>
-                            <input id="file-cilindro" name="img_cilindro" type="file" accept="image/*" class="hidden">
+                            <input id="file-cilindro" name="img_cilindro" type="file" accept="image/*" multiple class="hidden">
                         </div>
                     </div>
                 </div>
             </div>
 
+            <!-- EXTRAS SEGÚN TIPO DE CILINDRO / ACUMULADOR -->
+            <!-- Pivotado -->
+            <div id="extra-pivotado" class="bg-white rounded-lg shadow-md hidden">
+                <div class="bg-gray-800 text-white px-6 py-2 rounded-t-lg text-sm font-semibold">Campos adicionales - Cilindro hidráulico pivotado</div>
+                <div class="p-4 grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-1">Diám. exterior de cojinete</label>
+                        <input type="number" step="0.0001" inputmode="decimal" oninput="limitDecimals(this, 4)" class="w-full border rounded-lg px-3 py-2 text-right" name="pivot_dext_cojinete">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-1">Diám. exterior de pivotante</label>
+                        <input type="number" step="0.0001" inputmode="decimal" oninput="limitDecimals(this, 4)" class="w-full border rounded-lg px-3 py-2 text-right" name="pivot_dext_pivotante">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-1">Longitud de pivotante</label>
+                        <input type="number" step="0.0001" inputmode="decimal" oninput="limitDecimals(this, 4)" class="w-full border rounded-lg px-3 py-2 text-right" name="pivot_lpivotante">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-1">Estado de trunnion</label>
+                        <select name="pivot_estado_trunnion" class="w-full border rounded-lg px-3 py-2 bg-white">
+                            <option value="">Seleccione...</option>
+                            <option value="BUENO">Bueno</option>
+                            <option value="MALO">Malo</option>
+                            <option value="NA">N/A</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-1">Pasa prueba de estanqueidad</label>
+                        <select name="pivot_prueba_estanqueidad" class="w-full border rounded-lg px-3 py-2 bg-white">
+                            <option value="">Seleccione...</option>
+                            <option value="SI">Sí</option>
+                            <option value="NO">No</option>
+                            <option value="NA">N/A</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Doble vástago -->
+            <div id="extra-doble-vastago" class="bg-white rounded-lg shadow-md hidden">
+                <div class="bg-gray-800 text-white px-6 py-2 rounded-t-lg text-sm font-semibold">Campos adicionales - Cilindro hidráulico de pistón de doble vástago</div>
+                <div class="p-4 text-sm">
+                    <label class="block font-semibold text-gray-700 mb-1">Estado de soporte de sujeción</label>
+                    <textarea name="doble_soporte_sujecion" rows="2" class="w-full border rounded-lg px-3 py-2" placeholder="Describa el estado del soporte de sujeción..."></textarea>
+                </div>
+            </div>
+
+            <!-- Telescópico -->
+            <div id="extra-telescopico" class="bg-white rounded-lg shadow-md hidden">
+                <div class="bg-gray-800 text-white px-6 py-2 rounded-t-lg text-sm font-semibold">Campos adicionales - Cilindro hidráulico telescópico</div>
+                <div class="p-4 space-y-4 text-sm">
+                    <div>
+                        <h3 class="font-semibold text-gray-800 mb-2">Cuerpo intermedio</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-700 mb-1">Diám. interior (múltiples medidas)</label>
+                                <input type="text" name="tel_cuerpoint_dint" class="w-full border rounded-lg px-3 py-2 text-xs" placeholder="Ej: A1/A2/A3/A4">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-700 mb-1">Diám. exterior (múltiples medidas)</label>
+                                <input type="text" name="tel_cuerpoint_dext" class="w-full border rounded-lg px-3 py-2 text-xs" placeholder="Ej: B1/B2/B3/B4">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-700 mb-1">Longitud cromo / bruñido</label>
+                                <input type="text" name="tel_cuerpoint_lcromo" class="w-full border rounded-lg px-3 py-2 text-xs" placeholder="Ej: Cromo / Bruñido">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-700 mb-1">Longitud total</label>
+                                <input type="number" step="0.0001" inputmode="decimal" oninput="limitDecimals(this, 4)" class="w-full border rounded-lg px-3 py-2 text-right" name="tel_cuerpoint_ltotal">
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="font-semibold text-gray-800 mb-2">Tapas secundarias</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-700 mb-1">Tapa roscada secundaria (detalle)</label>
+                                <textarea name="tel_tapa_secundaria" rows="2" class="w-full border rounded-lg px-3 py-2 text-xs" placeholder="Medidas y condición de la tapa roscada secundaria..."></textarea>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-700 mb-1">Tapa posterior de sujeción (detalle)</label>
+                                <textarea name="tel_tapa_posterior" rows="2" class="w-full border rounded-lg px-3 py-2 text-xs" placeholder="Medidas y condición de la tapa posterior de sujeción..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Acumulador de émbolo -->
+            <div id="extra-acum-embolo" class="bg-white rounded-lg shadow-md hidden">
+                <div class="bg-gray-800 text-white px-6 py-2 rounded-t-lg text-sm font-semibold">Campos adicionales - Acumulador de émbolo</div>
+                <div class="p-4 text-sm">
+                    <label class="block font-semibold text-gray-700 mb-1">Volumen (GL)</label>
+                    <input type="number" step="0.0001" inputmode="decimal" oninput="limitDecimals(this, 4)" class="w-full max-w-xs border rounded-lg px-3 py-2 text-right" name="acum_embolo_volumen">
+                </div>
+            </div>
+
+            <!-- Acumulador de vejiga -->
+            <div id="extra-acum-vejiga" class="bg-white rounded-lg shadow-md hidden">
+                <div class="bg-gray-800 text-white px-6 py-2 rounded-t-lg text-sm font-semibold">Campos adicionales - Acumulador de vejiga</div>
+                <div class="p-4 grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-1">Diámetro de salida 1</label>
+                        <input type="number" step="0.0001" inputmode="decimal" oninput="limitDecimals(this, 4)" class="w-full border rounded-lg px-3 py-2 text-right" name="acum_vejiga_dsalida1">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-1">Diámetro de salida 2</label>
+                        <input type="number" step="0.0001" inputmode="decimal" oninput="limitDecimals(this, 4)" class="w-full border rounded-lg px-3 py-2 text-right" name="acum_vejiga_dsalida2">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-gray-700 mb-1">Válv. hid. de muelle</label>
+                        <select name="acum_vejiga_valv_muelle" class="w-full border rounded-lg px-3 py-2 bg-white">
+                            <option value="">Seleccione...</option>
+                            <option value="BUENO">Bueno</option>
+                            <option value="MALO">Malo</option>
+                            <option value="NA">N/A</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
             <!-- VÁSTAGO -->
-            <div class="bg-white rounded-lg shadow-md">
+            <div id="bloque-vastago" class="bg-white rounded-lg shadow-md">
                 <div class="bg-gray-800 text-white px-6 py-3 rounded-t-lg flex items-center space-x-3">
                     <span class="bg-white text-gray-800 font-bold rounded-full w-7 h-7 flex items-center justify-center text-sm">3</span>
                     <h2 class="text-lg font-bold">Vástago</h2>
@@ -519,20 +688,15 @@
                                             <td class="px-1 border text-center"><input type="number" name="vas_dcoj_x" step="0.0001" inputmode="decimal" oninput="limitDecimals(this, 4)" class="w-20 px-1 py-0.5 border rounded text-xs text-right mx-auto"></td>
                                             <td class="px-1 border text-center"><input type="number" name="vas_dcoj_y" step="0.0001" inputmode="decimal" oninput="limitDecimals(this, 4)" class="w-20 px-1 py-0.5 border rounded text-xs text-right mx-auto"></td>
                                         </tr>
+                                        <tr>
+                                            <td class="px-2 py-1 border text-gray-700">Ancho de Ojo</td>
+                                            <td class="px-1 border text-center" colspan="2"><input type="number" name="vas_ancho_ojo" step="0.0001" inputmode="decimal" oninput="limitDecimals(this, 4)" class="w-28 px-1 py-0.5 border rounded text-xs text-right mx-auto"></td>
+                                        </tr>
                                     </tbody>
                                 </table>
                             </div>
                         </div>
                     </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
-                        <div>
-                            <label class="block font-semibold text-gray-700 mb-1">Ancho de Ojo</label>
-                            <input type="number" step="0.0001" inputmode="decimal" oninput="limitDecimals(this, 4)" class="w-full border rounded-lg px-3 py-2 text-right" name="vas_ancho_ojo">
-                        </div>
-                        
-                    </div>
-
                     <div class="flex flex-wrap items-center gap-6">
                         <div>
                             <p class="font-semibold text-gray-700 mb-1 text-sm">¿Pasa a NDT?</p>
@@ -567,8 +731,8 @@
                                                 <label class="inline-flex items-center gap-1"><input type="checkbox" class="text-blue-600"><span>FRACTURADO</span></label>
                                             </div>
                                         </div>
-                                        <div class="p-2 bg-gray-100 border border-gray-300 rounded">
-                                            <label class="flex items-center gap-2 text-[11px]"><input type="checkbox" class="text-blue-600"><span>3. Llegó sin cojinete (si se marca este, omitir todos los demás).</span></label>
+                                        <div class="p-2">
+                                            <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>3. Llegó sin cojinete (si se marca este, omitir todos los demás).</span></label>
                                         </div>
                                         <div class="flex items-center gap-2">
                                             <label class="flex items-center gap-2 flex-1"><input type="checkbox" class="text-blue-600"><span>4. Cojinete presenta forma ovoide</span></label>
@@ -613,22 +777,22 @@
                                         <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>2. Presenta picaduras en superficie cromada</span></label>
                                         <div class="flex items-center gap-2">
                                             <label class="flex items-center gap-2 flex-1"><input type="checkbox" class="text-blue-600"><span>3. Barra presenta flexión de</span></label>
-                                            <input type="number" step="0.0001" inputmode="decimal" oninput="limitDecimals(this, 4)" class="border rounded px-1 py-0.5 text-[11px] w-12 text-right" placeholder="mm">
+                                            <input type="number" step="0.0001" inputmode="decimal" oninput="limitDecimals(this, 4)" class="border rounded px-1 py-0.5 text-[11px] w-12 text-right input-unidad-medicion" placeholder="mm">
                                         </div>
                                         <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>4. Presenta flexión de espiga</span></label>
                                         <div class="flex items-center gap-2">
                                             <label class="flex items-center gap-2 flex-1"><input type="checkbox" class="text-blue-600"><span>5. Presenta poco espesor de cromo</span></label>
-                                            <input type="number" step="0.0001" inputmode="decimal" oninput="limitDecimals(this, 4)" class="border rounded px-1 py-0.5 text-[11px] w-12 text-right" placeholder="mm">
+                                            <input type="number" step="0.0001" inputmode="decimal" oninput="limitDecimals(this, 4)" class="border rounded px-1 py-0.5 text-[11px] w-12 text-right input-unidad-medicion" placeholder="mm">
                                         </div>
                                         <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>6. Presenta desprendimiento de capa de cromo</span></label>
                                         <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>7. Presenta excesiva capa de cromo</span></label>
                                         <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>8. Presenta daño en superficie roscada de espiga</span></label>
                                         <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>9. Presenta fisura en espiga</span></label>
                                         <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>10. Presenta fisura en junta</span></label>
-                                        <div class="p-2 bg-gray-100 border border-gray-300 rounded">
+                                        <div class="p-2">
                                             <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>11. Llegó sin cáncamo</span></label>
                                             <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>12. Llegó con cáncamo desprendido</span></label>
-                                            <p class="text-[11px] mt-1">Nota: Si es cáncamo cóncavo, omitir ítems 1, 2, 3, 4.</p>
+                                            <p class="mt-1">Nota: Si es cáncamo cóncavo, omitir ítems 1, 2, 3, 4.</p>
                                         </div>
                                     </div>
                                 </div>
@@ -653,11 +817,11 @@
                         <label class="block font-semibold text-gray-700 mb-2 text-sm">Imágenes del vástago</label>
                         <div class="space-y-2">
                             <div id="preview-vastago" class="h-40 border-2 border-dashed border-gray-300 rounded flex items-center justify-center text-xs text-gray-500 bg-white/40 relative overflow-hidden">
-                                <span id="preview-vastago-text" class="px-2 text-center">Añadir fotos de la condición del vástago</span>
-                                <img id="preview-vastago-img" class="absolute inset-0 w-full h-full object-contain hidden" alt="Imagen vástago">
+                                <span id="preview-vastago-text" class="px-2 text-center">Añadir fotos de la condición del vástago (máx. 6)</span>
+                                <div id="preview-vastago-grid" class="grid grid-cols-2 md:grid-cols-3 gap-2 w-full h-full p-2 overflow-auto"></div>
                             </div>
                             <button type="button" class="px-3 py-1 text-xs border rounded bg-white hover:bg-gray-100" onclick="document.getElementById('file-vastago').click()">Subir imagen de vástago</button>
-                            <input id="file-vastago" name="img_vastago" type="file" accept="image/*" class="hidden">
+                            <input id="file-vastago" name="img_vastago" type="file" accept="image/*" multiple class="hidden">
                         </div>
                     </div>
                 </div>
@@ -666,7 +830,7 @@
             <!-- TAPA Y PISTÓN (UNO DEBAJO DEL OTRO) -->
             <div class="space-y-6">
                 <!-- Tapa -->
-                <div class="bg-white rounded-lg shadow-md">
+                <div id="bloque-tapa" class="bg-white rounded-lg shadow-md">
                     <div class="bg-gray-800 text-white px-6 py-3 rounded-t-lg flex items-center space-x-3">
                         <span class="bg-white text-gray-800 font-bold rounded-full w-7 h-7 flex items-center justify-center text-sm">4</span>
                         <h2 class="text-lg font-bold">Tapa</h2>
@@ -738,18 +902,18 @@
                             <label class="block font-semibold text-gray-700 mb-2 text-sm">Imágenes de la tapa</label>
                             <div class="space-y-2">
                                 <div id="preview-tapa" class="h-40 border-2 border-dashed border-gray-300 rounded flex items-center justify-center text-xs text-gray-500 bg-white/40 relative overflow-hidden">
-                                    <span id="preview-tapa-text" class="px-2 text-center">Añadir fotos de la condición de la tapa</span>
-                                    <img id="preview-tapa-img" class="absolute inset-0 w-full h-full object-contain hidden" alt="Imagen tapa">
+                                    <span id="preview-tapa-text" class="px-2 text-center">Añadir fotos de la condición de la tapa (máx. 6)</span>
+                                    <div id="preview-tapa-grid" class="grid grid-cols-2 md:grid-cols-3 gap-2 w-full h-full p-2 overflow-auto"></div>
                                 </div>
                                 <button type="button" class="px-3 py-1 text-xs border rounded bg-white hover:bg-gray-100" onclick="document.getElementById('file-tapa').click()">Subir imagen de tapa</button>
-                                <input id="file-tapa" name="img_tapa" type="file" accept="image/*" class="hidden">
+                                <input id="file-tapa" name="img_tapa" type="file" accept="image/*" multiple class="hidden">
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Pistón -->
-                <div class="bg-white rounded-lg shadow-md">
+                <div id="bloque-piston" class="bg-white rounded-lg shadow-md">
                     <div class="bg-gray-800 text-white px-6 py-3 rounded-t-lg flex items-center space-x-3">
                         <span class="bg-white text-gray-800 font-bold rounded-full w-7 h-7 flex items-center justify-center text-sm">5</span>
                         <h2 class="text-lg font-bold">Pistón</h2>
@@ -817,22 +981,319 @@
                             <label class="block font-semibold text-gray-700 mb-2 text-sm">Imágenes del pistón</label>
                             <div class="space-y-2">
                                 <div id="preview-piston" class="h-40 border-2 border-dashed border-gray-300 rounded flex items-center justify-center text-xs text-gray-500 bg-white/40 relative overflow-hidden">
-                                    <span id="preview-piston-text" class="px-2 text-center">Añadir fotos de la condición del pistón</span>
-                                    <img id="preview-piston-img" class="absolute inset-0 w-full h-full object-contain hidden" alt="Imagen pistón">
+                                    <span id="preview-piston-text" class="px-2 text-center">Añadir fotos de la condición del pistón (máx. 6)</span>
+                                    <div id="preview-piston-grid" class="grid grid-cols-2 md:grid-cols-3 gap-2 w-full h-full p-2 overflow-auto"></div>
                                 </div>
                                 <button type="button" class="px-3 py-1 text-xs border rounded bg-white hover:bg-gray-100" onclick="document.getElementById('file-piston').click()">Subir imagen de pistón</button>
-                                <input id="file-piston" name="img_piston" type="file" accept="image/*" class="hidden">
+                                <input id="file-piston" name="img_piston" type="file" accept="image/*" multiple class="hidden">
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
+            </div>
+
+            <!-- MODELO: RUEDA -->
+            <div id="modelo-rueda" class="space-y-6 hidden">
+                <div class="bg-white rounded-lg shadow-md">
+                    <div class="bg-gray-800 text-white px-6 py-3 rounded-t-lg flex items-center space-x-3">
+                        <span class="bg-white text-gray-800 font-bold rounded-full w-7 h-7 flex items-center justify-center text-sm">2</span>
+                        <h2 class="text-lg font-bold">Rueda</h2>
+                    </div>
+                    <div class="p-6 space-y-3 text-sm">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="space-y-2 md:col-span-1">
+                                <div>
+                                    <label class="block font-semibold text-gray-700 mb-1">Ref. Rueda</label>
+                                    <input type="text" class="w-full max-w-xs border rounded-lg px-3 py-2 bg-gray-100" name="ref_rueda" readonly>
+                                </div>
+                                <div class="h-24 w-2/3 border border-gray-300 rounded flex items-center justify-center text-[11px] text-gray-500 bg-white/60">
+                                    Imagen de referencia de la rueda
+                                </div>
+                            </div>
+                            <!-- En rueda delantera solo se miden HUB / SPINDLE; el resto son checklists -->
+                        </div>
+
+                        <!-- HUB / SPINDLE - MEDICIONES A: X/Y y B: X/Y -->
+                        <div class="border-t border-gray-200 pt-3 mt-2">
+                            <h3 class="font-semibold text-gray-800 text-base mb-3">Mediciones HUB / SPINDLE</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                                <!-- HUB -->
+                                <div class="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                                    <p class="font-semibold text-gray-700 mb-2">HUB - Diámetros de alojamientos</p>
+                                    <table class="w-full text-[11px] border border-gray-200">
+                                        <thead class="bg-gray-100">
+                                            <tr>
+                                                <th class="border px-1 py-0.5 text-left w-10"></th>
+                                                <th class="border px-1 py-0.5 text-center">Mayor (X)</th>
+                                                <th class="border px-1 py-0.5 text-center">Menor (Y)</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td class="border px-1 py-0.5 font-semibold">A</td>
+                                                <td class="border px-1 py-0.5">
+                                                    <input type="number" name="hub_a_mayor" step="0.0001" inputmode="decimal" oninput="limitDecimals(this, 4)" class="w-full border rounded px-1 py-0.5 text-right">
+                                                </td>
+                                                <td class="border px-1 py-0.5">
+                                                    <input type="number" name="hub_a_menor" step="0.0001" inputmode="decimal" oninput="limitDecimals(this, 4)" class="w-full border rounded px-1 py-0.5 text-right">
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="border px-1 py-0.5 font-semibold">B</td>
+                                                <td class="border px-1 py-0.5">
+                                                    <input type="number" name="hub_b_mayor" step="0.0001" inputmode="decimal" oninput="limitDecimals(this, 4)" class="w-full border rounded px-1 py-0.5 text-right">
+                                                </td>
+                                                <td class="border px-1 py-0.5">
+                                                    <input type="number" name="hub_b_menor" step="0.0001" inputmode="decimal" oninput="limitDecimals(this, 4)" class="w-full border rounded px-1 py-0.5 text-right">
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <!-- SPINDLE -->
+                                <div class="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                                    <p class="font-semibold text-gray-700 mb-2">SPINDLE - Diámetros asiento de rodamiento</p>
+                                    <table class="w-full text-[11px] border border-gray-200">
+                                        <thead class="bg-gray-100">
+                                            <tr>
+                                                <th class="border px-1 py-0.5 text-left w-10"></th>
+                                                <th class="border px-1 py-0.5 text-center">Mayor (X)</th>
+                                                <th class="border px-1 py-0.5 text-center">Menor (Y)</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td class="border px-1 py-0.5 font-semibold">A</td>
+                                                <td class="border px-1 py-0.5">
+                                                    <input type="number" name="spindle_a_mayor" step="0.0001" inputmode="decimal" oninput="limitDecimals(this, 4)" class="w-full border rounded px-1 py-0.5 text-right">
+                                                </td>
+                                                <td class="border px-1 py-0.5">
+                                                    <input type="number" name="spindle_a_menor" step="0.0001" inputmode="decimal" oninput="limitDecimals(this, 4)" class="w-full border rounded px-1 py-0.5 text-right">
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="border px-1 py-0.5 font-semibold">B</td>
+                                                <td class="border px-1 py-0.5">
+                                                    <input type="number" name="spindle_b_mayor" step="0.0001" inputmode="decimal" oninput="limitDecimals(this, 4)" class="w-full border rounded px-1 py-0.5 text-right">
+                                                </td>
+                                                <td class="border px-1 py-0.5">
+                                                    <input type="number" name="spindle_b_menor" step="0.0001" inputmode="decimal" oninput="limitDecimals(this, 4)" class="w-full border rounded px-1 py-0.5 text-right">
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="border-t border-gray-200 pt-3 mt-2">
+                            <h3 class="font-semibold text-gray-800 text-base mb-3">Check list de errores comunes - Rueda</h3>
+                            <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 space-y-1 text-sm">
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>1. Desgaste irregular en banda de rodadura</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>2. Cortes o perforaciones observables</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>3. Separación entre banda y carcasa</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>4. Exposición de alambres</span></label>
+                                <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>5. Deformaciones visibles (huevo, ovalización)</span></label>
+                            </div>
+                            <div class="mt-2">
+                                <label class="block text-xs font-semibold text-gray-700 mb-1">Comentarios - Rueda</label>
+                                <textarea class="w-full border rounded px-2 py-2 text-xs" rows="3" placeholder="Observaciones adicionales de la rueda..."></textarea>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block font-semibold text-gray-700 mb-1">Resultado evaluación de la rueda</label>
+                            <textarea name="rueda_resultado" rows="2" class="w-full border rounded-lg px-3 py-2 text-sm" placeholder="Conclusiones de la evaluación de la rueda..."></textarea>
+                        </div>
+                        <div>
+                            <label class="block font-semibold text-gray-700 mb-1">Recomendaciones (Rueda)</label>
+                            <textarea name="rueda_recomendaciones" rows="2" class="w-full border rounded-lg px-3 py-2 text-sm" placeholder="Recomendaciones técnicas para la rueda..."></textarea>
+                        </div>
+
+                        <div class="border-t border-gray-200 pt-4 mt-2">
+                            <label class="block font-semibold text-gray-700 mb-2 text-sm">Imágenes de la rueda</label>
+                            <div class="space-y-2">
+                                <div id="preview-rueda" class="h-40 border-2 border-dashed border-gray-300 rounded flex items-center justify-center text-xs text-gray-500 bg-white/40 relative overflow-hidden">
+                                    <span id="preview-rueda-text" class="px-2 text-center">Añadir fotos de la condición de la rueda (máx. 6)</span>
+                                    <div id="preview-rueda-grid" class="grid grid-cols-2 md:grid-cols-3 gap-2 w-full h-full p-2 overflow-auto"></div>
+                                </div>
+                                <button type="button" class="px-3 py-1 text-xs border rounded bg-white hover:bg-gray-100" onclick="document.getElementById('file-rueda').click()">Subir imagen de rueda</button>
+                                <input id="file-rueda" name="img_rueda" type="file" accept="image/*" multiple class="hidden">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MODELO: CONJUNTO DE FRENO (RUEDA DELANTERA) -->
+            <div id="modelo-freno" class="space-y-6 hidden">
+                <div class="bg-white rounded-lg shadow-md">
+                    <div class="bg-gray-800 text-white px-6 py-3 rounded-t-lg flex items-center space-x-3">
+                        <span class="bg-white text-gray-800 font-bold rounded-full w-7 h-7 flex items-center justify-center text-sm">2</span>
+                        <h2 class="text-lg font-bold">Conjunto de freno - Rueda delantera</h2>
+                    </div>
+                    <div class="p-6 space-y-3 text-sm">
+                        <!-- En freno no se toman medidas adicionales ni referencia fija: solo checklists y comentarios -->
+
+                        <div class="border-t border-gray-200 pt-3 mt-2">
+                            <h3 class="font-semibold text-gray-800 text-base mb-3">Check list RESULTADOS - Rueda delantera</h3>
+                            <div class="bg-gray-50 border border-gray-200 rounded-lg p-3 space-y-3 text-xs md:text-sm">
+                                <!-- SPINDLE -->
+                                <div class="space-y-1">
+                                    <h4 class="font-semibold text-gray-700 uppercase text-[11px] tracking-wide">SPINDLE</h4>
+                                    <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>Presenta picaduras en asiento de rodamiento</span></label>
+                                    <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>Presenta rayaduras en asiento de rodamiento</span></label>
+                                    <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>Daños en alojamientos roscados</span></label>
+                                    <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>Daños / corrosión / picaduras en alojamiento cónico</span></label>
+                                    <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>Alojamientos roscados de pernos de sujeción de bastidor presentan daño</span></label>
+                                </div>
+
+                                <!-- HUB -->
+                                <div class="space-y-1">
+                                    <h4 class="font-semibold text-gray-700 uppercase text-[11px] tracking-wide">HUB</h4>
+                                    <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>Alojamientos de pistas de rodamientos cónicos presentan desgaste</span></label>
+                                    <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>Alojamientos de pistas de rodamientos cónicos presentan rayaduras</span></label>
+                                    <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>Pistas de rodamientos cónicos presentan desgaste</span></label>
+                                    <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>Pistas de rodamientos cónicos presentan rayaduras</span></label>
+                                    <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>Pernos de sujeción de rueda presentan desgaste</span></label>
+                                    <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>Pernos de sujeción de rueda presentan fatiga</span></label>
+                                    <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>Pernos de sujeción de rueda presentan hilos dañados</span></label>
+                                    <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>Pernos de sujeción de rueda presentan fractura</span></label>
+                                    <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>Presenta corrosión en portasellos</span></label>
+                                    <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>Sello Duo Cone presenta desgaste</span></label>
+                                    <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>Engranaje de sensor presenta corrosión</span></label>
+                                    <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>Lainas de separación llegaron dañadas</span></label>
+                                    <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>Requiere revisión de engranaje interior</span></label>
+                                    <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>Revisión de pernos de sujeción de engranaje interior (32 UND)</span></label>
+                                </div>
+
+                                <!-- CONJUNTO DE FRENO -->
+                                <div class="space-y-1">
+                                    <h4 class="font-semibold text-gray-700 uppercase text-[11px] tracking-wide">CONJUNTO DE FRENO</h4>
+                                    <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>Picaduras / rayaduras en alojamientos de sellos del pistón de freno</span></label>
+                                    <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>Desgaste en resortes de retracción</span></label>
+                                    <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>Elongación en pernos de sujeción</span></label>
+                                    <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>Sellos presentan desgaste</span></label>
+                                </div>
+
+                                <!-- CAJA DE FRENO -->
+                                <div class="space-y-1">
+                                    <h4 class="font-semibold text-gray-700 uppercase text-[11px] tracking-wide">CAJA DE FRENO</h4>
+                                    <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>Rayas en asientos de sellos</span></label>
+                                    <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>Alojamientos roscados presentan contaminación</span></label>
+                                </div>
+
+                                <!-- GENERAL -->
+                                <div class="space-y-1">
+                                    <h4 class="font-semibold text-gray-700 uppercase text-[11px] tracking-wide">GENERAL</h4>
+                                    <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>Discos de fricción presentan desgaste</span></label>
+                                    <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>Discos de fricción presentan marcas de temperatura (recalentamiento)</span></label>
+                                    <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>Placas separadoras presentan rayas circulares</span></label>
+                                    <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>Placas separadoras presentan desgaste</span></label>
+                                    <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>Placas separadoras presentan manchas de sobrecalentamiento</span></label>
+                                    <label class="flex items-center gap-2"><input type="checkbox" class="text-blue-600"><span>Dumpers presentan desgaste y daños por temperatura</span></label>
+                                </div>
+                            </div>
+                            <div class="mt-2">
+                                <label class="block text-xs font-semibold text-gray-700 mb-1">Comentarios - Freno</label>
+                                <textarea class="w-full border rounded px-2 py-2 text-xs" rows="3" placeholder="Observaciones adicionales del sistema de freno..."></textarea>
+                            </div>
+                        </div>
+
+                        <!-- RESULTADOS POR SUBSISTEMA + RECOMENDACIONES -->
+                        <div class="border-t border-gray-200 pt-3 mt-2">
+                            <h3 class="font-semibold text-gray-800 text-base mb-3">Resultados por subsistema - Rueda delantera</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                                <div class="space-y-2">
+                                    <div>
+                                        <label class="block font-semibold text-gray-700 mb-1 text-xs">RESULTADO - SPINDLE</label>
+                                        <textarea name="res_spindle" rows="2" class="w-full border rounded-lg px-3 py-1.5 text-xs" placeholder="Hallazgos en el SPINDLE..."></textarea>
+                                    </div>
+                                    <div>
+                                        <label class="block font-semibold text-gray-700 mb-1 text-xs">RESULTADO - HUB</label>
+                                        <textarea name="res_hub" rows="2" class="w-full border rounded-lg px-3 py-1.5 text-xs" placeholder="Hallazgos en el HUB..."></textarea>
+                                    </div>
+                                    <div>
+                                        <label class="block font-semibold text-gray-700 mb-1 text-xs">RESULTADO - CONJUNTO DE FRENO</label>
+                                        <textarea name="res_conjunto_freno" rows="2" class="w-full border rounded-lg px-3 py-1.5 text-xs" placeholder="Hallazgos en el conjunto de freno..."></textarea>
+                                    </div>
+                                    <div>
+                                        <label class="block font-semibold text-gray-700 mb-1 text-xs">RESULTADO - CAJA DE FRENO</label>
+                                        <textarea name="res_caja_freno" rows="2" class="w-full border rounded-lg px-3 py-1.5 text-xs" placeholder="Hallazgos en la caja de freno..."></textarea>
+                                    </div>
+                                    <div>
+                                        <label class="block font-semibold text-gray-700 mb-1 text-xs">RESULTADO - GENERAL</label>
+                                        <textarea name="res_general" rows="2" class="w-full border rounded-lg px-3 py-1.5 text-xs" placeholder="Conclusión general de la rueda delantera..."></textarea>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block font-semibold text-gray-700 mb-1 text-xs">RECOMENDACIONES GENERALES</label>
+                                    <textarea name="recomendaciones_rueda_freno" rows="8" class="w-full border rounded-lg px-3 py-2 text-xs" placeholder="Recomendaciones técnicas para SPINDLE, HUB, conjunto de freno y caja de freno..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="border-t border-gray-200 pt-4 mt-2">
+                            <label class="block font-semibold text-gray-700 mb-2 text-sm">Imágenes del freno</label>
+                            <div class="space-y-2">
+                                <div id="preview-freno" class="h-40 border-2 border-dashed border-gray-300 rounded flex items-center justify-center text-xs text-gray-500 bg-white/40 relative overflow-hidden">
+                                    <span id="preview-freno-text" class="px-2 text-center">Añadir fotos de la condición del freno (máx. 6)</span>
+                                    <div id="preview-freno-grid" class="grid grid-cols-2 md:grid-cols-3 gap-2 w-full h-full p-2 overflow-auto"></div>
+                                </div>
+                                <button type="button" class="px-3 py-1 text-xs border rounded bg-white hover:bg-gray-100" onclick="document.getElementById('file-freno').click()">Subir imagen de freno</button>
+                                <input id="file-freno" name="img_freno" type="file" accept="image/*" multiple class="hidden">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            </div><!-- FIN BLOQUE OBSOLETO -->
+
+            <!-- PARTES ADICIONALES EVALUADAS (DINÁMICO) -->
+            <div class="bg-white rounded-lg shadow-md mt-6">
+                <div class="bg-gray-800 text-white px-6 py-3 rounded-t-lg flex items-center space-x-3">
+                    <span class="bg-white text-gray-800 font-bold rounded-full w-7 h-7 flex items-center justify-center text-sm"><i class="fas fa-plus text-xs"></i></span>
+                    <h2 class="text-lg font-bold">Partes adicionales evaluadas</h2>
+                </div>
+                <div class="p-6 space-y-3 text-sm">
+                    <p class="text-gray-600 text-xs mb-2">
+                        Use esta tabla para registrar partes o componentes adicionales (por ejemplo, segundo cilindro, accesorios especiales, otros elementos del sistema). Puede agregar o quitar filas según sea necesario.
+                    </p>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full border border-gray-200 text-xs" id="tabla-partes-extra">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="border px-2 py-1 text-left w-48">Parte / componente</th>
+                                    <th class="border px-2 py-1 text-left">Descripción / Observaciones</th>
+                                    <th class="border px-2 py-1 text-center w-16">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Filas dinámicas -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <button type="button" class="mt-2 inline-flex items-center px-3 py-1.5 text-xs font-semibold rounded bg-gray-900 text-white hover:bg-black" onclick="agregarParteExtra()">
+                        <i class="fas fa-plus mr-1"></i> Agregar parte
+                    </button>
+                </div>
+            </div>
+
             <!-- BOTONES -->
-            <div class="flex justify-end space-x-4 pt-2 pb-8">
+            <div class="flex justify-end space-x-4 pt-2 pb-8 acciones-form">
                 <a href="/produccion/index.html" class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition font-medium text-sm flex items-center">
                     <i class="fas fa-times mr-2"></i> Cancelar
                 </a>
+                <button type="button" class="px-6 py-3 bg-white border border-gray-300 text-gray-800 rounded-lg transition font-semibold text-sm flex items-center hover:bg-gray-100" onclick="downloadEvaluacionPDF()">
+                    <i class="fas fa-file-pdf mr-2 text-red-600"></i> Descargar PDF
+                </button>
+                <button type="button" class="px-6 py-3 bg-white border border-gray-300 text-gray-800 rounded-lg transition font-semibold text-sm flex items-center hover:bg-gray-100" onclick="downloadEvaluacionWord()">
+                    <i class="fas fa-file-word mr-2 text-blue-600"></i> Descargar Word
+                </button>
                 <button type="submit" class="px-8 py-3 bg-gray-900 hover:bg-black text-white rounded-lg transition font-semibold text-sm flex items-center">
                     <i class="fas fa-save mr-2"></i> Guardar Hoja de Evaluación
                 </button>
@@ -885,23 +1346,87 @@
             input.value = d.toISOString().split('T')[0];
         }
 
-        function initImageUpload(inputId, imgId, textId) {
+        // Carga de imágenes (hasta 6 por sección) con vista en grilla
+        function initImageUploadMulti(inputId, gridId, textId, maxImages = 6) {
             const input = document.getElementById(inputId);
-            const img = document.getElementById(imgId);
+            const grid = document.getElementById(gridId);
             const text = document.getElementById(textId);
-            if (!input || !img || !text) return;
+            if (!input || !grid || !text) return;
 
             input.addEventListener('change', () => {
-                const file = input.files && input.files[0];
-                if (!file) return;
-                const reader = new FileReader();
-                reader.onload = e => {
-                    img.src = e.target.result;
-                    img.classList.remove('hidden');
+                const files = input.files ? Array.from(input.files) : [];
+                if (!files.length) return;
+
+                grid.innerHTML = '';
+                const limitedFiles = files.slice(0, maxImages);
+                const count = limitedFiles.length;
+
+                // Ancho adaptable según cantidad de imágenes
+                // 1=100%, 2=48%, 3-4=31%, 5-6=31%
+                let widthClass = 'w-full'; // 1 imagen
+                if (count === 2) widthClass = 'w-[48%]';
+                else if (count >= 3) widthClass = 'w-[31%]';
+
+                limitedFiles.forEach(file => {
+                    const reader = new FileReader();
+                    reader.onload = e => {
+                        const img = document.createElement('img');
+                        img.src = e.target && e.target.result ? e.target.result : '';
+                        // Altura fija uniforme, object-cover para recortar
+                        img.className = `${widthClass} h-36 object-cover rounded shadow-sm bg-white flex-shrink-0`;
+                        grid.appendChild(img);
+                    };
+                    reader.readAsDataURL(file);
+                });
+
+                if (files.length > maxImages) {
+                    mostrarToast(`Solo se mostrarán las primeras ${maxImages} imágenes para esta sección.`, 'warning');
+                }
+
+                if (limitedFiles.length > 0) {
                     text.classList.add('hidden');
-                };
-                reader.readAsDataURL(file);
+                } else {
+                    text.classList.remove('hidden');
+                }
             });
+        }
+
+        // Manejo de filas dinámicas para partes adicionales evaluadas
+        function agregarParteExtra() {
+            const tbody = document.querySelector('#tabla-partes-extra tbody');
+            if (!tbody) return;
+
+            const fila = document.createElement('tr');
+            fila.className = 'bg-white';
+
+            fila.innerHTML = `
+                <td class="border px-2 py-1 align-top">
+                    <input type="text" name="extra_parte_nombre[]" class="w-full border rounded px-2 py-1 text-xs" placeholder="Ej: Cilindro adicional, soporte, accesorio" />
+                </td>
+                <td class="border px-2 py-1 align-top">
+                    <textarea name="extra_parte_obs[]" rows="2" class="w-full border rounded px-2 py-1 text-xs" placeholder="Descripción de condición, mediciones, recomendaciones..."></textarea>
+                </td>
+                <td class="border px-2 py-1 text-center align-top">
+                    <button type="button" class="text-red-600 hover:text-red-800 text-xs" onclick="eliminarParteExtra(this)">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                </td>
+            `;
+
+            tbody.appendChild(fila);
+        }
+
+        function eliminarParteExtra(button) {
+            const fila = button.closest('tr');
+            const tbody = fila && fila.parentElement;
+            if (!fila || !tbody) return;
+            // Evitar dejar la tabla totalmente vacía: si solo hay una fila, la limpiamos en lugar de eliminarla
+            if (tbody.rows.length <= 1) {
+                const inputs = fila.querySelectorAll('input, textarea');
+                inputs.forEach(el => (el.value = ''));
+                return;
+            }
+            tbody.removeChild(fila);
         }
 
         async function cargarDatosDesdeOT(otNumero) {
@@ -993,9 +1518,403 @@
 
         document.getElementById('form-evaluacion').addEventListener('submit', function (e) {
             e.preventDefault();
-            // Por ahora solo mostramos un mensaje. Integración con backend se puede agregar luego.
-            mostrarToast('Hoja de evaluación registrada (solo demostración, sin guardar en BD).');
+
+            // Construir objeto de datos de la hoja (incluye partes adicionales)
+            const form = this;
+            const formData = new FormData(form);
+            const data = {};
+
+            formData.forEach((value, key) => {
+                if (key.endsWith('[]')) {
+                    const baseKey = key.slice(0, -2);
+                    if (!Array.isArray(data[baseKey])) data[baseKey] = [];
+                    data[baseKey].push(value);
+                } else if (data[key] !== undefined) {
+                    if (!Array.isArray(data[key])) data[key] = [data[key]];
+                    data[key].push(value);
+                } else {
+                    data[key] = value;
+                }
+            });
+
+            // Armar arreglo estructurado de partes adicionales
+            const partesAdicionales = [];
+            const filas = document.querySelectorAll('#tabla-partes-extra tbody tr');
+            filas.forEach(tr => {
+                const nombreInput = tr.querySelector('input[name="extra_parte_nombre[]"]');
+                const obsInput = tr.querySelector('textarea[name="extra_parte_obs[]"]');
+                const nombre = nombreInput ? nombreInput.value.trim() : '';
+                const obs = obsInput ? obsInput.value.trim() : '';
+                if (nombre || obs) {
+                    partesAdicionales.push({ nombre, observaciones: obs });
+                }
+            });
+
+            data.partes_adicionales = partesAdicionales;
+
+            // Por ahora solo mostramos un mensaje y dejamos los datos en consola.
+            console.log('Hoja de evaluación enviada (demo):', data);
+            mostrarToast('Hoja de evaluación registrada (demo, sin guardar en BD).');
         });
+
+        // Leer imágenes desde los inputs de archivo (hasta max por sección)
+        function readImagesFromInput(inputId, max = 6) {
+            return new Promise(resolve => {
+                const input = document.getElementById(inputId);
+                if (!input || !input.files || input.files.length === 0) {
+                    resolve([]);
+                    return;
+                }
+                const files = Array.from(input.files).slice(0, max);
+                const result = [];
+                let pending = files.length;
+                files.forEach(file => {
+                    const reader = new FileReader();
+                    reader.onload = e => {
+                        if (e.target && e.target.result) {
+                            result.push(e.target.result.toString());
+                        }
+                        pending -= 1;
+                        if (pending === 0) resolve(result);
+                    };
+                    reader.onerror = () => {
+                        pending -= 1;
+                        if (pending === 0) resolve(result);
+                    };
+                    reader.readAsDataURL(file);
+                });
+            });
+        }
+
+        const getEvalVal = name => {
+            const el = document.querySelector(`[name="${name}"]`);
+            return el && 'value' in el ? el.value : '';
+        };
+
+        const getModeloSeleccionado = () => {
+            const select = document.getElementById('modelo-evaluacion');
+            if (!select || !('options' in select)) return { value: '', label: '' };
+            const sel = select;
+            const value = sel.value || '';
+            const label = sel.options && sel.selectedIndex >= 0 ? sel.options[sel.selectedIndex].text : '';
+            return { value, label };
+        };
+
+        // Generación de PDF como captura del formulario + imágenes normalizadas
+        async function downloadEvaluacionPDF() {
+            try {
+                if (!window.jspdf || !window.html2canvas) {
+                    mostrarToast('No se pudo generar el PDF en este navegador.', 'error');
+                    return;
+                }
+
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                const pageWidth = pdf.internal.pageSize.getWidth();
+                const pageHeight = pdf.internal.pageSize.getHeight();
+                const margin = 10;
+
+                const form = document.getElementById('form-evaluacion');
+                if (!form) {
+                    mostrarToast('No se encontró el formulario de evaluación.', 'error');
+                    return;
+                }
+
+                // Activar modo "solo reporte" (oculta botones, etc.)
+                form.classList.add('pdf-mode');
+
+                // Capturar el formulario completo como imagen
+                const canvas = await html2canvas(form, { scale: 2, useCORS: true });
+                const imgData = canvas.toDataURL('image/png');
+
+                // Volver al modo normal
+                form.classList.remove('pdf-mode');
+
+                // Ajustar la captura a la página manteniendo proporción
+                const imgWidth = pageWidth - margin * 2;
+                const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+                let y = margin;
+                if (imgHeight <= pageHeight - margin * 2) {
+                    pdf.addImage(imgData, 'PNG', margin, y, imgWidth, imgHeight);
+                } else {
+                    // Escalar para que quepa en una página
+                    const available = pageHeight - margin * 2;
+                    const ratio = available / imgHeight;
+                    const scaledWidth = imgWidth * ratio;
+                    const x = (pageWidth - scaledWidth) / 2;
+                    pdf.addImage(imgData, 'PNG', x, y, scaledWidth, available);
+                }
+
+                // Imágenes por componente (dinámico: buscar todos los file inputs en el formulario)
+                const ot = getEvalVal('ot') || 'N/D';
+
+                const addImageSection = (titulo, images) => {
+                    if (!images || images.length === 0) return;
+                    pdf.addPage();
+                    y = margin;
+                    pdf.setFontSize(12);
+                    pdf.setFont(undefined, 'bold');
+                    pdf.text(titulo, margin, y);
+                    y += 6;
+
+                    const cols = 3;
+                    const gap = 4;
+                    const imgWidth = (pageWidth - margin * 2 - gap * (cols - 1)) / cols;
+                    const imgHeight = imgWidth * 0.75;
+                    let col = 0;
+
+                    images.forEach((src, index) => {
+                        if (col === 0 && y + imgHeight > pageHeight - margin) {
+                            pdf.addPage();
+                            y = margin + 6;
+                        }
+                        const x = margin + col * (imgWidth + gap);
+                        pdf.addImage(src, 'JPEG', x, y, imgWidth, imgHeight);
+                        col += 1;
+                        if (col === cols || index === images.length - 1) {
+                            y += imgHeight + gap;
+                            col = 0;
+                        }
+                    });
+                };
+
+                // Buscar dinámicamente todos los file inputs del formulario
+                const fileInputs = form.querySelectorAll('input[type="file"][id^="file-"]');
+                for (const fi of fileInputs) {
+                    const label = fi.id.replace('file-', '').replace(/-/g, ' ');
+                    const imgs = await readImagesFromInput(fi.id, 6);
+                    addImageSection('Imágenes - ' + label, imgs);
+                }
+
+                // Nombre de archivo con la OT
+                let fileName = 'hoja-evaluacion.pdf';
+                if (ot && ot !== 'N/D') {
+                    fileName = `hoja-evaluacion-${ot}.pdf`;
+                }
+
+                pdf.save(fileName);
+                mostrarToast('PDF generado correctamente.');
+            } catch (err) {
+                console.error('Error generando PDF de evaluación:', err);
+                mostrarToast('Error al generar el PDF de la hoja.', 'error');
+            }
+        }
+
+        // Generación de reporte editable en Word (DOC) con misma información y todas las imágenes
+        async function downloadEvaluacionWord() {
+            try {
+                const modelo = getModeloSeleccionado();
+                const ot = getEvalVal('ot') || 'N-D';
+                const esc = s => (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+                // ── Recopilar todos los valores del formulario dinámico ──
+                const dynContainer = document.getElementById('dynamic-eval-content');
+
+                // Función: leer valor de un input/select/textarea por name
+                const v = name => {
+                    const el = document.querySelector(`[name="${name}"]`);
+                    if (!el) return '';
+                    if (el.type === 'radio') {
+                        const checked = document.querySelector(`[name="${name}"]:checked`);
+                        return checked ? checked.value : '';
+                    }
+                    return el.value || '';
+                };
+
+                // Función: leer radio group value (Bueno/Malo/NA o SI/NO/NA)
+                const radioVal = name => {
+                    const checked = document.querySelector(`[name="${name}"]:checked`);
+                    return checked ? checked.value : '';
+                };
+
+                // ── Recopilar imágenes ──
+                const allFileInputs = document.querySelectorAll('#form-evaluacion input[type="file"][id^="file-"]');
+                const allImgSections = [];
+                for (const fi of allFileInputs) {
+                    const label = fi.id.replace('file-', '').replace(/-/g, ' ');
+                    const imgs = await readImagesFromInput(fi.id, 6);
+                    if (imgs.length > 0) allImgSections.push({ label, imgs });
+                }
+
+                // ── Estilos del documento Word ──
+                let html = `<!DOCTYPE html><html><head><meta charset="utf-8">
+<style>
+@page { size: A4 landscape; margin: 1cm; }
+body { font-family: Arial, sans-serif; font-size: 9pt; margin: 0; }
+h1 { font-size: 14pt; margin: 0 0 6pt; text-align: center; }
+h2 { font-size: 11pt; background: #333; color: #fff; padding: 4pt 8pt; margin: 10pt 0 0; }
+h3 { font-size: 10pt; margin: 8pt 0 2pt; }
+table { border-collapse: collapse; width: 100%; margin: 2pt 0 6pt; }
+th, td { border: 1px solid #666; padding: 3pt 5pt; font-size: 9pt; vertical-align: top; }
+th { background: #eee; font-weight: bold; text-align: center; }
+td.label { font-weight: bold; background: #f5f5f5; white-space: nowrap; }
+td.val { min-width: 60pt; }
+td.editable { border-bottom: 1.5pt solid #000; min-width: 50pt; }
+.layout { display: table; width: 100%; }
+.layout-row { display: table-row; }
+.layout-cell { display: table-cell; vertical-align: top; padding: 4pt; }
+.img-ref { border: 1pt dashed #999; width: 150pt; height: 110pt; text-align: center; padding-top: 30pt; color: #999; font-size: 8pt; }
+.check-table td { text-align: center; }
+.check-table td:first-child { text-align: left; }
+.section-num { display: inline-block; background: #333; color: #fff; border-radius: 50%; width: 18pt; height: 18pt; text-align: center; line-height: 18pt; font-weight: bold; font-size: 9pt; margin-right: 4pt; }
+.img-grid { margin: 4pt 0; }
+.img-grid img { width: 200pt; height: 150pt; border: 1pt solid #999; margin: 2pt; }
+.textarea-box { border: 1pt solid #999; min-height: 30pt; padding: 3pt; margin: 2pt 0; }
+</style></head><body>`;
+
+                // ── Encabezado ──
+                const tituloModelo = modelo.label || 'Cilindro hidráulico vástago simple';
+                html += `<h1>HOJA DE EVALUACIÓN — ${esc(tituloModelo).toUpperCase()}</h1>`;
+
+                // ── Datos Generales (replicando el formulario) ──
+                html += `<h2><span class="section-num">1</span> Datos Generales de la OT</h2>`;
+                html += `<table><tbody>`;
+                const campos = [
+                    ['Fecha de Ingreso', 'fecha_ingreso'], ['Guía Cliente', 'guia_cliente'], ['Cliente', 'cliente'],
+                    ['OT', 'ot'], ['Fabricante', 'fabricante'], ['Flota', 'flota'],
+                    ['Descripción', 'descripcion'], ['Tipo', 'tipo'], ['Nº Parte', 'numero_parte'],
+                    ['Posición', 'posicion'], ['Código Reparable', 'codigo_reparable'], ['Estrategia', 'estrategia'],
+                    ['Sist. Medición', 'sistema_medicion'], ['Fecha de Evaluación', 'fecha_evaluacion'], ['Evaluado por', 'evaluado_por'],
+                ];
+                // 3 columnas por fila
+                for (let i = 0; i < campos.length; i += 3) {
+                    html += `<tr>`;
+                    for (let j = i; j < i + 3 && j < campos.length; j++) {
+                        html += `<td class="label">${campos[j][0]}</td><td class="val">${esc(v(campos[j][1]))}</td>`;
+                    }
+                    if (i + 3 > campos.length) {
+                        // pad remaining cells
+                        for (let j = 0; j < (i + 3 - campos.length); j++) html += `<td></td><td></td>`;
+                    }
+                    html += `</tr>`;
+                }
+                html += `</tbody></table>`;
+
+                // ── Secciones dinámicas: recorrer las seccionCard del DOM ──
+                const secciones = dynContainer.querySelectorAll('.bg-white.rounded-lg.shadow-md');
+                let secNum = 2;
+
+                secciones.forEach(secDiv => {
+                    // Título de la sección
+                    const headerEl = secDiv.querySelector('.bg-gray-800 h2, .bg-blue-800 h2');
+                    const titulo = headerEl ? headerEl.textContent.trim() : 'Sección';
+
+                    html += `<h2><span class="section-num">${secNum}</span> ${esc(titulo)}</h2>`;
+
+                    // Buscar tablas de medidas dentro de esta sección
+                    const tables = secDiv.querySelectorAll('table');
+                    tables.forEach(table => {
+                        const headers = table.querySelectorAll('thead th');
+                        if (headers.length === 0) return;
+
+                        html += `<table>`;
+                        // Thead
+                        html += `<thead><tr>`;
+                        headers.forEach(th => {
+                            html += `<th>${esc(th.textContent.trim())}</th>`;
+                        });
+                        html += `</tr></thead>`;
+
+                        // Tbody
+                        html += `<tbody>`;
+                        const rows = table.querySelectorAll('tbody tr');
+                        rows.forEach(tr => {
+                            html += `<tr>`;
+                            const cells = tr.querySelectorAll('td');
+                            cells.forEach(td => {
+                                const inputs = td.querySelectorAll('input[type="number"], input[type="text"]');
+                                const radios = td.querySelectorAll('input[type="radio"]');
+
+                                if (inputs.length > 0) {
+                                    // Celda con input(s) — poner el valor o dejar editable
+                                    const vals = Array.from(inputs).map(inp => inp.value || '').join(' / ');
+                                    const colspan = td.getAttribute('colspan');
+                                    html += `<td class="editable"${colspan ? ` colspan="${colspan}"` : ''}>${esc(vals)}</td>`;
+                                } else if (radios.length > 0) {
+                                    // Celda con radio — marcar con ✓ o dejar vacío
+                                    const checked = td.querySelector('input[type="radio"]:checked');
+                                    const colspan = td.getAttribute('colspan');
+                                    html += `<td class="check-table"${colspan ? ` colspan="${colspan}"` : ''}>${checked ? '✓' : ''}</td>`;
+                                } else {
+                                    // Celda de texto (label)
+                                    const colspan = td.getAttribute('colspan');
+                                    html += `<td class="label"${colspan ? ` colspan="${colspan}"` : ''}>${esc(td.textContent.trim())}</td>`;
+                                }
+                            });
+                            html += `</tr>`;
+                        });
+                        html += `</tbody></table>`;
+                    });
+
+                    // Selects (tipo de cáncamo, elem sujeción, etc.)
+                    const selects = secDiv.querySelectorAll('select');
+                    selects.forEach(sel => {
+                        const labelEl = sel.closest('div').querySelector('label');
+                        const label = labelEl ? labelEl.textContent.trim() : '';
+                        const val = sel.value || '';
+                        if (label) {
+                            html += `<p><b>${esc(label)}:</b> ${esc(val) || '___________'}</p>`;
+                        }
+                    });
+
+                    // Checkboxes (checklists) — solo mostrar los marcados como texto
+                    const checkedBoxes = secDiv.querySelectorAll('input[type="checkbox"]:checked');
+                    if (checkedBoxes.length > 0) {
+                        html += `<p><b>Hallazgos:</b></p><ul>`;
+                        checkedBoxes.forEach(cb => {
+                            const labelEl = cb.closest('label');
+                            const text = labelEl ? labelEl.textContent.trim() : '';
+                            if (text) {
+                                html += `<li>${esc(text)}</li>`;
+                            }
+                        });
+                        html += `</ul>`;
+                    }
+
+                    // Textareas (resultados, recomendaciones, comentarios)
+                    const textareas = secDiv.querySelectorAll('textarea');
+                    textareas.forEach(ta => {
+                        const labelEl = ta.closest('div').querySelector('label');
+                        const label = labelEl ? labelEl.textContent.trim() : '';
+                        const val = ta.value.trim();
+                        if (label) {
+                            html += `<p><b>${esc(label)}</b></p>`;
+                            html += `<div class="textarea-box">${esc(val) || '&nbsp;'}</div>`;
+                        }
+                    });
+
+                    secNum++;
+                });
+
+                // ── Imágenes ──
+                allImgSections.forEach(sec => {
+                    html += `<h3>Imágenes — ${esc(sec.label)}</h3>`;
+                    html += `<div class="img-grid">`;
+                    sec.imgs.forEach(src => {
+                        html += `<img src="${src}" />`;
+                    });
+                    html += `</div>`;
+                });
+
+                html += `</body></html>`;
+
+                const blob = new Blob(['\ufeff' + html], { type: 'application/msword' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `hoja-evaluacion-${ot}.doc`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+
+                mostrarToast('Word generado correctamente.');
+            } catch (err) {
+                console.error('Error generando Word de evaluación:', err);
+                mostrarToast('Error al generar el archivo Word de la hoja.', 'error');
+            }
+        }
 
         document.addEventListener('DOMContentLoaded', async function () {
             const otInput = document.querySelector('[name="ot"]');
@@ -1018,11 +1937,55 @@
                 }
             });
 
-            // Inicializar carga de imágenes de referencia
-            initImageUpload('file-cilindro', 'preview-cilindro-img', 'preview-cilindro-text');
-            initImageUpload('file-vastago', 'preview-vastago-img', 'preview-vastago-text');
-            initImageUpload('file-tapa', 'preview-tapa-img', 'preview-tapa-text');
-            initImageUpload('file-piston', 'preview-piston-img', 'preview-piston-text');
+            // Las imágenes se inicializan dinámicamente en evaluacion.js (initDynamicImageUploads)
+
+            // Actualizar unidades (mm / in) según sistema de medición
+            const sistemaMedicion = document.querySelector('[name="sistema_medicion"]');
+
+            window.actualizarUnidadesMedicion = function() {
+                if (!sistemaMedicion) return;
+                const valor = sistemaMedicion.value;
+                const unidad = valor === 'Imperial' ? 'in' : 'mm';
+
+                // Actualizar TODOS los inputs de medida generados dinámicamente
+                document.querySelectorAll('.input-medida').forEach(el => {
+                    el.placeholder = unidad;
+                });
+
+                // También los marcados con clase legacy
+                document.querySelectorAll('.input-unidad-medicion').forEach(el => {
+                    el.placeholder = unidad;
+                });
+            }
+
+            if (sistemaMedicion) {
+                sistemaMedicion.addEventListener('change', window.actualizarUnidadesMedicion);
+                window.actualizarUnidadesMedicion();
+            }
+
+            // Inicializar tabla dinámica de partes adicionales
+            const tablaPartesExtra = document.getElementById('tabla-partes-extra');
+            if (tablaPartesExtra) {
+                // Agregar una fila inicial vacía
+                agregarParteExtra();
+            }
+
+            // Cambiar contenido según modelo de hoja de evaluación
+            const selectModelo = document.getElementById('modelo-evaluacion');
+
+            function actualizarModeloHoja() {
+                if (!selectModelo) return;
+                const valor = selectModelo.value || 'cil_vastago_simple';
+                // Renderizar formulario personalizado para el tipo seleccionado
+                if (typeof renderEvaluacion === 'function') {
+                    renderEvaluacion(valor);
+                }
+            }
+
+            if (selectModelo) {
+                selectModelo.addEventListener('change', actualizarModeloHoja);
+                actualizarModeloHoja();
+            }
 
             // Auto-cargar OT si viene ?id= en la URL (desde botón microscopio en OTs)
             const urlParams = new URLSearchParams(window.location.search);

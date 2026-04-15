@@ -144,7 +144,7 @@
             <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
                 <div class="grid grid-cols-1 md:grid-cols-6 gap-4">
                     <div class="md:col-span-2">
-                        <input type="text" id="search-orden" placeholder="🔍 Buscar por número OC, proveedor..." 
+                        <input type="text" id="search-orden" placeholder="Buscar por número OC o proveedor..." 
                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500"
                                oninput="filterOrdenes()">
                     </div>
@@ -330,6 +330,22 @@
                     </button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Modal: Ver Orden de Compra (reemplaza el alert) -->
+    <div id="modal-ver-orden" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-lg shadow-xl max-w-5xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="bg-gradient-to-r from-blue-600 to-blue-800 text-white px-6 py-4 rounded-t-lg flex items-center justify-between">
+                <h3 class="text-xl font-bold flex items-center">
+                    <i class="fas fa-file-invoice mr-3"></i>
+                    <span id="modal-ver-titulo">Orden de Compra</span>
+                </h3>
+                <button onclick="document.getElementById('modal-ver-orden').classList.add('hidden')" class="text-white/80 hover:text-white text-2xl">&times;</button>
+            </div>
+            <div class="p-6" id="modal-ver-body">
+                <!-- Contenido dinámico -->
+            </div>
         </div>
     </div>
 

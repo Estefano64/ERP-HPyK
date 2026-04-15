@@ -156,15 +156,15 @@
         }
 
         async function loadPlantas() {
-            console.log('📋 Iniciando carga de plantas...');
+            console.log('Iniciando carga de plantas...');
             try {
                 const response = await fetch('/api/catalogos/plantas');
-                console.log('📋 Response status:', response.status);
+                console.log('Response status:', response.status);
                 const plantas = await response.json();
                 
-                console.log('📋 Plantas recibidas del API:', plantas);
+                console.log('Plantas recibidas del API:', plantas);
                 if (plantas.length > 0) {
-                    console.log('📋 Primera planta:', plantas[0]);
+                    console.log('Primera planta:', plantas[0]);
                 }
                 
                 renderTable(plantas);
@@ -188,7 +188,7 @@
             }
             
             plantas.forEach(planta => {
-                console.log(`📋 Renderizando planta ${planta.codigo}:`, planta);
+                console.log(`Renderizando planta ${planta.codigo}:`, planta);
                 tbody.innerHTML += `
                     <tr class="hover:bg-gray-50 transition">
                         <td class="px-6 py-4 text-sm font-semibold">${planta.codigo || '-'}</td>
